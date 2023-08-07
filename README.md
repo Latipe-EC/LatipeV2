@@ -1,9 +1,10 @@
 # Latipe Version 2 (Migration from [monolith](https://github.com/tdatIT/latipe-web-project) to microservices)
 
 ## Key members
+[Tran Tien Dat](https://github.com/tdatIT)
+
 [Cozark](https://github.com/longho2002)
 
-[Tran Tien Dat](https://github.com/tdatIT)
 ## Tentative technologies and frameworks
 - Java 17
 - Spring boot 3
