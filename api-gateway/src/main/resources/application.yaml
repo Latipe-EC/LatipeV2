@@ -1,0 +1,28 @@
+server:
+  port: 8087
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://eureka:password@localhost:8761/eureka
+spring:
+  application:
+    name: api-gateway
+  profiles:
+    active: dev
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8080/realms/latipe-realm
+#        registration:
+#          api-client:
+#            provider: keycloak
+#            client-id: latipe-admin
+#            client-secret: Cv5nzVKcJdtzrNvjZObOLttUwZdA0Ra1
+#            scope: openid, profile, email, roles
+
+logging:
+  pattern:
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
+---
