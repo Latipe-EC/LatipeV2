@@ -1,0 +1,75 @@
+package latipe.auth.Entity;
+
+import lombok.Data;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+@Document
+@Data
+public class User implements UserDetails {
+    @Id
+    private String id;
+    private String firstName;
+    private String lastName;
+    private String displayName;
+    private int requestCount = 0;
+    private Date lastRequest;
+    private String email;
+    private boolean isRequiredVerify = false;
+    private Date verifiedAt;
+    private Date lastLogin;
+    private String hashedPassword;
+    private String avatar;
+    private int point = 0;
+    private double eWallet;
+    private String tokenResetPassword;
+    private Date createAt = new Date(new java.util.Date().getTime());
+    private Date updateAt = new Date(new java.util.Date().getTime());
+    private Boolean isDeleted = false;
+    @DBRef
+    private Role role;
+    private String phoneNumber;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority(role.getName()));
+    }
+
+    @Override
+    public String getPassword() {
+        return this.hashedPassword;
+    }
+
+    @Override
+    public String getUsername() {
+        return this.email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return !this.isDeleted;
+    }
+}

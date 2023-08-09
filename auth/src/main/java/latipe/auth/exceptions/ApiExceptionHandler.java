@@ -57,7 +57,6 @@ public class ApiExceptionHandler {
             errors.add(violation.getRootBeanClass().getName() + " " +
                     violation.getPropertyPath() + ": " + violation.getMessage());
         }
-
         ExceptionResponse ExceptionResponse = new ExceptionResponse("400", "Bad Request", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss yyyy-MM-dd")), "Request information is not valid","", errors);
         return ResponseEntity.badRequest().body(ExceptionResponse);
     }

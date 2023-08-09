@@ -1,6 +1,7 @@
 package latipe.auth.config;
 
 import latipe.auth.middlewares.GlobalApiLoggerInterceptor;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,5 +24,9 @@ public class AppConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**").allowedMethods("*").allowedOrigins("*").allowedHeaders("*");
+    }
+    @Bean
+    public ModelMapper getModelMapper() {
+        return new ModelMapper();
     }
 }
