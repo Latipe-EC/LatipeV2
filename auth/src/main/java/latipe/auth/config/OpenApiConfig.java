@@ -1,4 +1,4 @@
-package latipe.auth.config.swagger;
+package latipe.auth.config;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
@@ -20,7 +20,7 @@ import java.util.Collections;
 
 @Configuration
 @OpenAPIDefinition(info = @io.swagger.v3.oas.annotations.info.Info(title = "Auth Service API", description = "Auth API documentation", version = "1.0"), security = @SecurityRequirement(name = "oauth2_bearer"),
-        servers = {@Server(url = "${server.servlet.context-path}", description = "Default Server URL")})
+        servers = {@Server(url = "/api/v1", description = "Default Server URL")})
 @SecurityScheme(
         name = "Bearer Authentication",
         type = SecuritySchemeType.HTTP,

@@ -1,4 +1,4 @@
-package latipe.auth.controllers;
+package latipe.user.controllers;
 
 
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -6,7 +6,6 @@ import jakarta.validation.Valid;
 import latipe.auth.Entity.User;
 import latipe.auth.config.ApiPrefixController;
 import latipe.auth.config.JwtTokenService;
-import latipe.auth.dtos.*;
 import latipe.auth.exceptions.BadRequestException;
 import latipe.auth.exceptions.NotFoundException;
 import latipe.auth.exceptions.SignInRequiredException;
@@ -17,7 +16,7 @@ import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;

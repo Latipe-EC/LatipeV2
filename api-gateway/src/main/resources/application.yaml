@@ -1,28 +1,55 @@
 server:
-  port: 8087
+  port: 8181
 eureka:
   client:
     serviceUrl:
       defaultZone: http://eureka:password@localhost:8761/eureka
+app:
+  eureka-server: localhost
 spring:
   application:
     name: api-gateway
   profiles:
     active: dev
-  security:
-    oauth2:
-      client:
-        provider:
-          keycloak:
-            issuer-uri: http://localhost:8080/realms/latipe-realm
-#        registration:
-#          api-client:
-#            provider: keycloak
-#            client-id: latipe-admin
-#            client-secret: Cv5nzVKcJdtzrNvjZObOLttUwZdA0Ra1
-#            scope: openid, profile, email, roles
+  cloud:
+    gateway:
+      routes:
+        - id: auth_service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/v1/auth/**
+          filters:
+            - RewritePath=/api/v1/(?<segment>.*), /$\{segment}
+
+        - id: discovery_server
+          uri: http://eureka:password@${app.eureka-server}:8761
+          predicates:
+            - Path=/eureka/web
+          filters:
+            - SetPath=/
+
+        - id: discovery_server_static
+          uri: http://eureka:password@${app.eureka-server}:8761
+          predicates:
+            - Path=/eureka/**
 
 logging:
+#  level:
+#    org.springframework.web.HttpLogging: TRACE
+#    reactor.netty.http.server: DEBUG
+#    reactor.netty.http.client: DEBUG
   pattern:
     level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
----
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus
+  zipkin:
+    tracing:
+      endpoint: http://localhost:9411/api/v2/spans
+  tracing:
+    sampling:
+      probability: '1.0'
+

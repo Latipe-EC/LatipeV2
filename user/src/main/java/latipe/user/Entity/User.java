@@ -1,4 +1,4 @@
-package latipe.auth.Entity;
+package latipe.user.Entity;
 
 import lombok.Data;
 import org.springframework.data.annotation.Id;
@@ -31,8 +31,8 @@ public class User implements UserDetails {
     private double eWallet;
     private String storeId;
     private String tokenResetPassword;
-    private Date createAt = new Date(new java.util.Date().getTime());
-    private Date updateAt = new Date(new java.util.Date().getTime());
+    private Date createAt = new Date(new Date().getTime());
+    private Date updateAt = new Date(new Date().getTime());
     private Boolean isDeleted = false;
     @DBRef
     private Role role;
