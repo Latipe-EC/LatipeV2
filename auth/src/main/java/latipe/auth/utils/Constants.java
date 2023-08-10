@@ -1,7 +1,6 @@
 package latipe.auth.utils;
 
 public final class Constants {
-
     public final class ErrorCode  {
         // Private constructor to prevent instantiation
         private ErrorCode () {}
@@ -9,6 +8,7 @@ public final class Constants {
         public static final String FORBIDDEN = "FORBIDDEN";
         public static final String NOT_FOUND = "NOT_FOUND";
         public static final String TOKEN_EXPIRED = "TOKEN_EXPIRED";
+        public static final String TOKEN_INVALID = "TOKEN_EXPIRED";
     }
 
 }

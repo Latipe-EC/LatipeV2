@@ -1,47 +1,50 @@
 package latipe.user.configs;
 
+import feign.FeignException;
 import jakarta.servlet.http.HttpServletRequest;
+import latipe.user.controllers.APIClient;
+import latipe.user.dtos.TokenDto;
+import latipe.user.dtos.UserCredentialDto;
 import latipe.user.exceptions.SignInRequiredException;
-import latipe.user.services.UserService;
+import latipe.user.exceptions.UnauthorizedException;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-import src.config.exception.UnauthorizedException;x
 
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
-import java.util.Objects;
 
 @Aspect
 @Component
 public class AuthenticateAspect {
+    private final APIClient apiClient;
 
-    public AuthenticateAspect(UserService userDetailsService, JwtTokenUtil jwtTokenUtil) {
-        this.userDetailsService = userDetailsService;
-        this.jwtTokenUtil = jwtTokenUtil;
+    public AuthenticateAspect(APIClient apiClient) {
+        this.apiClient = apiClient;
     }
-
     @Before("@annotation(latipe.user.annotations.Authenticate)")
-    public void authenticate() throws SignInRequiredException {
+    public void authenticate() throws UnauthorizedException {
         String token = getTokenFromRequest();
         if (token == null) {
-            throw new SignInRequiredException("Unauthorized");
-        }
-        String username = jwtTokenUtil.getUsernameFromToken(token);
-        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-        if (jwtTokenUtil.validateToken(token, userDetails)) {
-            HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-            request.setAttribute("user", userDetails);
-        } else
             throw new UnauthorizedException("Unauthorized");
+        }
+        try {
+            UserCredentialDto credentialDto =  apiClient.getCredential(new TokenDto(token));
+            if (credentialDto == null) {
+                throw new UnauthorizedException("Unauthorized");
+            }
+            HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+            request.setAttribute("user", credentialDto);
+        } catch (FeignException e) {
+            throw new UnauthorizedException(e.getMessage());
+        }
     }
 
     private String getTokenFromRequest() {
         // Get token from request headers
-        HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
+        HttpServletRequest request = ((ServletRequestAttributes) (RequestContextHolder.getRequestAttributes())).getRequest();
         final String requestTokenHeader = request.getHeader("Authorization");
         if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer ")) {
             return requestTokenHeader.substring(7);

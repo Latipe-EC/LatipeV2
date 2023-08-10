@@ -4,6 +4,7 @@ spring:
   data:
     mongodb:
       uri: mongodb://localhost:27017/Latipe-User-DB
+
 server:
   port: '8081'
 #  servlet:

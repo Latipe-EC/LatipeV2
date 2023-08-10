@@ -1,20 +1,23 @@
 package latipe.user.Entity;
 
-import lombok.Data;
+import lombok.*;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
 
 @Document(collection = "Roles")
-@Data
-public class Role {
-    private String Id;
+@Setter
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+public class Role extends AbstractAuditEntity {
+    @Id
+    private String id;
     private String name;
     private Boolean isDeleted= false;
-    private Date createAt = new Date(new Date().getTime());
-    private Date updateAt = new Date(new Date().getTime());
     public Role(String id, String name ) {
-        Id = id;
+        id = id;
         this.name = name;
     }
 }
