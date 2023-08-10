@@ -1,7 +1,7 @@
 package latipe.user.exceptions;
 
 
-import latipe.auth.utils.MessagesUtils;
+import latipe.user.utils.MessagesUtils;
 
 public class SignInRequiredException extends RuntimeException {
     private final String message;

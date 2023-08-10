@@ -8,7 +8,7 @@ import java.util.Date;
 
 @Document(collection = "Roles")
 @Data
-public class Role {
+public class Role extends AbstractAuditEntity {
     private String Id;
     private String name;
     private Boolean isDeleted= false;

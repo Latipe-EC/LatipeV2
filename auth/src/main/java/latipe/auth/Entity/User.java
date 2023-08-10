@@ -13,7 +13,7 @@ import java.util.Date;
 import java.util.List;
 @Document(collection = "Users")
 @Data
-public class User implements UserDetails {
+public class User extends AbstractAuditEntity implements UserDetails {
     @Id
     private String id;
     private String firstName;

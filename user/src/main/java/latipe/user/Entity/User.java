@@ -8,12 +8,13 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 @Document(collection = "Users")
 @Data
-public class User implements UserDetails {
+public class User extends AbstractAuditEntity  implements UserDetails {
     @Id
     private String id;
     private String firstName;
@@ -28,12 +29,11 @@ public class User implements UserDetails {
     private String hashedPassword;
     private String avatar;
     private int point = 0;
-    private double eWallet;
+    private double eWallet = 0;
     private String storeId;
     private String tokenResetPassword;
-    private Date createAt = new Date(new Date().getTime());
-    private Date updateAt = new Date(new Date().getTime());
     private Boolean isDeleted = false;
+    private List<UserAddress> addresses = new ArrayList<>();
     @DBRef
     private Role role;
     private String phoneNumber;
