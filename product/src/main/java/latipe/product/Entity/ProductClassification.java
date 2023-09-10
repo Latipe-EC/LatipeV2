@@ -8,6 +8,7 @@ import lombok.Data;
 public class ProductClassification {
     String id;
     String image;
+    String name;
     int quantity;
     double price;
     String sku;

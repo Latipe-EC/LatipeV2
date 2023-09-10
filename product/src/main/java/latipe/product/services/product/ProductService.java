@@ -2,15 +2,20 @@ package latipe.product.services.product;
 
 import latipe.product.Entity.Product;
 import latipe.product.Entity.ProductClassification;
+import latipe.product.configs.CustomAggregationOperation;
 import latipe.product.controllers.APIClient;
 import latipe.product.dtos.ProductPriceDto;
 import latipe.product.exceptions.BadRequestException;
 import latipe.product.exceptions.NotFoundException;
 import latipe.product.repositories.IProductRepository;
-import latipe.product.services.product.Dtos.ProductCreateDto;
-import latipe.product.services.product.Dtos.ProductDto;
-import latipe.product.services.product.Dtos.ProductUpdateDto;
+import latipe.product.services.product.Dtos.*;
+import org.bson.Document;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.aggregation.TypedAggregation;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -22,11 +27,13 @@ public class ProductService implements IProductService {
     private final IProductRepository productRepository;
     private final ModelMapper toDto;
     private final APIClient apiClient;
+    private final MongoTemplate mongoTemplate;
 
-    public ProductService(IProductRepository productRepository, ModelMapper toDto, APIClient apiClient) {
+    public ProductService(IProductRepository productRepository, ModelMapper toDto, APIClient apiClient, MongoTemplate mongoTemplate) {
         this.productRepository = productRepository;
         this.toDto = toDto;
         this.apiClient = apiClient;
+        this.mongoTemplate = mongoTemplate;
     }
 
     @Override
@@ -98,6 +105,81 @@ public class ProductService implements IProductService {
                 }
             }
             throw new NotFoundException("Product classification not found");
+        });
+    }
+
+
+    @Override
+    @Async
+    public CompletableFuture<OrderProductResultsDto> checkProductInStock(List<OrderProductCheckDto> prodOrders) {
+        return CompletableFuture.supplyAsync(() -> {
+            double total = 0;
+            String query =
+                    """
+                                {
+                                    "$unwind": "$productClassifications"
+                                }
+                            """;
+
+            TypedAggregation<ProductClassification> test = Aggregation.newAggregation(
+                    ProductClassification.class,
+                    Aggregation.match(Criteria.where("_id").in(prodOrders.stream().map(OrderProductCheckDto::getProductId).toList())),
+                    // unwind product variant
+                    new CustomAggregationOperation(query),
+                    Aggregation.match(Criteria.where("productClassifications._id").in(prodOrders.stream().map(OrderProductCheckDto::getOptionId).toList()))
+            );
+            AggregationResults<Document> results = mongoTemplate.aggregate(test, ProductClassification.class, Document.class);
+            List<Document> documents = results.getMappedResults();
+            List<ProductOrderDto> orders = documents.stream()
+                    .map(doc -> {
+                        Document productClassificationsDoc = doc.get("productClassifications", Document.class);
+                        OrderProductCheckDto prodOrder = prodOrders.stream().filter(
+                                        x -> x.getProductId()
+                                                .equals(doc.getString("_id")) && x.getOptionId().equals(productClassificationsDoc.getString("_id")))
+                                .findFirst().orElseThrow(() -> new BadRequestException("Product not found"));
+                        if (productClassificationsDoc.getInteger("quantity") < prodOrder.getQuantity()) {
+                            throw new BadRequestException("Product out of stock");
+                        }
+                        return ProductOrderDto.builder()
+                                .productId(doc.getString("_id"))
+                                .optionId(productClassificationsDoc.getString("_id"))
+                                .quantity(prodOrder.getQuantity())
+                                .price(productClassificationsDoc.getDouble("price"))
+                                .nameOption(productClassificationsDoc.getString("name"))
+                                .totalPrice(productClassificationsDoc.getDouble("price") * prodOrder.getQuantity())
+                                .build();
+                    }).toList();
+            return OrderProductResultsDto.builder()
+                    .totalPrice(orders.stream().mapToDouble(ProductOrderDto::getTotalPrice).sum())
+                    .products(orders)
+                    .build();
+
+//            List<Product> products = productRepository.findByIds(prodOrders.stream().map(OrderProductCheckDto::getProductId).toList());
+//            if (products.size() != prodOrders.size()) {
+//                throw new BadRequestException("Product not found");
+//            }
+//            List<ProductOrderDto> orders = new ArrayList<>();
+//            for (OrderProductCheckDto prodOrder : prodOrders) {
+//                ProductClassification prodVariant = products.stream().flatMap(product -> product.getProductClassifications().stream())
+//                        .filter(classification -> classification.getId().equals(prodOrder.getOptionId()))
+//                        .findFirst()
+//                        .orElseThrow(() -> new BadRequestException("Product classification not found"));
+//                if (prodVariant.getQuantity() < prodOrder.getQuantity()) {
+//                    throw new BadRequestException("Product out of stock");
+//                }
+//                orders.add(ProductOrderDto.builder()
+//                        .productId(prodOrder.getProductId())
+//                        .optionId(prodOrder.getOptionId())
+//                        .quantity(prodOrder.getQuantity())
+//                        .price(prodVariant.getPrice())
+//                        .nameOption(prodVariant.getName())
+//                        .build());
+//                total += prodVariant.getPrice() * prodOrder.getQuantity();
+//            }
+//            return OrderProductResultsDto.builder()
+//                    .totalPrice(total)
+//                    .products(orders)
+//                    .build();
         });
     }
 
