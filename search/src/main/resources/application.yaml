@@ -1,0 +1,45 @@
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus
+  zipkin:
+    tracing:
+      endpoint: http://localhost:9411/api/v2/spans
+  metrics:
+    tags:
+      application: ${spring.application.name}
+    distribution:
+      percentiles-histogram:
+        http:
+          server:
+            requests: 'true'
+  tracing:
+    sampling:
+      probability: '1.0'
+elasticsearch:
+  username: ''
+  password: ''
+  url: elasticsearch
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://eureka:password@localhost:8761/eureka
+yas:
+  services:
+    product: http://api.yas.local/product
+springdoc:
+  swagger-ui:
+    oproduct:
+      use-pkce-with-productorization-code-grant: 'true'
+      client-id: swagger-ui
+    path: /swagger-ui
+  packagesToScan: latipe.search
+product:
+  topic:
+    name: dbproduct.public.product
+server:
+  port: '8092'
+logging:
+  pattern:
+    level: '%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]'

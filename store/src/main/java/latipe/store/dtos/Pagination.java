@@ -6,7 +6,6 @@ import lombok.Data;
 public class Pagination {
 
     private long total;
-
     private int skip;
     private int limit;
 

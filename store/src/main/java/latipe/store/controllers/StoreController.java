@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.concurrent.CompletableFuture;
 
 @RestController
-@ApiPrefixController("store")
+@ApiPrefixController("stores")
 public class StoreController {
 
     private final IStoreService storeService;
