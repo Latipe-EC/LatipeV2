@@ -54,9 +54,6 @@ public class UserService implements IUserService {
     public CompletableFuture<UserAddress> addMyAddresses(String id, CreateUserAddressDto input) {
         return CompletableFuture.supplyAsync(() -> {
             User user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
-            if (user.getAddresses().size() > 5){
-                throw new BadRequestException("You can only have 5 addresses");
-            }
             UserAddress address = toDto.map(input, UserAddress.class);
             user.getAddresses().add(address);
             userRepository.save(user);
