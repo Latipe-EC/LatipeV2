@@ -4,13 +4,14 @@ import co.elastic.clients.elasticsearch._types.aggregations.Aggregation;
 import co.elastic.clients.elasticsearch._types.aggregations.StringTermsAggregate;
 import co.elastic.clients.elasticsearch._types.aggregations.StringTermsBucket;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
-import com.yas.search.constant.document_fields.ProductField;
-import com.yas.search.constant.enums.ESortType;
-import com.yas.search.document.Product;
-import com.yas.search.viewmodel.ProductGetVm;
-import com.yas.search.viewmodel.ProductListGetVm;
-import com.yas.search.viewmodel.ProductNameGetVm;
-import com.yas.search.viewmodel.ProductNameListVm;
+
+import latipe.search.constants.ProductField;
+import latipe.search.constants.ESortType;
+import latipe.search.document.Product;
+import latipe.search.viewmodel.ProductGetVm;
+import latipe.search.viewmodel.ProductListGetVm;
+import latipe.search.viewmodel.ProductNameGetVm;
+import latipe.search.viewmodel.ProductNameListVm;
 import org.elasticsearch.common.unit.Fuzziness;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -25,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class ProductService {
@@ -34,68 +36,65 @@ public class ProductService {
         this.elasticsearchOperations = elasticsearchOperations;
     }
 
-    public ProductListGetVm findProductAdvance(String keyword,
-                                               Integer page,
-                                               Integer size,
-                                               String brand,
-                                               String category,
-                                               String attribute,
-                                               Double minPrice,
-                                               Double maxPrice,
-                                               ESortType sortType) {
-        NativeQueryBuilder nativeQuery = NativeQuery.builder()
-                .withAggregation("categories", Aggregation.of(a -> a
-                        .terms(ta -> ta.field(ProductField.CATEGORIES))))
-                .withAggregation("attributes", Aggregation.of(a -> a
-                        .terms(ta -> ta.field(ProductField.ATTRIBUTES))))
-                .withAggregation("brands", Aggregation.of(a -> a
-                        .terms(ta -> ta.field(ProductField.BRAND))))
-                .withQuery(q -> q
-                        .bool(b -> b
-                                .should(s -> s
-                                        .multiMatch(m -> m
-                                                .fields(ProductField.NAME, ProductField.BRAND)
-                                                .query(keyword)
-                                                .fuzziness(Fuzziness.ONE.asString())
-                                        )
-                                )
-                        )
-                )
-                .withPageable(PageRequest.of(page, size));
+    public CompletableFuture<ProductListGetVm> findProductAdvance(String keyword,
+                                                                  Integer page,
+                                                                  Integer size,
+                                                                  String category,
+                                                                  String classification,
+                                                                  Double minPrice,
+                                                                  Double maxPrice,
+                                                                  ESortType sortType) {
+        return CompletableFuture.supplyAsync(() -> {
+            NativeQueryBuilder nativeQuery = NativeQuery.builder()
+                    .withAggregation("categories", Aggregation.of(a -> a
+                            .terms(ta -> ta.field(ProductField.CATEGORIES))))
+                    .withAggregation("classifications", Aggregation.of(a -> a
+                            .terms(ta -> ta.field(ProductField.CLASSIFICATIONS))))
+                    .withQuery(q -> q
+                            .bool(b -> b
+                                    .should(s -> s
+                                            .multiMatch(m -> m
+                                                    .fields(ProductField.NAME, ProductField.CLASSIFICATIONS)
+                                                    .query(keyword)
+                                                    .fuzziness(Fuzziness.ONE.asString())
+                                            )
+                                    )
+                            )
+                    )
+                    .withPageable(PageRequest.of(page, size));
+            nativeQuery.withFilter(f -> f
+                    .bool(b -> {
+                        extractedStr(category, ProductField.CATEGORIES, b);
+                        extractedStr(classification, ProductField.CLASSIFICATIONS, b);
+                        extractedRange(minPrice, maxPrice, ProductField.PRICE, b);
+                        return b;
+                    })
+            );
 
+            if (sortType == ESortType.PRICE_ASC) {
+                nativeQuery.withSort(Sort.by(Sort.Direction.ASC, ProductField.PRICE));
+            } else if (sortType == ESortType.PRICE_DESC) {
+                nativeQuery.withSort(Sort.by(Sort.Direction.DESC, ProductField.PRICE));
+            } else {
+                nativeQuery.withSort(Sort.by(Sort.Direction.DESC, ProductField.CREATE_ON));
+            }
 
-        nativeQuery.withFilter(f -> f
-                .bool(b -> {
-                    extractedStr(brand, ProductField.BRAND, b);
-                    extractedStr(category, ProductField.CATEGORIES, b);
-                    extractedStr(attribute, ProductField.ATTRIBUTES, b);
-                    extractedRange(minPrice, maxPrice, ProductField.PRICE, b);
-                    return b;
-                })
-        );
+            SearchHits<Product> searchHitsResult = elasticsearchOperations.search(nativeQuery.build(), Product.class);
+            SearchPage<Product> productPage = SearchHitSupport.searchPageFor(searchHitsResult, nativeQuery.getPageable());
 
-        if (sortType == ESortType.PRICE_ASC) {
-            nativeQuery.withSort(Sort.by(Sort.Direction.ASC, ProductField.PRICE));
-        } else if (sortType == ESortType.PRICE_DESC) {
-            nativeQuery.withSort(Sort.by(Sort.Direction.DESC, ProductField.PRICE));
-        } else {
-            nativeQuery.withSort(Sort.by(Sort.Direction.DESC, ProductField.CREATE_ON));
-        }
+            List<ProductGetVm> productListVmList = searchHitsResult.stream()
+                    .map(i -> ProductGetVm.fromModel(i.getContent())).toList();
 
-        SearchHits<Product> searchHitsResult = elasticsearchOperations.search(nativeQuery.build(), Product.class);
-        SearchPage<Product> productPage = SearchHitSupport.searchPageFor(searchHitsResult, nativeQuery.getPageable());
+            return new ProductListGetVm(
+                    productListVmList,
+                    productPage.getNumber(),
+                    productPage.getSize(),
+                    productPage.getTotalElements(),
+                    productPage.getTotalPages(),
+                    productPage.isLast(),
+                    getAggregations(searchHitsResult));
+        });
 
-        List<ProductGetVm> productListVmList = searchHitsResult.stream()
-                .map(i -> ProductGetVm.fromModel(i.getContent())).toList();
-
-        return new ProductListGetVm(
-                productListVmList,
-                productPage.getNumber(),
-                productPage.getSize(),
-                productPage.getTotalElements(),
-                productPage.getTotalPages(),
-                productPage.isLast(),
-                getAggregations(searchHitsResult));
     }
 
     private void extractedStr(String strField, String productField, BoolQuery.Builder b) {

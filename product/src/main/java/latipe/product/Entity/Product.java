@@ -21,7 +21,8 @@ public class Product extends AbstractAuditEntity {
     private String id;
     private String name;
     private String description;
-    private String category;
+    private List<String> categories;
+    private String slug;
     @Min(0)
     private Double price;
     @Min(0)

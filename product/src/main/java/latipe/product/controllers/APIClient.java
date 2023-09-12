@@ -8,11 +8,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@FeignClient(value = "AUTH-SERVICE", url = "http://localhost:8181")
+@FeignClient(name="AUTH-SERVICE")
 public interface APIClient {
-    @PostMapping(value = "/api/v1/auth/validate-token")
+    @PostMapping(value = "http://localhost:8181/api/v1/auth/validate-token")
     UserCredentialDto getCredential(@RequestBody() TokenDto accessToken);
 
-    @GetMapping(value = "/api/v1/store/validate-store/{userId}")
+    @GetMapping(value = "http://localhost:8118/api/v1/store/validate-store/{userId}")
     String getStoreId(@PathVariable String userId);
 }
