@@ -1,13 +1,13 @@
-package latipe.product.configs;
+package latipe.media.configs;
 
 import feign.FeignException;
 import jakarta.servlet.http.HttpServletRequest;
-import latipe.product.annotations.RequiresAuthorization;
-import latipe.product.controllers.APIClient;
-import latipe.product.dtos.TokenDto;
-import latipe.product.dtos.UserCredentialDto;
-import latipe.product.exceptions.ForbiddenException;
-import latipe.product.exceptions.UnauthorizedException;
+import latipe.media.annotations.RequiresAuthorization;
+import latipe.media.controllers.APIClient;
+import latipe.media.dtos.TokenDto;
+import latipe.media.dtos.UserCredentialDto;
+import latipe.media.exceptions.ForbiddenException;
+import latipe.media.exceptions.UnauthorizedException;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;

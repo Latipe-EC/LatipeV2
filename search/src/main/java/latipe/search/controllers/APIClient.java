@@ -9,10 +9,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@FeignClient
+@FeignClient(name = "API", url = "http://localhost:8181/api/v1")
 public interface APIClient {
-    @PostMapping(value = "http://localhost:8181/api/v1/auth/validate-token")
+    @PostMapping(value = "/auth/validate-token")
     UserCredentialDto getCredential(@RequestBody() TokenDto accessToken);
-    @GetMapping(value = "http://localhost:8645/api/v1/products-es/{productId}")
+
+    @GetMapping(value = "/products-es/{productId}")
     ProductESDetailVm getProductESDetailById(@PathVariable("productId") String productId);
 }

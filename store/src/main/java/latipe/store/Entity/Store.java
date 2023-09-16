@@ -18,6 +18,7 @@ public class Store {
     private int rating = 0;
     private int point = 0;
     private Double eWallet = 0D;
+    private Boolean isActive = true;
     private Boolean isDeleted = false;
     private Boolean isBan = false;
     private String reasonBan;

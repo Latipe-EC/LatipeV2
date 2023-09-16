@@ -1,4 +1,4 @@
-package latipe.product.Entity;
+package latipe.media.Entity;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -17,5 +17,5 @@ public class AbstractAuditEntity {
 
     @LastModifiedDate
     @Field("last_modified_date")
-    private Date lastModifiedDate;
+    private Date  lastModifiedDate;
 }

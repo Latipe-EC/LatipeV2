@@ -11,13 +11,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.CompletableFuture;
 
 public interface IStoreService extends IService<StoreDto, StoreCreateDto, StoreUpdateDto> {
-    @Async
     CompletableFuture<StoreDto> create(String userId, StoreCreateDto input);
 
-    @Async
     CompletableFuture<StoreDto> update(String userId, String storeId, StoreUpdateDto input) throws InvocationTargetException, IllegalAccessException;
 
-    @Async
     CompletableFuture<String> getStoreByUserId(String userId);
 //    @Query("{'id' : ?0}")
 //    Store findById(String id);

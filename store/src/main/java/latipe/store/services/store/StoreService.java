@@ -95,8 +95,6 @@ public class StoreService implements IStoreService {
     public CompletableFuture<StoreDto> update(String id, StoreUpdateDto input) throws InvocationTargetException, IllegalAccessException {
         return null;
     }
-
-
     @Override
     public CompletableFuture<Void> remove(String id) {
         return null;

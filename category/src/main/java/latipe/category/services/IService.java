@@ -15,6 +15,5 @@ public interface IService<T, D, E> {
     CompletableFuture<T> update(String id, E input) throws InvocationTargetException, IllegalAccessException;
 
 //    CompletableFuture<PagedResultDto<T>> findAllPagination(HttpServletRequest request, Integer limit, Integer skip);
-
     CompletableFuture<Void> remove(String id);
 }

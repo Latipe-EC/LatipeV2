@@ -1,8 +1,8 @@
-package latipe.auth.exceptions;
+package latipe.media.exceptions;
 
-import latipe.auth.viewmodel.ExceptionResponse;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+import latipe.media.viewmodel.ExceptionResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +31,7 @@ public class ApiExceptionHandler {
         log.debug(ex.toString());
         return new ResponseEntity<>(ExceptionResponse, HttpStatus.NOT_FOUND);
     }
+
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<ExceptionResponse> handleUnauthorizedException(UnauthorizedException ex, WebRequest request) {
         String message = ex.getMessage();
