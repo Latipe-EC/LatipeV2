@@ -10,6 +10,7 @@ import jakarta.validation.constraints.NotEmpty;
 import latipe.cart.annotations.ApiPrefixController;
 import latipe.cart.annotations.Authenticate;
 import latipe.cart.annotations.RequiresAuthorization;
+import latipe.cart.dtos.ProductFeatureDto;
 import latipe.cart.dtos.UserCredentialDto;
 import latipe.cart.services.Cart.ICartService;
 import latipe.cart.viewmodel.*;
@@ -75,7 +76,12 @@ public class CartController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         return cartService.updateCartItems(cartItemVm, cartId, userCredential);
     }
-
+    @Authenticate
+    @PutMapping("/cart-item")
+    public CompletableFuture<CartItemPutVm> updateCart(@Valid @RequestBody CartItemVm cartItemVm,
+                                                       @RequestAttribute(value = "user") UserCredentialDto userCredential) {
+        return cartService.updateCartItems(cartItemVm, userCredential);
+    }
     @Authenticate
     @DeleteMapping("/{cartId}/cart-item")
     public CompletableFuture<Void> removeCartItemByProductId(@PathVariable String cartId,
@@ -83,7 +89,6 @@ public class CartController {
                                                              @RequestAttribute(value = "user") UserCredentialDto userCredential) {
         return cartService.removeCartItemById(cartId, cartItemId, userCredential);
     }
-
     @Authenticate
     @DeleteMapping("/{cartId}/cart-item/multi-delete")
     public CompletableFuture<Void> removeCartItemListByProductIdList(
@@ -92,33 +97,20 @@ public class CartController {
             @RequestAttribute(value = "user") UserCredentialDto userCredential) {
         return cartService.removeCartItemByIdList(cartId, productIds, userCredential);
     }
-
-    @Authenticate
-    @PutMapping("/cart-item")
-    public CompletableFuture<CartItemPutVm> updateCart(@Valid @RequestBody CartItemVm cartItemVm,
-
-                                                       @RequestAttribute(value = "user") UserCredentialDto userCredential) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        return cartService.updateCartItems(cartItemVm, userCredential);
-    }
-
     @Authenticate
     @DeleteMapping("/cart-item")
     public CompletableFuture<Void> removeCartItemByProductId(
-            @RequestParam String cartItemId,
+            @Valid @RequestBody ProductFeatureDto product,
             @RequestAttribute(value = "user") UserCredentialDto userCredential) {
-        return cartService.removeCartItemById(cartItemId, userCredential);
+        return cartService.removeCartItemById(product, userCredential);
     }
-
     @Authenticate
     @DeleteMapping("/cart-item/multi-delete")
     public CompletableFuture<Void> removeCartItemListByProductIdList(
-
-            @RequestParam List<String> productIds,
+            @Valid @RequestBody List<ProductFeatureDto> products,
             @RequestAttribute(value = "user") UserCredentialDto userCredential) {
-        return cartService.removeCartItemByIdList(productIds, userCredential);
+        return cartService.removeCartItemByIdList(products, userCredential);
     }
-
     @Authenticate
     @GetMapping(path = "/count-my-cart-items")
     public CompletableFuture<Integer> getNumberItemInCart(@RequestAttribute(value = "user") UserCredentialDto userCredential) {

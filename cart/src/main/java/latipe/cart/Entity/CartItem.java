@@ -6,7 +6,7 @@ import lombok.Data;
 public class CartItem extends AbstractAuditEntity{
     private String id;
     private String productId;
-    private String productOptionId;
+    private String productOptionId = null;
     private int quantity;
     @Override
     public boolean equals(Object o) {
