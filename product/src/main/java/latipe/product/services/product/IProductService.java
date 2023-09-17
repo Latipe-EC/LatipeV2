@@ -1,9 +1,12 @@
 package latipe.product.services.product;
 
 
+import latipe.product.dtos.ProductFeatureDto;
 import latipe.product.dtos.ProductPriceDto;
 import latipe.product.services.IService;
 import latipe.product.services.product.Dtos.*;
+import latipe.product.viewmodel.ProductESDetailVm;
+import latipe.product.viewmodel.ProductThumbnailVm;
 import org.springframework.scheduling.annotation.Async;
 
 import java.util.List;
@@ -17,5 +20,7 @@ public interface IProductService extends IService<ProductDto, ProductCreateDto, 
     public CompletableFuture<ProductDto> update(String userId, String id, ProductUpdateDto input);
     public CompletableFuture<Void> remove(String userId, String id);
     public CompletableFuture<Void> ban(String id, BanProductDto input);
+    public CompletableFuture<List<ProductThumbnailVm>> getFeatureProduct(List<ProductFeatureDto> products);
+    public CompletableFuture<ProductESDetailVm> getProductESDetailById(String productId);
 }
 

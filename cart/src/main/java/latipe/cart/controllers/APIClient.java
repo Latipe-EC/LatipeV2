@@ -1,5 +1,6 @@
 package latipe.cart.controllers;
 
+import latipe.cart.dtos.ProductFeatureDto;
 import latipe.cart.dtos.TokenDto;
 import latipe.cart.dtos.UserCredentialDto;
 import latipe.cart.viewmodel.ProductThumbnailVm;
@@ -17,5 +18,5 @@ public interface APIClient {
     UserCredentialDto getCredential(@RequestBody() TokenDto accessToken);
 
     @GetMapping(value = "/products/list-featured")
-    List<ProductThumbnailVm> getProducts(@RequestBody() List<String> ids);
+    List<ProductThumbnailVm> getProducts(@RequestBody() List<ProductFeatureDto> ids);
 }

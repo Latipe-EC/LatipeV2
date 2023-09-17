@@ -1,14 +1,19 @@
 package latipe.product.services.product;
 
+import latipe.product.Entity.Category;
 import latipe.product.Entity.Product;
 import latipe.product.Entity.ProductClassification;
 import latipe.product.configs.CustomAggregationOperation;
 import latipe.product.controllers.APIClient;
+import latipe.product.dtos.ProductFeatureDto;
 import latipe.product.dtos.ProductPriceDto;
 import latipe.product.exceptions.BadRequestException;
 import latipe.product.exceptions.NotFoundException;
+import latipe.product.repositories.ICategoryRepository;
 import latipe.product.repositories.IProductRepository;
 import latipe.product.services.product.Dtos.*;
+import latipe.product.viewmodel.ProductESDetailVm;
+import latipe.product.viewmodel.ProductThumbnailVm;
 import org.bson.Document;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -26,12 +31,14 @@ import java.util.concurrent.CompletableFuture;
 @Service
 public class ProductService implements IProductService {
     private final IProductRepository productRepository;
+    private final ICategoryRepository categoryRepository;
     private final ModelMapper toDto;
     private final APIClient apiClient;
     private final MongoTemplate mongoTemplate;
 
-    public ProductService(IProductRepository productRepository, ModelMapper toDto, APIClient apiClient, MongoTemplate mongoTemplate) {
+    public ProductService(IProductRepository productRepository, ICategoryRepository categoryRepository, ModelMapper toDto, APIClient apiClient, MongoTemplate mongoTemplate) {
         this.productRepository = productRepository;
+        this.categoryRepository = categoryRepository;
         this.toDto = toDto;
         this.apiClient = apiClient;
         this.mongoTemplate = mongoTemplate;
@@ -115,28 +122,29 @@ public class ProductService implements IProductService {
     public CompletableFuture<OrderProductResultsDto> checkProductInStock(List<OrderProductCheckDto> prodOrders) {
         return CompletableFuture.supplyAsync(() -> {
             double total = 0;
-            String query =
-                    """
-                        {
-                            "$unwind": "$productClassifications"
-                        }
-                    """;
-
-            TypedAggregation<ProductClassification> test = Aggregation.newAggregation(
-                    ProductClassification.class,
-                    Aggregation.match(Criteria.where("_id").in(prodOrders.stream().map(OrderProductCheckDto::getProductId).toList())),
-                    // unwind product variant
-                    new CustomAggregationOperation(query),
-                    Aggregation.match(Criteria.where("productClassifications._id").in(prodOrders.stream().map(OrderProductCheckDto::getOptionId).toList()))
-            );
-            AggregationResults<Document> results = mongoTemplate.aggregate(test, ProductClassification.class, Document.class);
+//            String query =
+//                    """
+//                                {
+//                                    "$unwind": "$productClassifications"
+//                                }
+//                            """;
+//            TypedAggregation<ProductClassification> test = Aggregation.newAggregation(
+//                    ProductClassification.class,
+//                    Aggregation.match(Criteria.where("_id").in(prodOrders.stream().map(OrderProductCheckDto::getProductId).toList())),
+//                    // unwind product variant
+//                    new CustomAggregationOperation(query),
+//                    Aggregation.match(Criteria.where("productClassifications._id").in(prodOrders.stream().map(OrderProductCheckDto::getOptionId).toList()))
+//            );
+            var aggregate = createQueryClassification(prodOrders.stream().map(OrderProductCheckDto::getProductId).toList(),
+                    prodOrders.stream().map(OrderProductCheckDto::getOptionId).toList());
+            AggregationResults<Document> results = mongoTemplate.aggregate(aggregate, ProductClassification.class, Document.class);
             List<Document> documents = results.getMappedResults();
             List<ProductOrderDto> orders = documents.stream()
                     .map(doc -> {
                         Document productClassificationsDoc = doc.get("productClassifications", Document.class);
                         OrderProductCheckDto prodOrder = prodOrders.stream().filter(
                                         x -> x.getProductId()
-                                                .equals(doc.getString("_id")) && x.getOptionId().equals(productClassificationsDoc.getString("_id")))
+                                                     .equals(doc.getString("_id")) && x.getOptionId().equals(productClassificationsDoc.getString("_id")))
                                 .findFirst().orElseThrow(() -> new BadRequestException("Product not found"));
                         if (productClassificationsDoc.getInteger("quantity") < prodOrder.getQuantity()) {
                             throw new BadRequestException("Product out of stock");
@@ -186,6 +194,56 @@ public class ProductService implements IProductService {
 
     @Override
     @Async
+    public CompletableFuture<ProductESDetailVm> getProductESDetailById(String productId) {
+        return CompletableFuture.supplyAsync(
+                () -> {
+                    Product product = productRepository
+                            .findById(productId)
+                            .orElseThrow(() ->
+                                    new NotFoundException("PRODUCT_NOT_FOUND", productId)
+                            );
+
+                    List<String> categoryNames = categoryRepository.findAllById(product.getCategories()).stream().map(Category::getName).toList();
+                    return new ProductESDetailVm(
+                            product.getId(),
+                            product.getName(),
+                            product.getSlug(),
+                            product.getPrice(),
+                            product.isPublished(),
+                            product.getImages(),
+                            product.getDescription(),
+                            product.getProductClassifications(),
+                            product.getProductClassifications().stream().map(ProductClassification::getName).toList(),
+                            categoryNames,
+                            product.isBanned(),
+                            product.isDeleted(),
+                            product.getCreatedDate()
+                    );
+                }
+        );
+    }
+
+    @Override
+    @Async
+    public CompletableFuture<List<ProductThumbnailVm>> getFeatureProduct(List<ProductFeatureDto> products) {
+        return CompletableFuture.supplyAsync(() -> {
+            var aggregate = createQueryClassification(products.stream().map(ProductFeatureDto::getProductId).toList(), products.stream().map(ProductFeatureDto::getOptionId).toList());
+            AggregationResults<Document> results = mongoTemplate.aggregate(aggregate, ProductClassification.class, Document.class);
+            List<Document> documents = results.getMappedResults();
+            return documents.stream()
+                    .map(doc -> {
+                        Document productClassificationsDoc = doc.get("productClassifications", Document.class);
+                        return new ProductThumbnailVm(doc.getString("_id"),
+                                doc.getString("name"),
+                                productClassificationsDoc.getString("name"),
+                                productClassificationsDoc.getDouble("price"),
+                                productClassificationsDoc.getString("image"));
+                    }).toList();
+        });
+    }
+
+    @Override
+    @Async
     public CompletableFuture<ProductDto> update(String userId, String id, ProductUpdateDto input) {
         Product product = productRepository.findById(id).orElseThrow(() -> new BadRequestException("Product not found"));
         // check permission to change product (store service)
@@ -229,10 +287,11 @@ public class ProductService implements IProductService {
         }
         return CompletableFuture.supplyAsync(() -> toDto.map(productRepository.save(product), ProductDto.class));
     }
+
     @Override
     @Async
     public CompletableFuture<Void> remove(String userId, String id) {
-        return CompletableFuture.supplyAsync( () -> {
+        return CompletableFuture.supplyAsync(() -> {
             Product product = productRepository.findById(id).orElseThrow(() -> new BadRequestException("Product not found"));
             // check permission to change product (store service)
             if (!apiClient.getStoreId(userId).equals(product.getStoreId())) {
@@ -243,10 +302,11 @@ public class ProductService implements IProductService {
             return null;
         });
     }
+
     @Override
     @Async
     public CompletableFuture<Void> ban(String id, BanProductDto input) {
-        return CompletableFuture.supplyAsync( () -> {
+        return CompletableFuture.supplyAsync(() -> {
             Product product = productRepository.findById(id).orElseThrow(() -> new BadRequestException("Product not found"));
             // check permission to change product (store service)
             product.setReasonBan(input.getReason());
@@ -255,6 +315,7 @@ public class ProductService implements IProductService {
             return null;
         });
     }
+
     @Override
     public CompletableFuture<Void> remove(String id) {
         return null;
@@ -278,5 +339,20 @@ public class ProductService implements IProductService {
     @Override
     public CompletableFuture<ProductDto> update(String id, ProductUpdateDto input) throws InvocationTargetException, IllegalAccessException {
         return null;
+    }
+
+    private TypedAggregation<ProductClassification> createQueryClassification(List<String> prods, List<String> options) {
+        String query =
+                """
+                            {
+                                "$unwind": "$productClassifications"
+                            }
+                        """;
+        return Aggregation.newAggregation(
+                ProductClassification.class,
+                Aggregation.match(Criteria.where("_id").in(prods)),
+                new CustomAggregationOperation(query),
+                Aggregation.match(Criteria.where("productClassifications._id").in(options))
+        );
     }
 }

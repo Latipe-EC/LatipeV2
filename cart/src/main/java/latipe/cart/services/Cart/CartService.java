@@ -45,7 +45,7 @@ public class CartService implements ICartService {
     public CompletableFuture<CartGetDetailVm> addToCart(List<CartItemVm> cartItemVms, UserCredentialDto userCredential) {
         return CompletableFuture.supplyAsync(
                 () -> {
-                    List<String> productIds = cartItemVms.stream().map(CartItemVm::productId).toList();
+                    List<ProductFeatureDto> productIds = cartItemVms.stream().map(x -> new ProductFeatureDto(x.productId(), x.productOptionId())).toList();
                     String userId = userCredential.getId();
                     // Call API to check all products will be added to cart are existed
                     List<ProductThumbnailVm> productThumbnailVmList = null;

@@ -3,10 +3,13 @@ package latipe.product.controllers;
 import jakarta.validation.Valid;
 import latipe.product.annotations.ApiPrefixController;
 import latipe.product.annotations.RequiresAuthorization;
+import latipe.product.dtos.ProductFeatureDto;
 import latipe.product.dtos.ProductPriceDto;
 import latipe.product.dtos.UserCredentialDto;
 import latipe.product.services.product.Dtos.*;
 import latipe.product.services.product.IProductService;
+import latipe.product.viewmodel.ProductESDetailVm;
+import latipe.product.viewmodel.ProductThumbnailVm;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -35,14 +38,14 @@ public class ProductController {
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(value = "/get-price/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public CompletableFuture<ProductPriceDto> getPrice(@PathVariable("id") String prodId, @RequestParam  String code)
-    {
+    public CompletableFuture<ProductPriceDto> getPrice(@PathVariable("id") String prodId, @RequestParam String code) {
         return productService.getPrice(prodId, code);
     }
+
     @RequiresAuthorization("VENDOR")
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(value = "/check-in-stock", produces = MediaType.APPLICATION_JSON_VALUE)
-    public CompletableFuture<OrderProductResultsDto> checkProductInStock(@Valid @RequestBody List<OrderProductCheckDto> prodOrders){
+    public CompletableFuture<OrderProductResultsDto> checkProductInStock(@Valid @RequestBody List<OrderProductCheckDto> prodOrders) {
         return productService.checkProductInStock(prodOrders);
     }
 
@@ -50,7 +53,7 @@ public class ProductController {
     @ResponseStatus(HttpStatus.OK)
     @PatchMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public CompletableFuture<ProductDto> update(@RequestAttribute(value = "user") UserCredentialDto userCredential,
-                                                @PathVariable("id") String prodId, @Valid @RequestBody ProductUpdateDto input) throws InvocationTargetException, IllegalAccessException {
+                                                @PathVariable("id") String prodId, @Valid @RequestBody ProductUpdateDto input) {
         return productService.update(userCredential.getId(), prodId, input);
     }
 
@@ -58,15 +61,27 @@ public class ProductController {
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public CompletableFuture<Void> delete(@RequestAttribute(value = "user") UserCredentialDto userCredential,
-                                                @PathVariable("id") String prodId) {
-        return productService.remove(userCredential.getId(), prodId );
+                                          @PathVariable("id") String prodId) {
+        return productService.remove(userCredential.getId(), prodId);
     }
 
     @RequiresAuthorization("ADMIN")
     @ResponseStatus(HttpStatus.OK)
     @PatchMapping(value = "/ban/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public CompletableFuture<Void> ban(@RequestAttribute(value = "user") UserCredentialDto userCredential,
-                                          @Valid @RequestBody BanProductDto input) {
-        return productService.ban(userCredential.getId(), input );
+                                       @Valid @RequestBody BanProductDto input) {
+        return productService.ban(userCredential.getId(), input);
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "/list-featured", produces = MediaType.APPLICATION_JSON_VALUE)
+    public CompletableFuture<List<ProductThumbnailVm>> getFeatureProduct(List<ProductFeatureDto> products) {
+        return productService.getFeatureProduct(products);
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "/products-es/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public CompletableFuture<ProductESDetailVm> getProductESDetailById(@PathVariable String id) {
+        return productService.getProductESDetailById(id);
     }
 }
