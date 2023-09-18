@@ -1,7 +1,7 @@
 package latipe.product.services.category.Dtos;
 
 import jakarta.validation.constraints.NotNull;
-import latipe.category.Entity.AbstractAuditEntity;
+import latipe.product.Entity.AbstractAuditEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

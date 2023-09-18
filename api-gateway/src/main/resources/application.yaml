@@ -28,6 +28,63 @@ spring:
           filters:
             - RewritePath=/(?<segment>.*), /$\{segment}
 
+        - id: user_service
+          uri: http://localhost:7650
+          predicates:
+            - Path=/api/v1/carts/**
+          filters:
+            - RewritePath=/(?<segment>.*), /$\{segment}
+
+        - id: media_service
+          uri: http://localhost:7657
+          predicates:
+            - Path=/api/v1/medias/**
+          filters:
+            - RewritePath=/(?<segment>.*), /$\{segment}
+
+        - id: product_service
+          uri: http://localhost:8645
+          predicates:
+            - Path=/api/v1/products/**
+          filters:
+            - RewritePath=/(?<segment>.*), /$\{segment}
+
+        - id: category_service
+          uri: http://localhost:8645
+          predicates:
+            - Path=/api/v1/categories/**
+          filters:
+            - RewritePath=/(?<segment>.*), /$\{segment}
+
+        - id: search_service
+          uri: http://localhost:8092
+          predicates:
+            - Path=/api/v1/search/**
+          filters:
+            - RewritePath=/(?<segment>.*), /$\{segment}
+
+        - id: store_service
+          uri: http://localhost:8118
+          predicates:
+            - Path=/api/v1/stores/**
+          filters:
+            - RewritePath=/(?<segment>.*), /$\{segment}
+
+        - id: payment_service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/v1/payment/**
+            - Path=/api/v1/payment-providers/**
+          filters:
+            - RewritePath=/(?<segment>.*), /$\{segment}
+
+        - id: paypal_service
+          uri: http://localhost:8083
+          predicates:
+            - Path=/api/v1/paypal/**
+          filters:
+            - RewritePath=/(?<segment>.*), /$\{segment}
+
         - id: discovery_server
           uri: http://eureka:password@${app.eureka-server}:8761
           predicates:
