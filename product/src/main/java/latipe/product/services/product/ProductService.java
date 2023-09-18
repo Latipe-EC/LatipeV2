@@ -48,16 +48,22 @@ public class ProductService implements IProductService {
     @Async
     public CompletableFuture<ProductDto> create(String userId, ProductCreateDto input) {
         return CompletableFuture.supplyAsync(() -> {
-            if (input.getProductVariant().size() == 0) {
+            if (input.getProductVariant().isEmpty()) {
                 if (input.getPrice() == null || input.getPrice() <= 0) {
                     throw new BadRequestException("Price must be greater than 0");
                 }
                 if (input.getQuantity() <= 0) {
                     throw new BadRequestException("Quantity must be greater than 0");
                 }
-                if (input.getImages().size() == 0) {
+                if (input.getImages().isEmpty()) {
                     throw new BadRequestException("Product must have at least 1 image");
                 }
+                input.getProductClassifications().add(ProductClassification.builder()
+                        .name("Default")
+                        .price(input.getPrice())
+                        .quantity(input.getQuantity())
+                        .image(input.getImages().get(0))
+                        .build());
             } else {
                 if (input.getProductVariant().size() > 2) {
                     throw new BadRequestException("Product have maximum 2 variants");
@@ -78,6 +84,7 @@ public class ProductService implements IProductService {
                     for (int i = 0; i < input.getProductVariant().get(0).getOptions().size(); i++) {
                         for (int j = 0; j < input.getProductVariant().get(1).getOptions().size(); j++) {
                             input.getProductClassifications().get(count).setCode(String.valueOf(i) + String.valueOf(j));
+                            input.getProductClassifications().get(count).setName(input.getProductVariant().get(0).getOptions().get(i) + " - " + input.getProductVariant().get(1).getOptions().get(j));
                             count++;
                         }
                     }
@@ -260,6 +267,12 @@ public class ProductService implements IProductService {
             if (input.getImages().size() == 0) {
                 throw new BadRequestException("Product must have at least 1 image");
             }
+            input.getProductClassifications().add(ProductClassification.builder()
+                    .name("Default")
+                    .price(input.getPrice())
+                    .quantity(input.getQuantity())
+                    .image(input.getImages().get(0))
+                    .build());
         } else {
             if (input.getProductVariant().size() > 2) {
                 throw new BadRequestException("Product have maximum 2 variants");
