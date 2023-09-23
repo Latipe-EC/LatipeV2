@@ -17,20 +17,20 @@ public class CustomAuditingEntityListener extends AbstractMongoEventListener<Obj
     public void onBeforeConvert(BeforeConvertEvent<Object> event) {
         Object entity = event.getSource();
 
-        if (entity instanceof AbstractAuditEntity abstractAuditEntity) {
-            String currentUser = null;
-            HttpServletRequest request  =  ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-            if ( request.getAttribute("user") != null) {
-                currentUser = ((UserCredentialDto) request.getAttribute("user")).getId();
-            }
-            ZonedDateTime currentDate = ZonedDateTime.now();
-            if (abstractAuditEntity.getCreatedDate() == null) {
-                abstractAuditEntity.setCreatedDate(currentDate);
-                abstractAuditEntity.setCreatedBy(currentUser);
-            }
-            abstractAuditEntity.setLastModifiedDate(currentDate);
-            abstractAuditEntity.setLastModifiedBy(currentUser);
-        }
+//        if (entity instanceof AbstractAuditEntity abstractAuditEntity) {
+//            String currentUser = null;
+//            HttpServletRequest request  =  ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+//            if ( request.getAttribute("user") != null) {
+//                currentUser = ((UserCredentialDto) request.getAttribute("user")).getId();
+//            }
+//            ZonedDateTime currentDate = ZonedDateTime.now();
+//            if (abstractAuditEntity.getCreatedDate() == null) {
+//                abstractAuditEntity.setCreatedDate(currentDate);
+//                abstractAuditEntity.setCreatedBy(currentUser);
+//            }
+//            abstractAuditEntity.setLastModifiedDate(currentDate);
+//            abstractAuditEntity.setLastModifiedBy(currentUser);
+//        }
     }
 
 }

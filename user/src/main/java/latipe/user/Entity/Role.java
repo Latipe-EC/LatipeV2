@@ -9,8 +9,8 @@ import java.util.Date;
 @Document(collection = "Roles")
 @Setter
 @Getter
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 public class Role extends AbstractAuditEntity {
     @Id
     private String id;
@@ -18,6 +18,9 @@ public class Role extends AbstractAuditEntity {
     private Boolean isDeleted= false;
     public Role(String id, String name ) {
         id = id;
+        this.name = name;
+    }
+    public Role(String name ) {
         this.name = name;
     }
 }

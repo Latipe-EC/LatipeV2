@@ -36,168 +36,202 @@ import static latipe.auth.utils.Constants.ErrorCode.TOKEN_INVALID;
 @ApiPrefixController("/auth")
 @Tag(name = "User authentication")
 public class AuthController {
-    private final JwtTokenService jwtUtil;
-    //    private final IUserRepository userRepository;
-    private final ModelMapper toDto;
-    private final IUserRepository userRepository;
 
-    @Value("${URL_FE}")
-    private String URL;
+  private final JwtTokenService jwtUtil;
+  //    private final IUserRepository userRepository;
+  private final ModelMapper toDto;
+  private final IUserRepository userRepository;
 
-    public AuthController(JwtTokenService jwtUtil, IUserRepository userRepository, ModelMapper toDto) {
-        this.jwtUtil = jwtUtil;
-        this.userRepository = userRepository;
-        this.toDto = toDto;
-    }
+  @Value("${URL_FE}")
+  private String URL;
 
-    @PostMapping("/login")
-    @ResponseStatus(HttpStatus.OK)
-    public CompletableFuture<LoginDto> createAuthenticationToken(@RequestBody @Valid LoginInputDto loginRequest) {
-        return CompletableFuture.supplyAsync(() -> {
-            final List<User> users = userRepository.findByPhoneAndEmail(loginRequest.getUsername());
-            if (users.size() == 0) {
-                throw new NotFoundException("Cannot find user with email");
-            }
-            if (!jwtUtil.comparePassword(loginRequest.getPassword(), users.get(0).getPassword())) {
-                throw new BadRequestException("Password not correct");
-            }
-            final String accessToken = jwtUtil.generateAccessToken(users.get(0));
-            final String refreshToken = jwtUtil.generateRefreshToken(users.get(0));
-            toDto.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-            return new LoginDto(accessToken, refreshToken, toDto.map(users.get(0), UserProfileDto.class));
-        });
-    }
+  public AuthController(JwtTokenService jwtUtil, IUserRepository userRepository,
+      ModelMapper toDto) {
+    this.jwtUtil = jwtUtil;
+    this.userRepository = userRepository;
+    this.toDto = toDto;
+  }
 
-    @PostMapping("/refresh-token")
-    @ResponseStatus(HttpStatus.OK)
-    public CompletableFuture<RefreshTokenDto> refreshAuthenticationToken(@RequestBody @Valid RefreshTokenInput refreshTokenRequest) {
-        return CompletableFuture.supplyAsync(() -> {
-            final String refreshToken = refreshTokenRequest.getRefreshToken();
-            // Check if the refresh token is valid and not expired
-            String username = null;
-            try {
-                username = jwtUtil.checkRefreshToken(refreshToken);
-            } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-                throw new UnauthorizedException(TOKEN_INVALID);
-            }
-            if (username == null)
-                throw new BadRequestException("Not Type Refresh Token");
-            List<User> users = null;
-            try {
-                users = userRepository.findByPhoneAndEmail(jwtUtil.getUsernameFromToken(refreshToken));
-            } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-                throw new NotFoundException("Cannot find user with email or phone");
-            }
-            if (users.size() == 0)
-                throw new NotFoundException("Cannot find user with email");
-            try {
-                if (jwtUtil.validateToken(refreshToken, users.get(0))) {
-                    final String accessToken = jwtUtil.generateAccessToken(users.get(0));
-                    return new RefreshTokenDto(accessToken, refreshToken);
-                }
-            } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-                throw new RuntimeException(e);
-            }
-            throw new BadRequestException("Invalid refresh token");
-        });
-    }
+  @PostMapping("/login")
+  @ResponseStatus(HttpStatus.OK)
+  public CompletableFuture<LoginDto> createAuthenticationToken(
+      @RequestBody @Valid LoginInputDto loginRequest) {
+    return CompletableFuture.supplyAsync(() -> {
+      List<User> users = userRepository.findByPhoneAndEmail(loginRequest.getUsername());
+      if (users.isEmpty()) {
+        throw new NotFoundException("Cannot find user with email");
+      }
+      if (!jwtUtil.comparePassword(loginRequest.getPassword(), users.get(0).getPassword())) {
+        throw new BadRequestException("Password not correct");
+      }
+      final String accessToken = jwtUtil.generateAccessToken(users.get(0));
+      final String refreshToken = jwtUtil.generateRefreshToken(users.get(0));
+      toDto.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+      return new LoginDto(accessToken, refreshToken, toDto.map(users.get(0), UserProfileDto.class));
+    });
+  }
 
-    @PostMapping("/validate-token")
-    @ResponseStatus(HttpStatus.OK)
-    public CompletableFuture<UserCredentialDto> validateToken(@RequestBody @Valid TokenDto accessToken) {
-        return CompletableFuture.supplyAsync(() -> {
-            String username = null;
-            try {
-                username = jwtUtil.getUsernameFromToken(accessToken.getToken());
-            } catch (NoSuchAlgorithmException | InvalidKeySpecException | RuntimeException e) {
-                throw new UnauthorizedException(TOKEN_INVALID);
-            }
-            if (username == null) {
-                throw new UnauthorizedException(TOKEN_EXPIRED);
-            }
-            List<User> users = userRepository.findByPhoneAndEmail(username);
-            if (users.size() == 0) {
-                throw new UnauthorizedException("Cannot find user with email");
-            } else if (users.get(0).getPoint() < -100) {
-                throw new UnauthorizedException("Your account has been locked due to too many cancellations");
-            } else if (users.get(0).getIsDeleted())
-                throw new UnauthorizedException("Your account has been deleted");
-            try {
-                if (jwtUtil.validateToken(accessToken.getToken(), users.get(0))) {
-                    return UserCredentialDto.builder().email(users.get(0).getEmail()).phone(users.get(0).getPhoneNumber()).id(users.get(0).getId()).build();
-                }
-                throw new UnauthorizedException(TOKEN_EXPIRED);
-            } catch (RuntimeException | NoSuchAlgorithmException | InvalidKeySpecException e) {
-                throw new RuntimeException(e);
-            }
-        });
-    }
-
-    @PostMapping("/request-reset-password-by-email")
-    public ResponseEntity<?> requestResetPasswordByEmail(@RequestParam("email") String userEmail) throws UnsupportedEncodingException {
-        List<User> users = userRepository.findByPhoneAndEmail(userEmail);
-        if (users.size() == 0) {
-            throw new NotFoundException("Cannot find user with email");
+  @PostMapping("/refresh-token")
+  @ResponseStatus(HttpStatus.OK)
+  public CompletableFuture<RefreshTokenDto> refreshAuthenticationToken(
+      @RequestBody @Valid RefreshTokenInput refreshTokenRequest) {
+    return CompletableFuture.supplyAsync(() -> {
+      final String refreshToken = refreshTokenRequest.getRefreshToken();
+      // Check if the refresh token is valid and not expired
+      String username = null;
+      try {
+        username = jwtUtil.checkRefreshToken(refreshToken);
+      } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+        throw new UnauthorizedException(TOKEN_INVALID);
+      }
+      if (username == null) {
+        throw new BadRequestException("Not Type Refresh Token");
+      }
+      List<User> users = null;
+      try {
+        users = userRepository.findByPhoneAndEmail(jwtUtil.getUsernameFromToken(refreshToken));
+      } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+        throw new NotFoundException("Cannot find user with email or phone");
+      }
+      if (users.isEmpty()) {
+        throw new NotFoundException("Cannot find user with email");
+      }
+      try {
+        if (jwtUtil.validateToken(refreshToken, users.get(0))) {
+          final String accessToken = jwtUtil.generateAccessToken(users.get(0));
+          return new RefreshTokenDto(accessToken, refreshToken);
         }
-        User user = users.get(0);
-        String token = UUID.randomUUID().toString();
-        LocalDateTime expiryDate = LocalDateTime.now().plusMinutes(5);
-        TokenResetPasswordDto tokenResetPassword = new TokenResetPasswordDto(token, userEmail, expiryDate, 0);
-        user = GenTokenUtils.setToken(user, tokenResetPassword);
-        userRepository.save(users.get(0));
-        String resetPasswordUrl = URL + URLEncoder.encode(users.get(0).getTokenResetPassword(), StandardCharsets.UTF_8);
-        // notification service will cover
+      } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+        throw new RuntimeException(e);
+      }
+      throw new BadRequestException("Invalid refresh token");
+    });
+  }
+
+  @PostMapping("/validate-token")
+  @ResponseStatus(HttpStatus.OK)
+  public CompletableFuture<UserCredentialDto> validateToken(
+      @Valid @RequestBody TokenDto accessToken) {
+    return CompletableFuture.supplyAsync(() -> {
+      String username = null;
+
+      try {
+        username = jwtUtil.getUsernameFromToken(accessToken.getToken());
+      } catch (NoSuchAlgorithmException | InvalidKeySpecException | RuntimeException e) {
+        throw new UnauthorizedException(TOKEN_INVALID);
+      }
+
+      if (jwtUtil.isTokenExpired(accessToken.getToken())) {
+        throw new UnauthorizedException(TOKEN_EXPIRED);
+      }
+
+      List<User> users = userRepository.findByPhoneAndEmail(username);
+      if (users.isEmpty()) {
+        throw new UnauthorizedException("Cannot find user with email");
+      }
+
+      User user = users.get(0);
+      if (user.getPoint() < -100) {
+        throw new UnauthorizedException(
+            "Your account has been locked due to too many cancellations");
+      }
+
+      if (user.getIsDeleted()) {
+        throw new UnauthorizedException("Your account has been deleted");
+      }
+
+      try {
+        if (jwtUtil.validateToken(accessToken.getToken(), user)) {
+          return UserCredentialDto.builder()
+              .email(user.getEmail())
+              .phone(user.getPhoneNumber())
+              .id(user.getId())
+              .role(user.getRole().getName())
+              .build();
+        }
+        throw new UnauthorizedException(TOKEN_EXPIRED);
+      } catch (RuntimeException | NoSuchAlgorithmException | InvalidKeySpecException e) {
+        throw new RuntimeException(e);
+      }
+    });
+  }
+
+  @PostMapping("/request-reset-password-by-email")
+  @ResponseStatus(HttpStatus.OK)
+  public ResponseEntity<?> requestResetPasswordByEmail(@RequestParam("email") String userEmail)
+      throws UnsupportedEncodingException {
+    List<User> users = userRepository.findByPhoneAndEmail(userEmail);
+    if (users.isEmpty()) {
+      throw new NotFoundException("Cannot find user with email");
+    }
+    User user = users.get(0);
+    String token = UUID.randomUUID().toString();
+    LocalDateTime expiryDate = LocalDateTime.now().plusMinutes(5);
+    TokenResetPasswordDto tokenResetPassword = new TokenResetPasswordDto(token, userEmail,
+        expiryDate, 0);
+    user = GenTokenUtils.setToken(user, tokenResetPassword);
+    userRepository.save(users.get(0));
+    String resetPasswordUrl =
+        URL + URLEncoder.encode(users.get(0).getTokenResetPassword(), StandardCharsets.UTF_8);
+    // notification service will cover
 //        emailService.sendResetPasswordEmail(userEmail, resetPasswordUrl);
-        return ResponseEntity.ok(true);
+    return ResponseEntity.ok(true);
+  }
+
+  @PostMapping("/reset-password")
+  public ResponseEntity<?> resetPasswordByToken(@RequestBody PayLoadResetPasswordByPhone input) {
+    User user = userRepository.findByTokenResetPassword(input.getToken())
+        .orElseThrow(() -> new NotFoundException("User not found"));
+    TokenResetPasswordDto tokenResetPassword = GenTokenUtils.decodeToken(
+        user.getTokenResetPassword());
+    if (tokenResetPassword == null || tokenResetPassword.isExpired()) {
+      return ResponseEntity.badRequest().body("Token is expired");
     }
-
-    @PostMapping("/reset-password")
-    public ResponseEntity<?> resetPasswordByToken(@RequestBody PayLoadResetPasswordByPhone input) {
-        User user = userRepository.findByTokenResetPassword(input.getToken()).orElseThrow(() -> new NotFoundException("User not found"));
-        TokenResetPasswordDto tokenResetPassword = GenTokenUtils.decodeToken(user.getTokenResetPassword());
-        if (tokenResetPassword == null || tokenResetPassword.isExpired()) {
-            return ResponseEntity.badRequest().body("Token is expired");
-        }
-        if (!tokenResetPassword.getEmail().equals(user.getEmail())) {
-            return ResponseEntity.badRequest().body("Email not match!");
-        }
-        user.setRequestCount(0);
-        user.setLastRequest(null);
-        user.setHashedPassword(jwtUtil.hashPassword(input.getNewPassword()));
-        userRepository.save(user);
-        return ResponseEntity.ok(true);
+    if (!tokenResetPassword.getEmail().equals(user.getEmail())) {
+      return ResponseEntity.badRequest().body("Email not match!");
     }
+    user.setRequestCount(0);
+    user.setLastRequest(null);
+    user.setHashedPassword(jwtUtil.hashPassword(input.getNewPassword()));
+    userRepository.save(user);
+    return ResponseEntity.ok(true);
+  }
 
-    @PostMapping("/request-pin/{phone}")
-    public void requestPin(@PathVariable("phone") String phoneNumber) {
-        User user = userRepository.findByPhoneNumber(phoneNumber).orElseThrow(() -> new NotFoundException("User not found"));
-        TokenResetPasswordDto token = new TokenResetPasswordDto();
-        token.setToken(GenTokenUtils.generateRandomDigits());
-        token.setEmail(user.getEmail());
-        token.setExpired(LocalDateTime.now().plusMinutes(1).plusSeconds(2));
-        token.setType(1);
-        user = GenTokenUtils.setToken(user, token);
-        user = userRepository.save(user);
-        String messageText = "Mã xác thực của bạn là: " + token.getToken();
+  @PostMapping("/request-pin/{phone}")
+  public void requestPin(@PathVariable("phone") String phoneNumber) {
+    User user = userRepository.findByPhoneNumber(phoneNumber)
+        .orElseThrow(() -> new NotFoundException("User not found"));
+    TokenResetPasswordDto token = new TokenResetPasswordDto();
+    token.setToken(GenTokenUtils.generateRandomDigits());
+    token.setEmail(user.getEmail());
+    token.setExpired(LocalDateTime.now().plusMinutes(1).plusSeconds(2));
+    token.setType(1);
+    user = GenTokenUtils.setToken(user, token);
+    user = userRepository.save(user);
+    String messageText = "Mã xác thực của bạn là: " + token.getToken();
 
-        // notification will cover
+    // notification will cover
 //        smsService.sendSMS(phoneNumber.replaceFirst("^0", "+84"), messageText);
-    }
+  }
 
-    @PostMapping("/validate-pin/{phone}")
-    public ResponseEntity<?> validatePin(@PathVariable String phone, @RequestBody TokenDto input) throws UnsupportedEncodingException {
-        User user = userRepository.findByPhoneNumber(phone).orElseThrow(() -> new NotFoundException("User not found"));
-        TokenResetPasswordDto tokenResetPassword = GenTokenUtils.decodeToken(user.getTokenResetPassword());
-        if (tokenResetPassword == null || tokenResetPassword.isExpired()) {
-            return ResponseEntity.badRequest().body("Token is expired");
-        }
-        if (!tokenResetPassword.getToken().equals(input.getToken())) {
-            return ResponseEntity.badRequest().body("Pin code is not correct!");
-        }
-        tokenResetPassword.setExpired(LocalDateTime.now().plusMinutes(1).plusSeconds(2).plusSeconds(2));
-        user.setTokenResetPassword(GenTokenUtils.encodeToken(tokenResetPassword));
-        userRepository.save(user);
-        return ResponseEntity.ok(URL + URLEncoder.encode(user.getTokenResetPassword(), StandardCharsets.UTF_8));
+  @PostMapping("/validate-pin/{phone}")
+  public ResponseEntity<?> validatePin(@PathVariable String phone, @RequestBody TokenDto input)
+      throws UnsupportedEncodingException {
+    User user = userRepository.findByPhoneNumber(phone)
+        .orElseThrow(() -> new NotFoundException("User not found"));
+    TokenResetPasswordDto tokenResetPassword = GenTokenUtils.decodeToken(
+        user.getTokenResetPassword());
+    if (tokenResetPassword == null || tokenResetPassword.isExpired()) {
+      return ResponseEntity.badRequest().body("Token is expired");
     }
+    if (!tokenResetPassword.getToken().equals(input.getToken())) {
+      return ResponseEntity.badRequest().body("Pin code is not correct!");
+    }
+    tokenResetPassword.setExpired(LocalDateTime.now().plusMinutes(1).plusSeconds(2).plusSeconds(2));
+    user.setTokenResetPassword(GenTokenUtils.encodeToken(tokenResetPassword));
+    userRepository.save(user);
+    return ResponseEntity.ok(
+        URL + URLEncoder.encode(user.getTokenResetPassword(), StandardCharsets.UTF_8));
+  }
 
 }

@@ -1,5 +1,6 @@
 package latipe.user.exceptions;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 
@@ -83,6 +84,24 @@ public class ApiExceptionHandler {
                 LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss yyyy-MM-dd")),
                 message,
                 request.getContextPath()
+        );
+
+        log.warn(ERROR_LOG_FORMAT, this.getServletPath(request), 400, message);
+        log.debug(ex.toString());
+        return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(JsonParseException.class)
+    public ResponseEntity<ExceptionResponse> handleJsonParseException(
+        JsonParseException ex, WebRequest request) {
+        String message = "Invalid JSON format";
+
+        ExceptionResponse exceptionResponse = new ExceptionResponse(
+            HttpStatus.BAD_REQUEST.toString(),
+            "Bad Request",
+            LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss yyyy-MM-dd")),
+            message,
+            request.getContextPath()
         );
 
         log.warn(ERROR_LOG_FORMAT, this.getServletPath(request), 400, message);

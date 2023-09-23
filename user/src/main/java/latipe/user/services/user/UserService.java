@@ -8,32 +8,38 @@ import latipe.user.exceptions.NotFoundException;
 import latipe.user.repositories.IRoleRepository;
 import latipe.user.repositories.IUserRepository;
 import latipe.user.services.user.Dtos.CreateUserAddressDto;
+import latipe.user.services.user.Dtos.RegisterDto;
 import latipe.user.services.user.Dtos.UserCreateDto;
 import latipe.user.services.user.Dtos.UserDto;
 import latipe.user.services.user.Dtos.UserUpdateDto;
 import latipe.user.utils.Constants;
 import latipe.user.utils.NullAwareBeanUtilsBean;
+import latipe.user.viewmodel.RegisterRequest;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 @Service
 public class UserService implements IUserService {
+
     private final IUserRepository userRepository;
     private final ModelMapper toDto;
     private final IRoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(IUserRepository userRepository, ModelMapper toDto, IRoleRepository roleRepository) {
+    public UserService(IUserRepository userRepository, ModelMapper toDto, IRoleRepository roleRepository,
+        PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.toDto = toDto;
         this.roleRepository = roleRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
 
@@ -98,19 +104,62 @@ public class UserService implements IUserService {
     @Override
     public CompletableFuture<UserDto> create(UserCreateDto input) {
         return CompletableFuture.supplyAsync(() -> {
-            Optional<Role> role = roleRepository.findRoleByName(Constants.USER);
-            if (userRepository.findByPhoneAndEmail(input.getEmail()).size() != 0)
+            Role role = roleRepository.findRoleByName(input.getRole()).orElseThrow(
+                () -> new NotFoundException("Have error from server, please try again later")
+            );
+            if (!userRepository.findByPhoneAndEmail(input.getEmail()).isEmpty())
                 throw new BadRequestException("Email already exists");
-            if (userRepository.findByPhoneAndEmail(input.getPhoneNumber()).size() != 0)
+            if (!userRepository.findByPhoneAndEmail(input.getPhoneNumber()).isEmpty())
                 throw new BadRequestException("Phone number already exists");
             User user = toDto.map(input, User.class);
-            user.setRole(role.get());
+            user.setRole(role);
             user.setDisplayName(input.getLastName() + " " + input.getFirstName());
             userRepository.save(user);
             toDto.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
             // send mail verrify account
             return toDto.map(user, UserDto.class);
         });
+    }
+
+    @Async
+    @Override
+    public CompletableFuture<UserDto> register(RegisterRequest input) {
+
+        Role role = roleRepository.findRoleByName(Constants.USER).orElseThrow(
+            () -> new NotFoundException("Have error from server, please try again later")
+        );
+        if (!userRepository.findByPhoneAndEmail(input.email()).isEmpty())
+            throw new BadRequestException("Email already exists");
+        if (!userRepository.findByPhoneAndEmail(input.phoneNumber()).isEmpty())
+            throw new BadRequestException("Phone number already exists");
+
+        User user = toDto.map(input, User.class);
+        user.setRole(role);
+        user.setHashedPassword(passwordEncoder.encode(input.hashedPassword()));
+        user.setDisplayName(input.lastName() + " " + input.firstName());
+        userRepository.save(user);
+        toDto.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        // send mail verrify account
+        return CompletableFuture.completedFuture(toDto.map(user, UserDto.class));
+
+//        return CompletableFuture.supplyAsync(() -> {
+//
+//        });
+    }
+
+    private UserDto saveUser(UserCreateDto input, Role role) {
+        if (!userRepository.findByPhoneAndEmail(input.getEmail()).isEmpty())
+            throw new BadRequestException("Email already exists");
+        if (!userRepository.findByPhoneAndEmail(input.getPhoneNumber()).isEmpty())
+            throw new BadRequestException("Phone number already exists");
+        User user = toDto.map(input, User.class);
+        user.setRole(role);
+        user.setHashedPassword(passwordEncoder.encode(input.getHashedPassword()));
+        user.setDisplayName(input.getLastName() + " " + input.getFirstName());
+        userRepository.save(user);
+        toDto.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        // send mail verrify account
+        return toDto.map(user, UserDto.class);
     }
 
     @Override

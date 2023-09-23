@@ -18,15 +18,16 @@
 - Grafana, Loki, Prometheus, Tempo, Redis
 
 ## Run this project
-### To build this service:
+### Build this service:
 
-`mvn clean`
+`mvn clean package`
 
 ## Start docker and services:
 #### Also, make sure that the `install.sh` file has execute permissions. You can set the execute permission using the `chmod` command:
 `chmod +x install.sh`
 ```bash
-docker-compose up
+docker-compose -f ./docker/docker-compose.yml -p docker up -d
+
 ./install.sh
 ```
 ## Stop services:

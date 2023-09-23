@@ -24,11 +24,11 @@ spring:
         - id: user_service
           uri: http://localhost:8888
           predicates:
-            - Path=/api/v1/user/**
+            - Path=/api/v1/users/**
           filters:
             - RewritePath=/(?<segment>.*), /$\{segment}
 
-        - id: user_service
+        - id: cart_service
           uri: http://localhost:7650
           predicates:
             - Path=/api/v1/carts/**

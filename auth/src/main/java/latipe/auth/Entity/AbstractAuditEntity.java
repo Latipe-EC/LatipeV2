@@ -1,5 +1,6 @@
 package latipe.auth.Entity;
 
+import java.util.Date;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedBy;
@@ -19,7 +20,7 @@ public class AbstractAuditEntity {
 
     @CreatedDate
     @Field("created_date")
-    private ZonedDateTime createdDate;
+    private Date createdDate;
 
     @LastModifiedBy
     @Field("last_modified_by")
@@ -27,5 +28,5 @@ public class AbstractAuditEntity {
 
     @LastModifiedDate
     @Field("last_modified_date")
-    private ZonedDateTime lastModifiedDate;
+    private Date lastModifiedDate;
 }
