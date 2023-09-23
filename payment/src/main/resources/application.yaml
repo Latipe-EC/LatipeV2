@@ -6,7 +6,7 @@ spring:
       uri: mongodb://localhost:27017/Latipe-Payment-DB
 
 server:
-  port: '8081'
+  port: '8381'
 #  servlet:
 #    context-path: /api/v1
 management:

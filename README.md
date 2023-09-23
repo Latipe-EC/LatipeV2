@@ -17,6 +17,25 @@
 - OpenTelemetry
 - Grafana, Loki, Prometheus, Tempo, Redis
 
+## Run this project
+### To build this service:
+
+`mvn clean`
+
+## Start docker and services:
+#### Also, make sure that the `install.sh` file has execute permissions. You can set the execute permission using the `chmod` command:
+`chmod +x install.sh`
+```bash
+docker-compose up
+./install.sh
+```
+## Stop services:
+#### Also, make sure that the `terminate.sh` file has execute permissions. You can set the execute permission using the `chmod` command:
+`chmod +x terminate.sh`
+```bash
+./terminate.sh
+```
+
 ## Contributing
 - Give us a star
 - Reporting a bug

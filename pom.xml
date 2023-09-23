@@ -1,0 +1,65 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.latipe</groupId>
+  <artifactId>latipe-microservice-api</artifactId>
+  <version>1.0.0</version>
+  <packaging>pom</packaging>
+
+  <modules>
+    <module>api-gateway</module>
+    <module>auth</module>
+    <module>cart</module>
+    <module>discovery-server</module>
+    <module>payment</module>
+    <module>product</module>
+    <module>user</module>
+    <module>store</module>
+    <module>search</module>
+    <module>media</module>
+  </modules>
+
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>3.0.0</version>
+        <executions>
+          <execution>
+            <id>run-all</id>
+            <phase>install</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>java</executable>
+              <arguments>
+                <argument>-jar</argument>
+                <argument>discovery-server/target/discovery-server-1.0.0-SNAPSHOT.jar</argument>
+                <argument>-jar</argument>
+                <argument>api-gateway/target/api-gateway-1.0.0-SNAPSHOT.jar</argument>
+                <argument>-jar</argument>
+                <argument>auth/target/auth-1.0.0-SNAPSHOT.jar</argument>
+                <argument>-jar</argument>
+                <argument>cart/target/cart-1.0.0-SNAPSHOT.jar</argument>
+                <argument>-jar</argument>
+                <argument>payment/target/payment-1.0.0-SNAPSHOT.jar</argument>
+                <argument>-jar</argument>
+                <argument>product/target/product-1.0.0-SNAPSHOT.jar</argument>
+                <argument>-jar</argument>
+                <argument>user/target/user-1.0.0-SNAPSHOT.jar</argument>
+                <argument>-jar</argument>
+                <argument>store/target/store-1.0.0-SNAPSHOT.jar</argument>
+                <argument>-jar</argument>
+                <argument>search/target/search-1.0.0-SNAPSHOT.jar</argument>
+                <argument>-jar</argument>
+                <argument>media/target/media-1.0.0-SNAPSHOT.jar</argument>
+              </arguments>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>
