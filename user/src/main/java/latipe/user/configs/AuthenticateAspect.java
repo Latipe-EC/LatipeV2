@@ -3,14 +3,11 @@ package latipe.user.configs;
 import feign.FeignException;
 import jakarta.servlet.http.HttpServletRequest;
 import latipe.user.controllers.APIClient;
-import latipe.user.dtos.TokenDto;
-import latipe.user.dtos.UserCredentialDto;
-import latipe.user.exceptions.SignInRequiredException;
 import latipe.user.exceptions.UnauthorizedException;
+import latipe.user.request.TokenRequest;
+import latipe.user.response.UserCredentialResponse;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -31,12 +28,12 @@ public class AuthenticateAspect {
             throw new UnauthorizedException("Unauthorized");
         }
         try {
-            UserCredentialDto credentialDto =  apiClient.getCredential(new TokenDto(token));
-            if (credentialDto == null) {
+            UserCredentialResponse userCredential =  apiClient.getCredential(new TokenRequest(token));
+            if (userCredential == null) {
                 throw new UnauthorizedException("Unauthorized");
             }
             HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-            request.setAttribute("user", credentialDto);
+            request.setAttribute("user", userCredential);
         } catch (FeignException e) {
             throw new UnauthorizedException(e.getMessage());
         }

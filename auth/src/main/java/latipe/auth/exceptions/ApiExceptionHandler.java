@@ -1,22 +1,23 @@
 package latipe.auth.exceptions;
 
-import latipe.auth.viewmodel.ExceptionResponse;
+import com.fasterxml.jackson.core.JsonParseException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import latipe.auth.viewmodel.ExceptionResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
-
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
 
 @ControllerAdvice
 @Slf4j
@@ -31,6 +32,7 @@ public class ApiExceptionHandler {
         log.debug(ex.toString());
         return new ResponseEntity<>(ExceptionResponse, HttpStatus.NOT_FOUND);
     }
+
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<ExceptionResponse> handleUnauthorizedException(UnauthorizedException ex, WebRequest request) {
         String message = ex.getMessage();
@@ -39,6 +41,7 @@ public class ApiExceptionHandler {
         log.debug(ex.toString());
         return new ResponseEntity<>(ExceptionResponse, HttpStatus.UNAUTHORIZED);
     }
+
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ExceptionResponse> handleBadRequestException(BadRequestException ex, WebRequest request) {
         String message = ex.getMessage();
@@ -69,12 +72,11 @@ public class ApiExceptionHandler {
         return ResponseEntity.badRequest().body(ExceptionResponse);
     }
 
-    @ExceptionHandler(MissingServletRequestParameterException.class)
+    @ExceptionHandler({MissingServletRequestParameterException.class})
     public ResponseEntity<ExceptionResponse> handleMissingServletRequestParameter(
             MissingServletRequestParameterException ex, WebRequest request) {
         String paramName = ex.getParameterName();
         String message = "Required parameter '" + paramName + "' is missing";
-
         ExceptionResponse exceptionResponse = new ExceptionResponse(
                 HttpStatus.BAD_REQUEST.toString(),
                 "Bad Request",
@@ -87,6 +89,43 @@ public class ApiExceptionHandler {
         log.debug(ex.toString());
         return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
     }
+
+//    @ExceptionHandler({HttpMessageNotReadableException.class})
+//    public ResponseEntity<ExceptionResponse> handleHttpMessageNotReadableException(
+//        HttpMessageNotReadableException ex, WebRequest request) {
+//        String paramName = ex.getMessage();
+//        String message = "Required parameter '" + paramName + "' is missing";
+//        ExceptionResponse exceptionResponse = new ExceptionResponse(
+//            HttpStatus.BAD_REQUEST.toString(),
+//            "Bad Request",
+//            LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss yyyy-MM-dd")),
+//            message,
+//            request.getContextPath()
+//        );
+//
+//        log.warn(ERROR_LOG_FORMAT, this.getServletPath(request), 400, message);
+//        log.debug(ex.toString());
+//        return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
+//    }
+
+    @ExceptionHandler(JsonParseException.class)
+    public ResponseEntity<ExceptionResponse> handleJsonParseException(
+        JsonParseException ex, WebRequest request) {
+        String message = "Invalid JSON format";
+
+        ExceptionResponse exceptionResponse = new ExceptionResponse(
+            HttpStatus.BAD_REQUEST.toString(),
+            "Bad Request",
+            LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss yyyy-MM-dd")),
+            message,
+            request.getContextPath()
+        );
+
+        log.warn(ERROR_LOG_FORMAT, this.getServletPath(request), 400, message);
+        log.debug(ex.toString());
+        return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
+    }
+
 
     @ExceptionHandler({SignInRequiredException.class})
     public ResponseEntity<Object> handleSignInRequired(SignInRequiredException ex) {

@@ -1,14 +1,27 @@
 package latipe.user.Entity;
 
-import lombok.Data;
+import jakarta.validation.constraints.NotEmpty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 
-@Data
+@Setter
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class UserAddress {
     @Id
-    private String id;
+    private String id = new ObjectId().toString();
+    @NotEmpty(message = "Contact name is required")
     private String contactName;
+    @NotEmpty(message = "Phone name is required")
     private String phone;
+    @NotEmpty(message = "Detail Address is required")
     private String detailAddress;
     private String city;
     private String zipCode;
@@ -18,4 +31,6 @@ public class UserAddress {
     private String stateOrProvinceName;
     private Long countryId = 84L;
     private String countryName = "VietNam";
+
+
 }

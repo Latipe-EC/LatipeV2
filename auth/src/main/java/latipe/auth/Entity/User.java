@@ -1,7 +1,9 @@
 package latipe.auth.Entity;
 
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,10 +13,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
 @Document(collection = "Users")
 @Getter
 @Setter
@@ -34,12 +32,13 @@ public class User extends AbstractAuditEntity implements UserDetails {
     private Date lastLogin;
     private String hashedPassword;
     private String avatar;
+    private String bio;
     private int point = 0;
     private double eWallet;
     private String storeId;
     private String tokenResetPassword;
-    private Date createAt = new Date(new java.util.Date().getTime());
-    private Date updateAt = new Date(new java.util.Date().getTime());
+    private Date createAt = new Date();
+    private Date updateAt = new Date();
     private Boolean isDeleted = false;
     @DBRef
     private Role role;

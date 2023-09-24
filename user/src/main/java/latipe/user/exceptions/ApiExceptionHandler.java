@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.ServletWebRequest;
@@ -84,6 +85,23 @@ public class ApiExceptionHandler {
                 LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss yyyy-MM-dd")),
                 message,
                 request.getContextPath()
+        );
+
+        log.warn(ERROR_LOG_FORMAT, this.getServletPath(request), 400, message);
+        log.debug(ex.toString());
+        return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ServletRequestBindingException.class)
+    public ResponseEntity<ExceptionResponse> handleMissingServletRequestParameter(
+        ServletRequestBindingException ex, WebRequest request) {
+        String message = ex.getMessage();
+        ExceptionResponse exceptionResponse = new ExceptionResponse(
+            HttpStatus.UNAUTHORIZED.toString(),
+            "Unauthorized",
+            LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss yyyy-MM-dd")),
+            "Missing authentication header",
+            request.getContextPath()
         );
 
         log.warn(ERROR_LOG_FORMAT, this.getServletPath(request), 400, message);

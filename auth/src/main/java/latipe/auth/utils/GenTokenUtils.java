@@ -2,17 +2,17 @@ package latipe.auth.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import latipe.auth.Entity.User;
-import latipe.auth.dtos.TokenResetPasswordDto;
-import latipe.auth.exceptions.BadRequestException;
-
-import javax.crypto.Cipher;
-import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
+import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Date;
 import java.util.Random;
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+import latipe.auth.Entity.User;
+import latipe.auth.exceptions.BadRequestException;
+import latipe.auth.response.TokenResetPasswordResponse;
 
 public class GenTokenUtils {
     private static final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
@@ -26,7 +26,8 @@ public class GenTokenUtils {
         }
         return sb.toString();
     }
-    public static String encodeToken(TokenResetPasswordDto tokenResetPassword) {
+
+    public static String encodeToken(TokenResetPasswordResponse tokenResetPassword) {
         try {
             String jsonString = objectMapper.writeValueAsString(tokenResetPassword);
             byte[] encryptedBytes = encryptAES(jsonString.getBytes(StandardCharsets.UTF_8));
@@ -36,11 +37,11 @@ public class GenTokenUtils {
         }
     }
 
-    public static TokenResetPasswordDto decodeToken(String encodedToken) {
+    public static TokenResetPasswordResponse decodeToken(String encodedToken) {
         try {
             byte[] decryptedBytes = decryptAES(Base64.getDecoder().decode(encodedToken));
             String jsonString = new String(decryptedBytes, StandardCharsets.UTF_8);
-            return objectMapper.readValue(jsonString, TokenResetPasswordDto.class);
+            return objectMapper.readValue(jsonString, TokenResetPasswordResponse.class);
         } catch (Exception e) {
             throw new RuntimeException("Error decoding token", e);
         }
@@ -60,14 +61,19 @@ public class GenTokenUtils {
         return cipher.doFinal(encryptedData);
     }
 
-    public static User setToken(User user, TokenResetPasswordDto token) {
+    public static void setToken(User user, TokenResetPasswordResponse token) {
         user.setTokenResetPassword(encodeToken(token));
         if (user.getRequestCount() > 3
-                && (user.getLastRequest() == null || user.getLastRequest().getTime() - new Date().getTime() < 24 * 60 * 60 * 1000)) {
+            && (user.getLastRequest() == null || user.getLastRequest().getTime() -
+            new Date().getTime()
+            < 24 * 60 * 60 * 1000)) {
             throw new BadRequestException("Bạn đã gửi quá nhiều yêu cầu để cấp lại mật khẩu, hãy đợi 24h sau để thực hiện lại chức năng");
         }
         user.setRequestCount(user.getRequestCount() + 1);
-        user.setLastRequest(new Date(new Date().getTime()));
-        return user;
+        user.setLastRequest(new Date());
+    }
+
+    public static boolean isExpired(LocalDateTime expired) {
+        return LocalDateTime.now().isAfter(expired);
     }
 }

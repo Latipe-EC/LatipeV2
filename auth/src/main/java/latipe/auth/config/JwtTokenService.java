@@ -4,15 +4,10 @@ import static latipe.auth.utils.Constants.ErrorCode.TOKEN_EXPIRED;
 import static latipe.auth.utils.Constants.ErrorCode.TOKEN_INVALID;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import latipe.auth.exceptions.UnauthorizedException;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.bcrypt.BCrypt;
-import org.springframework.stereotype.Service;
-
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPrivateKey;
@@ -24,6 +19,12 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import latipe.auth.exceptions.BadRequestException;
+import latipe.auth.exceptions.UnauthorizedException;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.stereotype.Service;
 
 @Service
 public class JwtTokenService {
@@ -56,6 +57,16 @@ public class JwtTokenService {
         .build()
         .parseClaimsJws(token);
     return jws.getBody().getSubject();
+  }
+
+  public Claims getBodyToken(String token)
+      throws NoSuchAlgorithmException, InvalidKeySpecException, RuntimeException {
+    RSAPublicKey publicKey = getPublicKey();
+    Jws<Claims> jws = Jwts.parserBuilder()
+        .setSigningKey(publicKey)
+        .build()
+        .parseClaimsJws(token);
+    return jws.getBody();
   }
 
   public String hashPassword(String password) {
@@ -152,5 +163,26 @@ public class JwtTokenService {
     X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(publicKeyBytes);
     KeyFactory keyFactory = KeyFactory.getInstance("RSA");
     return (RSAPublicKey) keyFactory.generatePublic(publicKeySpec);
+  }
+
+  public String checkToken(String token, String type) {
+    String username = null;
+    Claims claims = null;
+    try {
+      claims = getBodyToken(token);
+    } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+      throw new UnauthorizedException(TOKEN_INVALID);
+    } catch (ExpiredJwtException e) {
+      throw new UnauthorizedException(TOKEN_EXPIRED);
+    }
+    if (claims.get("type", String.class).equals(type)) {
+      username = claims.getSubject();
+    } else {
+      throw new UnauthorizedException(TOKEN_INVALID);
+    }
+    if (username == null) {
+      throw new BadRequestException("Not Type %s".formatted(type).replace("-", " "));
+    }
+    return username;
   }
 }
