@@ -1,7 +1,7 @@
 package latipe.user.configs;
 
 import latipe.user.annotations.ApiPrefixController;
-import org.modelmapper.ModelMapper;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -18,10 +18,7 @@ public class AppConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**").allowedMethods("*").allowedOrigins("*").allowedHeaders("*");
     }
-    @Bean
-    public ModelMapper getModelMapper() {
-        return new ModelMapper();
-    }
+   
 
     @Override
     public void configurePathMatch(PathMatchConfigurer configurer) {

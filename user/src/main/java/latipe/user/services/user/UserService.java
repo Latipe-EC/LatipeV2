@@ -2,45 +2,64 @@ package latipe.user.services.user;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import latipe.user.Entity.Role;
 import latipe.user.Entity.User;
 import latipe.user.Entity.UserAddress;
 import latipe.user.exceptions.BadRequestException;
 import latipe.user.exceptions.NotFoundException;
+import latipe.user.mappers.IUserMapper;
 import latipe.user.repositories.IRoleRepository;
 import latipe.user.repositories.IUserRepository;
 import latipe.user.request.CreateUserAddressRequest;
 import latipe.user.request.CreateUserRequest;
 import latipe.user.request.RegisterRequest;
 import latipe.user.request.UpdateUserAddressRequest;
+import latipe.user.request.UpdateUserRequest;
 import latipe.user.response.UserResponse;
 import latipe.user.utils.Constants;
+import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class UserService implements IUserService {
 
     private final IUserRepository userRepository;
     private final IRoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
-
-    public UserService(IUserRepository userRepository, IRoleRepository roleRepository,
-        PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
-
+    private final IUserMapper userMapper;
 
     @Async
+    @Override
+    public CompletableFuture<UserResponse> getProfile(String id) {
+        return CompletableFuture.supplyAsync(() -> {
+            var user = userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+            return userMapper.mapToResponse(user);
+        });
+    }
+
+    @Async
+    @Override
+    public CompletableFuture<UserResponse> updateProfile(String id, UpdateUserRequest input) {
+        return CompletableFuture.supplyAsync(() -> {
+            var user = userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+            userMapper.mapBeforeUpdateUser(user, input);
+            userRepository.save(user);
+            return userMapper.mapToResponse(user);
+        });
+    }
+
+    @Async
+    @Override
     public CompletableFuture<List<UserAddress>> getMyAddresses(String id, int page, int size) {
         return CompletableFuture.supplyAsync(() -> {
             var user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
             int startIndex = (page - 1) * size;
-            int endIndex = Math.min(startIndex + page, user.getAddresses().size());
+            int endIndex = Math.min(startIndex + size, user.getAddresses().size());
             if (startIndex >= endIndex) {
                 return List.of();
             }
@@ -49,6 +68,7 @@ public class UserService implements IUserService {
     }
 
     @Async
+    @Override
     public CompletableFuture<UserAddress> addMyAddresses(String id,
         CreateUserAddressRequest input) {
         return CompletableFuture.supplyAsync(() -> {
@@ -76,40 +96,31 @@ public class UserService implements IUserService {
     }
 
     @Async
-    public CompletableFuture<Void> deleteMyAddresses(String id) {
+    @Override
+    public CompletableFuture<Void> deleteMyAddresses(String id, String userId) {
         return CompletableFuture.supplyAsync(() -> {
-            User user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
+            User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
             for (UserAddress address : user.getAddresses()) {
                 if (address.getId().equals(id)) {
                     user.getAddresses().remove(address);
-                    break;
+                    userRepository.save(user);
+                    return null;
                 }
             }
-            return null;
+            throw new NotFoundException("Address not found with id: %s".formatted(id));
         });
     }
 
     @Async
+    @Override
     public CompletableFuture<UserAddress> updateMyAddresses(UpdateUserAddressRequest input,
         String userId, String addressId) {
         return CompletableFuture.supplyAsync(() -> {
             User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
             for (UserAddress address : user.getAddresses()) {
                 if (address.getId().equals(addressId)) {
-                    address = UserAddress.builder()
-                        .id(addressId)
-                        .contactName(input.contactName())
-                        .phone(input.phone())
-                        .detailAddress(input.detailAddress())
-                        .zipCode(input.zipCode())
-                        .city(input.city())
-                        .countryId(input.countryId())
-                        .countryName(input.countryName())
-                        .stateOrProvinceId(input.stateOrProvinceId())
-                        .stateOrProvinceName(input.stateOrProvinceName())
-                        .districtId(input.districtId())
-                        .districtName(input.districtName())
-                        .build();
+                    userMapper.mapBeforeUpdateUserAddress(address, input);
                     userRepository.save(user);
                     return address;
                 }
@@ -130,16 +141,10 @@ public class UserService implements IUserService {
             if (!userRepository.findByPhoneAndEmail(input.phoneNumber()).isEmpty())
                 throw new BadRequestException("Phone number already exists");
 
-            var user = User.builder()
-                .firstName(input.firstName())
-                .lastName(input.lastName())
-                .phoneNumber(input.phoneNumber())
-                .email(input.email())
-                .hashedPassword(passwordEncoder.encode(input.hashedPassword()))
-                .avatar(input.avatar())
-                .displayName(input.firstName() + " " + input.lastName())
-                .role(role)
-                .build();
+            var user = userMapper.mapBeforeCreateUserAddress(input,
+                input.firstName() + " " + input.lastName(),
+                passwordEncoder.encode(input.hashedPassword()));
+            user.setRole(role);
             userRepository.save(user);
             // send mail verrify account
             return UserResponse.fromUser(user);
@@ -161,16 +166,9 @@ public class UserService implements IUserService {
                 throw new BadRequestException("Phone number already exists");
             }
 
-            var user = User.builder()
-                .firstName(input.firstName())
-                .lastName(input.lastName())
-                .phoneNumber(input.phoneNumber())
-                .email(input.email())
-                .hashedPassword(passwordEncoder.encode(input.hashedPassword()))
-                .avatar(input.avatar())
-                .displayName(input.firstName() + " " + input.lastName())
-                .role(role)
-                .build();
+            var user = userMapper.mapBeforeCreate(input, role,
+                input.firstName() + " " + input.lastName(),
+                passwordEncoder.encode(input.hashedPassword()));
             userRepository.save(user);
             // send mail verrify account
             return UserResponse.fromUser(user);

@@ -17,7 +17,7 @@ public class Role extends AbstractAuditEntity {
     private String name;
     private Boolean isDeleted= false;
     public Role(String id, String name ) {
-        id = id;
+        this.id = id;
         this.name = name;
     }
     public Role(String name ) {

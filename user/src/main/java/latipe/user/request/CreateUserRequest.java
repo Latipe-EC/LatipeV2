@@ -14,12 +14,10 @@ public record CreateUserRequest(
     String lastName,
 
     @Pattern(regexp = "^\\d{10,11}$", message = "Phone have 10 to 11 digit")
-    @JsonProperty(value = "phoneNumber")
     String phoneNumber,
 
     @NotEmpty(message = "Email is mandatory")
     @Email(message = "Email should be valid")
-    @JsonProperty(value = "email")
     String email,
 
     @NotEmpty(message = "password is mandatory")

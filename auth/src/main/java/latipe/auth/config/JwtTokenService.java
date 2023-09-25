@@ -104,31 +104,6 @@ public class JwtTokenService {
     return expirationDate.before(new Date());
   }
 
-  public String checkRefreshToken(String token)
-      throws NoSuchAlgorithmException, InvalidKeySpecException {
-    RSAPublicKey publicKey = getPublicKey();
-    Jws<Claims> jws = Jwts.parserBuilder()
-        .setSigningKey(publicKey)
-        .build()
-        .parseClaimsJws(token);
-    if (!jws.getBody().get("type", String.class).equals("refresh-token")) {
-      return null;
-    }
-    return jws.getBody().getSubject();
-  }
-
-  private Claims getClaimsFromToken(String token) {
-    try {
-      RSAPublicKey publicKey = getPublicKey();
-      return Jwts.parserBuilder()
-          .setSigningKey(publicKey)
-          .build()
-          .parseClaimsJws(token).getBody();
-    } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-      throw new RuntimeException("Error generating token", e);
-    }
-  }
-
   private String createToken(String type, Map<String, Object> claims, String subject,
       long expiration) {
     try {

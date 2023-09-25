@@ -6,7 +6,7 @@ import latipe.media.exceptions.BadRequestException;
 import latipe.media.exceptions.NotFoundException;
 import latipe.media.repositories.IMediaRepository;
 import latipe.media.viewmodel.MediaVm;
-import org.modelmapper.ModelMapper;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;

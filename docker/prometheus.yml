@@ -3,53 +3,51 @@ global:
   evaluation_interval: 2s
 
 scrape_configs:
-  - job_name: "prometheus"
-    static_configs:
-      - targets: ["host.docker.internal:9090"]
-
-  - job_name: "backoffice-bff"
+  - job_name: "auth_service"
     metrics_path: "/actuator/prometheus"
     static_configs:
-      - targets: ["backoffice", "storefront"]
-
-  - job_name: "product"
-    metrics_path: "/product/actuator/prometheus"
+      - targets: ["172.17.0.1:8081"]
+  - job_name: "user_service"
+    metrics_path: "/actuator/prometheus"
     static_configs:
-      - targets: ["product"]
-
-  - job_name: "media"
-    metrics_path: "/media/actuator/prometheus"
+      - targets: ["172.17.0.1:8888"]
+  - job_name: "cart_service"
+    metrics_path: "/actuator/prometheus"
     static_configs:
-      - targets: ["media"]
-  - job_name: "rating"
-    metrics_path: "/rating/actuator/prometheus"
+      - targets: ["172.17.0.1:7650"]
+  - job_name: "media_service"
+    metrics_path: "/actuator/prometheus"
     static_configs:
-      - targets: ["rating"]
-  - job_name: "order"
-    metrics_path: "/order/actuator/prometheus"
+      - targets: ["172.17.0.1:7657"]
+  - job_name: "product_service"
+    metrics_path: "/actuator/prometheus"
     static_configs:
-      - targets: ["order"]
-  - job_name: "location"
-    metrics_path: "/location/actuator/prometheus"
+      - targets: ["172.17.0.1:8645"]
+  - job_name: "category_service"
+    metrics_path: "/actuator/prometheus"
     static_configs:
-      - targets: ["location"]
-  - job_name: "inventory"
-    metrics_path: "/inventory/actuator/prometheus"
+      - targets: ["172.17.0.1:8645"]
+  - job_name: "search_service"
+    metrics_path: "/actuator/prometheus"
     static_configs:
-      - targets: ["inventory"]
-  - job_name: "promotion"
-    metrics_path: "/promotion/actuator/prometheus"
+      - targets: ["172.17.0.1:8092"]
+  - job_name: "store_service"
+    metrics_path: "/actuator/prometheus"
     static_configs:
-      - targets: ["promotion"]
-  - job_name: "tax"
-    metrics_path: "/tax/actuator/prometheus"
+      - targets: ["172.17.0.1:8118"]
+  - job_name: "payment_service"
+    metrics_path: "/actuator/prometheus"
     static_configs:
-      - targets: ["tax"]
-  - job_name: "payment"
-    metrics_path: "/payment/actuator/prometheus"
+      - targets: ["172.17.0.1:8081"]
+  - job_name: "paypal_service"
+    metrics_path: "/actuator/prometheus"
     static_configs:
-      - targets: ["payment"]
-  - job_name: "payment-paypal"
-    metrics_path: "/payment-paypal/actuator/prometheus"
+      - targets: ["172.17.0.1:8083"]
+  - job_name: "discovery_server"
+    metrics_path: "/actuator/prometheus"
     static_configs:
-      - targets: ["payment-paypal"]
+      - targets: ["eureka:8761"]
+  - job_name: "discovery_server_static"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets: ["eureka:8761"]

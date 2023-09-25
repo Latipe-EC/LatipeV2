@@ -10,7 +10,7 @@ import latipe.product.services.category.Dtos.CategoryDto;
 import latipe.product.services.category.Dtos.CategoryUpdateDto;
 import latipe.product.services.category.ICategoryService;
 import latipe.product.utils.NullAwareBeanUtilsBean;
-import org.modelmapper.ModelMapper;
+
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 

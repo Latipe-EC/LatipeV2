@@ -10,6 +10,7 @@ import latipe.user.request.CreateUserAddressRequest;
 import latipe.user.request.CreateUserRequest;
 import latipe.user.request.RegisterRequest;
 import latipe.user.request.UpdateUserAddressRequest;
+import latipe.user.request.UpdateUserRequest;
 import latipe.user.response.UserCredentialResponse;
 import latipe.user.response.UserResponse;
 import latipe.user.services.user.IUserService;
@@ -18,9 +19,9 @@ import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -42,23 +43,27 @@ public class UserController {
   @ResponseStatus(HttpStatus.OK)
   @Authenticate
   @GetMapping(value = "/my-profile", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<String> getMyProfile() {
-    return CompletableFuture.completedFuture("Hello");
+  public CompletableFuture<UserResponse> getMyProfile() {
+    UserCredentialResponse userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
+        .getAttribute("user")));
+    return userService.getProfile(userCredential.id());
   }
-
 
   @ResponseStatus(HttpStatus.OK)
   @Authenticate
-  @PatchMapping(value = "/my-profile", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<String> updateProfile() {
-    return CompletableFuture.completedFuture("Hello");
+  @PutMapping(value = "/my-profile", produces = MediaType.APPLICATION_JSON_VALUE)
+  public CompletableFuture<UserResponse> updateProfile(
+      @Valid @RequestBody UpdateUserRequest input) {
+    UserCredentialResponse userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
+        .getAttribute("user")));
+    return userService.updateProfile(userCredential.id(), input);
   }
 
   @ResponseStatus(HttpStatus.OK)
   @Authenticate
   @GetMapping(value = "/my-address", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<List<UserAddress>> getMyAddresses(
-      @RequestParam(name = "page", defaultValue = "0") int page,
+      @RequestParam(name = "page", defaultValue = "1") int page,
       @RequestParam(name = "size", defaultValue = "10") int size
   ) {
     UserCredentialResponse userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest().getAttribute("user")));
@@ -67,7 +72,7 @@ public class UserController {
 
   @ResponseStatus(HttpStatus.OK)
   @Authenticate
-  @PatchMapping(value = "/my-address/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+  @PutMapping(value = "/my-address/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<UserAddress> updateMyAddress(
       @PathVariable String id,
       @Valid @RequestBody UpdateUserAddressRequest input) {
@@ -80,15 +85,21 @@ public class UserController {
   @PostMapping(value = "/my-address", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<UserAddress> addMyAddress(
       @Valid @RequestBody CreateUserAddressRequest input) {
+
     UserCredentialResponse userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest().getAttribute("user")));
     return userService.addMyAddresses(userCredential.id(), input);
+
   }
 
   @ResponseStatus(HttpStatus.OK)
   @Authenticate
   @DeleteMapping(value = "/my-address/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<Void> deleteMyAddress(@PathVariable String id) {
-    return userService.deleteMyAddresses(id);
+
+    UserCredentialResponse userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
+        .getAttribute("user")));
+    return userService.deleteMyAddresses(id, userCredential.id());
+
   }
 
   @ResponseStatus(HttpStatus.CREATED)

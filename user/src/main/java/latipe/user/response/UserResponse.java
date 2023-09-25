@@ -4,20 +4,16 @@ import latipe.user.Entity.User;
 
 public record UserResponse(
     String id,
-
     String firstName,
-
     String lastName,
     String displayName,
-
     String phoneNumber,
-
     String email,
-
     String hashedPassword,
     String avatar,
     String role,
-    Double eWallet
+    Double eWallet,
+    Integer point
 
 ) {
   public static UserResponse fromUser(User user) {
@@ -31,7 +27,8 @@ public record UserResponse(
         user.getHashedPassword(),
         user.getAvatar(),
         user.getRole().getName(),
-        user.getEWallet()
+        user.getEWallet(),
+        user.getPoint()
     );
   }
 
