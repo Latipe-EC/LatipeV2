@@ -23,4 +23,3 @@ public interface IProductService extends IService<ProductDto, ProductCreateDto, 
     public CompletableFuture<List<ProductThumbnailVm>> getFeatureProduct(List<ProductFeatureDto> products);
     public CompletableFuture<ProductESDetailVm> getProductESDetailById(String productId);
 }
-

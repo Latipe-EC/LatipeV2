@@ -1,5 +1,8 @@
 package latipe.product.services.product;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import latipe.product.Entity.Category;
 import latipe.product.Entity.Product;
 import latipe.product.Entity.ProductClassification;
@@ -9,13 +12,19 @@ import latipe.product.dtos.ProductFeatureDto;
 import latipe.product.dtos.ProductPriceDto;
 import latipe.product.exceptions.BadRequestException;
 import latipe.product.exceptions.NotFoundException;
+import latipe.product.mapper.ProductMapper;
 import latipe.product.repositories.ICategoryRepository;
 import latipe.product.repositories.IProductRepository;
-import latipe.product.services.product.Dtos.*;
+import latipe.product.services.product.Dtos.BanProductDto;
+import latipe.product.services.product.Dtos.OrderProductCheckDto;
+import latipe.product.services.product.Dtos.OrderProductResultsDto;
+import latipe.product.services.product.Dtos.ProductCreateDto;
+import latipe.product.services.product.Dtos.ProductDto;
+import latipe.product.services.product.Dtos.ProductOrderDto;
+import latipe.product.services.product.Dtos.ProductUpdateDto;
 import latipe.product.viewmodel.ProductESDetailVm;
 import latipe.product.viewmodel.ProductThumbnailVm;
 import org.bson.Document;
-
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
@@ -24,22 +33,20 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-
 @Service
 public class ProductService implements IProductService {
     private final IProductRepository productRepository;
     private final ICategoryRepository categoryRepository;
-    private final ModelMapper toDto;
+    private final ProductMapper productMapper;
     private final APIClient apiClient;
     private final MongoTemplate mongoTemplate;
 
-    public ProductService(IProductRepository productRepository, ICategoryRepository categoryRepository, ModelMapper toDto, APIClient apiClient, MongoTemplate mongoTemplate) {
+    public ProductService(IProductRepository productRepository,
+        ICategoryRepository categoryRepository, ProductMapper productMapper, APIClient apiClient,
+        MongoTemplate mongoTemplate) {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
-        this.toDto = toDto;
+        this.productMapper = productMapper;
         this.apiClient = apiClient;
         this.mongoTemplate = mongoTemplate;
     }
@@ -91,7 +98,7 @@ public class ProductService implements IProductService {
                 }
 
             }
-            Product prod = toDto.map(input, Product.class);
+            Product prod = productMapper.mapToProductBeforeCreate(input);
             // get store id from store service
             prod.setStoreId(apiClient.getStoreId(userId));
             return toDto.map(productRepository.save(prod), ProductDto.class);

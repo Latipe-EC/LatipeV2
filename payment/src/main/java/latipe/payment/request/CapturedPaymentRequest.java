@@ -1,4 +1,4 @@
-package latipe.payment.viewmodel;
+package latipe.payment.request;
 
 
 import latipe.payment.Entity.Payment;
@@ -9,7 +9,7 @@ import lombok.Builder;
 import java.math.BigDecimal;
 
 @Builder
-public record CapturedPayment(
+public record CapturedPaymentRequest(
         Long orderId,
         String checkoutId,
         BigDecimal amount,
@@ -18,8 +18,8 @@ public record CapturedPayment(
         EPaymentMethod paymentMethod,
         EPaymentStatus paymentStatus,
         String failureMessage ) {
-    public static CapturedPayment fromModel(Payment payment){
-        return CapturedPayment.builder()
+    public static CapturedPaymentRequest fromModel(Payment payment){
+        return CapturedPaymentRequest.builder()
                 .amount(payment.getAmount())
                 .paymentFee(payment.getPaymentFee())
                 .checkoutId(payment.getCheckoutId())

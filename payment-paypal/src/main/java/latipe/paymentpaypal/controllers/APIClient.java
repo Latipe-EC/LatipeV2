@@ -1,5 +1,7 @@
 package latipe.paymentpaypal.controllers;
 
+import latipe.paymentpaypal.request.TokenRequest;
+import latipe.paymentpaypal.response.UserCredentialResponse;
 import latipe.paymentpaypal.viewmodel.CapturedPaymentVm;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,4 +19,5 @@ public interface APIClient {
 
     @GetMapping(value = "/payment-providers/{id}/additional-settings")
     String getAdditionalSettings(@PathVariable String id);
+
 }

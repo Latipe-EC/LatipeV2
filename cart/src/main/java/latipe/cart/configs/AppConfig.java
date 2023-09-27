@@ -16,7 +16,6 @@ public class AppConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**").allowedMethods("*").allowedOrigins("*").allowedHeaders("*");
     }
-   
 
     @Override
     public void configurePathMatch(PathMatchConfigurer configurer) {
@@ -26,4 +25,5 @@ public class AppConfig implements WebMvcConfigurer {
     public RequestContextListener requestContextListener() {
         return new RequestContextListener();
     }
+
 }

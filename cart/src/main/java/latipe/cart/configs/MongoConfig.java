@@ -27,6 +27,7 @@ public class MongoConfig extends AbstractMongoClientConfiguration {
     protected String getDatabaseName() {
         return "Latipe-Cart-DB";
     }
+
     @Override
     public MongoClient mongoClient() {
         ConnectionString connectionString = new ConnectionString(mongoUri);
@@ -34,6 +35,3 @@ public class MongoConfig extends AbstractMongoClientConfiguration {
     }
    
 }
-
-
-

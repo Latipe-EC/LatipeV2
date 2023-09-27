@@ -1,11 +1,15 @@
 package latipe.payment.listener;
 
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Date;
 import latipe.payment.Entity.AbstractAuditEntity;
+import latipe.payment.response.UserCredentialResponse;
 import org.springframework.data.mongodb.core.mapping.event.AbstractMongoEventListener;
 import org.springframework.data.mongodb.core.mapping.event.BeforeConvertEvent;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 @Component
 public class CustomAuditingEntityListener extends AbstractMongoEventListener<Object> {

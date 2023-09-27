@@ -2,17 +2,16 @@ package latipe.payment.configs;
 
 import feign.FeignException;
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.Objects;
 import latipe.payment.controllers.APIClient;
-import latipe.payment.dtos.TokenDto;
-import latipe.payment.dtos.UserCredentialDto;
 import latipe.payment.exceptions.UnauthorizedException;
+import latipe.payment.request.TokenRequest;
+import latipe.payment.response.UserCredentialResponse;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-
-import java.util.Objects;
 
 
 @Aspect
@@ -29,7 +28,7 @@ public class AuthenticateAspect {
             throw new UnauthorizedException("Unauthorized");
         }
         try {
-            UserCredentialDto credentialDto =  apiClient.getCredential(new TokenDto(token));
+            UserCredentialResponse credentialDto = apiClient.getCredential(new TokenRequest(token));
             if (credentialDto == null) {
                 throw new UnauthorizedException("Unauthorized");
             }

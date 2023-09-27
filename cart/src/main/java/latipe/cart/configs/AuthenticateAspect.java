@@ -2,17 +2,16 @@ package latipe.cart.configs;
 
 import feign.FeignException;
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.Objects;
 import latipe.cart.controllers.APIClient;
-import latipe.cart.dtos.TokenDto;
-import latipe.cart.dtos.UserCredentialDto;
 import latipe.cart.exceptions.UnauthorizedException;
+import latipe.cart.request.TokenRequest;
+import latipe.cart.response.UserCredentialResponse;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-
-import java.util.Objects;
 
 
 @Aspect
@@ -29,7 +28,7 @@ public class AuthenticateAspect {
             throw new UnauthorizedException("Unauthorized");
         }
         try {
-            UserCredentialDto credentialDto =  apiClient.getCredential(new TokenDto(token));
+            UserCredentialResponse credentialDto = apiClient.getCredential(new TokenRequest(token));
             if (credentialDto == null) {
                 throw new UnauthorizedException("Unauthorized");
             }

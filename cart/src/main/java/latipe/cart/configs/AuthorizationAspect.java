@@ -4,10 +4,10 @@ import feign.FeignException;
 import jakarta.servlet.http.HttpServletRequest;
 import latipe.cart.annotations.RequiresAuthorization;
 import latipe.cart.controllers.APIClient;
-import latipe.cart.dtos.TokenDto;
-import latipe.cart.dtos.UserCredentialDto;
 import latipe.cart.exceptions.ForbiddenException;
 import latipe.cart.exceptions.UnauthorizedException;
+import latipe.cart.request.TokenRequest;
+import latipe.cart.response.UserCredentialResponse;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
@@ -32,11 +32,11 @@ public class AuthorizationAspect {
             throw new UnauthorizedException("Unauthorized");
         }
         try {
-            UserCredentialDto credentialDto =  apiClient.getCredential(new TokenDto(token));
+            UserCredentialResponse credentialDto = apiClient.getCredential(new TokenRequest(token));
             if (credentialDto == null) {
                 throw new UnauthorizedException("Unauthorized");
             }
-            if (!credentialDto.getRole().equals(requiresAuthorization.value()[0])) {
+            if (!credentialDto.role().equals(requiresAuthorization.value()[0])) {
                 throw new ForbiddenException("Don't have permission to do this!");
             }
             HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
