@@ -63,7 +63,7 @@ public class ProductSyncDataService {
         .isBanned(productESDetailVm.isBanned())
         .isDeleted(productESDetailVm.isDeleted())
         .build();
-    Product savedProduct = productRepository.save(product);
+    productRepository.save(product);
   }
 
   public void deleteProduct(String id) {
@@ -73,5 +73,13 @@ public class ProductSyncDataService {
     }
 
     productRepository.deleteById(id);
+  }
+
+  public void banProduct(String id) {
+    var productExisted = productRepository.findById(id).orElseThrow(
+        () -> new NotFoundException(MessageCode.PRODUCT_NOT_FOUND, id)
+    );
+    productExisted.setBanned(true);
+    productRepository.save(productExisted);
   }
 }

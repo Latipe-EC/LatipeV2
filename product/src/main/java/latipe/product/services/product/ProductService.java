@@ -6,10 +6,12 @@ import latipe.product.Entity.Category;
 import latipe.product.Entity.Product;
 import latipe.product.Entity.ProductClassification;
 import latipe.product.configs.CustomAggregationOperation;
+import latipe.product.constants.Action;
 import latipe.product.controllers.APIClient;
 import latipe.product.exceptions.BadRequestException;
 import latipe.product.exceptions.NotFoundException;
 import latipe.product.mapper.ProductMapper;
+import latipe.product.producer.RabbitMQProducer;
 import latipe.product.repositories.ICategoryRepository;
 import latipe.product.repositories.IProductRepository;
 import latipe.product.request.BanProductRequest;
@@ -19,10 +21,13 @@ import latipe.product.request.ProductFeatureRequest;
 import latipe.product.request.UpdateProductRequest;
 import latipe.product.response.OrderProductResponse;
 import latipe.product.response.ProductResponse;
+import latipe.product.utils.ParseObjectToString;
 import latipe.product.viewmodel.ProductESDetailVm;
+import latipe.product.viewmodel.ProductMessageVm;
 import latipe.product.viewmodel.ProductOrderVm;
 import latipe.product.viewmodel.ProductPriceVm;
 import latipe.product.viewmodel.ProductThumbnailVm;
+import lombok.AllArgsConstructor;
 import org.bson.Document;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
@@ -33,6 +38,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
+@AllArgsConstructor
 public class ProductService implements IProductService {
 
   private final IProductRepository productRepository;
@@ -40,16 +46,8 @@ public class ProductService implements IProductService {
   private final ProductMapper productMapper;
   private final APIClient apiClient;
   private final MongoTemplate mongoTemplate;
+  private final RabbitMQProducer rabbitMQProducer;
 
-  public ProductService(IProductRepository productRepository,
-      ICategoryRepository categoryRepository, ProductMapper productMapper, APIClient apiClient,
-      MongoTemplate mongoTemplate) {
-    this.productRepository = productRepository;
-    this.categoryRepository = categoryRepository;
-    this.productMapper = productMapper;
-    this.apiClient = apiClient;
-    this.mongoTemplate = mongoTemplate;
-  }
 
   @Override
   @Async
@@ -108,6 +106,11 @@ public class ProductService implements IProductService {
       // get store id from store service
       prod.setStoreId(apiClient.getStoreId(userId));
       var savedProd = productRepository.save(prod);
+
+      // send message create message
+      var message = ParseObjectToString.parse(
+          new ProductMessageVm(savedProd.getId(), Action.CREATE));
+      rabbitMQProducer.sendMessage(message);
 
       return productMapper.mapToProductToResponse(savedProd);
     });
@@ -331,6 +334,10 @@ public class ProductService implements IProductService {
     }
     var savedProd = productRepository.save(product);
 
+    // send message create message
+    var message = ParseObjectToString.parse(new ProductMessageVm(savedProd.getId(), Action.UPDATE));
+    rabbitMQProducer.sendMessage(message);
+
     return CompletableFuture.completedFuture(productMapper.mapToProductToResponse(savedProd));
   }
 
@@ -345,7 +352,13 @@ public class ProductService implements IProductService {
         throw new BadRequestException("You don't have permission to change this product");
       }
       product.setDeleted(true);
-      productRepository.save(product);
+      var savedProduct = productRepository.save(product);
+
+      // send message create message
+      var message = ParseObjectToString.parse(
+          new ProductMessageVm(savedProduct.getId(), Action.DELETE));
+      rabbitMQProducer.sendMessage(message);
+
       return null;
     });
   }
@@ -359,7 +372,13 @@ public class ProductService implements IProductService {
       // check permission to change product (store service)
       product.setReasonBan(input.reason());
       product.setBanned(true);
-      productRepository.save(product);
+      var savedProduct = productRepository.save(product);
+
+      // send message create message
+      var message = ParseObjectToString.parse(
+          new ProductMessageVm(savedProduct.getId(), Action.BAN));
+      rabbitMQProducer.sendMessage(message);
+      
       return null;
     });
   }

@@ -1,4 +1,4 @@
-package latipe.search.constants;
+package latipe.product.constants;
 
 public final class Action {
   public static final String UPDATE = "u";

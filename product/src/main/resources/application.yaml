@@ -4,6 +4,17 @@ spring:
   data:
     mongodb:
       uri: mongodb://localhost:27017/Latipe-Product-DB
+  rabbitmq:
+    port: '5672'
+    host: localhost
+
+rabbitmq:
+  routing:
+    key: dbproduct_routing_key
+  exchange:
+    name: dbproduct_exchange
+  queue:
+    name: dbproduct.public.product
 
 server:
   port: '8645'

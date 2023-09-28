@@ -7,6 +7,7 @@ import latipe.product.dtos.PagedResultDto;
 import latipe.product.dtos.Pagination;
 import latipe.product.exceptions.BadRequestException;
 import latipe.product.mapper.CategoryMapper;
+import latipe.product.producer.RabbitMQProducer;
 import latipe.product.repositories.ICategoryRepository;
 import latipe.product.request.CreateCategoryRequest;
 import latipe.product.request.UpdateCategoryRequest;
@@ -21,7 +22,6 @@ public class CategoryService implements ICategoryService {
 
   private final ICategoryRepository cateRepository;
   private final CategoryMapper categoryMapper;
-
   @Override
   @Async
   public CompletableFuture<List<CategoryResponse>> getListChildrenCategory(String parentId) {
