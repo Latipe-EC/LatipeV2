@@ -17,7 +17,6 @@ public class AppConfig implements WebMvcConfigurer {
     registry.addMapping("/**").allowedMethods("*").allowedOrigins("*").allowedHeaders("*");
   }
 
-
   @Override
   public void configurePathMatch(PathMatchConfigurer configurer) {
     configurer.addPathPrefix("/api/v1",

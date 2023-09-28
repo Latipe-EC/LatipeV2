@@ -29,10 +29,10 @@ public interface IUserMapper {
   @Mappings({@Mapping(target = "role", ignore = true)})
   public abstract User mapBeforeCreateUserAddress(CreateUserRequest input, String displayName,
       String password);
-
+  @Mappings({@Mapping(target = "role", source = "role")})
   public abstract User mapBeforeCreate(RegisterRequest input, Role role, String displayName,
       String password);
 
-  @Mappings({@Mapping(target = "role", expression = "java(user.getRole().getName())")})
+  @Mappings({@Mapping(target = "role", source = "user.role.name")})
   public abstract UserResponse mapToResponse(User user);
 }

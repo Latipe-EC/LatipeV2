@@ -109,11 +109,6 @@
       <version>1.4.7.RELEASE</version>
     </dependency>
     <dependency>
-      <artifactId>commons-beanutils</artifactId>
-      <groupId>commons-beanutils</groupId>
-      <version>1.9.4</version>
-    </dependency>
-    <dependency>
       <artifactId>mapstruct</artifactId>
       <groupId>org.mapstruct</groupId>
       <version>${mapstruct.version}</version>

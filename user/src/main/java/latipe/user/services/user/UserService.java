@@ -21,6 +21,7 @@ import org.bson.types.ObjectId;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -151,14 +152,14 @@ public class UserService implements IUserService {
           input.firstName() + " " + input.lastName(),
           passwordEncoder.encode(input.hashedPassword()));
       user.setRole(role);
-      userRepository.save(user);
+      var savedUser = userRepository.save(user);
       // send mail verrify account
-      return UserResponse.fromUser(user);
+      return UserResponse.fromUser(savedUser);
     });
   }
 
-  @Async
   @Override
+  @Transactional
   public CompletableFuture<UserResponse> register(RegisterRequest input) {
 
     return CompletableFuture.supplyAsync(() -> {
@@ -175,11 +176,25 @@ public class UserService implements IUserService {
       var user = userMapper.mapBeforeCreate(input, role,
           input.firstName() + " " + input.lastName(),
           passwordEncoder.encode(input.hashedPassword()));
-      userRepository.save(user);
+      var savedUser = userRepository.save(user);
       // send mail verrify account
-      return UserResponse.fromUser(user);
+      return UserResponse.fromUser(savedUser);
     });
   }
 
+  @Override
+  public CompletableFuture<Void> upgradeVendor(String userId) {
+
+    var user = userRepository.findById(userId).orElseThrow(
+        () -> new NotFoundException("User not found")
+    );
+
+    var vendorRole = roleRepository.findRoleByName(Constants.VENDOR).orElseThrow(
+        () -> new NotFoundException("Have error from server, please try again later")
+    );
+    user.setRole(vendorRole);
+    userRepository.save(user);
+    return null;
+  }
 
 }

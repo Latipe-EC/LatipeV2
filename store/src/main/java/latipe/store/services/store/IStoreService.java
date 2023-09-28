@@ -9,7 +9,7 @@ import latipe.store.response.StoreResponse;
 
 public interface IStoreService {
 
-  CompletableFuture<StoreResponse> create(String userId, CreateStoreRequest input);
+  CompletableFuture<StoreResponse> create(String userId, CreateStoreRequest input, String token);
 
   CompletableFuture<StoreResponse> update(String userId, String storeId, UpdateStoreRequest input)
       throws InvocationTargetException, IllegalAccessException;

@@ -9,4 +9,6 @@ public interface IStoreRepository extends MongoRepository<Store, String> {
 
   @Query("{'ownerId' : ?0, 'isDeleted' : false}")
   Store findByOwnerId(String ownerId);
+
+  Boolean existsByName(String name);
 }

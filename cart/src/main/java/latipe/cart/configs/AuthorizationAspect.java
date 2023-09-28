@@ -35,15 +35,15 @@ public class AuthorizationAspect {
       throw new UnauthorizedException("Unauthorized");
     }
     try {
-      UserCredentialResponse credentialDto = apiClient.getCredential(new TokenRequest(token));
-      if (credentialDto == null) {
+      UserCredentialResponse credential = apiClient.getCredential(new TokenRequest(token));
+      if (credential == null) {
         throw new UnauthorizedException("Unauthorized");
       }
-      if (!credentialDto.role().equals(requiresAuthorization.value()[0])) {
+      if (!credential.role().equals(requiresAuthorization.value()[0])) {
         throw new ForbiddenException("Don't have permission to do this!");
       }
       HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-      request.setAttribute("user", credentialDto);
+      request.setAttribute("user", credential);
     } catch (FeignException e) {
       throw new UnauthorizedException(e.getMessage());
     }

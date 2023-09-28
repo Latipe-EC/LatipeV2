@@ -30,12 +30,12 @@ public class AuthenticateAspect {
       throw new UnauthorizedException("Unauthorized");
     }
     try {
-      UserCredentialResponse credentialDto = apiClient.getCredential(new TokenRequest(token));
-      if (credentialDto == null) {
+      UserCredentialResponse credential = apiClient.getCredential(new TokenRequest(token));
+      if (credential == null) {
         throw new UnauthorizedException("Unauthorized");
       }
       HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-      request.setAttribute("user", credentialDto);
+      request.setAttribute("user", credential);
     } catch (FeignException e) {
       throw new UnauthorizedException(e.getMessage());
     }

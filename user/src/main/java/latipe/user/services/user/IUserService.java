@@ -30,4 +30,5 @@ public interface IUserService {
 
   public CompletableFuture<UserResponse> getProfile(String id);
 
+  public CompletableFuture<Void> upgradeVendor(String userId);
 }

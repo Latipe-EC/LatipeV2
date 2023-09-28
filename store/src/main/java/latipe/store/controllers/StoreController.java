@@ -1,5 +1,6 @@
 package latipe.store.controllers;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.concurrent.CompletableFuture;
 import latipe.store.annotations.ApiPrefixController;
 import latipe.store.annotations.Authenticate;
@@ -37,12 +38,15 @@ public class StoreController {
 
   @Authenticate
   @ResponseStatus(HttpStatus.CREATED)
-  @PostMapping(value = "/create-store", produces = MediaType.APPLICATION_JSON_VALUE)
+  @PostMapping(value = "/register-store", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<StoreResponse> createStore(
-
       @RequestBody CreateStoreRequest input) {
-    UserCredentialResponse userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
-        .getAttribute("user")));
-    return storeService.create(userCredential.id(), input);
+
+    HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+    String token = request.getHeader("Authorization");
+    UserCredentialResponse userCredential = (UserCredentialResponse) (request.getAttribute(
+        "user"));
+    return storeService.create(userCredential.id(), input, token);
+
   }
 }

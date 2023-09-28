@@ -19,6 +19,7 @@ import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -116,5 +117,14 @@ public class UserController {
   @PostMapping(value = "/register", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<UserResponse> register(@Valid @RequestBody RegisterRequest input) {
     return userService.register(input);
+  }
+
+  @Authenticate
+  @ResponseStatus(HttpStatus.CREATED)
+  @PutMapping(value = "/upgrade-to-vendor", produces = MediaType.APPLICATION_JSON_VALUE)
+  public CompletableFuture<Void> upgradeVendor() {
+    UserCredentialResponse userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
+        .getAttribute("user")));
+    return userService.upgradeVendor(userCredential.id());
   }
 }
