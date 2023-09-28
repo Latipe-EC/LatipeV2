@@ -3,9 +3,9 @@ package latipe.product.configs;
 import feign.FeignException;
 import jakarta.servlet.http.HttpServletRequest;
 import latipe.product.controllers.APIClient;
-import latipe.product.dtos.TokenDto;
-import latipe.product.dtos.UserCredentialDto;
 import latipe.product.exceptions.UnauthorizedException;
+import latipe.product.request.TokenRequest;
+import latipe.product.response.UserCredentialResponse;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.stereotype.Component;
@@ -27,7 +27,7 @@ public class AuthenticateAspect {
             throw new UnauthorizedException("Unauthorized");
         }
         try {
-            UserCredentialDto credentialDto =  apiClient.getCredential(new TokenDto(token));
+            UserCredentialResponse credentialDto = apiClient.getCredential(new TokenRequest(token));
             if (credentialDto == null) {
                 throw new UnauthorizedException("Unauthorized");
             }
@@ -39,7 +39,7 @@ public class AuthenticateAspect {
     }
     private String getTokenFromRequest() {
         // Get token from request headers
-        HttpServletRequest request = ((ServletRequestAttributes) (RequestContextHolder.getRequestAttributes())).getRequest();
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
         final String requestTokenHeader = request.getHeader("Authorization");
         if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer ")) {
             return requestTokenHeader.substring(7);

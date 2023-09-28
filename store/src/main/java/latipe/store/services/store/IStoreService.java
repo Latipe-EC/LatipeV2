@@ -1,22 +1,18 @@
 package latipe.store.services.store;
 
 
-import latipe.store.services.IService;
-import latipe.store.services.store.Dtos.StoreCreateDto;
-import latipe.store.services.store.Dtos.StoreDto;
-import latipe.store.services.store.Dtos.StoreUpdateDto;
-import org.springframework.scheduling.annotation.Async;
+import latipe.store.request.CreateStoreRequest;
+import latipe.store.response.StoreResponse;
+import latipe.store.request.UpdateStoreRequest;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.CompletableFuture;
 
-public interface IStoreService extends IService<StoreDto, StoreCreateDto, StoreUpdateDto> {
-    CompletableFuture<StoreDto> create(String userId, StoreCreateDto input);
+public interface IStoreService  {
+    CompletableFuture<StoreResponse> create(String userId, CreateStoreRequest input);
 
-    CompletableFuture<StoreDto> update(String userId, String storeId, StoreUpdateDto input) throws InvocationTargetException, IllegalAccessException;
+    CompletableFuture<StoreResponse> update(String userId, String storeId, UpdateStoreRequest input) throws InvocationTargetException, IllegalAccessException;
 
     CompletableFuture<String> getStoreByUserId(String userId);
-//    @Query("{'id' : ?0}")
-//    Store findById(String id);
-}
 
+}

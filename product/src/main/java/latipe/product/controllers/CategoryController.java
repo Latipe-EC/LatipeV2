@@ -1,21 +1,27 @@
 package latipe.product.controllers;
 
 import jakarta.validation.Valid;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import latipe.product.annotations.ApiPrefixController;
 import latipe.product.annotations.Authenticate;
 import latipe.product.annotations.RequiresAuthorization;
 import latipe.product.dtos.PagedResultDto;
-import latipe.product.services.category.Dtos.CategoryCreateDto;
-import latipe.product.services.category.Dtos.CategoryDto;
-import latipe.product.services.category.Dtos.CategoryUpdateDto;
+import latipe.product.request.CreateCategoryRequest;
+import latipe.product.request.UpdateCategoryRequest;
+import latipe.product.response.CategoryResponse;
 import latipe.product.services.category.ICategoryService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
-
-import java.lang.reflect.InvocationTargetException;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @ApiPrefixController("categories")
@@ -26,25 +32,28 @@ public class CategoryController {
         this.categoryService = categoryService;
     }
 
-    public CompletableFuture<PagedResultDto<CategoryDto>> getPaginateCategory(
-            @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "10") int size,
-            @RequestParam(name = "name", defaultValue = "") String content
-    ){
-        return categoryService.getPaginateCategory((long) page * size, size, content);
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "/paginate", produces = MediaType.APPLICATION_JSON_VALUE)
+    public CompletableFuture<PagedResultDto<CategoryResponse>> getPaginateCategory(
+        @RequestParam(value = "skip", defaultValue = "0") long skip,
+        @RequestParam(value = "limit", defaultValue = "10") int limit,
+        @RequestParam(value = "name", defaultValue = "") String name) {
+        return categoryService.getPaginateCategory(skip, limit, name);
     }
+
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(value = "/children-categories/{parentID}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public CompletableFuture<List<CategoryDto>> getListChildrenCategory(@PathVariable("parentID") String parentID) {
+    public CompletableFuture<List<CategoryResponse>> getListChildrenCategory(
+        @PathVariable("parentID") String parentID) {
         return categoryService.getListChildrenCategory(parentID);
     }
     @Authenticate
     @RequiresAuthorization("ADMIN")
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public CompletableFuture<CategoryDto> createStore(
-            @Valid @RequestBody CategoryCreateDto input) {
+    public CompletableFuture<CategoryResponse> createStore(
+        @Valid @RequestBody CreateCategoryRequest input) {
         return categoryService.create(input);
     }
 
@@ -52,8 +61,8 @@ public class CategoryController {
     @RequiresAuthorization("ADMIN")
     @ResponseStatus(HttpStatus.OK)
     @PatchMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public CompletableFuture<CategoryDto> updateStore(
-            @PathVariable("id") String id, @Valid @RequestBody CategoryUpdateDto input) throws InvocationTargetException, IllegalAccessException {
+    public CompletableFuture<CategoryResponse> updateStore(
+        @PathVariable("id") String id, @Valid @RequestBody UpdateCategoryRequest input){
         return categoryService.update(id, input);
     }
 

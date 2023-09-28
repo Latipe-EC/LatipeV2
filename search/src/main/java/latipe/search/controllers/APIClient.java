@@ -1,5 +1,7 @@
 package latipe.search.controllers;
 
+import latipe.search.request.TokenRequest;
+import latipe.search.response.UserCredentialResponse;
 import latipe.search.viewmodel.ProductESDetailVm;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;

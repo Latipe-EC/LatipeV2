@@ -2,20 +2,19 @@ package latipe.media.configs;
 
 import feign.FeignException;
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.Objects;
 import latipe.media.annotations.RequiresAuthorization;
 import latipe.media.controllers.APIClient;
-import latipe.media.dtos.TokenDto;
-import latipe.media.dtos.UserCredentialDto;
 import latipe.media.exceptions.ForbiddenException;
 import latipe.media.exceptions.UnauthorizedException;
+import latipe.media.request.TokenRequest;
+import latipe.media.response.UserCredentialResponse;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-
-import java.util.Objects;
 
 
 @Aspect
@@ -32,11 +31,11 @@ public class AuthorizationAspect {
             throw new UnauthorizedException("Unauthorized");
         }
         try {
-            UserCredentialDto credentialDto =  apiClient.getCredential(new TokenDto(token));
+            UserCredentialResponse credentialDto =  apiClient.getCredential(new TokenRequest(token));
             if (credentialDto == null) {
                 throw new UnauthorizedException("Unauthorized");
             }
-            if (!credentialDto.getRole().equals(requiresAuthorization.value()[0])) {
+            if (!credentialDto.role().equals(requiresAuthorization.value()[0])) {
                 throw new ForbiddenException("Don't have permission to do this!");
             }
             HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();

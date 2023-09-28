@@ -1,6 +1,5 @@
 package latipe.product.services.product;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import latipe.product.Entity.Category;
@@ -8,20 +7,20 @@ import latipe.product.Entity.Product;
 import latipe.product.Entity.ProductClassification;
 import latipe.product.configs.CustomAggregationOperation;
 import latipe.product.controllers.APIClient;
-import latipe.product.dtos.ProductFeatureDto;
-import latipe.product.dtos.ProductPriceDto;
+import latipe.product.request.ProductFeatureRequest;
+import latipe.product.viewmodel.ProductPriceVm;
 import latipe.product.exceptions.BadRequestException;
 import latipe.product.exceptions.NotFoundException;
 import latipe.product.mapper.ProductMapper;
 import latipe.product.repositories.ICategoryRepository;
 import latipe.product.repositories.IProductRepository;
-import latipe.product.services.product.Dtos.BanProductDto;
-import latipe.product.services.product.Dtos.OrderProductCheckDto;
-import latipe.product.services.product.Dtos.OrderProductResultsDto;
-import latipe.product.services.product.Dtos.ProductCreateDto;
-import latipe.product.services.product.Dtos.ProductDto;
-import latipe.product.services.product.Dtos.ProductOrderDto;
-import latipe.product.services.product.Dtos.ProductUpdateDto;
+import latipe.product.request.BanProductRequest;
+import latipe.product.request.CreateProductRequest;
+import latipe.product.request.OrderProductCheckRequest;
+import latipe.product.request.UpdateProductRequest;
+import latipe.product.response.OrderProductResponse;
+import latipe.product.response.ProductResponse;
+import latipe.product.viewmodel.ProductOrderVm;
 import latipe.product.viewmodel.ProductESDetailVm;
 import latipe.product.viewmodel.ProductThumbnailVm;
 import org.bson.Document;
@@ -53,62 +52,64 @@ public class ProductService implements IProductService {
 
     @Override
     @Async
-    public CompletableFuture<ProductDto> create(String userId, ProductCreateDto input) {
+    public CompletableFuture<ProductResponse> create(String userId, CreateProductRequest input) {
         return CompletableFuture.supplyAsync(() -> {
-            if (input.getProductVariant().isEmpty()) {
-                if (input.getPrice() == null || input.getPrice() <= 0) {
+            if (input.productVariant().isEmpty()) {
+                if (input.price() == null || input.price() <= 0) {
                     throw new BadRequestException("Price must be greater than 0");
                 }
-                if (input.getQuantity() <= 0) {
+                if (input.quantity() <= 0) {
                     throw new BadRequestException("Quantity must be greater than 0");
                 }
-                if (input.getImages().isEmpty()) {
+                if (input.images().isEmpty()) {
                     throw new BadRequestException("Product must have at least 1 image");
                 }
-                input.getProductClassifications().add(ProductClassification.builder()
+                input.productClassifications().add(ProductClassification.builder()
                         .name("Default")
-                        .price(input.getPrice())
-                        .quantity(input.getQuantity())
-                        .image(input.getImages().get(0))
+                        .price(input.price())
+                        .quantity(input.quantity())
+                        .image(input.images().get(0))
                         .build());
             } else {
-                if (input.getProductVariant().size() > 2) {
+                if (input.productVariant().size() > 2) {
                     throw new BadRequestException("Product have maximum 2 variants");
                 }
-                if (input.getProductVariant().size() == 1) {
-                    if (input.getProductVariant().get(0).getOptions().size() != input.getProductClassifications().size()) {
+                if (input.productVariant().size() == 1) {
+                    if (input.productVariant().get(0).getOptions().size() != input.productClassifications().size()) {
                         throw new BadRequestException("Product classification must be filled");
                     }
-                    for (int i = 0; i < input.getProductVariant().get(0).getOptions().size(); i++) {
-                        input.getProductClassifications().get(i).setCode(String.valueOf(i));
+                    for (int i = 0; i < input.productVariant().get(0).getOptions().size(); i++) {
+                        input.productClassifications().get(i).setCode(String.valueOf(i));
                     }
                 } else {
-                    int count = input.getProductVariant().get(0).getOptions().size() * input.getProductVariant().get(1).getOptions().size();
-                    if (count != input.getProductClassifications().size()) {
+                    int count = input.productVariant().get(0).getOptions().size() * input.productVariant().get(1).getOptions().size();
+                    if (count != input.productClassifications().size()) {
                         throw new BadRequestException("Product classification must be filled");
                     }
                     count = 0;
-                    for (int i = 0; i < input.getProductVariant().get(0).getOptions().size(); i++) {
-                        for (int j = 0; j < input.getProductVariant().get(1).getOptions().size(); j++) {
-                            input.getProductClassifications().get(count).setCode(String.valueOf(i) + String.valueOf(j));
-                            input.getProductClassifications().get(count).setName(input.getProductVariant().get(0).getOptions().get(i) + " - " + input.getProductVariant().get(1).getOptions().get(j));
+                    for (int i = 0; i < input.productVariant().get(0).getOptions().size(); i++) {
+                        for (int j = 0; j < input.productVariant().get(1).getOptions().size(); j++) {
+                            input.productClassifications().get(count).setCode(String.valueOf(i) + String.valueOf(j));
+                            input.productClassifications().get(count).setName(input.productVariant().get(0).getOptions().get(i) + " - " + input.productVariant().get(1).getOptions().get(j));
                             count++;
                         }
                     }
                 }
 
             }
-            Product prod = productMapper.mapToProductBeforeCreate(input);
+            var prod = productMapper.mapToProductBeforeCreate(input);
             // get store id from store service
             prod.setStoreId(apiClient.getStoreId(userId));
-            return toDto.map(productRepository.save(prod), ProductDto.class);
+            var savedProd = productRepository.save(prod);
+
+            return productMapper.mapToProductToResponse(savedProd);
         });
 
     }
 
     @Override
     @Async
-    public CompletableFuture<ProductPriceDto> getPrice(String prodId, String code) {
+    public CompletableFuture<ProductPriceVm> getPrice(String prodId, String code) {
         return CompletableFuture.supplyAsync(() -> {
             Product product = productRepository.findById(prodId).orElseThrow(() -> new BadRequestException("Product not found"));
             if (product.getPrice() > 0) {
@@ -116,14 +117,14 @@ public class ProductService implements IProductService {
             }
             for (ProductClassification classification : product.getProductClassifications()) {
                 if (classification.getCode().equals(code)) {
-                    ProductPriceDto productPriceDto;
-                    productPriceDto = ProductPriceDto.builder()
+                    ProductPriceVm productPriceVm;
+                    productPriceVm = ProductPriceVm.builder()
                             .code(code)
                             .image(classification.getImage())
                             .price(classification.getPrice())
                             .quantity(classification.getQuantity())
                             .build();
-                    return productPriceDto;
+                    return productPriceVm;
                 }
             }
             throw new NotFoundException("Product classification not found");
@@ -133,9 +134,8 @@ public class ProductService implements IProductService {
 
     @Override
     @Async
-    public CompletableFuture<OrderProductResultsDto> checkProductInStock(List<OrderProductCheckDto> prodOrders) {
+    public CompletableFuture<OrderProductResponse> checkProductInStock(List<OrderProductCheckRequest> prodOrders) {
         return CompletableFuture.supplyAsync(() -> {
-            double total = 0;
 //            String query =
 //                    """
 //                                {
@@ -144,60 +144,60 @@ public class ProductService implements IProductService {
 //                            """;
 //            TypedAggregation<ProductClassification> test = Aggregation.newAggregation(
 //                    ProductClassification.class,
-//                    Aggregation.match(Criteria.where("_id").in(prodOrders.stream().map(OrderProductCheckDto::getProductId).toList())),
+//                    Aggregation.match(Criteria.where("_id").in(prodOrders.stream().map(OrderProductCheckRequest::productId).toList())),
 //                    // unwind product variant
 //                    new CustomAggregationOperation(query),
-//                    Aggregation.match(Criteria.where("productClassifications._id").in(prodOrders.stream().map(OrderProductCheckDto::getOptionId).toList()))
+//                    Aggregation.match(Criteria.where("productClassifications._id").in(prodOrders.stream().map(OrderProductCheckRequest::optionId).toList()))
 //            );
-            var aggregate = createQueryClassification(prodOrders.stream().map(OrderProductCheckDto::getProductId).toList(),
-                    prodOrders.stream().map(OrderProductCheckDto::getOptionId).toList());
+            var aggregate = createQueryClassification(prodOrders.stream().map(OrderProductCheckRequest::productId).toList(),
+                    prodOrders.stream().map(OrderProductCheckRequest::optionId).toList());
             AggregationResults<Document> results = mongoTemplate.aggregate(aggregate, ProductClassification.class, Document.class);
             List<Document> documents = results.getMappedResults();
-            List<ProductOrderDto> orders = documents.stream()
+            List<ProductOrderVm> orders = documents.stream()
                     .map(doc -> {
                         Document productClassificationsDoc = doc.get("productClassifications", Document.class);
-                        OrderProductCheckDto prodOrder = prodOrders.stream().filter(
-                                        x -> x.getProductId()
-                                                     .equals(doc.getString("_id")) && x.getOptionId().equals(productClassificationsDoc.getString("_id")))
+                        OrderProductCheckRequest prodOrder = prodOrders.stream().filter(
+                                        x -> x.productId()
+                                                     .equals(doc.getString("_id")) && x.optionId().equals(productClassificationsDoc.getString("_id")))
                                 .findFirst().orElseThrow(() -> new BadRequestException("Product not found"));
-                        if (productClassificationsDoc.getInteger("quantity") < prodOrder.getQuantity()) {
+                        if (productClassificationsDoc.getInteger("quantity") < prodOrder.quantity()) {
                             throw new BadRequestException("Product out of stock");
                         }
-                        return ProductOrderDto.builder()
+                        return ProductOrderVm.builder()
                                 .productId(doc.getString("_id"))
                                 .optionId(productClassificationsDoc.getString("_id"))
-                                .quantity(prodOrder.getQuantity())
+                                .quantity(prodOrder.quantity())
                                 .price(productClassificationsDoc.getDouble("price"))
                                 .nameOption(productClassificationsDoc.getString("name"))
-                                .totalPrice(productClassificationsDoc.getDouble("price") * prodOrder.getQuantity())
+                                .totalPrice(productClassificationsDoc.getDouble("price") * prodOrder.quantity())
                                 .build();
                     }).toList();
-            return OrderProductResultsDto.builder()
-                    .totalPrice(orders.stream().mapToDouble(ProductOrderDto::getTotalPrice).sum())
+            return OrderProductResponse.builder()
+                    .totalPrice(orders.stream().mapToDouble(ProductOrderVm::totalPrice).sum())
                     .products(orders)
                     .build();
 
-//            List<Product> products = productRepository.findByIds(prodOrders.stream().map(OrderProductCheckDto::getProductId).toList());
+//            List<Product> products = productRepository.findByIds(prodOrders.stream().map(OrderProductCheckRequest::productId).toList());
 //            if (products.size() != prodOrders.size()) {
 //                throw new BadRequestException("Product not found");
 //            }
-//            List<ProductOrderDto> orders = new ArrayList<>();
-//            for (OrderProductCheckDto prodOrder : prodOrders) {
+//            List<ProductOrderVm> orders = new ArrayList<>();
+//            for (OrderProductCheckRequest prodOrder : prodOrders) {
 //                ProductClassification prodVariant = products.stream().flatMap(product -> product.getProductClassifications().stream())
-//                        .filter(classification -> classification.getId().equals(prodOrder.getOptionId()))
+//                        .filter(classification -> classification.getId().equals(prodOrder.optionId()))
 //                        .findFirst()
 //                        .orElseThrow(() -> new BadRequestException("Product classification not found"));
-//                if (prodVariant.getQuantity() < prodOrder.getQuantity()) {
+//                if (prodVariant.getQuantity() < prodOrder.quantity()) {
 //                    throw new BadRequestException("Product out of stock");
 //                }
-//                orders.add(ProductOrderDto.builder()
-//                        .productId(prodOrder.getProductId())
-//                        .optionId(prodOrder.getOptionId())
-//                        .quantity(prodOrder.getQuantity())
+//                orders.add(ProductOrderVm.builder()
+//                        .productId(prodOrder.productId())
+//                        .optionId(prodOrder.optionId())
+//                        .quantity(prodOrder.quantity())
 //                        .price(prodVariant.getPrice())
 //                        .nameOption(prodVariant.getName())
 //                        .build());
-//                total += prodVariant.getPrice() * prodOrder.getQuantity();
+//                total += prodVariant.getPrice() * prodOrder.quantity();
 //            }
 //            return OrderProductResultsDto.builder()
 //                    .totalPrice(total)
@@ -239,9 +239,10 @@ public class ProductService implements IProductService {
 
     @Override
     @Async
-    public CompletableFuture<List<ProductThumbnailVm>> getFeatureProduct(List<ProductFeatureDto> products) {
+    public CompletableFuture<List<ProductThumbnailVm>> getFeatureProduct(List<ProductFeatureRequest> products) {
         return CompletableFuture.supplyAsync(() -> {
-            var aggregate = createQueryClassification(products.stream().map(ProductFeatureDto::getProductId).toList(), products.stream().map(ProductFeatureDto::getOptionId).toList());
+            var aggregate = createQueryClassification(products.stream().map(ProductFeatureRequest::productId).toList(), products.stream().map(
+                ProductFeatureRequest::optionId).toList());
             AggregationResults<Document> results = mongoTemplate.aggregate(aggregate, ProductClassification.class, Document.class);
             List<Document> documents = results.getMappedResults();
             return documents.stream()
@@ -258,54 +259,56 @@ public class ProductService implements IProductService {
 
     @Override
     @Async
-    public CompletableFuture<ProductDto> update(String userId, String id, ProductUpdateDto input) {
+    public CompletableFuture<ProductResponse> update(String userId, String id, UpdateProductRequest input) {
         Product product = productRepository.findById(id).orElseThrow(() -> new BadRequestException("Product not found"));
         // check permission to change product (store service)
         if (!apiClient.getStoreId(userId).equals(product.getStoreId())) {
             throw new BadRequestException("You don't have permission to change this product");
         }
-        if (input.getProductVariant().size() == 0) {
-            if (input.getPrice() == null || input.getPrice() <= 0) {
+        if (input.productVariant().size() == 0) {
+            if (input.price() == null || input.price() <= 0) {
                 throw new BadRequestException("Price must be greater than 0");
             }
-            if (input.getQuantity() <= 0) {
+            if (input.quantity() <= 0) {
                 throw new BadRequestException("Quantity must be greater than 0");
             }
-            if (input.getImages().size() == 0) {
+            if (input.images().size() == 0) {
                 throw new BadRequestException("Product must have at least 1 image");
             }
-            input.getProductClassifications().add(ProductClassification.builder()
+            input.productClassifications().add(ProductClassification.builder()
                     .name("Default")
-                    .price(input.getPrice())
-                    .quantity(input.getQuantity())
-                    .image(input.getImages().get(0))
+                    .price(input.price())
+                    .quantity(input.quantity())
+                    .image(input.images().get(0))
                     .build());
         } else {
-            if (input.getProductVariant().size() > 2) {
+            if (input.productVariant().size() > 2) {
                 throw new BadRequestException("Product have maximum 2 variants");
             }
-            if (input.getProductVariant().size() == 1) {
-                if (input.getProductVariant().get(0).getOptions().size() != input.getProductClassifications().size()) {
+            if (input.productVariant().size() == 1) {
+                if (input.productVariant().get(0).getOptions().size() != input.productClassifications().size()) {
                     throw new BadRequestException("Product classification must be filled");
                 }
-                for (int i = 0; i < input.getProductVariant().get(0).getOptions().size(); i++) {
-                    input.getProductClassifications().get(i).setCode(String.valueOf(i));
+                for (int i = 0; i < input.productVariant().get(0).getOptions().size(); i++) {
+                    input.productClassifications().get(i).setCode(String.valueOf(i));
                 }
             } else {
-                int count = input.getProductVariant().get(0).getOptions().size() * input.getProductVariant().get(1).getOptions().size();
-                if (count != input.getProductClassifications().size()) {
+                int count = input.productVariant().get(0).getOptions().size() * input.productVariant().get(1).getOptions().size();
+                if (count != input.productClassifications().size()) {
                     throw new BadRequestException("Product classification must be filled");
                 }
                 count = 0;
-                for (int i = 0; i < input.getProductVariant().get(0).getOptions().size(); i++) {
-                    for (int j = 0; j < input.getProductVariant().get(1).getOptions().size(); j++) {
-                        input.getProductClassifications().get(count).setCode(String.valueOf(i) + String.valueOf(j));
+                for (int i = 0; i < input.productVariant().get(0).getOptions().size(); i++) {
+                    for (int j = 0; j < input.productVariant().get(1).getOptions().size(); j++) {
+                        input.productClassifications().get(count).setCode(String.valueOf(i) + String.valueOf(j));
                         count++;
                     }
                 }
             }
         }
-        return CompletableFuture.supplyAsync(() -> toDto.map(productRepository.save(product), ProductDto.class));
+        var savedProd = productRepository.save(product);
+
+        return CompletableFuture.completedFuture(productMapper.mapToProductToResponse(savedProd));
     }
 
     @Override
@@ -325,40 +328,15 @@ public class ProductService implements IProductService {
 
     @Override
     @Async
-    public CompletableFuture<Void> ban(String id, BanProductDto input) {
+    public CompletableFuture<Void> ban(String id, BanProductRequest input) {
         return CompletableFuture.supplyAsync(() -> {
             Product product = productRepository.findById(id).orElseThrow(() -> new BadRequestException("Product not found"));
             // check permission to change product (store service)
-            product.setReasonBan(input.getReason());
+            product.setReasonBan(input.reason());
             product.setBanned(true);
             productRepository.save(product);
             return null;
         });
-    }
-
-    @Override
-    public CompletableFuture<Void> remove(String id) {
-        return null;
-    }
-
-    @Override
-    public CompletableFuture<List<ProductDto>> getAll() {
-        return null;
-    }
-
-    @Override
-    public CompletableFuture<ProductDto> getOne(String id) {
-        return null;
-    }
-
-    @Override
-    public CompletableFuture<ProductDto> create(ProductCreateDto input) {
-        return null;
-    }
-
-    @Override
-    public CompletableFuture<ProductDto> update(String id, ProductUpdateDto input) throws InvocationTargetException, IllegalAccessException {
-        return null;
     }
 
     private TypedAggregation<ProductClassification> createQueryClassification(List<String> prods, List<String> options) {

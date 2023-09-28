@@ -1,62 +1,57 @@
 package latipe.store.services.store;
 
 
+import java.util.concurrent.CompletableFuture;
 import latipe.store.Entity.Store;
 import latipe.store.exceptions.BadRequestException;
 import latipe.store.exceptions.NotFoundException;
+import latipe.store.mapper.StoreMapper;
 import latipe.store.repositories.IStoreRepository;
-import latipe.store.services.store.Dtos.StoreCreateDto;
-import latipe.store.services.store.Dtos.StoreDto;
-import latipe.store.services.store.Dtos.StoreUpdateDto;
-import latipe.store.utils.NullAwareBeanUtilsBean;
-
+import latipe.store.request.CreateStoreRequest;
+import latipe.store.request.UpdateStoreRequest;
+import latipe.store.response.StoreResponse;
+import lombok.AllArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-
 @Service
+@AllArgsConstructor
 public class StoreService implements IStoreService {
-    private final IStoreRepository storeRepository;
-    private final ModelMapper toDto;
 
-    public StoreService(IStoreRepository storeRepository, ModelMapper toDto) {
-        this.storeRepository = storeRepository;
-        this.toDto = toDto;
-    }
+    private final IStoreRepository storeRepository;
+    private final StoreMapper storeMapper;
+
 
     @Override
     @Async
-    public CompletableFuture<StoreDto> create(String userId, StoreCreateDto input) {
+    public CompletableFuture<StoreResponse> create(String userId, CreateStoreRequest input) {
         return CompletableFuture.supplyAsync(() -> {
             Store store = storeRepository.findByOwnerId(userId);
             if (store != null) {
                 throw new BadRequestException("One User can only have one store");
             }
-            store = toDto.map(input, Store.class);
-            store.setOwnerId(userId);
-            storeRepository.save(store);
-            return toDto.map(store, StoreDto.class);
+            store = storeMapper.mapToStoreBeforeCreate(input, userId);
+            store = storeRepository.save(store);
+            return storeMapper.mapToStoreResponse(store);
         });
     }
 
     @Override
     @Async
-    public CompletableFuture<StoreDto> update(String userId, String storeId, StoreUpdateDto input) {
+    public CompletableFuture<StoreResponse> update(String userId, String storeId,
+        UpdateStoreRequest input) {
         return CompletableFuture.supplyAsync(() -> {
+
             Store store = storeRepository.findById(storeId).orElseThrow(
                     () -> new NotFoundException("Store not found")
             );
-            NullAwareBeanUtilsBean nullAwareBeanUtilsBean = new NullAwareBeanUtilsBean();
-            try {
-                nullAwareBeanUtilsBean.copyProperties(store, input);
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                throw new RuntimeException(e);
+            if (!store.getOwnerId().equals(userId)) {
+                throw new BadRequestException("You are not the owner of this store");
             }
-            storeRepository.save(store);
-            return toDto.map(store, StoreDto.class);
+            storeMapper.mapToStoreBeforeUpdate(store, input);
+            store = storeRepository.save(store);
+
+            return storeMapper.mapToStoreResponse(store);
         });
     }
 
@@ -75,28 +70,4 @@ public class StoreService implements IStoreService {
         });
     }
 
-
-    @Override
-    public CompletableFuture<List<StoreDto>> getAll() {
-        return null;
-    }
-
-    @Override
-    public CompletableFuture<StoreDto> getOne(String id) {
-        return null;
-    }
-
-    @Override
-    public CompletableFuture<StoreDto> create(StoreCreateDto input) {
-        return null;
-    }
-
-    @Override
-    public CompletableFuture<StoreDto> update(String id, StoreUpdateDto input) throws InvocationTargetException, IllegalAccessException {
-        return null;
-    }
-    @Override
-    public CompletableFuture<Void> remove(String id) {
-        return null;
-    }
 }

@@ -15,6 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductVariant extends AbstractAuditEntity {
+    @Id
     String id;
     String name;
     String image;

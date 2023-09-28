@@ -1,21 +1,10 @@
 package latipe.media.services;
 
+import static latipe.media.constants.CONSTANTS.IMAGE;
+import static latipe.media.constants.CONSTANTS.VIDEO;
+
 import jakarta.servlet.http.HttpServletRequest;
-import latipe.media.Entity.Media;
-import latipe.media.exceptions.BadRequestException;
-import latipe.media.exceptions.NotFoundException;
-import latipe.media.repositories.IMediaRepository;
-import latipe.media.viewmodel.MediaVm;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.awt.*;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -25,24 +14,29 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-
-import latipe.media.utils.FileCategorizeUtils;
-
 import javax.imageio.ImageIO;
-
-import static latipe.media.constants.CONSTANTS.IMAGE;
-import static latipe.media.constants.CONSTANTS.VIDEO;
+import latipe.media.Entity.Media;
+import latipe.media.exceptions.BadRequestException;
+import latipe.media.exceptions.NotFoundException;
+import latipe.media.mapper.MediaMapper;
+import latipe.media.repositories.IMediaRepository;
+import latipe.media.utils.FileCategorizeUtils;
+import latipe.media.viewmodel.MediaVm;
+import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
+@AllArgsConstructor
 public class MediaService implements IMediaService {
-    private final IMediaRepository mediaRepository;
 
-    private final ModelMapper modelMapper;
-
-    public MediaService(IMediaRepository mediaRepository, ModelMapper modelMapper) {
-        this.mediaRepository = mediaRepository;
-        this.modelMapper = modelMapper;
-    }
+  private final IMediaRepository mediaRepository;
+  private final MediaMapper mediaMapper;
 
     @Override
     @Async
@@ -84,12 +78,12 @@ public class MediaService implements IMediaService {
                             Files.write(path, fileData);
                             String url = (request.getRemoteAddr().equalsIgnoreCase("0:0:0:0:0:0:0:1") ? "http://localhost" : "localhost") + ":" + request.getLocalPort() + "/uploads/" + fileName;
                             var media = mediaRepository.save(new Media(fileName, type, url, file.getSize()));
-                            return modelMapper.map(media, MediaVm.class);
+                          return mediaMapper.mapToMediaResponse(media);
                         } else if (type.equals(VIDEO)) {
                             Files.write(path, file.getBytes());
                             String url = (request.getRemoteAddr().equalsIgnoreCase("0:0:0:0:0:0:0:1") ? "http://localhost" : "localhost") + ":" + request.getLocalPort() + "/uploads/" + fileName;
                             var media = mediaRepository.save(new Media(fileName, type, url, file.getSize()));
-                            return modelMapper.map(media, MediaVm.class);
+                          return mediaMapper.mapToMediaResponse(media);
                         } else
                             throw new BadRequestException("Some thing went wrong!");
                     } catch (IOException e) {
@@ -103,9 +97,8 @@ public class MediaService implements IMediaService {
     @Async
     public CompletableFuture<Page<MediaVm>> findAllPaginate(String fileName, Pageable pageable) {
         return CompletableFuture.supplyAsync(
-                () -> mediaRepository.findAllPaginate(fileName, pageable).map(
-                        media -> modelMapper.map(media, MediaVm.class)
-                )
+            () -> mediaRepository.findAllPaginate(fileName, pageable)
+                .map(mediaMapper::mapToMediaResponse)
         );
     }
 

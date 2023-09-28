@@ -6,6 +6,8 @@ import latipe.media.controllers.APIClient;
 import latipe.media.dtos.TokenDto;
 import latipe.media.dtos.UserCredentialDto;
 import latipe.media.exceptions.UnauthorizedException;
+import latipe.media.request.TokenRequest;
+import latipe.media.response.UserCredentialResponse;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.stereotype.Component;
@@ -29,7 +31,7 @@ public class AuthenticateAspect {
             throw new UnauthorizedException("Unauthorized");
         }
         try {
-            UserCredentialDto credentialDto =  apiClient.getCredential(new TokenDto(token));
+            UserCredentialResponse credentialDto =  apiClient.getCredential(new TokenRequest(token));
             if (credentialDto == null) {
                 throw new UnauthorizedException("Unauthorized");
             }

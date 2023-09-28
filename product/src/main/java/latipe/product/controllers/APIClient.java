@@ -1,5 +1,7 @@
 package latipe.product.controllers;
 
+import latipe.product.request.TokenRequest;
+import latipe.product.response.UserCredentialResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

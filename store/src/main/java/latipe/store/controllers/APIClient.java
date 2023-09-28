@@ -1,5 +1,7 @@
 package latipe.store.controllers;
 
+import latipe.store.request.TokenRequest;
+import latipe.store.response.UserCredentialResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
