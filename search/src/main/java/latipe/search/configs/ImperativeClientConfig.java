@@ -13,11 +13,12 @@ import org.springframework.data.elasticsearch.repository.config.EnableElasticsea
 @RequiredArgsConstructor
 public class ImperativeClientConfig extends ElasticsearchConfiguration {
 
-    private final ElasticsearchDataConfig elasticsearchConfig;
-    @Override
-    public ClientConfiguration clientConfiguration() {
-        return ClientConfiguration.builder()
-                .connectedTo(elasticsearchConfig.getUrl())
-                .build();
-    }
+  private final ElasticsearchDataConfig elasticsearchConfig;
+
+  @Override
+  public ClientConfiguration clientConfiguration() {
+    return ClientConfiguration.builder()
+        .connectedTo(elasticsearchConfig.getUrl())
+        .build();
+  }
 }

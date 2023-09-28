@@ -1,5 +1,5 @@
 package latipe.product.request;
 
-public record TokenRequest(String token){
+public record TokenRequest(String token) {
 
 }

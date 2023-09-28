@@ -1,29 +1,8 @@
 package latipe.auth.config;
 
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
-
-
-import latipe.auth.services.UserService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.lang.NonNull;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-import org.springframework.stereotype.Component;
-import org.springframework.web.filter.OncePerRequestFilter;
-
 //@Component
 //@RequiredArgsConstructor
-public class JwtAuthenticationFilter{
+public class JwtAuthenticationFilter {
 //public class JwtAuthenticationFilter extends OncePerRequestFilter {
 //    private final JwtTokenService jwtService;
 //    private final UserService userDetailsService;

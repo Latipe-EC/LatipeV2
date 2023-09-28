@@ -1,5 +1,5 @@
 package latipe.search.request;
 
-public record TokenRequest(String token){
+public record TokenRequest(String token) {
 
 }

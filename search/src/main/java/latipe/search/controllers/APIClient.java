@@ -11,9 +11,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 @FeignClient(name = "API", url = "http://localhost:8181/api/v1")
 public interface APIClient {
-    @PostMapping(value = "/auth/validate-token")
-    UserCredentialResponse getCredential(@RequestBody() TokenRequest accessToken);
 
-    @GetMapping(value = "/products-es/{productId}")
-    ProductESDetailVm getProductESDetailById(@PathVariable("productId") String productId);
+  @PostMapping(value = "/auth/validate-token")
+  UserCredentialResponse getCredential(@RequestBody() TokenRequest accessToken);
+
+  @GetMapping(value = "/products-es/{productId}")
+  ProductESDetailVm getProductESDetailById(@PathVariable("productId") String productId);
 }

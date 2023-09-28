@@ -9,17 +9,18 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 @Configuration
 @EnableWebFluxSecurity
 public class SecurityConfig {
-    @Bean
-    public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity serverHttpSecurity) {
-        serverHttpSecurity
-                .authorizeExchange(exchange ->
-                        exchange.pathMatchers("/**")
-                                .permitAll()
-                                .anyExchange()
-                                .authenticated())
-                .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
-                .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
-                .csrf(ServerHttpSecurity.CsrfSpec::disable);
-        return serverHttpSecurity.build();
-    }
+
+  @Bean
+  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity serverHttpSecurity) {
+    serverHttpSecurity
+        .authorizeExchange(exchange ->
+            exchange.pathMatchers("/**")
+                .permitAll()
+                .anyExchange()
+                .authenticated())
+        .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
+        .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
+        .csrf(ServerHttpSecurity.CsrfSpec::disable);
+    return serverHttpSecurity.build();
+  }
 }

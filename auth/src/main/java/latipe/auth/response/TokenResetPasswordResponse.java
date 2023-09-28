@@ -11,6 +11,7 @@ public record TokenResetPasswordResponse(
     LocalDateTime expired,
     TOKEN_TYPE type
 ) {
+
   public TokenResetPasswordResponse withExpired(LocalDateTime expired) {
     return new TokenResetPasswordResponse(token, email, expired, type);
   }

@@ -66,7 +66,8 @@ public class UserController {
       @RequestParam(name = "page", defaultValue = "1") int page,
       @RequestParam(name = "size", defaultValue = "10") int size
   ) {
-    UserCredentialResponse userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest().getAttribute("user")));
+    UserCredentialResponse userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
+        .getAttribute("user")));
     return userService.getMyAddresses(userCredential.id(), page, size);
   }
 
@@ -76,7 +77,8 @@ public class UserController {
   public CompletableFuture<UserAddress> updateMyAddress(
       @PathVariable String id,
       @Valid @RequestBody UpdateUserAddressRequest input) {
-    UserCredentialResponse userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest().getAttribute("user")));
+    UserCredentialResponse userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
+        .getAttribute("user")));
     return userService.updateMyAddresses(input, userCredential.id(), id);
   }
 
@@ -86,7 +88,8 @@ public class UserController {
   public CompletableFuture<UserAddress> addMyAddress(
       @Valid @RequestBody CreateUserAddressRequest input) {
 
-    UserCredentialResponse userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest().getAttribute("user")));
+    UserCredentialResponse userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
+        .getAttribute("user")));
     return userService.addMyAddresses(userCredential.id(), input);
 
   }

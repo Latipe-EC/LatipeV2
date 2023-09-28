@@ -35,78 +35,78 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @ApiPrefixController("products")
 public class ProductController {
 
-    private final IProductService productService;
+  private final IProductService productService;
 
-    public ProductController(IProductService productService) {
-        this.productService = productService;
-    }
+  public ProductController(IProductService productService) {
+    this.productService = productService;
+  }
 
-    @RequiresAuthorization("VENDOR")
-    @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
-    public CompletableFuture<ProductResponse> create(
-        @Valid @RequestBody CreateProductRequest input) {
-        UserCredentialResponse userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
-            .getAttribute("user")));
-        return productService.create(userCredential.id(), input);
-    }
+  @RequiresAuthorization("VENDOR")
+  @ResponseStatus(HttpStatus.CREATED)
+  @PostMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
+  public CompletableFuture<ProductResponse> create(
+      @Valid @RequestBody CreateProductRequest input) {
+    UserCredentialResponse userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
+        .getAttribute("user")));
+    return productService.create(userCredential.id(), input);
+  }
 
-    @ResponseStatus(HttpStatus.OK)
-    @GetMapping(value = "/get-price/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public CompletableFuture<ProductPriceVm> getPrice(@PathVariable("id") String prodId,
-        @RequestParam String code) {
-        return productService.getPrice(prodId, code);
-    }
+  @ResponseStatus(HttpStatus.OK)
+  @GetMapping(value = "/get-price/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+  public CompletableFuture<ProductPriceVm> getPrice(@PathVariable("id") String prodId,
+      @RequestParam String code) {
+    return productService.getPrice(prodId, code);
+  }
 
-    @RequiresAuthorization("VENDOR")
-    @ResponseStatus(HttpStatus.OK)
-    @GetMapping(value = "/check-in-stock", produces = MediaType.APPLICATION_JSON_VALUE)
-    public CompletableFuture<OrderProductResponse> checkProductInStock(
-        @Valid @RequestBody List<OrderProductCheckRequest> prodOrders) {
-        return productService.checkProductInStock(prodOrders);
-    }
+  @RequiresAuthorization("VENDOR")
+  @ResponseStatus(HttpStatus.OK)
+  @GetMapping(value = "/check-in-stock", produces = MediaType.APPLICATION_JSON_VALUE)
+  public CompletableFuture<OrderProductResponse> checkProductInStock(
+      @Valid @RequestBody List<OrderProductCheckRequest> prodOrders) {
+    return productService.checkProductInStock(prodOrders);
+  }
 
-    @RequiresAuthorization("VENDOR")
-    @ResponseStatus(HttpStatus.OK)
-    @PatchMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public CompletableFuture<ProductResponse> update(
+  @RequiresAuthorization("VENDOR")
+  @ResponseStatus(HttpStatus.OK)
+  @PatchMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+  public CompletableFuture<ProductResponse> update(
 
-        @PathVariable("id") String prodId, @Valid @RequestBody UpdateProductRequest input) {
-        UserCredentialResponse userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
-            .getAttribute("user")));
-        return productService.update(userCredential.id(), prodId, input);
-    }
+      @PathVariable("id") String prodId, @Valid @RequestBody UpdateProductRequest input) {
+    UserCredentialResponse userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
+        .getAttribute("user")));
+    return productService.update(userCredential.id(), prodId, input);
+  }
 
-    @RequiresAuthorization("VENDOR")
-    @ResponseStatus(HttpStatus.OK)
-    @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public CompletableFuture<Void> delete(@PathVariable("id") String prodId) {
-        UserCredentialResponse userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
-            .getAttribute("user")));
-        return productService.remove(userCredential.id(), prodId);
-    }
+  @RequiresAuthorization("VENDOR")
+  @ResponseStatus(HttpStatus.OK)
+  @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+  public CompletableFuture<Void> delete(@PathVariable("id") String prodId) {
+    UserCredentialResponse userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
+        .getAttribute("user")));
+    return productService.remove(userCredential.id(), prodId);
+  }
 
-    @RequiresAuthorization("ADMIN")
-    @ResponseStatus(HttpStatus.OK)
-    @PatchMapping(value = "/ban/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public CompletableFuture<Void> ban(
-        @PathVariable("id") String prodId,
-        @Valid @RequestBody BanProductRequest input) {
-        UserCredentialResponse userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
-            .getAttribute("user")));
-        return productService.ban(prodId, input);
-    }
+  @RequiresAuthorization("ADMIN")
+  @ResponseStatus(HttpStatus.OK)
+  @PatchMapping(value = "/ban/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+  public CompletableFuture<Void> ban(
+      @PathVariable("id") String prodId,
+      @Valid @RequestBody BanProductRequest input) {
+    UserCredentialResponse userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
+        .getAttribute("user")));
+    return productService.ban(prodId, input);
+  }
 
-    @ResponseStatus(HttpStatus.OK)
-    @GetMapping(value = "/list-featured", produces = MediaType.APPLICATION_JSON_VALUE)
-    public CompletableFuture<List<ProductThumbnailVm>> getFeatureProduct(
-        List<ProductFeatureRequest> products) {
-        return productService.getFeatureProduct(products);
-    }
+  @ResponseStatus(HttpStatus.OK)
+  @GetMapping(value = "/list-featured", produces = MediaType.APPLICATION_JSON_VALUE)
+  public CompletableFuture<List<ProductThumbnailVm>> getFeatureProduct(
+      List<ProductFeatureRequest> products) {
+    return productService.getFeatureProduct(products);
+  }
 
-    @ResponseStatus(HttpStatus.OK)
-    @GetMapping(value = "/products-es/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public CompletableFuture<ProductESDetailVm> getProductESDetailById(@PathVariable String id) {
-        return productService.getProductESDetailById(id);
-    }
+  @ResponseStatus(HttpStatus.OK)
+  @GetMapping(value = "/products-es/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+  public CompletableFuture<ProductESDetailVm> getProductESDetailById(@PathVariable String id) {
+    return productService.getProductESDetailById(id);
+  }
 }

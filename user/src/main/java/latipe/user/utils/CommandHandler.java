@@ -4,9 +4,6 @@ import jakarta.annotation.PostConstruct;
 import latipe.user.Entity.Role;
 import latipe.user.constants.CONSTANTS;
 import latipe.user.repositories.IRoleRepository;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 

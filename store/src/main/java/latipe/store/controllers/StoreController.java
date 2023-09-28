@@ -22,27 +22,27 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @ApiPrefixController("stores")
 public class StoreController {
 
-    private final IStoreService storeService;
+  private final IStoreService storeService;
 
-    public StoreController(IStoreService storeService) {
-        this.storeService = storeService;
-    }
+  public StoreController(IStoreService storeService) {
+    this.storeService = storeService;
+  }
 
-    @Authenticate
-    @ResponseStatus(HttpStatus.OK)
-    @GetMapping(value = "/validate-store/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public CompletableFuture<String> validateStore(@PathVariable String userId) {
-        return storeService.getStoreByUserId(userId);
-    }
+  @Authenticate
+  @ResponseStatus(HttpStatus.OK)
+  @GetMapping(value = "/validate-store/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
+  public CompletableFuture<String> validateStore(@PathVariable String userId) {
+    return storeService.getStoreByUserId(userId);
+  }
 
-    @Authenticate
-    @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping(value = "/create-store", produces = MediaType.APPLICATION_JSON_VALUE)
-    public CompletableFuture<StoreResponse> createStore(
+  @Authenticate
+  @ResponseStatus(HttpStatus.CREATED)
+  @PostMapping(value = "/create-store", produces = MediaType.APPLICATION_JSON_VALUE)
+  public CompletableFuture<StoreResponse> createStore(
 
-        @RequestBody CreateStoreRequest input) {
-        UserCredentialResponse userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
-            .getAttribute("user")));
-        return storeService.create(userCredential.id(), input);
-    }
+      @RequestBody CreateStoreRequest input) {
+    UserCredentialResponse userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
+        .getAttribute("user")));
+    return storeService.create(userCredential.id(), input);
+  }
 }

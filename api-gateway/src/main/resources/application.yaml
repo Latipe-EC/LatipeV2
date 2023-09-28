@@ -98,10 +98,10 @@ spring:
             - Path=/eureka/**
 
 logging:
-#  level:
-#    org.springframework.web.HttpLogging: TRACE
-#    reactor.netty.http.server: DEBUG
-#    reactor.netty.http.client: DEBUG
+  #  level:
+  #    org.springframework.web.HttpLogging: TRACE
+  #    reactor.netty.http.server: DEBUG
+  #    reactor.netty.http.client: DEBUG
   pattern:
     level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
 

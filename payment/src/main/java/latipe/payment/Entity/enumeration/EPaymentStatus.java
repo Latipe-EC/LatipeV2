@@ -1,7 +1,7 @@
 package latipe.payment.Entity.enumeration;
 
 public enum EPaymentStatus {
-    PENDING,
-    COMPLETED,
-    CANCELLED
+  PENDING,
+  COMPLETED,
+  CANCELLED
 }

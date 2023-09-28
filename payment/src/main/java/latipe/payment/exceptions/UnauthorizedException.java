@@ -5,15 +5,15 @@ import latipe.payment.utils.MessagesUtils;
 
 public class UnauthorizedException extends RuntimeException {
 
-    private final String message;
+  private final String message;
 
-    public UnauthorizedException(String errorCode, Object... var2) {
-        this.message = MessagesUtils.getMessage(errorCode, var2);
-    }
+  public UnauthorizedException(String errorCode, Object... var2) {
+    this.message = MessagesUtils.getMessage(errorCode, var2);
+  }
 
-    @Override
-    public String getMessage() {
-        return message;
-    }
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
 }

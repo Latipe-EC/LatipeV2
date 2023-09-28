@@ -38,81 +38,89 @@ public class MediaService implements IMediaService {
   private final IMediaRepository mediaRepository;
   private final MediaMapper mediaMapper;
 
-    @Override
-    @Async
-    public CompletableFuture<MediaVm> saveMedia(MultipartFile file, String userId) {
-        return CompletableFuture.supplyAsync(
-                () -> {
-                    String type = FileCategorizeUtils.categorizeFile(file.getOriginalFilename());
-                    Path uploadPath = Paths.get(System.getProperty("user.dir"), "uploads");
-                    if (!Files.exists(uploadPath)) {
-                        try {
-                            Files.createDirectories(uploadPath);
-                        } catch (IOException e) {
-                            throw new RuntimeException(e.getMessage());
-                        }
-                    }
-                    String fileName = System.currentTimeMillis() + "-" + UUID.randomUUID() + "." + FileCategorizeUtils.getFileExtension(file.getOriginalFilename());
-                    HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+  @Override
+  @Async
+  public CompletableFuture<MediaVm> saveMedia(MultipartFile file, String userId) {
+    return CompletableFuture.supplyAsync(
+        () -> {
+          String type = FileCategorizeUtils.categorizeFile(file.getOriginalFilename());
+          Path uploadPath = Paths.get(System.getProperty("user.dir"), "uploads");
+          if (!Files.exists(uploadPath)) {
+            try {
+              Files.createDirectories(uploadPath);
+            } catch (IOException e) {
+              throw new RuntimeException(e.getMessage());
+            }
+          }
+          String fileName = System.currentTimeMillis() + "-" + UUID.randomUUID() + "."
+              + FileCategorizeUtils.getFileExtension(file.getOriginalFilename());
+          HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
 
-                    Path path = Paths.get(uploadPath.toString(), fileName);
-                    try {
-                        if (type.equals(IMAGE)) {
-                            byte[] fileData = new byte[0];
+          Path path = Paths.get(uploadPath.toString(), fileName);
+          try {
+            if (type.equals(IMAGE)) {
+              byte[] fileData = new byte[0];
 
-                            fileData = file.getBytes();
+              fileData = file.getBytes();
 
-                            BufferedImage originalImage = ImageIO.read(new ByteArrayInputStream(fileData));
-                            int newWidth = 1920;
-                            int newHeight = 1080;
-                            boolean isLargeImage = originalImage != null && originalImage.getWidth() > newWidth && originalImage.getHeight() > newHeight;
-                            if (isLargeImage) {
-                                BufferedImage resizedImage = new BufferedImage(newWidth, newHeight, originalImage.getType());
-                                Graphics2D g2d = resizedImage.createGraphics();
-                                g2d.drawImage(originalImage, 0, 0, newWidth, newHeight, null);
-                                g2d.dispose();
-                                ByteArrayOutputStream newImageBytes = new ByteArrayOutputStream();
-                                ImageIO.write(resizedImage, "jpg", newImageBytes);
-                                fileData = newImageBytes.toByteArray();
-                            }
-                            Files.write(path, fileData);
-                            String url = (request.getRemoteAddr().equalsIgnoreCase("0:0:0:0:0:0:0:1") ? "http://localhost" : "localhost") + ":" + request.getLocalPort() + "/uploads/" + fileName;
-                            var media = mediaRepository.save(new Media(fileName, type, url, file.getSize()));
-                          return mediaMapper.mapToMediaResponse(media);
-                        } else if (type.equals(VIDEO)) {
-                            Files.write(path, file.getBytes());
-                            String url = (request.getRemoteAddr().equalsIgnoreCase("0:0:0:0:0:0:0:1") ? "http://localhost" : "localhost") + ":" + request.getLocalPort() + "/uploads/" + fileName;
-                            var media = mediaRepository.save(new Media(fileName, type, url, file.getSize()));
-                          return mediaMapper.mapToMediaResponse(media);
-                        } else
-                            throw new BadRequestException("Some thing went wrong!");
-                    } catch (IOException e) {
-                        throw new BadRequestException(e.getMessage());
-                    }
-                }
-        );
-    }
+              BufferedImage originalImage = ImageIO.read(new ByteArrayInputStream(fileData));
+              int newWidth = 1920;
+              int newHeight = 1080;
+              boolean isLargeImage = originalImage != null && originalImage.getWidth() > newWidth
+                  && originalImage.getHeight() > newHeight;
+              if (isLargeImage) {
+                BufferedImage resizedImage = new BufferedImage(newWidth, newHeight,
+                    originalImage.getType());
+                Graphics2D g2d = resizedImage.createGraphics();
+                g2d.drawImage(originalImage, 0, 0, newWidth, newHeight, null);
+                g2d.dispose();
+                ByteArrayOutputStream newImageBytes = new ByteArrayOutputStream();
+                ImageIO.write(resizedImage, "jpg", newImageBytes);
+                fileData = newImageBytes.toByteArray();
+              }
+              Files.write(path, fileData);
+              String url =
+                  (request.getRemoteAddr().equalsIgnoreCase("0:0:0:0:0:0:0:1") ? "http://localhost"
+                      : "localhost") + ":" + request.getLocalPort() + "/uploads/" + fileName;
+              var media = mediaRepository.save(new Media(fileName, type, url, file.getSize()));
+              return mediaMapper.mapToMediaResponse(media);
+            } else if (type.equals(VIDEO)) {
+              Files.write(path, file.getBytes());
+              String url =
+                  (request.getRemoteAddr().equalsIgnoreCase("0:0:0:0:0:0:0:1") ? "http://localhost"
+                      : "localhost") + ":" + request.getLocalPort() + "/uploads/" + fileName;
+              var media = mediaRepository.save(new Media(fileName, type, url, file.getSize()));
+              return mediaMapper.mapToMediaResponse(media);
+            } else {
+              throw new BadRequestException("Some thing went wrong!");
+            }
+          } catch (IOException e) {
+            throw new BadRequestException(e.getMessage());
+          }
+        }
+    );
+  }
 
-    @Override
-    @Async
-    public CompletableFuture<Page<MediaVm>> findAllPaginate(String fileName, Pageable pageable) {
-        return CompletableFuture.supplyAsync(
-            () -> mediaRepository.findAllPaginate(fileName, pageable)
-                .map(mediaMapper::mapToMediaResponse)
-        );
-    }
+  @Override
+  @Async
+  public CompletableFuture<Page<MediaVm>> findAllPaginate(String fileName, Pageable pageable) {
+    return CompletableFuture.supplyAsync(
+        () -> mediaRepository.findAllPaginate(fileName, pageable)
+            .map(mediaMapper::mapToMediaResponse)
+    );
+  }
 
-    @Override
-    @Async
-    public CompletableFuture<Void> remove(String id) {
-        return CompletableFuture.supplyAsync(
-                () -> {
-                    Media noFileMediaVm = mediaRepository.findById(id)
-                            .orElseThrow(() -> new NotFoundException(String.format("Media %s is not found", id)));
-                    mediaRepository.deleteById(id);
-                    return null;
-                }
-        );
+  @Override
+  @Async
+  public CompletableFuture<Void> remove(String id) {
+    return CompletableFuture.supplyAsync(
+        () -> {
+          Media noFileMediaVm = mediaRepository.findById(id)
+              .orElseThrow(() -> new NotFoundException(String.format("Media %s is not found", id)));
+          mediaRepository.deleteById(id);
+          return null;
+        }
+    );
 //        Path uploadPath = Paths.get(System.getProperty("user.dir"), "uploads");
 //        if (!Files.exists(uploadPath)) {
 //            try {
@@ -135,7 +143,7 @@ public class MediaService implements IMediaService {
 //            throw new RuntimeException(e);
 //        }
 //        return CompletableFuture.completedFuture(null);
-    }
+  }
 
 
 }

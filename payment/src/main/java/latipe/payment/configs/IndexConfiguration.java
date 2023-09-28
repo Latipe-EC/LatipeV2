@@ -10,23 +10,27 @@ import org.springframework.data.mongodb.core.index.IndexOperations;
 
 //@Component
 public class IndexConfiguration implements CommandLineRunner {
-    @Value("${app.cicd.skip-command-line-runners:false}")
-    private boolean skipCommandLineRunners;
-    private final MongoTemplate mongoTemplate;
-    public IndexConfiguration(MongoTemplate mongoTemplate) {
-        this.mongoTemplate = mongoTemplate;
+
+  private final MongoTemplate mongoTemplate;
+  @Value("${app.cicd.skip-command-line-runners:false}")
+  private boolean skipCommandLineRunners;
+
+  public IndexConfiguration(MongoTemplate mongoTemplate) {
+    this.mongoTemplate = mongoTemplate;
+  }
+
+  @Override
+  public void run(String... args) {
+    if (skipCommandLineRunners) {
+      return;
     }
-    @Override
-    public void run(String... args) {
-        if (skipCommandLineRunners) {
-            return;
-        }
-        createUniqueIndexIfNotExists(mongoTemplate);
-    }
-    private void createUniqueIndexIfNotExists(MongoTemplate mongoTemplate) {
-        IndexOperations indexOperations = mongoTemplate.indexOps("Payment");
-        IndexDefinition indexDefinition = new Index().on("ownerId", Sort.Direction.ASC).unique();
-        indexOperations.ensureIndex(indexDefinition);
-    }
+    createUniqueIndexIfNotExists(mongoTemplate);
+  }
+
+  private void createUniqueIndexIfNotExists(MongoTemplate mongoTemplate) {
+    IndexOperations indexOperations = mongoTemplate.indexOps("Payment");
+    IndexDefinition indexDefinition = new Index().on("ownerId", Sort.Direction.ASC).unique();
+    indexOperations.ensureIndex(indexDefinition);
+  }
 }
 

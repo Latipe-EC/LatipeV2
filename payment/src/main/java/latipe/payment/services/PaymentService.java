@@ -13,7 +13,8 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 public class PaymentService {
-    private final PaymentRepository paymentRepository;
+
+  private final PaymentRepository paymentRepository;
 
   public PaymentService(PaymentRepository paymentRepository) {
     this.paymentRepository = paymentRepository;
@@ -22,20 +23,20 @@ public class PaymentService {
   @Async
   public CompletableFuture<CapturedPaymentResponse> capturePayment(
       CapturedPaymentRequest completedPayment) {
-        return CompletableFuture.supplyAsync(
-                () -> {
-                    Payment payment = Payment.builder()
-                            .checkoutId(completedPayment.checkoutId())
-                            .orderId(completedPayment.orderId())
-                            .paymentStatus(completedPayment.paymentStatus())
-                            .paymentFee(completedPayment.paymentFee())
-                            .paymentMethod(completedPayment.paymentMethod())
-                            .amount(completedPayment.amount())
-                            .failureMessage(completedPayment.failureMessage())
-                            .gatewayTransactionId(completedPayment.gatewayTransactionId())
-                            .build();
-                  return CapturedPaymentResponse.fromModel(paymentRepository.save(payment));
-                }
-        );
-    }
+    return CompletableFuture.supplyAsync(
+        () -> {
+          Payment payment = Payment.builder()
+              .checkoutId(completedPayment.checkoutId())
+              .orderId(completedPayment.orderId())
+              .paymentStatus(completedPayment.paymentStatus())
+              .paymentFee(completedPayment.paymentFee())
+              .paymentMethod(completedPayment.paymentMethod())
+              .amount(completedPayment.amount())
+              .failureMessage(completedPayment.failureMessage())
+              .gatewayTransactionId(completedPayment.gatewayTransactionId())
+              .build();
+          return CapturedPaymentResponse.fromModel(paymentRepository.save(payment));
+        }
+    );
+  }
 }

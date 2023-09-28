@@ -16,6 +16,7 @@ public record UserResponse(
     Integer point
 
 ) {
+
   public static UserResponse fromUser(User user) {
     return new UserResponse(
         user.getId(),

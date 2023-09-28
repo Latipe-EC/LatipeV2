@@ -22,62 +22,63 @@ import org.springframework.security.core.userdetails.UserDetails;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class User extends AbstractAuditEntity  implements UserDetails {
-    @Id
-    private String id;
-    private String firstName;
-    private String lastName;
-    private String displayName;
-    private int requestCount = 0;
-    private Date lastRequest;
-    private String email;
-    private boolean isRequiredVerify = false;
-    private Date verifiedAt;
-    private Date lastLogin;
-    private String hashedPassword;
-    private String avatar;
-    private int point = 0;
-    private double eWallet = 0;
-    private String storeId;
-    private String tokenResetPassword;
-    private Boolean isDeleted = false;
-    private List<UserAddress> addresses = new ArrayList<>();
-    @DBRef
-    private Role role;
-    private String phoneNumber;
+public class User extends AbstractAuditEntity implements UserDetails {
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(role.getName()));
-    }
+  @Id
+  private String id;
+  private String firstName;
+  private String lastName;
+  private String displayName;
+  private int requestCount = 0;
+  private Date lastRequest;
+  private String email;
+  private boolean isRequiredVerify = false;
+  private Date verifiedAt;
+  private Date lastLogin;
+  private String hashedPassword;
+  private String avatar;
+  private int point = 0;
+  private double eWallet = 0;
+  private String storeId;
+  private String tokenResetPassword;
+  private Boolean isDeleted = false;
+  private List<UserAddress> addresses = new ArrayList<>();
+  @DBRef
+  private Role role;
+  private String phoneNumber;
 
-    @Override
-    public String getPassword() {
-        return this.hashedPassword;
-    }
+  @Override
+  public Collection<? extends GrantedAuthority> getAuthorities() {
+    return List.of(new SimpleGrantedAuthority(role.getName()));
+  }
 
-    @Override
-    public String getUsername() {
-        return this.email;
-    }
+  @Override
+  public String getPassword() {
+    return this.hashedPassword;
+  }
 
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
+  @Override
+  public String getUsername() {
+    return this.email;
+  }
 
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
+  @Override
+  public boolean isAccountNonExpired() {
+    return true;
+  }
 
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
+  @Override
+  public boolean isAccountNonLocked() {
+    return true;
+  }
 
-    @Override
-    public boolean isEnabled() {
-        return !this.isDeleted;
-    }
+  @Override
+  public boolean isCredentialsNonExpired() {
+    return true;
+  }
+
+  @Override
+  public boolean isEnabled() {
+    return !this.isDeleted;
+  }
 }

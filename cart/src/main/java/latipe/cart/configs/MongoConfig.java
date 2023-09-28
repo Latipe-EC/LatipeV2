@@ -16,22 +16,24 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 @EnableMongoRepositories(basePackages = "latipe.cart.repositories")
 @EnableMongoAuditing
 public class MongoConfig extends AbstractMongoClientConfiguration {
-    @Bean
-    public MongoTransactionManager transactionManager(MongoDatabaseFactory mongoDatabaseFactory) {
-        return new MongoTransactionManager(mongoDatabaseFactory);
-    }
-    @Value("${spring.data.mongodb.uri}")
-    private String mongoUri;
 
-    @Override
-    protected String getDatabaseName() {
-        return "Latipe-Cart-DB";
-    }
+  @Value("${spring.data.mongodb.uri}")
+  private String mongoUri;
 
-    @Override
-    public MongoClient mongoClient() {
-        ConnectionString connectionString = new ConnectionString(mongoUri);
-        return MongoClients.create(connectionString);
-    }
-   
+  @Bean
+  public MongoTransactionManager transactionManager(MongoDatabaseFactory mongoDatabaseFactory) {
+    return new MongoTransactionManager(mongoDatabaseFactory);
+  }
+
+  @Override
+  protected String getDatabaseName() {
+    return "Latipe-Cart-DB";
+  }
+
+  @Override
+  public MongoClient mongoClient() {
+    ConnectionString connectionString = new ConnectionString(mongoUri);
+    return MongoClients.create(connectionString);
+  }
+
 }

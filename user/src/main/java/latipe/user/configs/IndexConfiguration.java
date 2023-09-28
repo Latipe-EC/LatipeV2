@@ -11,24 +11,28 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class IndexConfiguration implements CommandLineRunner {
-    @Value("${app.cicd.skip-command-line-runners:false}")
-    private boolean skipCommandLineRunners;
-    private final MongoTemplate mongoTemplate;
-    public IndexConfiguration(MongoTemplate mongoTemplate) {
-        this.mongoTemplate = mongoTemplate;
+
+  private final MongoTemplate mongoTemplate;
+  @Value("${app.cicd.skip-command-line-runners:false}")
+  private boolean skipCommandLineRunners;
+
+  public IndexConfiguration(MongoTemplate mongoTemplate) {
+    this.mongoTemplate = mongoTemplate;
+  }
+
+  @Override
+  public void run(String... args) {
+    if (skipCommandLineRunners) {
+      return;
     }
-    @Override
-    public void run(String... args) {
-        if (skipCommandLineRunners) {
-            return;
-        }
-        createUniqueIndexIfNotExists(mongoTemplate, "phoneNumber");
-        createUniqueIndexIfNotExists(mongoTemplate, "email");
-    }
-    private void createUniqueIndexIfNotExists(MongoTemplate mongoTemplate, String fieldName) {
-        IndexOperations indexOperations = mongoTemplate.indexOps("Users");
-        IndexDefinition indexDefinition = new Index().on(fieldName, Sort.Direction.ASC).unique();
-        indexOperations.ensureIndex(indexDefinition);
-    }
+    createUniqueIndexIfNotExists(mongoTemplate, "phoneNumber");
+    createUniqueIndexIfNotExists(mongoTemplate, "email");
+  }
+
+  private void createUniqueIndexIfNotExists(MongoTemplate mongoTemplate, String fieldName) {
+    IndexOperations indexOperations = mongoTemplate.indexOps("Users");
+    IndexDefinition indexDefinition = new Index().on(fieldName, Sort.Direction.ASC).unique();
+    indexOperations.ensureIndex(indexDefinition);
+  }
 }
 

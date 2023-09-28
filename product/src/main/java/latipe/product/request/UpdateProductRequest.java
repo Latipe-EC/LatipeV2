@@ -4,9 +4,8 @@ import jakarta.validation.constraints.NotEmpty;
 import java.util.List;
 import latipe.product.Entity.ProductClassification;
 import latipe.product.Entity.ProductVariant;
-import lombok.Data;
 
-public record UpdateProductRequest (
+public record UpdateProductRequest(
     @NotEmpty(message = "Product Name  is required")
     String name,
     @NotEmpty(message = "Product Description  is required")
@@ -17,5 +16,6 @@ public record UpdateProductRequest (
     List<ProductVariant> productVariant,
     List<ProductClassification> productClassifications
 ) {
+
 }
 

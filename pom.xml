@@ -1,39 +1,12 @@
 <project>
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>com.latipe</groupId>
   <artifactId>latipe-microservice-api</artifactId>
-  <version>1.0.0</version>
-  <packaging>pom</packaging>
-
-  <modules>
-    <module>api-gateway</module>
-    <module>auth</module>
-    <module>cart</module>
-    <module>discovery-server</module>
-    <module>payment</module>
-    <module>product</module>
-    <module>user</module>
-    <module>store</module>
-    <module>search</module>
-    <module>media</module>
-  </modules>
-
-
   <build>
     <plugins>
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
-        <version>3.0.0</version>
         <executions>
           <execution>
-            <id>run-all</id>
-            <phase>install</phase>
-            <goals>
-              <goal>exec</goal>
-            </goals>
             <configuration>
-              <executable>java</executable>
               <arguments>
                 <argument>-jar</argument>
                 <argument>discovery-server/target/discovery-server-1.0.0-SNAPSHOT.jar</argument>
@@ -56,10 +29,37 @@
                 <argument>-jar</argument>
                 <argument>media/target/media-1.0.0-SNAPSHOT.jar</argument>
               </arguments>
+              <executable>java</executable>
             </configuration>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <id>run-all</id>
+            <phase>install</phase>
           </execution>
         </executions>
+        <groupId>org.codehaus.mojo</groupId>
+        <version>3.0.0</version>
       </plugin>
     </plugins>
   </build>
+  <groupId>com.latipe</groupId>
+  <modelVersion>4.0.0</modelVersion>
+  <modules>
+    <module>api-gateway</module>
+    <module>auth</module>
+    <module>cart</module>
+    <module>discovery-server</module>
+    <module>payment</module>
+    <module>product</module>
+    <module>user</module>
+    <module>store</module>
+    <module>search</module>
+    <module>media</module>
+  </modules>
+
+  <packaging>pom</packaging>
+
+
+  <version>1.0.0</version>
 </project>

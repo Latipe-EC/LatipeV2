@@ -1,9 +1,7 @@
 package latipe.user.mappers;
 
 import latipe.user.Entity.Role;
-import latipe.user.Entity.UserAddress;
 import latipe.user.request.CreateRoleRequest;
-import latipe.user.request.UpdateUserAddressRequest;
 import latipe.user.response.RoleResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

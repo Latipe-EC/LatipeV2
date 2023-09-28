@@ -11,13 +11,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 @FeignClient(value = "API", url = "http://localhost:8181/api/v1")
 public interface APIClient {
-    @PostMapping(value = "/auth/validate-token")
-    UserCredentialResponse getCredential(@RequestBody() TokenRequest accessToken);
 
-    @PostMapping(value = "/payment/capture-payment")
-    CapturedPaymentVm capturePayment(CapturedPaymentVm capturedPayment);
+  @PostMapping(value = "/auth/validate-token")
+  UserCredentialResponse getCredential(@RequestBody() TokenRequest accessToken);
 
-    @GetMapping(value = "/payment-providers/{id}/additional-settings")
-    String getAdditionalSettings(@PathVariable String id);
+  @PostMapping(value = "/payment/capture-payment")
+  CapturedPaymentVm capturePayment(CapturedPaymentVm capturedPayment);
+
+  @GetMapping(value = "/payment-providers/{id}/additional-settings")
+  String getAdditionalSettings(@PathVariable String id);
 
 }

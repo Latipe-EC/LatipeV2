@@ -5,15 +5,16 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public interface IService<T, D, E> {
-    CompletableFuture<List<T>> getAll();
 
-    CompletableFuture<T> getOne(String id);
+  CompletableFuture<List<T>> getAll();
 
-    CompletableFuture<T> create(D input);
+  CompletableFuture<T> getOne(String id);
 
-    CompletableFuture<T> update(String id, E input);
+  CompletableFuture<T> create(D input);
+
+  CompletableFuture<T> update(String id, E input);
 
 //    CompletableFuture<PagedResultDto<T>> findAllPagination(HttpServletRequest request, Integer limit, Integer skip);
 
-    CompletableFuture<Void> remove(String id);
+  CompletableFuture<Void> remove(String id);
 }

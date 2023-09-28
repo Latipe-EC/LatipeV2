@@ -26,52 +26,54 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @ApiPrefixController("categories")
 public class CategoryController {
-    private final ICategoryService categoryService;
 
-    public CategoryController(ICategoryService categoryService) {
-        this.categoryService = categoryService;
-    }
+  private final ICategoryService categoryService;
 
-    @ResponseStatus(HttpStatus.OK)
-    @GetMapping(value = "/paginate", produces = MediaType.APPLICATION_JSON_VALUE)
-    public CompletableFuture<PagedResultDto<CategoryResponse>> getPaginateCategory(
-        @RequestParam(value = "skip", defaultValue = "0") long skip,
-        @RequestParam(value = "limit", defaultValue = "10") int limit,
-        @RequestParam(value = "name", defaultValue = "") String name) {
-        return categoryService.getPaginateCategory(skip, limit, name);
-    }
+  public CategoryController(ICategoryService categoryService) {
+    this.categoryService = categoryService;
+  }
+
+  @ResponseStatus(HttpStatus.OK)
+  @GetMapping(value = "/paginate", produces = MediaType.APPLICATION_JSON_VALUE)
+  public CompletableFuture<PagedResultDto<CategoryResponse>> getPaginateCategory(
+      @RequestParam(value = "skip", defaultValue = "0") long skip,
+      @RequestParam(value = "limit", defaultValue = "10") int limit,
+      @RequestParam(value = "name", defaultValue = "") String name) {
+    return categoryService.getPaginateCategory(skip, limit, name);
+  }
 
 
-    @ResponseStatus(HttpStatus.OK)
-    @GetMapping(value = "/children-categories/{parentID}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public CompletableFuture<List<CategoryResponse>> getListChildrenCategory(
-        @PathVariable("parentID") String parentID) {
-        return categoryService.getListChildrenCategory(parentID);
-    }
-    @Authenticate
-    @RequiresAuthorization("ADMIN")
-    @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public CompletableFuture<CategoryResponse> createStore(
-        @Valid @RequestBody CreateCategoryRequest input) {
-        return categoryService.create(input);
-    }
+  @ResponseStatus(HttpStatus.OK)
+  @GetMapping(value = "/children-categories/{parentID}", produces = MediaType.APPLICATION_JSON_VALUE)
+  public CompletableFuture<List<CategoryResponse>> getListChildrenCategory(
+      @PathVariable("parentID") String parentID) {
+    return categoryService.getListChildrenCategory(parentID);
+  }
 
-    @Authenticate
-    @RequiresAuthorization("ADMIN")
-    @ResponseStatus(HttpStatus.OK)
-    @PatchMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public CompletableFuture<CategoryResponse> updateStore(
-        @PathVariable("id") String id, @Valid @RequestBody UpdateCategoryRequest input){
-        return categoryService.update(id, input);
-    }
+  @Authenticate
+  @RequiresAuthorization("ADMIN")
+  @ResponseStatus(HttpStatus.CREATED)
+  @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+  public CompletableFuture<CategoryResponse> createStore(
+      @Valid @RequestBody CreateCategoryRequest input) {
+    return categoryService.create(input);
+  }
 
-    @Authenticate
-    @RequiresAuthorization("ADMIN")
-    @ResponseStatus(HttpStatus.OK)
-    @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public CompletableFuture<Void> deleteCategory(
-            @PathVariable("id") String id) {
-        return categoryService.remove(id);
-    }
+  @Authenticate
+  @RequiresAuthorization("ADMIN")
+  @ResponseStatus(HttpStatus.OK)
+  @PatchMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+  public CompletableFuture<CategoryResponse> updateStore(
+      @PathVariable("id") String id, @Valid @RequestBody UpdateCategoryRequest input) {
+    return categoryService.update(id, input);
+  }
+
+  @Authenticate
+  @RequiresAuthorization("ADMIN")
+  @ResponseStatus(HttpStatus.OK)
+  @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+  public CompletableFuture<Void> deleteCategory(
+      @PathVariable("id") String id) {
+    return categoryService.remove(id);
+  }
 }

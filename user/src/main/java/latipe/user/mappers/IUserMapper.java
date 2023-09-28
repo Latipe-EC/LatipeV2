@@ -7,7 +7,6 @@ import latipe.user.request.CreateUserRequest;
 import latipe.user.request.RegisterRequest;
 import latipe.user.request.UpdateUserAddressRequest;
 import latipe.user.request.UpdateUserRequest;
-import latipe.user.response.RoleResponse;
 import latipe.user.response.UserResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -33,6 +32,7 @@ public interface IUserMapper {
 
   public abstract User mapBeforeCreate(RegisterRequest input, Role role, String displayName,
       String password);
+
   @Mappings({@Mapping(target = "role", expression = "java(user.getRole().getName())")})
   public abstract UserResponse mapToResponse(User user);
 }

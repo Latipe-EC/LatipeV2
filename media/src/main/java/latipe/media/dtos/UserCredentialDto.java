@@ -8,8 +8,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UserCredentialDto {
-    private String id;
-    private String email;
-    private String phone;
-    private String role;
+
+  private String id;
+  private String email;
+  private String phone;
+  private String role;
 }

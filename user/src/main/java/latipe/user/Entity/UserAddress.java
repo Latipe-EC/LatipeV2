@@ -15,22 +15,23 @@ import org.springframework.data.annotation.Id;
 @NoArgsConstructor
 @Builder
 public class UserAddress {
-    @Id
-    private String id = new ObjectId().toString();
-    @NotEmpty(message = "Contact name is required")
-    private String contactName;
-    @NotEmpty(message = "Phone name is required")
-    private String phone;
-    @NotEmpty(message = "Detail Address is required")
-    private String detailAddress;
-    private String city;
-    private String zipCode;
-    private Long districtId;
-    private String districtName;
-    private Long stateOrProvinceId;
-    private String stateOrProvinceName;
-    private Long countryId = 84L;
-    private String countryName = "VietNam";
+
+  @Id
+  private String id = new ObjectId().toString();
+  @NotEmpty(message = "Contact name is required")
+  private String contactName;
+  @NotEmpty(message = "Phone name is required")
+  private String phone;
+  @NotEmpty(message = "Detail Address is required")
+  private String detailAddress;
+  private String city;
+  private String zipCode;
+  private Long districtId;
+  private String districtName;
+  private Long stateOrProvinceId;
+  private String stateOrProvinceName;
+  private Long countryId = 84L;
+  private String countryName = "VietNam";
 
 
 }
