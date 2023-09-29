@@ -1,5 +1,6 @@
 package latipe.product.controllers;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -43,12 +44,13 @@ public class ProductController {
 
   @RequiresAuthorization("VENDOR")
   @ResponseStatus(HttpStatus.CREATED)
-  @PostMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
+  @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<ProductResponse> create(
       @Valid @RequestBody CreateProductRequest input) {
-    UserCredentialResponse userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
-        .getAttribute("user")));
-    return productService.create(userCredential.id(), input);
+    HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).
+        getRequest();
+    UserCredentialResponse userCredential = (UserCredentialResponse) (request.getAttribute("user"));
+    return productService.create(userCredential.id(), input, request);
   }
 
   @ResponseStatus(HttpStatus.OK)
@@ -70,20 +72,22 @@ public class ProductController {
   @ResponseStatus(HttpStatus.OK)
   @PatchMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<ProductResponse> update(
-
       @PathVariable("id") String prodId, @Valid @RequestBody UpdateProductRequest input) {
-    UserCredentialResponse userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
-        .getAttribute("user")));
-    return productService.update(userCredential.id(), prodId, input);
+    HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).
+        getRequest();
+    UserCredentialResponse userCredential = (UserCredentialResponse) (request.getAttribute("user"));
+    return productService.update(userCredential.id(), prodId, input, request);
   }
 
   @RequiresAuthorization("VENDOR")
   @ResponseStatus(HttpStatus.OK)
   @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<Void> delete(@PathVariable("id") String prodId) {
-    UserCredentialResponse userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
-        .getAttribute("user")));
-    return productService.remove(userCredential.id(), prodId);
+
+    HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).
+        getRequest();
+    UserCredentialResponse userCredential = (UserCredentialResponse) (request.getAttribute("user"));
+    return productService.remove(userCredential.id(), prodId, request);
   }
 
   @RequiresAuthorization("ADMIN")

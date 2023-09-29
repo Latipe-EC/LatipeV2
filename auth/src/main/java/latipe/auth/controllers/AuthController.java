@@ -92,13 +92,15 @@ public class AuthController {
   public CompletableFuture<RefreshTokenResponse> refreshAuthenticationToken(
       @RequestBody @Valid RefreshTokenRequest refreshTokenRequest) {
     return CompletableFuture.supplyAsync(() -> {
-      final String refreshToken = refreshTokenRequest.refreshToken();
+       String refreshToken = refreshTokenRequest.refreshToken();
       // Check if the refresh token is valid and not expired
       String username = jwtUtil.checkToken(refreshToken, "refresh-token");
       User user = getUser(username);
       try {
         if (jwtUtil.validateToken(refreshToken, user)) {
           final String accessToken = jwtUtil.generateAccessToken(user);
+          refreshToken= jwtUtil.generateRefreshToken(user);
+
           return new RefreshTokenResponse(accessToken, refreshToken);
         }
       } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {

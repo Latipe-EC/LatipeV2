@@ -16,12 +16,13 @@ public class CustomAuditingEntityListener extends AbstractMongoEventListener<Obj
   @Override
   public void onBeforeConvert(BeforeConvertEvent<Object> event) {
     Object entity = event.getSource();
-
     if (entity instanceof AbstractAuditEntity abstractAuditEntity) {
       String currentUser = "Anonymous";
-      HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-      if (request.getAttribute("user") != null) {
-        currentUser = ((UserCredentialResponse) request.getAttribute("user")).email();
+      ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+      if (requestAttributes != null
+          && requestAttributes.getRequest().getAttribute("user") != null) {
+        currentUser = ((UserCredentialResponse) requestAttributes.getRequest()
+            .getAttribute("user")).email();
       }
       Date currentDate = new Date();
       if (abstractAuditEntity.getCreatedDate() == null) {

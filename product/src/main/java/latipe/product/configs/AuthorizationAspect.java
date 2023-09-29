@@ -1,10 +1,15 @@
 package latipe.product.configs;
 
+import feign.Feign;
 import feign.FeignException;
+import feign.Logger;
+import feign.gson.GsonDecoder;
+import feign.gson.GsonEncoder;
+import feign.okhttp.OkHttpClient;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Objects;
+import latipe.product.FeignClient.AuthClient;
 import latipe.product.annotations.RequiresAuthorization;
-import latipe.product.controllers.APIClient;
 import latipe.product.exceptions.ForbiddenException;
 import latipe.product.exceptions.UnauthorizedException;
 import latipe.product.request.TokenRequest;
@@ -21,11 +26,6 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @Component
 public class AuthorizationAspect {
 
-  private final APIClient apiClient;
-
-  public AuthorizationAspect(APIClient apiClient) {
-    this.apiClient = apiClient;
-  }
 
   @Before("@annotation(requiresAuthorization)")
   public void checkAuthorization(JoinPoint joinPoint, RequiresAuthorization requiresAuthorization)
@@ -35,7 +35,14 @@ public class AuthorizationAspect {
       throw new UnauthorizedException("Unauthorized");
     }
     try {
-      UserCredentialResponse credential = apiClient.getCredential(new TokenRequest(token));
+      AuthClient authClient = Feign.builder()
+          .client(new OkHttpClient())
+          .encoder(new GsonEncoder())
+          .decoder(new GsonDecoder())
+          .logLevel(Logger.Level.FULL)
+          .target(AuthClient.class, "http://localhost:8181/api/v1");
+      UserCredentialResponse credential = authClient.getCredential(new TokenRequest(token));
+
       if (credential == null) {
         throw new UnauthorizedException("Unauthorized");
       }

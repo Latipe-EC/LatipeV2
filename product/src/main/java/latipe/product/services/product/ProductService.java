@@ -1,13 +1,20 @@
 package latipe.product.services.product;
 
+import feign.Feign;
+import feign.Logger;
+import feign.gson.GsonDecoder;
+import feign.gson.GsonEncoder;
+import feign.okhttp.OkHttpClient;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import latipe.product.Entity.Category;
 import latipe.product.Entity.Product;
 import latipe.product.Entity.ProductClassification;
+import latipe.product.FeignClient.StoreClient;
 import latipe.product.configs.CustomAggregationOperation;
 import latipe.product.constants.Action;
-import latipe.product.controllers.APIClient;
 import latipe.product.exceptions.BadRequestException;
 import latipe.product.exceptions.NotFoundException;
 import latipe.product.mapper.ProductMapper;
@@ -44,14 +51,14 @@ public class ProductService implements IProductService {
   private final IProductRepository productRepository;
   private final ICategoryRepository categoryRepository;
   private final ProductMapper productMapper;
-  private final APIClient apiClient;
   private final MongoTemplate mongoTemplate;
   private final RabbitMQProducer rabbitMQProducer;
 
 
   @Override
   @Async
-  public CompletableFuture<ProductResponse> create(String userId, CreateProductRequest input) {
+  public CompletableFuture<ProductResponse> create(String userId, CreateProductRequest input,
+      HttpServletRequest request) {
     return CompletableFuture.supplyAsync(() -> {
       if (input.productVariant().isEmpty()) {
         if (input.price() == null || input.price() <= 0) {
@@ -104,7 +111,13 @@ public class ProductService implements IProductService {
       }
       var prod = productMapper.mapToProductBeforeCreate(input);
       // get store id from store service
-      prod.setStoreId(apiClient.getStoreId(userId));
+      StoreClient storeClient = Feign.builder()
+          .client(new OkHttpClient())
+          .encoder(new GsonEncoder())
+          .decoder(new GsonDecoder())
+          .logLevel(Logger.Level.FULL)
+          .target(StoreClient.class, "http://localhost:8181/api/v1");
+      prod.setStoreId(storeClient.getStoreId(request.getHeader("Authorization"), userId));
       var savedProd = productRepository.save(prod);
 
       // send message create message
@@ -280,11 +293,18 @@ public class ProductService implements IProductService {
   @Override
   @Async
   public CompletableFuture<ProductResponse> update(String userId, String id,
-      UpdateProductRequest input) {
+      UpdateProductRequest input, HttpServletRequest request) {
     Product product = productRepository.findById(id)
         .orElseThrow(() -> new BadRequestException("Product not found"));
     // check permission to change product (store service)
-    if (!apiClient.getStoreId(userId).equals(product.getStoreId())) {
+    StoreClient storeClient = Feign.builder()
+        .client(new OkHttpClient())
+        .encoder(new GsonEncoder())
+        .decoder(new GsonDecoder())
+        .logLevel(Logger.Level.FULL)
+        .target(StoreClient.class, "http://localhost:8181/api/v1");
+    var store = storeClient.getStoreId(request.getHeader("Authorization"), userId);
+    if (!store.equals(product.getStoreId())) {
       throw new BadRequestException("You don't have permission to change this product");
     }
     if (input.productVariant().size() == 0) {
@@ -343,12 +363,19 @@ public class ProductService implements IProductService {
 
   @Override
   @Async
-  public CompletableFuture<Void> remove(String userId, String id) {
+  public CompletableFuture<Void> remove(String userId, String id, HttpServletRequest request) {
     return CompletableFuture.supplyAsync(() -> {
       Product product = productRepository.findById(id)
           .orElseThrow(() -> new BadRequestException("Product not found"));
       // check permission to change product (store service)
-      if (!apiClient.getStoreId(userId).equals(product.getStoreId())) {
+      StoreClient storeClient = Feign.builder()
+          .client(new OkHttpClient())
+          .encoder(new GsonEncoder())
+          .decoder(new GsonDecoder())
+          .logLevel(Logger.Level.FULL)
+          .target(StoreClient.class, "http://localhost:8181/api/v1");
+      var store = storeClient.getStoreId(request.getHeader("Authorization"), userId);
+      if (!store.equals(product.getStoreId())) {
         throw new BadRequestException("You don't have permission to change this product");
       }
       product.setDeleted(true);
@@ -378,7 +405,7 @@ public class ProductService implements IProductService {
       var message = ParseObjectToString.parse(
           new ProductMessageVm(savedProduct.getId(), Action.BAN));
       rabbitMQProducer.sendMessage(message);
-      
+
       return null;
     });
   }
