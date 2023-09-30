@@ -112,12 +112,12 @@
     </dependency>
     <!-- RabbitMQ -->
     <dependency>
-      <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-amqp</artifactId>
+      <groupId>org.springframework.boot</groupId>
     </dependency>
     <dependency>
-      <groupId>com.google.code.gson</groupId>
       <artifactId>gson</artifactId>
+      <groupId>com.google.code.gson</groupId>
     </dependency>
   </dependencies>
   <dependencyManagement>

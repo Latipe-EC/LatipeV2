@@ -9,6 +9,7 @@ public final class Constants {
     public static final String NOT_FOUND = "NOT_FOUND";
     public static final String TOKEN_EXPIRED = "TOKEN_EXPIRED";
     public static final String TOKEN_INVALID = "TOKEN_INVALID";
+
     // Private constructor to prevent instantiation
     private ErrorCode() {
     }

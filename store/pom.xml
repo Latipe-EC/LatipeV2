@@ -103,18 +103,18 @@
       <groupId>org.aspectj</groupId>
     </dependency>
     <dependency>
-      <groupId>io.github.openfeign</groupId>
       <artifactId>feign-okhttp</artifactId>
+      <groupId>io.github.openfeign</groupId>
       <version>10.11</version>
     </dependency>
     <dependency>
-      <groupId>io.github.openfeign</groupId>
       <artifactId>feign-gson</artifactId>
+      <groupId>io.github.openfeign</groupId>
       <version>10.11</version>
     </dependency>
     <dependency>
-      <groupId>io.github.openfeign</groupId>
       <artifactId>feign-slf4j</artifactId>
+      <groupId>io.github.openfeign</groupId>
       <version>10.11</version>
     </dependency>
     <dependency>

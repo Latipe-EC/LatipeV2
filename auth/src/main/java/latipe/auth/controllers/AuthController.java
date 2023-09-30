@@ -14,10 +14,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import latipe.auth.entity.User;
 import latipe.auth.config.ApiPrefixController;
 import latipe.auth.config.JwtTokenService;
 import latipe.auth.constants.CONSTANTS.TOKEN_TYPE;
+import latipe.auth.entity.User;
 import latipe.auth.exceptions.BadRequestException;
 import latipe.auth.exceptions.NotFoundException;
 import latipe.auth.exceptions.UnauthorizedException;
@@ -93,14 +93,14 @@ public class AuthController {
   public CompletableFuture<RefreshTokenResponse> refreshAuthenticationToken(
       @RequestBody @Valid RefreshTokenRequest refreshTokenRequest) {
     return CompletableFuture.supplyAsync(() -> {
-       String refreshToken = refreshTokenRequest.refreshToken();
+      String refreshToken = refreshTokenRequest.refreshToken();
       // Check if the refresh token is valid and not expired
       String username = jwtUtil.checkToken(refreshToken, "refresh-token");
       User user = getUser(username);
       try {
         if (jwtUtil.validateToken(refreshToken, user)) {
           final String accessToken = jwtUtil.createAccessToken(user);
-          refreshToken= jwtUtil.createRefreshToken(user.getEmail());
+          refreshToken = jwtUtil.createRefreshToken(user.getEmail());
 
           return new RefreshTokenResponse(accessToken, refreshToken);
         }

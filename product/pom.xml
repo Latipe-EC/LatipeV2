@@ -120,27 +120,27 @@
     </dependency>
     <!-- RabbitMQ -->
     <dependency>
-      <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-amqp</artifactId>
+      <groupId>org.springframework.boot</groupId>
     </dependency>
     <dependency>
-      <groupId>io.github.openfeign</groupId>
       <artifactId>feign-okhttp</artifactId>
+      <groupId>io.github.openfeign</groupId>
       <version>10.11</version>
     </dependency>
     <dependency>
-      <groupId>io.github.openfeign</groupId>
       <artifactId>feign-gson</artifactId>
-      <version>10.11</version>
-    </dependency>
-    <dependency>
       <groupId>io.github.openfeign</groupId>
-      <artifactId>feign-slf4j</artifactId>
       <version>10.11</version>
     </dependency>
     <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>feign-slf4j</artifactId>
+      <groupId>io.github.openfeign</groupId>
+      <version>10.11</version>
+    </dependency>
+    <dependency>
       <artifactId>jackson-databind</artifactId>
+      <groupId>com.fasterxml.jackson.core</groupId>
       <version>2.15.2</version>
     </dependency>
 

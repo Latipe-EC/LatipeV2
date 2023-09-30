@@ -2,7 +2,6 @@ package latipe.product.services.product;
 
 
 import jakarta.servlet.http.HttpServletRequest;
-import java.net.http.HttpRequest;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import latipe.product.request.BanProductRequest;
@@ -15,7 +14,6 @@ import latipe.product.response.ProductResponse;
 import latipe.product.viewmodel.ProductESDetailVm;
 import latipe.product.viewmodel.ProductPriceVm;
 import latipe.product.viewmodel.ProductThumbnailVm;
-import org.springframework.scheduling.annotation.Async;
 
 public interface IProductService {
 
@@ -37,5 +35,6 @@ public interface IProductService {
 
   public CompletableFuture<ProductESDetailVm> getProductESDetailById(String productId);
 
-  public CompletableFuture<ProductResponse> create(String userId, CreateProductRequest input, HttpServletRequest request);
+  public CompletableFuture<ProductResponse> create(String userId, CreateProductRequest input,
+      HttpServletRequest request);
 }

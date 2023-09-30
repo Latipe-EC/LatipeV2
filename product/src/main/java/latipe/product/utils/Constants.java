@@ -12,6 +12,7 @@ public final class Constants {
     public static final String FORBIDDEN = "FORBIDDEN";
     public static final String NOT_FOUND = "NOT_FOUND";
     public static final String TOKEN_EXPIRED = "TOKEN_EXPIRED";
+
     // Private constructor to prevent instantiation
     private ErrorCode() {
     }

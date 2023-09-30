@@ -15,8 +15,8 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class ProductSyncDataConsumer {
 
-  private ProductSyncDataService productSyncDataService;
   private static final Logger LOGGER = LoggerFactory.getLogger(ProductSyncDataConsumer.class);
+  private ProductSyncDataService productSyncDataService;
 
   @RabbitListener(queues = {"${rabbitmq.queue.name}"})
   public void listen(Message consumerRecord) {

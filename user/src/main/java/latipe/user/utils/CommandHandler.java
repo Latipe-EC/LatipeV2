@@ -1,8 +1,8 @@
 package latipe.user.utils;
 
 import jakarta.annotation.PostConstruct;
-import latipe.user.entity.Role;
 import latipe.user.constants.CONSTANTS;
+import latipe.user.entity.Role;
 import latipe.user.repositories.IRoleRepository;
 import org.springframework.stereotype.Component;
 
