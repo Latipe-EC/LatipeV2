@@ -2,8 +2,8 @@ package latipe.user.services.user;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import latipe.user.Entity.User;
-import latipe.user.Entity.UserAddress;
+import latipe.user.entity.User;
+import latipe.user.entity.UserAddress;
 import latipe.user.exceptions.BadRequestException;
 import latipe.user.exceptions.NotFoundException;
 import latipe.user.mappers.IUserMapper;

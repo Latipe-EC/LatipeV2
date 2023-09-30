@@ -1,7 +1,7 @@
 package latipe.user.services.role;
 
 import java.util.concurrent.CompletableFuture;
-import latipe.user.Entity.Role;
+import latipe.user.entity.Role;
 import latipe.user.exceptions.NotFoundException;
 import latipe.user.mappers.IRoleMapper;
 import latipe.user.repositories.IRoleRepository;

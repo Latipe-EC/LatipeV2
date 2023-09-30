@@ -1,4 +1,4 @@
-package latipe.user.Entity;
+package latipe.user.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

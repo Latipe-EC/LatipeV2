@@ -1,7 +1,7 @@
 package latipe.user.repositories;
 
 import java.util.Optional;
-import latipe.user.Entity.Role;
+import latipe.user.entity.Role;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 

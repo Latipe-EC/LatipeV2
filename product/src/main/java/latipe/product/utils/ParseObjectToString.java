@@ -1,13 +1,15 @@
 package latipe.product.utils;
 
-import com.google.gson.Gson;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ParseObjectToString {
 
-  Gson gson = new Gson();
+  public static ObjectMapper objectMapper = new ObjectMapper();
 
-  public static String parse(Object obj) {
-    return obj.toString();
+  public static String parse(Object obj) throws JsonProcessingException {
+    return objectMapper.writeValueAsString(obj);
   }
 
 }

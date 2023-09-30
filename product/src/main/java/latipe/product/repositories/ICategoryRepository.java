@@ -13,7 +13,7 @@ public interface ICategoryRepository extends MongoRepository<Category, String> {
 
   @Query("{ 'parentCategoryId' : ?0 }")
   List<Category> findChildrenCate(String id);
-
+  Boolean existsByName(String name);
   @Aggregation(pipeline = {
       "{  $match: { isDeleted: false, name: { $regex: ?2, $options: 'i'  }  } }",
       "{ $sort: { createAt: -1 } }",

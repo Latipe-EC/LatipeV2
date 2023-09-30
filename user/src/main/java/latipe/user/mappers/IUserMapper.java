@@ -1,8 +1,8 @@
 package latipe.user.mappers;
 
-import latipe.user.Entity.Role;
-import latipe.user.Entity.User;
-import latipe.user.Entity.UserAddress;
+import latipe.user.entity.Role;
+import latipe.user.entity.User;
+import latipe.user.entity.UserAddress;
 import latipe.user.request.CreateUserRequest;
 import latipe.user.request.RegisterRequest;
 import latipe.user.request.UpdateUserAddressRequest;

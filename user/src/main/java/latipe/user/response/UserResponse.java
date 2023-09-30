@@ -1,6 +1,6 @@
 package latipe.user.response;
 
-import latipe.user.Entity.User;
+import latipe.user.entity.User;
 
 public record UserResponse(
     String id,

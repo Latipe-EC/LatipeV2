@@ -1,5 +1,6 @@
 package latipe.product.services.product;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import feign.Feign;
 import feign.Logger;
 import feign.gson.GsonDecoder;
@@ -110,20 +111,26 @@ public class ProductService implements IProductService {
         }
 
       }
-      var prod = productMapper.mapToProductBeforeCreate(input);
-      // get store id from store service
       StoreClient storeClient = Feign.builder()
           .client(new OkHttpClient())
           .encoder(new GsonEncoder())
           .decoder(new GsonDecoder())
           .logLevel(Logger.Level.FULL)
           .target(StoreClient.class, "http://localhost:8181/api/v1");
-      prod.setStoreId(storeClient.getStoreId(request.getHeader("Authorization"), userId));
+      // get store id from store service
+      var storeId = storeClient.getStoreId(request.getHeader("Authorization"), userId);
+
+      var prod = productMapper.mapToProductBeforeCreate(input, storeId);
       var savedProd = productRepository.save(prod);
 
       // send message create message
-      var message = ParseObjectToString.parse(
-          new ProductMessageVm(savedProd.getId(), Action.CREATE));
+      String message = null;
+      try {
+        message = ParseObjectToString.parse(
+            new ProductMessageVm(savedProd.getId(), Action.CREATE));
+      } catch (JsonProcessingException e) {
+        throw new RuntimeException(e);
+      }
       rabbitMQProducer.sendMessage(message);
 
       return productMapper.mapToProductToResponse(savedProd);
@@ -384,8 +391,13 @@ public class ProductService implements IProductService {
       var savedProduct = productRepository.save(product);
 
       // send message create message
-      var message = ParseObjectToString.parse(
-          new ProductMessageVm(savedProduct.getId(), Action.DELETE));
+      String message = null;
+      try {
+        message = ParseObjectToString.parse(
+            new ProductMessageVm(savedProduct.getId(), Action.UPDATE));
+      } catch (JsonProcessingException e) {
+        throw new RuntimeException(e);
+      }
       rabbitMQProducer.sendMessage(message);
 
       return null;
@@ -404,8 +416,14 @@ public class ProductService implements IProductService {
       var savedProduct = productRepository.save(product);
 
       // send message create message
-      var message = ParseObjectToString.parse(
-          new ProductMessageVm(savedProduct.getId(), Action.BAN));
+      String message = null;
+      try {
+        message = ParseObjectToString.parse(
+            new ProductMessageVm(savedProduct.getId(), Action.BAN));
+      } catch (JsonProcessingException e) {
+        throw new RuntimeException(e);
+      }
+
       rabbitMQProducer.sendMessage(message);
 
       return null;

@@ -1,4 +1,4 @@
-package latipe.user.Entity;
+package latipe.user.entity;
 
 import java.util.Date;
 import lombok.Getter;

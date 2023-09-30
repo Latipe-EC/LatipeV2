@@ -2,7 +2,7 @@ package latipe.user.services.user;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import latipe.user.Entity.UserAddress;
+import latipe.user.entity.UserAddress;
 import latipe.user.request.CreateUserAddressRequest;
 import latipe.user.request.CreateUserRequest;
 import latipe.user.request.RegisterRequest;

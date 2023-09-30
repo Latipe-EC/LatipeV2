@@ -20,6 +20,8 @@ management:
 elasticsearch:
   clustername: docker-cluster
   url: 'localhost:9200'
+  username: elastic
+  password: vd8ChXIOvBm4Pno
 
 spring:
   rabbitmq:

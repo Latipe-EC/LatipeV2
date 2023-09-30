@@ -14,9 +14,11 @@ public interface ProductMapper {
   @Mappings({
       @Mapping(target = "id", ignore = true),
       @Mapping(target = "product.productVariants.id", ignore = true),
-      @Mapping(target = "product.productClassifications.id", ignore = true)
+      @Mapping(target = "product.productClassifications.id", ignore = true),
+      @Mapping(target = "categories", source = "product.categories"),
+      @Mapping(target = "storeId", source = "storeId"),
   })
-  public abstract Product mapToProductBeforeCreate(CreateProductRequest product);
+  public abstract Product mapToProductBeforeCreate(CreateProductRequest product, String storeId);
 
   @Mappings({
       @Mapping(target = "productVariants", source = "product.productVariants"),

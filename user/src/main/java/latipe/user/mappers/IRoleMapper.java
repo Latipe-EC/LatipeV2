@@ -1,6 +1,6 @@
 package latipe.user.mappers;
 
-import latipe.user.Entity.Role;
+import latipe.user.entity.Role;
 import latipe.user.request.CreateRoleRequest;
 import latipe.user.response.RoleResponse;
 import org.mapstruct.Mapper;

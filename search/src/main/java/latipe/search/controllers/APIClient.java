@@ -15,6 +15,6 @@ public interface APIClient {
   @PostMapping(value = "/auth/validate-token")
   UserCredentialResponse getCredential(@RequestBody() TokenRequest accessToken);
 
-  @GetMapping(value = "/products-es/{productId}")
+  @GetMapping(value = "/products/products-es/{productId}")
   ProductESDetailVm getProductESDetailById(@PathVariable("productId") String productId);
 }

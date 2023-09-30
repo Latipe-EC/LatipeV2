@@ -1,4 +1,4 @@
-package latipe.user.Entity;
+package latipe.user.entity;
 
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
