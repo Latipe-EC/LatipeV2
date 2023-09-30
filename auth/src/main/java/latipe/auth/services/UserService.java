@@ -3,7 +3,7 @@ package latipe.auth.services;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import latipe.auth.Entity.User;
+import latipe.auth.entity.User;
 import latipe.auth.exceptions.ForbiddenException;
 import latipe.auth.exceptions.NotFoundException;
 import latipe.auth.repositories.IUserRepository;

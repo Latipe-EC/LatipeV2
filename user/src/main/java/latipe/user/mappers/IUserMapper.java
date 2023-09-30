@@ -29,7 +29,12 @@ public interface IUserMapper {
   @Mappings({@Mapping(target = "role", ignore = true)})
   public abstract User mapBeforeCreateUserAddress(CreateUserRequest input, String displayName,
       String password);
-  @Mappings({@Mapping(target = "role", source = "role")})
+
+  @Mappings({
+      @Mapping(target = "role", source = "role"),
+      @Mapping(target = "displayName", source = "displayName"),
+      @Mapping(target = "hashedPassword", source = "password"),
+  })
   public abstract User mapBeforeCreate(RegisterRequest input, Role role, String displayName,
       String password);
 

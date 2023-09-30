@@ -17,8 +17,6 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import latipe.auth.exceptions.BadRequestException;
 import latipe.auth.exceptions.UnauthorizedException;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,16 +36,6 @@ public class JwtTokenService {
   private long accessTokenExpiration;
   @Value("${jwt.refresh-token-expiration}")
   private long refreshTokenExpiration;
-
-  public String generateAccessToken(UserDetails userDetails) {
-    Map<String, Object> claims = new HashMap<>();
-    return createToken("access-token", claims, userDetails.getUsername(), accessTokenExpiration);
-  }
-
-  public String generateRefreshToken(UserDetails userDetails) {
-    Map<String, Object> claims = new HashMap<>();
-    return createToken("refresh-token", claims, userDetails.getUsername(), refreshTokenExpiration);
-  }
 
   public String getUsernameFromToken(String token)
       throws NoSuchAlgorithmException, InvalidKeySpecException, RuntimeException {
@@ -104,16 +92,30 @@ public class JwtTokenService {
     return expirationDate.before(new Date());
   }
 
-  private String createToken(String type, Map<String, Object> claims, String subject,
-      long expiration) {
+  public String createAccessToken(UserDetails user) {
     try {
       RSAPrivateKey privateKey = getPrivateKey();
       return Jwts.builder()
-          .setClaims(claims)
-          .setSubject(subject)
-          .claim("type", type)
+          .setSubject(user.getUsername())
+          .claim("type", "access-token")
+          .claim("role", user.getAuthorities())
           .setIssuedAt(new Date(System.currentTimeMillis()))
-          .setExpiration(new Date(System.currentTimeMillis() + expiration))
+          .setExpiration(new Date(System.currentTimeMillis() + accessTokenExpiration))
+          .signWith(privateKey, SignatureAlgorithm.RS512)
+          .compact();
+    } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+      throw new RuntimeException("Error generating token", e);
+    }
+  }
+
+  public String createRefreshToken(String subject) {
+    try {
+      RSAPrivateKey privateKey = getPrivateKey();
+      return Jwts.builder()
+          .setSubject(subject)
+          .claim("type", "refresh-token")
+          .setIssuedAt(new Date(System.currentTimeMillis()))
+          .setExpiration(new Date(System.currentTimeMillis() + refreshTokenExpiration))
           .signWith(privateKey, SignatureAlgorithm.RS512)
           .compact();
     } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {

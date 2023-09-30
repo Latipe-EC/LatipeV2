@@ -2,7 +2,7 @@ package latipe.auth.config;
 
 import java.util.Collection;
 import java.util.List;
-import latipe.auth.Entity.User;
+import latipe.auth.entity.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 

@@ -1,7 +1,7 @@
 package latipe.product.repositories;
 
 import java.util.List;
-import latipe.product.Entity.Product;
+import latipe.product.entity.Product;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 

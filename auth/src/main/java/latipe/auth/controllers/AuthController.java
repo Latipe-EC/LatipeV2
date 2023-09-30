@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import latipe.auth.Entity.User;
+import latipe.auth.entity.User;
 import latipe.auth.config.ApiPrefixController;
 import latipe.auth.config.JwtTokenService;
 import latipe.auth.constants.CONSTANTS.TOKEN_TYPE;
@@ -69,8 +69,9 @@ public class AuthController {
       if (!jwtUtil.comparePassword(loginRequest.password(), user.getPassword())) {
         throw new BadRequestException("Password not correct");
       }
-      final String accessToken = jwtUtil.generateAccessToken(user);
-      final String refreshToken = jwtUtil.generateRefreshToken(user);
+      final String accessToken = jwtUtil.createAccessToken(user);
+      final String refreshToken = jwtUtil.createRefreshToken(user.getEmail());
+
       return LoginResponse.builder()
           .accessToken(accessToken)
           .refreshToken(refreshToken)
@@ -98,8 +99,8 @@ public class AuthController {
       User user = getUser(username);
       try {
         if (jwtUtil.validateToken(refreshToken, user)) {
-          final String accessToken = jwtUtil.generateAccessToken(user);
-          refreshToken= jwtUtil.generateRefreshToken(user);
+          final String accessToken = jwtUtil.createAccessToken(user);
+          refreshToken= jwtUtil.createRefreshToken(user.getEmail());
 
           return new RefreshTokenResponse(accessToken, refreshToken);
         }

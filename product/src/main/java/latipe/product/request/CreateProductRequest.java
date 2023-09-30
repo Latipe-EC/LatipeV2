@@ -2,8 +2,8 @@ package latipe.product.request;
 
 import jakarta.validation.constraints.NotEmpty;
 import java.util.List;
-import latipe.product.Entity.ProductClassification;
-import latipe.product.Entity.ProductVariant;
+import latipe.product.viewmodel.ProductClassificationVm;
+import latipe.product.viewmodel.ProductVariantVm;
 
 public record CreateProductRequest(
     @NotEmpty(message = "Product Name  is required")
@@ -13,7 +13,8 @@ public record CreateProductRequest(
     Double price,
     List<String> images,
     int quantity,
-    List<ProductVariant> productVariant,
-    List<ProductClassification> productClassifications) {
+    List<ProductVariantVm> productVariants,
+    Boolean isPublished,
+    List<ProductClassificationVm> productClassifications) {
 
 }

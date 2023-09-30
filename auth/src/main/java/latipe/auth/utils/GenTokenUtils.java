@@ -10,7 +10,7 @@ import java.util.Date;
 import java.util.Random;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
-import latipe.auth.Entity.User;
+import latipe.auth.entity.User;
 import latipe.auth.exceptions.BadRequestException;
 import latipe.auth.response.TokenResetPasswordResponse;
 

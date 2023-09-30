@@ -2,7 +2,7 @@ package latipe.auth.listener;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Date;
-import latipe.auth.Entity.AbstractAuditEntity;
+import latipe.auth.entity.AbstractAuditEntity;
 import latipe.auth.response.UserCredentialResponse;
 import org.springframework.data.mongodb.core.mapping.event.AbstractMongoEventListener;
 import org.springframework.data.mongodb.core.mapping.event.BeforeConvertEvent;

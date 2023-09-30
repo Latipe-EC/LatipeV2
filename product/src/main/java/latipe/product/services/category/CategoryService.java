@@ -2,12 +2,11 @@ package latipe.product.services.category;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import latipe.product.Entity.Category;
+import latipe.product.entity.Category;
 import latipe.product.dtos.PagedResultDto;
 import latipe.product.dtos.Pagination;
 import latipe.product.exceptions.BadRequestException;
 import latipe.product.mapper.CategoryMapper;
-import latipe.product.producer.RabbitMQProducer;
 import latipe.product.repositories.ICategoryRepository;
 import latipe.product.request.CreateCategoryRequest;
 import latipe.product.request.UpdateCategoryRequest;

@@ -3,7 +3,7 @@ package latipe.product.viewmodel;
 
 import java.util.Date;
 import java.util.List;
-import latipe.product.Entity.ProductClassification;
+import latipe.product.entity.ProductClassification;
 
 public record ProductESDetailVm(
     String id,

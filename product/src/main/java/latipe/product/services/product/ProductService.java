@@ -5,16 +5,15 @@ import feign.Logger;
 import feign.gson.GsonDecoder;
 import feign.gson.GsonEncoder;
 import feign.okhttp.OkHttpClient;
-import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import latipe.product.Entity.Category;
-import latipe.product.Entity.Product;
-import latipe.product.Entity.ProductClassification;
 import latipe.product.FeignClient.StoreClient;
 import latipe.product.configs.CustomAggregationOperation;
 import latipe.product.constants.Action;
+import latipe.product.entity.Category;
+import latipe.product.entity.Product;
+import latipe.product.entity.ProductClassification;
 import latipe.product.exceptions.BadRequestException;
 import latipe.product.exceptions.NotFoundException;
 import latipe.product.mapper.ProductMapper;
@@ -29,6 +28,7 @@ import latipe.product.request.UpdateProductRequest;
 import latipe.product.response.OrderProductResponse;
 import latipe.product.response.ProductResponse;
 import latipe.product.utils.ParseObjectToString;
+import latipe.product.viewmodel.ProductClassificationVm;
 import latipe.product.viewmodel.ProductESDetailVm;
 import latipe.product.viewmodel.ProductMessageVm;
 import latipe.product.viewmodel.ProductOrderVm;
@@ -60,7 +60,7 @@ public class ProductService implements IProductService {
   public CompletableFuture<ProductResponse> create(String userId, CreateProductRequest input,
       HttpServletRequest request) {
     return CompletableFuture.supplyAsync(() -> {
-      if (input.productVariant().isEmpty()) {
+      if (input.productVariants().isEmpty()) {
         if (input.price() == null || input.price() <= 0) {
           throw new BadRequestException("Price must be greater than 0");
         }
@@ -70,39 +70,40 @@ public class ProductService implements IProductService {
         if (input.images().isEmpty()) {
           throw new BadRequestException("Product must have at least 1 image");
         }
-        input.productClassifications().add(ProductClassification.builder()
+        input.productClassifications().add(ProductClassificationVm.builder()
             .name("Default")
             .price(input.price())
             .quantity(input.quantity())
             .image(input.images().get(0))
             .build());
       } else {
-        if (input.productVariant().size() > 2) {
+        if (input.productVariants().size() > 2) {
           throw new BadRequestException("Product have maximum 2 variants");
         }
-        if (input.productVariant().size() == 1) {
-          if (input.productVariant().get(0).getOptions().size() != input.productClassifications()
+        if (input.productVariants().size() == 1) {
+          if (input.productVariants().get(0).options().size() != input.productClassifications()
               .size()) {
             throw new BadRequestException("Product classification must be filled");
           }
-          for (int i = 0; i < input.productVariant().get(0).getOptions().size(); i++) {
-            input.productClassifications().get(i).setCode(String.valueOf(i));
+          for (int i = 0; i < input.productVariants().get(0).options().size(); i++) {
+            input.productClassifications().set(i, ProductClassificationVm.setCodeName(
+                input.productClassifications().get(i), String.valueOf(i),
+                input.productVariants().get(0).options().get(i)));
           }
         } else {
           int count =
-              input.productVariant().get(0).getOptions().size() * input.productVariant().get(1)
-                  .getOptions().size();
+              input.productVariants().get(0).options().size() * input.productVariants().get(1)
+                  .options().size();
           if (count != input.productClassifications().size()) {
             throw new BadRequestException("Product classification must be filled");
           }
           count = 0;
-          for (int i = 0; i < input.productVariant().get(0).getOptions().size(); i++) {
-            for (int j = 0; j < input.productVariant().get(1).getOptions().size(); j++) {
-              input.productClassifications().get(count)
-                  .setCode(String.valueOf(i) + String.valueOf(j));
-              input.productClassifications().get(count).setName(
-                  input.productVariant().get(0).getOptions().get(i) + " - " + input.productVariant()
-                      .get(1).getOptions().get(j));
+          for (int i = 0; i < input.productVariants().get(0).options().size(); i++) {
+            for (int j = 0; j < input.productVariants().get(1).options().size(); j++) {
+              input.productClassifications().set(i, ProductClassificationVm.setCodeName(
+                  input.productClassifications().get(i), String.valueOf(i),
+                  input.productVariants().get(0).options().get(i) + " - " + input.productVariants()
+                      .get(1).options().get(j)));
               count++;
             }
           }
@@ -294,71 +295,72 @@ public class ProductService implements IProductService {
   @Async
   public CompletableFuture<ProductResponse> update(String userId, String id,
       UpdateProductRequest input, HttpServletRequest request) {
-    Product product = productRepository.findById(id)
-        .orElseThrow(() -> new BadRequestException("Product not found"));
-    // check permission to change product (store service)
-    StoreClient storeClient = Feign.builder()
-        .client(new OkHttpClient())
-        .encoder(new GsonEncoder())
-        .decoder(new GsonDecoder())
-        .logLevel(Logger.Level.FULL)
-        .target(StoreClient.class, "http://localhost:8181/api/v1");
-    var store = storeClient.getStoreId(request.getHeader("Authorization"), userId);
-    if (!store.equals(product.getStoreId())) {
-      throw new BadRequestException("You don't have permission to change this product");
-    }
-    if (input.productVariant().size() == 0) {
-      if (input.price() == null || input.price() <= 0) {
-        throw new BadRequestException("Price must be greater than 0");
-      }
-      if (input.quantity() <= 0) {
-        throw new BadRequestException("Quantity must be greater than 0");
-      }
-      if (input.images().size() == 0) {
-        throw new BadRequestException("Product must have at least 1 image");
-      }
-      input.productClassifications().add(ProductClassification.builder()
-          .name("Default")
-          .price(input.price())
-          .quantity(input.quantity())
-          .image(input.images().get(0))
-          .build());
-    } else {
-      if (input.productVariant().size() > 2) {
-        throw new BadRequestException("Product have maximum 2 variants");
-      }
-      if (input.productVariant().size() == 1) {
-        if (input.productVariant().get(0).getOptions().size() != input.productClassifications()
-            .size()) {
-          throw new BadRequestException("Product classification must be filled");
-        }
-        for (int i = 0; i < input.productVariant().get(0).getOptions().size(); i++) {
-          input.productClassifications().get(i).setCode(String.valueOf(i));
-        }
-      } else {
-        int count =
-            input.productVariant().get(0).getOptions().size() * input.productVariant().get(1)
-                .getOptions().size();
-        if (count != input.productClassifications().size()) {
-          throw new BadRequestException("Product classification must be filled");
-        }
-        count = 0;
-        for (int i = 0; i < input.productVariant().get(0).getOptions().size(); i++) {
-          for (int j = 0; j < input.productVariant().get(1).getOptions().size(); j++) {
-            input.productClassifications().get(count)
-                .setCode(String.valueOf(i) + String.valueOf(j));
-            count++;
-          }
-        }
-      }
-    }
-    var savedProd = productRepository.save(product);
-
-    // send message create message
-    var message = ParseObjectToString.parse(new ProductMessageVm(savedProd.getId(), Action.UPDATE));
-    rabbitMQProducer.sendMessage(message);
-
-    return CompletableFuture.completedFuture(productMapper.mapToProductToResponse(savedProd));
+    return null;
+//    Product product = productRepository.findById(id)
+//        .orElseThrow(() -> new BadRequestException("Product not found"));
+//    // check permission to change product (store service)
+//    StoreClient storeClient = Feign.builder()
+//        .client(new OkHttpClient())
+//        .encoder(new GsonEncoder())
+//        .decoder(new GsonDecoder())
+//        .logLevel(Logger.Level.FULL)
+//        .target(StoreClient.class, "http://localhost:8181/api/v1");
+//    var store = storeClient.getStoreId(request.getHeader("Authorization"), userId);
+//    if (!store.equals(product.getStoreId())) {
+//      throw new BadRequestException("You don't have permission to change this product");
+//    }
+//    if (input.productVariants().size() == 0) {
+//      if (input.price() == null || input.price() <= 0) {
+//        throw new BadRequestException("Price must be greater than 0");
+//      }
+//      if (input.quantity() <= 0) {
+//        throw new BadRequestException("Quantity must be greater than 0");
+//      }
+//      if (input.images().size() == 0) {
+//        throw new BadRequestException("Product must have at least 1 image");
+//      }
+//      input.productClassifications().add(ProductClassificationVm.builder()
+//          .name("Default")
+//          .price(input.price())
+//          .quantity(input.quantity())
+//          .image(input.images().get(0))
+//          .build());
+//    } else {
+//      if (input.productVariants().size() > 2) {
+//        throw new BadRequestException("Product have maximum 2 variants");
+//      }
+//      if (input.productVariants().size() == 1) {
+//        if (input.productVariants().get(0).options().size() != input.productClassifications()
+//            .size()) {
+//          throw new BadRequestException("Product classification must be filled");
+//        }
+//        for (int i = 0; i < input.productVariants().get(0).options().size(); i++) {
+//          input.productClassifications().get(i).code(String.valueOf(i));
+//        }
+//      } else {
+//        int count =
+//            input.productVariants().get(0).options().size() * input.productVariants().get(1)
+//                .options().size();
+//        if (count != input.productClassifications().size()) {
+//          throw new BadRequestException("Product classification must be filled");
+//        }
+//        count = 0;
+//        for (int i = 0; i < input.productVariants().get(0).options().size(); i++) {
+//          for (int j = 0; j < input.productVariants().get(1).options().size(); j++) {
+//            input.productClassifications().get(count)
+//                .code(String.valueOf(i) + String.valueOf(j));
+//            count++;
+//          }
+//        }
+//      }
+//    }
+//    var savedProd = productRepository.save(product);
+//
+//    // send message create message
+//    var message = ParseObjectToString.parse(new ProductMessageVm(savedProd.getId(), Action.UPDATE));
+//    rabbitMQProducer.sendMessage(message);
+//
+//    return CompletableFuture.completedFuture(productMapper.mapToProductToResponse(savedProd));
   }
 
   @Override

@@ -177,7 +177,7 @@ public class UserService implements IUserService {
           input.firstName() + " " + input.lastName(),
           passwordEncoder.encode(input.hashedPassword()));
       var savedUser = userRepository.save(user);
-      // send mail verrify account
+      // send mail verify account
       return UserResponse.fromUser(savedUser);
     });
   }

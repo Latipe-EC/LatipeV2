@@ -1,6 +1,6 @@
 package latipe.product.mapper;
 
-import latipe.product.Entity.Category;
+import latipe.product.entity.Category;
 import latipe.product.request.CreateCategoryRequest;
 import latipe.product.request.UpdateCategoryRequest;
 import latipe.product.response.CategoryResponse;

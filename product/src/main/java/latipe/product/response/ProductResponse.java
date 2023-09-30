@@ -4,8 +4,8 @@ package latipe.product.response;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotEmpty;
 import java.util.List;
-import latipe.product.Entity.ProductClassification;
-import latipe.product.Entity.ProductVariant;
+import latipe.product.entity.ProductClassification;
+import latipe.product.entity.ProductVariant;
 
 public record ProductResponse(
     @JsonProperty(value = "id", required = true)
@@ -17,7 +17,7 @@ public record ProductResponse(
     Double price,
     List<String> images,
     int quantity,
-    List<ProductVariant> productVariant,
+    List<ProductVariant> productVariants,
     List<ProductClassification> productClassifications,
     @JsonProperty(value = "isDeleted")
     Boolean isDeleted,

@@ -2,7 +2,7 @@ package latipe.auth.repositories;
 
 import java.util.List;
 import java.util.Optional;
-import latipe.auth.Entity.User;
+import latipe.auth.entity.User;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 
