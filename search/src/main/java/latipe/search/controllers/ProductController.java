@@ -37,7 +37,7 @@ public class ProductController {
         minPrice, maxPrice, sortType);
   }
 
-  @GetMapping("/storefront/search_suggest")
+  @GetMapping("/search_suggest")
   public ResponseEntity<ProductNameListVm> productSearchAutoComplete(@RequestParam String keyword) {
     return ResponseEntity.ok(productService.autoCompleteProductName(keyword));
   }

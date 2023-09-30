@@ -18,7 +18,7 @@ public record ProductESDetailVm(
     List<String> categories,
     Boolean isBanned,
     Boolean isDeleted,
-    Date createdOn
+    Date createdDate
 ) {
 
 }

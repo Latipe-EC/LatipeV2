@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import latipe.product.annotations.ApiPrefixController;
+import latipe.product.annotations.Authenticate;
 import latipe.product.annotations.RequiresAuthorization;
 import latipe.product.request.BanProductRequest;
 import latipe.product.request.CreateProductRequest;
@@ -60,7 +61,7 @@ public class ProductController {
     return productService.getPrice(prodId, code);
   }
 
-  @RequiresAuthorization("VENDOR")
+  @Authenticate
   @ResponseStatus(HttpStatus.OK)
   @GetMapping(value = "/check-in-stock", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<OrderProductResponse> checkProductInStock(

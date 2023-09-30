@@ -15,7 +15,7 @@ import java.nio.file.Paths;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import javax.imageio.ImageIO;
-import latipe.media.Entity.Media;
+import latipe.media.entity.Media;
 import latipe.media.exceptions.BadRequestException;
 import latipe.media.exceptions.NotFoundException;
 import latipe.media.mapper.MediaMapper;

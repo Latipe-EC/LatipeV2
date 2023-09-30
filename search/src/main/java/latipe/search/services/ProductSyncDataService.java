@@ -37,7 +37,7 @@ public class ProductSyncDataService {
     product.setClassifications(productESDetailVm.classifications());
     product.setProductClassifications(productESDetailVm.productClassifications());
     product.setImages(productESDetailVm.images());
-    product.setCreatedDate(productESDetailVm.createdOn());
+    product.setCreatedDate(productESDetailVm.createdDate());
     product.setDescription(productESDetailVm.description());
     product.setBanned(productESDetailVm.isBanned());
     product.setDeleted(productESDetailVm.isDeleted());
@@ -58,7 +58,7 @@ public class ProductSyncDataService {
         .classifications(productESDetailVm.classifications())
         .productClassifications(productESDetailVm.productClassifications())
         .images(productESDetailVm.images())
-        .createdDate(productESDetailVm.createdOn())
+        .createdDate(productESDetailVm.createdDate())
         .description(productESDetailVm.description())
         .isBanned(productESDetailVm.isBanned())
         .isDeleted(productESDetailVm.isDeleted())

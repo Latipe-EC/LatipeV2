@@ -35,7 +35,7 @@ public class ProductSyncDataConsumer {
               case Action.UPDATE -> productSyncDataService.updateProduct(id);
               case Action.DELETE -> productSyncDataService.deleteProduct(id);
               case Action.BAN -> productSyncDataService.banProduct(id);
-              default -> LOGGER.warn("Unknown action received: ");
+              default -> LOGGER.warn("Unknown action received");
             }
           }
         }

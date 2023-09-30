@@ -3,7 +3,7 @@ package latipe.media.listener;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Date;
-import latipe.media.Entity.AbstractAuditEntity;
+import latipe.media.entity.AbstractAuditEntity;
 import latipe.media.response.UserCredentialResponse;
 import org.springframework.data.mongodb.core.mapping.event.AbstractMongoEventListener;
 import org.springframework.data.mongodb.core.mapping.event.BeforeConvertEvent;

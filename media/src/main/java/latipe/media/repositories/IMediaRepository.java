@@ -1,6 +1,6 @@
 package latipe.media.repositories;
 
-import latipe.media.Entity.Media;
+import latipe.media.entity.Media;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;

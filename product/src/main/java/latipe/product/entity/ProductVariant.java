@@ -24,12 +24,4 @@ public class ProductVariant {
   String image;
   List<String> options;
 
-  @CreatedBy
-  @Field("created_by")
-  private String createdBy;
-
-  @LastModifiedDate
-  @Field("last_modified_date")
-  private Date lastModifiedDate;
-
 }

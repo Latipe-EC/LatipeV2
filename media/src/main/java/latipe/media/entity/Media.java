@@ -1,4 +1,4 @@
-package latipe.media.Entity;
+package latipe.media.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

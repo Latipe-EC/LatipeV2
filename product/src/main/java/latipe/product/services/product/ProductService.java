@@ -71,12 +71,9 @@ public class ProductService implements IProductService {
         if (input.images().isEmpty()) {
           throw new BadRequestException("Product must have at least 1 image");
         }
-        input.productClassifications().add(ProductClassificationVm.builder()
-            .name("Default")
-            .price(input.price())
-            .quantity(input.quantity())
-            .image(input.images().get(0))
-            .build());
+        input.productClassifications().add(
+            ProductClassificationVm.builder().name("Default").price(input.price())
+                .quantity(input.quantity()).image(input.images().get(0)).build());
       } else {
         if (input.productVariants().size() > 2) {
           throw new BadRequestException("Product have maximum 2 variants");
@@ -87,9 +84,9 @@ public class ProductService implements IProductService {
             throw new BadRequestException("Product classification must be filled");
           }
           for (int i = 0; i < input.productVariants().get(0).options().size(); i++) {
-            input.productClassifications().set(i, ProductClassificationVm.setCodeName(
-                input.productClassifications().get(i), String.valueOf(i),
-                input.productVariants().get(0).options().get(i)));
+            input.productClassifications().set(i,
+                ProductClassificationVm.setCodeName(input.productClassifications().get(i),
+                    String.valueOf(i), input.productVariants().get(0).options().get(i)));
           }
         } else {
           int count =
@@ -101,21 +98,18 @@ public class ProductService implements IProductService {
           count = 0;
           for (int i = 0; i < input.productVariants().get(0).options().size(); i++) {
             for (int j = 0; j < input.productVariants().get(1).options().size(); j++) {
-              input.productClassifications().set(i, ProductClassificationVm.setCodeName(
-                  input.productClassifications().get(i), String.valueOf(i),
-                  input.productVariants().get(0).options().get(i) + " - " + input.productVariants()
-                      .get(1).options().get(j)));
+              input.productClassifications().set(i,
+                  ProductClassificationVm.setCodeName(input.productClassifications().get(i),
+                      String.valueOf(i), input.productVariants().get(0).options().get(i) + " - "
+                          + input.productVariants().get(1).options().get(j)));
               count++;
             }
           }
         }
 
       }
-      StoreClient storeClient = Feign.builder()
-          .client(new OkHttpClient())
-          .encoder(new GsonEncoder())
-          .decoder(new GsonDecoder())
-          .logLevel(Logger.Level.FULL)
+      StoreClient storeClient = Feign.builder().client(new OkHttpClient())
+          .encoder(new GsonEncoder()).decoder(new GsonDecoder()).logLevel(Logger.Level.FULL)
           .target(StoreClient.class, "http://localhost:8181/api/v1");
       // get store id from store service
       var storeId = storeClient.getStoreId(request.getHeader("Authorization"), userId);
@@ -126,8 +120,7 @@ public class ProductService implements IProductService {
       // send message create message
       String message = null;
       try {
-        message = ParseObjectToString.parse(
-            new ProductMessageVm(savedProd.getId(), Action.CREATE));
+        message = ParseObjectToString.parse(new ProductMessageVm(savedProd.getId(), Action.CREATE));
       } catch (JsonProcessingException e) {
         throw new RuntimeException(e);
       }
@@ -150,12 +143,8 @@ public class ProductService implements IProductService {
       for (ProductClassification classification : product.getProductClassifications()) {
         if (classification.getCode().equals(code)) {
           ProductPriceVm productPriceVm;
-          productPriceVm = ProductPriceVm.builder()
-              .code(code)
-              .image(classification.getImage())
-              .price(classification.getPrice())
-              .quantity(classification.getQuantity())
-              .build();
+          productPriceVm = ProductPriceVm.builder().code(code).image(classification.getImage())
+              .price(classification.getPrice()).quantity(classification.getQuantity()).build();
           return productPriceVm;
         }
       }
@@ -169,110 +158,57 @@ public class ProductService implements IProductService {
   public CompletableFuture<OrderProductResponse> checkProductInStock(
       List<OrderProductCheckRequest> prodOrders) {
     return CompletableFuture.supplyAsync(() -> {
-//            String query =
-//                    """
-//                                {
-//                                    "$unwind": "$productClassifications"
-//                                }
-//                            """;
-//            TypedAggregation<ProductClassification> test = Aggregation.newAggregation(
-//                    ProductClassification.class,
-//                    Aggregation.match(Criteria.where("_id").in(prodOrders.stream().map(OrderProductCheckRequest::productId).toList())),
-//                    // unwind product variant
-//                    new CustomAggregationOperation(query),
-//                    Aggregation.match(Criteria.where("productClassifications._id").in(prodOrders.stream().map(OrderProductCheckRequest::optionId).toList()))
-//            );
-      var aggregate = createQueryClassification(
-          prodOrders.stream().map(OrderProductCheckRequest::productId).toList(),
-          prodOrders.stream().map(OrderProductCheckRequest::optionId).toList());
-      AggregationResults<Document> results = mongoTemplate.aggregate(aggregate,
-          ProductClassification.class, Document.class);
-      List<Document> documents = results.getMappedResults();
-      List<ProductOrderVm> orders = documents.stream()
-          .map(doc -> {
-            Document productClassificationsDoc = doc.get("productClassifications", Document.class);
-            OrderProductCheckRequest prodOrder = prodOrders.stream().filter(
-                    x -> x.productId()
-                        .equals(doc.getString("_id")) && x.optionId()
-                        .equals(productClassificationsDoc.getString("_id")))
-                .findFirst().orElseThrow(() -> new BadRequestException("Product not found"));
-            if (productClassificationsDoc.getInteger("quantity") < prodOrder.quantity()) {
-              throw new BadRequestException("Product out of stock");
-            }
-            return ProductOrderVm.builder()
-                .productId(doc.getString("_id"))
-                .optionId(productClassificationsDoc.getString("_id"))
-                .quantity(prodOrder.quantity())
-                .price(productClassificationsDoc.getDouble("price"))
-                .nameOption(productClassificationsDoc.getString("name"))
-                .totalPrice(productClassificationsDoc.getDouble("price") * prodOrder.quantity())
-                .build();
-          }).toList();
+
+      var prodFilter = prodOrders.stream().map(OrderProductCheckRequest::productId).toList();
+      var optionFilter = prodOrders.stream().map(x -> "ObjectId(\"%s\")".formatted(x.optionId()))
+          .toList();
+
+      var aggregate = createQueryClassification(prodFilter, optionFilter);
+
+      var results = mongoTemplate.aggregate(aggregate, Product.class, Document.class);
+      var documents = results.getMappedResults();
+      var orders = documents.stream().map(doc -> {
+        Document productClassificationsDoc = doc.get("productClassifications", Document.class);
+        OrderProductCheckRequest prodOrder = prodOrders.stream().filter(
+                x -> x.productId().equals(doc.getObjectId("_id").toString()) && x.optionId()
+                    .equals(productClassificationsDoc.getObjectId("_id").toString())).findFirst()
+            .orElseThrow(() -> new BadRequestException("Product not found"));
+        if (productClassificationsDoc.getInteger("quantity") < prodOrder.quantity()) {
+          throw new BadRequestException("Product out of stock");
+        }
+        return ProductOrderVm.builder().productId(doc.getObjectId("_id").toString())
+            .optionId(productClassificationsDoc.getObjectId("_id").toString())
+            .quantity(prodOrder.quantity())
+            .price(productClassificationsDoc.getDouble("price"))
+            .nameOption(productClassificationsDoc.getString("name"))
+            .totalPrice(productClassificationsDoc.getDouble("price") * prodOrder.quantity())
+            .build();
+      }).toList();
+
+      if (orders.size() != prodOrders.size()) {
+        throw new NotFoundException("Product not found");
+      }
       return OrderProductResponse.builder()
           .totalPrice(orders.stream().mapToDouble(ProductOrderVm::totalPrice).sum())
-          .products(orders)
-          .build();
-
-//            List<Product> products = productRepository.findByIds(prodOrders.stream().map(OrderProductCheckRequest::productId).toList());
-//            if (products.size() != prodOrders.size()) {
-//                throw new BadRequestException("Product not found");
-//            }
-//            List<ProductOrderVm> orders = new ArrayList<>();
-//            for (OrderProductCheckRequest prodOrder : prodOrders) {
-//                ProductClassification prodVariant = products.stream().flatMap(product -> product.getProductClassifications().stream())
-//                        .filter(classification -> classification.getId().equals(prodOrder.optionId()))
-//                        .findFirst()
-//                        .orElseThrow(() -> new BadRequestException("Product classification not found"));
-//                if (prodVariant.getQuantity() < prodOrder.quantity()) {
-//                    throw new BadRequestException("Product out of stock");
-//                }
-//                orders.add(ProductOrderVm.builder()
-//                        .productId(prodOrder.productId())
-//                        .optionId(prodOrder.optionId())
-//                        .quantity(prodOrder.quantity())
-//                        .price(prodVariant.getPrice())
-//                        .nameOption(prodVariant.getName())
-//                        .build());
-//                total += prodVariant.getPrice() * prodOrder.quantity();
-//            }
-//            return OrderProductResultsDto.builder()
-//                    .totalPrice(total)
-//                    .products(orders)
-//                    .build();
+          .products(orders).build();
     });
   }
 
   @Override
   @Async
   public CompletableFuture<ProductESDetailVm> getProductESDetailById(String productId) {
-    return CompletableFuture.supplyAsync(
-        () -> {
-          Product product = productRepository
-              .findById(productId)
-              .orElseThrow(() ->
-                  new NotFoundException("PRODUCT_NOT_FOUND", productId)
-              );
+    return CompletableFuture.supplyAsync(() -> {
+      Product product = productRepository.findById(productId)
+          .orElseThrow(() -> new NotFoundException("PRODUCT_NOT_FOUND", productId));
 
-          List<String> categoryNames = categoryRepository.findAllById(product.getCategories())
-              .stream().map(Category::getName).toList();
-          return new ProductESDetailVm(
-              product.getId(),
-              product.getName(),
-              product.getSlug(),
-              product.getPrice(),
-              product.isPublished(),
-              product.getImages(),
-              product.getDescription(),
-              product.getProductClassifications(),
-              product.getProductClassifications().stream().map(ProductClassification::getName)
-                  .toList(),
-              categoryNames,
-              product.isBanned(),
-              product.isDeleted(),
-              product.getCreatedDate()
-          );
-        }
-    );
+      List<String> categoryNames = categoryRepository.findAllById(product.getCategories()).stream()
+          .map(Category::getName).toList();
+      return new ProductESDetailVm(product.getId(), product.getName(), product.getSlug(),
+          product.getPrice(), product.isPublished(), product.getImages(), product.getDescription(),
+          product.getProductClassifications(),
+          product.getProductClassifications().stream().map(ProductClassification::getName).toList(),
+          categoryNames, product.isBanned(), product.isDeleted(), product.getCreatedDate());
+    });
   }
 
   @Override
@@ -280,21 +216,22 @@ public class ProductService implements IProductService {
   public CompletableFuture<List<ProductThumbnailVm>> getFeatureProduct(
       List<ProductFeatureRequest> products) {
     return CompletableFuture.supplyAsync(() -> {
-      var aggregate = createQueryClassification(
-          products.stream().map(ProductFeatureRequest::productId).toList(), products.stream().map(
-              ProductFeatureRequest::optionId).toList());
+
+      var prodFilter = products.stream().map(ProductFeatureRequest::productId).toList();
+      var optionFilter = products.stream().map(x -> "ObjectId(\"%s\")".formatted(x.optionId()))
+          .toList();
+
+      var aggregate = createQueryClassification(prodFilter, optionFilter);
       AggregationResults<Document> results = mongoTemplate.aggregate(aggregate,
           ProductClassification.class, Document.class);
       List<Document> documents = results.getMappedResults();
-      return documents.stream()
-          .map(doc -> {
-            Document productClassificationsDoc = doc.get("productClassifications", Document.class);
-            return new ProductThumbnailVm(doc.getString("_id"),
-                doc.getString("name"),
-                productClassificationsDoc.getString("name"),
-                productClassificationsDoc.getDouble("price"),
-                productClassificationsDoc.getString("image"));
-          }).toList();
+      return documents.stream().map(doc -> {
+        Document productClassificationsDoc = doc.get("productClassifications", Document.class);
+        return new ProductThumbnailVm(doc.getObjectId("_id").toString(), doc.getString("name"),
+            productClassificationsDoc.getString("name"),
+            productClassificationsDoc.getDouble("price"),
+            productClassificationsDoc.getString("image"));
+      }).toList();
     });
   }
 
@@ -377,11 +314,8 @@ public class ProductService implements IProductService {
       Product product = productRepository.findById(id)
           .orElseThrow(() -> new BadRequestException("Product not found"));
       // check permission to change product (store service)
-      StoreClient storeClient = Feign.builder()
-          .client(new OkHttpClient())
-          .encoder(new GsonEncoder())
-          .decoder(new GsonDecoder())
-          .logLevel(Logger.Level.FULL)
+      StoreClient storeClient = Feign.builder().client(new OkHttpClient())
+          .encoder(new GsonEncoder()).decoder(new GsonDecoder()).logLevel(Logger.Level.FULL)
           .target(StoreClient.class, "http://localhost:8181/api/v1");
       var store = storeClient.getStoreId(request.getHeader("Authorization"), userId);
       if (!store.equals(product.getStoreId())) {
@@ -418,8 +352,7 @@ public class ProductService implements IProductService {
       // send message create message
       String message = null;
       try {
-        message = ParseObjectToString.parse(
-            new ProductMessageVm(savedProduct.getId(), Action.BAN));
+        message = ParseObjectToString.parse(new ProductMessageVm(savedProduct.getId(), Action.BAN));
       } catch (JsonProcessingException e) {
         throw new RuntimeException(e);
       }
@@ -432,17 +365,29 @@ public class ProductService implements IProductService {
 
   private TypedAggregation<ProductClassification> createQueryClassification(List<String> prods,
       List<String> options) {
-    String query =
-        """
-                {
-                    "$unwind": "$productClassifications"
-                }
-            """;
-    return Aggregation.newAggregation(
-        ProductClassification.class,
+    String matchProduct = """
+        {$match: {
+            "_id": {
+                $in: [%s]
+            }
+          }
+        }""";
+    String unwind = """
+        { $unwind: "$productClassifications"
+        }
+        """;
+    String matchOption = """
+        {$match: {
+            "productClassifications._id": {
+                $in: [%s]
+            }
+          }
+        }""";
+
+    return Aggregation.newAggregation(ProductClassification.class,
         Aggregation.match(Criteria.where("_id").in(prods)),
-        new CustomAggregationOperation(query),
-        Aggregation.match(Criteria.where("productClassifications._id").in(options))
+        new CustomAggregationOperation(unwind),
+        new CustomAggregationOperation(matchOption.formatted(String.join(",", options)))
     );
   }
 }

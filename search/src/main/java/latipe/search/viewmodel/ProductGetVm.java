@@ -15,7 +15,7 @@ public record ProductGetVm(String id,
                            List<ProductClassification> productClassifications,
                            Boolean isBanned,
                            Boolean isDeleted,
-                           Date createdOn) {
+                           Date createdDate) {
 
   public static ProductGetVm fromModel(Product product) {
     return new ProductGetVm(

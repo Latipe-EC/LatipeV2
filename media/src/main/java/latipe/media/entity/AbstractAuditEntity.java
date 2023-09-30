@@ -1,4 +1,4 @@
-package latipe.media.Entity;
+package latipe.media.entity;
 
 import java.util.Date;
 import lombok.Getter;

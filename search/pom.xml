@@ -129,6 +129,13 @@
         <type>pom</type>
         <version>${spring-cloud.version}</version>
       </dependency>
+
+      <dependency>
+        <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+        <groupId>org.springdoc</groupId>
+        <version>${springdoc-openapi-starter-webmvc-ui.version}</version>
+      </dependency>
+
     </dependencies>
   </dependencyManagement>
   <description>search</description>

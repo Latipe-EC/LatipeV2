@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 
 
 @Configuration
-@OpenAPIDefinition(info = @io.swagger.v3.oas.annotations.info.Info(title = "Product Service API", description = "Product API documentation", version = "1.0"), security = @SecurityRequirement(name = "oauth2_bearer"))
+@OpenAPIDefinition(info = @io.swagger.v3.oas.annotations.info.Info(title = "Search Service API", description = "Product API documentation", version = "1.0"), security = @SecurityRequirement(name = "oauth2_bearer"))
 @SecurityScheme(
     name = "Bearer Authentication",
     type = SecuritySchemeType.HTTP,

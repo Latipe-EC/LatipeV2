@@ -40,7 +40,7 @@ eureka:
       defaultZone: http://eureka:password@localhost:8761/eureka
 springdoc:
   swagger-ui:
-    oproduct:
+    product:
       use-pkce-with-productorization-code-grant: 'true'
       client-id: swagger-ui
     path: /swagger-ui
