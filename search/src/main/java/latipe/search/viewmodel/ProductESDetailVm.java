@@ -11,6 +11,7 @@ public record ProductESDetailVm(
     String slug,
     Double price,
     Boolean isPublished,
+    int countSale,
     List<String> images,
     String description,
     List<ProductClassification> productClassifications,

@@ -1,17 +1,23 @@
 package latipe.cart.Entity;
 
+import com.mongodb.annotations.Sealed;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
 @Document(collection = "Carts")
 @AllArgsConstructor
-@Builder
+@NoArgsConstructor
+@Getter
+@Setter
 public class Cart extends AbstractAuditEntity {
 
   @Id

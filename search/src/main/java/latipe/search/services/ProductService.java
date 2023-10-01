@@ -78,6 +78,10 @@ public class ProductService {
         nativeQuery.withSort(Sort.by(Sort.Direction.ASC, ProductField.PRICE));
       } else if (sortType == ESortType.PRICE_DESC) {
         nativeQuery.withSort(Sort.by(Sort.Direction.DESC, ProductField.PRICE));
+      } else if (sortType == ESortType.COUNT_SALE_ASC) {
+        nativeQuery.withSort(Sort.by(Sort.Direction.ASC, ProductField.COUNT_SALE));
+      } else if (sortType == ESortType.COUNT_SALE_DESC) {
+        nativeQuery.withSort(Sort.by(Sort.Direction.DESC, ProductField.COUNT_SALE));
       } else {
         nativeQuery.withSort(Sort.by(Sort.Direction.DESC, ProductField.CREATE_ON));
       }

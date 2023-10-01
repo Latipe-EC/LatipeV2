@@ -31,6 +31,7 @@ public class Product extends AbstractAuditEntity {
   private Double price;
   @Min(0)
   private int quantity;
+  private int countSale = 0;
   private String storeId;
   private List<String> images = new ArrayList<>();
   private List<ProductClassification> productClassifications = new ArrayList<>();

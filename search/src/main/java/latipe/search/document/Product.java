@@ -16,11 +16,11 @@ import org.springframework.data.elasticsearch.annotations.Setting;
 
 @Document(indexName = "product")
 @Setting(settingPath = "esconfig/elastic-analyzer.json")
-@Builder
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Product {
 
   public boolean isBanned = false;
@@ -33,6 +33,7 @@ public class Product {
   @Field(type = FieldType.Double)
   private Double price;
   private Boolean isPublished;
+  private int countSale = 0;
   private List<String> images = new ArrayList<>();
   @Field(type = FieldType.Keyword)
   private List<String> categories;

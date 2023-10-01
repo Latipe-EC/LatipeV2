@@ -70,10 +70,9 @@ public class CartService implements ICartService {
           Cart cart = cartRepository.findByUserId(userId).orElse(null);
           Set<CartItem> existedCartItems = new HashSet<>();
           if (cart == null) {
-            cart = Cart.builder()
-                .userId(userId)
-                .cartItems(existedCartItems)
-                .build();
+            cart = new Cart();
+            cart.setUserId(userId);
+            cart.setCartItems(existedCartItems);
             cart.setCreatedDate(new Date());
           } else {
             existedCartItems = cart.getCartItems();

@@ -33,7 +33,7 @@ public class MediaController {
     this.mediaService = mediaService;
   }
 
-  @Authenticate
+  @RequiresAuthorization("ADMIN")
   @ResponseStatus(HttpStatus.OK)
   @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<Page<MediaVm>> getPaginateCategory(

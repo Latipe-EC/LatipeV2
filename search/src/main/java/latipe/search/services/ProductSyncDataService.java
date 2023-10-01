@@ -41,6 +41,7 @@ public class ProductSyncDataService {
     product.setDescription(productESDetailVm.description());
     product.setBanned(productESDetailVm.isBanned());
     product.setDeleted(productESDetailVm.isDeleted());
+    product.setCountSale(productESDetailVm.countSale());
 
     productRepository.save(product);
   }
@@ -61,6 +62,7 @@ public class ProductSyncDataService {
         .createdDate(productESDetailVm.createdDate())
         .description(productESDetailVm.description())
         .isBanned(productESDetailVm.isBanned())
+        .countSale(productESDetailVm.countSale())
         .isDeleted(productESDetailVm.isDeleted())
         .build();
     productRepository.save(product);

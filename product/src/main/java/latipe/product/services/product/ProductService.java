@@ -253,7 +253,7 @@ public class ProductService implements IProductService {
             }
             productClassification.setQuantity(
                 productClassification.getQuantity() - req.quantity());
-
+            product.setCountSale(product.getCountSale() + req.quantity());
             isFound = true;
             break;
           }

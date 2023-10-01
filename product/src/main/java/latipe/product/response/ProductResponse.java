@@ -22,7 +22,8 @@ public record ProductResponse(
     @JsonProperty(value = "isDeleted")
     Boolean isDeleted,
     boolean isBanned,
-    boolean isPublished
+    boolean isPublished,
+    int countSale
 ) {
 
 }

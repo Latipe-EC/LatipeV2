@@ -21,7 +21,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 public class User extends AbstractAuditEntity implements UserDetails {
 
   @Id
