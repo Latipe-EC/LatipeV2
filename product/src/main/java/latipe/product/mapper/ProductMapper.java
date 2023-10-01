@@ -2,6 +2,7 @@ package latipe.product.mapper;
 
 import latipe.product.entity.Product;
 import latipe.product.request.CreateProductRequest;
+import latipe.product.request.UpdateProductRequest;
 import latipe.product.response.ProductResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -19,6 +20,14 @@ public interface ProductMapper {
       @Mapping(target = "storeId", source = "storeId"),
   })
   public abstract Product mapToProductBeforeCreate(CreateProductRequest product, String storeId);
+
+  @Mappings({
+      @Mapping(target = "product.productVariants.id", ignore = true),
+      @Mapping(target = "product.productClassifications.id", ignore = true),
+      @Mapping(target = "categories", source = "product.categories"),
+      @Mapping(target = "storeId", source = "storeId"),
+  })
+  public abstract Product mapToProductBeforeCreate(String id, UpdateProductRequest product, String storeId);
 
   @Mappings({
       @Mapping(target = "productVariants", source = "product.productVariants"),

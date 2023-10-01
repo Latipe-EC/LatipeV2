@@ -27,7 +27,8 @@ public class test {
     out.println("Public key: " + verifyHash("product-service", hash, getPublicKey()));
   }
 
-  private static RSAPublicKey getPublicKey() throws NoSuchAlgorithmException, InvalidKeySpecException {
+  private static RSAPublicKey getPublicKey()
+      throws NoSuchAlgorithmException, InvalidKeySpecException {
     byte[] publicKeyBytes = Base64.getDecoder().decode(
         "MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAKl5SroD9NuxQ955qCcCMERMAMJz2/CZfx3WTHkQa8cvf13FBkRFvRkLD7U1MRCNylxe+oebmy/OF4GzuSxcDl8CAwEAAQ==");
     X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(publicKeyBytes);

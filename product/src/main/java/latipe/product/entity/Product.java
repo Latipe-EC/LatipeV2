@@ -20,6 +20,7 @@ public class Product extends AbstractAuditEntity {
   boolean isBanned = false;
   boolean isDeleted = false;
   boolean isPublished = true;
+  Double promotionalPrice;
   @Id
   private String id;
   private String name;
@@ -28,7 +29,6 @@ public class Product extends AbstractAuditEntity {
   private String slug;
   @Min(0)
   private Double price;
-  Double promotionalPrice;
   @Min(0)
   private int quantity;
   private String storeId;

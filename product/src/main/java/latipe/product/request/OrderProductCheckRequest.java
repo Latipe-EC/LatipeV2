@@ -9,8 +9,12 @@ public record OrderProductCheckRequest(
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     OrderProductCheckRequest that = (OrderProductCheckRequest) o;
     return Objects.equals(productId, that.productId) &&
         Objects.equals(optionId, that.optionId);

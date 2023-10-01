@@ -10,10 +10,12 @@ public record UpdateProductRequest(
     String name,
     @NotEmpty(message = "Product Description  is required")
     String description,
+    List<String> categories,
     Double price,
+    Double promotionalPrice,
     List<String> images,
     int quantity,
-    List<ProductVariantVm> productVariant,
+    List<ProductVariantVm> productVariants,
     List<ProductClassificationVm> productClassifications
 ) {
 
