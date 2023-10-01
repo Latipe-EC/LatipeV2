@@ -28,6 +28,7 @@ public class Product extends AbstractAuditEntity {
   private String slug;
   @Min(0)
   private Double price;
+  Double promotionalPrice;
   @Min(0)
   private int quantity;
   private String storeId;
@@ -35,4 +36,21 @@ public class Product extends AbstractAuditEntity {
   private List<ProductClassification> productClassifications = new ArrayList<>();
   private List<ProductVariant> productVariants = new ArrayList<>();
   private String reasonBan;
+
+  public Product(String prodId) {
+    this.id = prodId;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    Product product = (Product) o;
+    return id.equals(product.getId());
+  }
+
 }

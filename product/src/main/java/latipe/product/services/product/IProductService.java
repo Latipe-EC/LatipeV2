@@ -8,6 +8,7 @@ import latipe.product.request.BanProductRequest;
 import latipe.product.request.CreateProductRequest;
 import latipe.product.request.OrderProductCheckRequest;
 import latipe.product.request.ProductFeatureRequest;
+import latipe.product.request.UpdateProductQuantityRequest;
 import latipe.product.request.UpdateProductRequest;
 import latipe.product.response.OrderProductResponse;
 import latipe.product.response.ProductResponse;
@@ -37,4 +38,6 @@ public interface IProductService {
 
   public CompletableFuture<ProductResponse> create(String userId, CreateProductRequest input,
       HttpServletRequest request);
+
+  public CompletableFuture<Void> updateQuantity(List<UpdateProductQuantityRequest> request);
 }

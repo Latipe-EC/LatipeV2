@@ -7,10 +7,12 @@ import java.util.concurrent.CompletableFuture;
 import latipe.product.annotations.ApiPrefixController;
 import latipe.product.annotations.Authenticate;
 import latipe.product.annotations.RequiresAuthorization;
+import latipe.product.annotations.SecureInternalPhase;
 import latipe.product.request.BanProductRequest;
 import latipe.product.request.CreateProductRequest;
 import latipe.product.request.OrderProductCheckRequest;
 import latipe.product.request.ProductFeatureRequest;
+import latipe.product.request.UpdateProductQuantityRequest;
 import latipe.product.request.UpdateProductRequest;
 import latipe.product.response.OrderProductResponse;
 import latipe.product.response.ProductResponse;
@@ -113,5 +115,13 @@ public class ProductController {
   @GetMapping(value = "/products-es/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<ProductESDetailVm> getProductESDetailById(@PathVariable String id) {
     return productService.getProductESDetailById(id);
+  }
+
+  @SecureInternalPhase
+  @ResponseStatus(HttpStatus.OK)
+  @PatchMapping(value = "/update-quantity", produces = MediaType.APPLICATION_JSON_VALUE)
+  public CompletableFuture<Void> updateQuantity(
+      @Valid @RequestBody List<UpdateProductQuantityRequest> request) {
+    return productService.updateQuantity(request);
   }
 }

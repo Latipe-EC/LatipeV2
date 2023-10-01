@@ -18,7 +18,8 @@ public class ProductClassification {
   String image;
   String name;
   int quantity;
-  double price;
+  Double price;
+  Double promotionalPrice;
   String sku;
   String code;
 }

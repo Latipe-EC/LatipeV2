@@ -7,7 +7,10 @@ import feign.gson.GsonDecoder;
 import feign.gson.GsonEncoder;
 import feign.okhttp.OkHttpClient;
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import latipe.product.FeignClient.StoreClient;
 import latipe.product.configs.CustomAggregationOperation;
@@ -25,6 +28,7 @@ import latipe.product.request.BanProductRequest;
 import latipe.product.request.CreateProductRequest;
 import latipe.product.request.OrderProductCheckRequest;
 import latipe.product.request.ProductFeatureRequest;
+import latipe.product.request.UpdateProductQuantityRequest;
 import latipe.product.request.UpdateProductRequest;
 import latipe.product.response.OrderProductResponse;
 import latipe.product.response.ProductResponse;
@@ -44,6 +48,7 @@ import org.springframework.data.mongodb.core.aggregation.TypedAggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @AllArgsConstructor
@@ -73,7 +78,8 @@ public class ProductService implements IProductService {
         }
         input.productClassifications().add(
             ProductClassificationVm.builder().name("Default").price(input.price())
-                .quantity(input.quantity()).image(input.images().get(0)).build());
+                .promotionalPrice(input.promotionalPrice()).quantity(input.quantity())
+                .promotionalPrice(input.promotionalPrice()).image(input.images().get(0)).build());
       } else {
         if (input.productVariants().size() > 2) {
           throw new BadRequestException("Product have maximum 2 variants");
@@ -159,9 +165,22 @@ public class ProductService implements IProductService {
       List<OrderProductCheckRequest> prodOrders) {
     return CompletableFuture.supplyAsync(() -> {
 
-      var prodFilter = prodOrders.stream().map(OrderProductCheckRequest::productId).toList();
-      var optionFilter = prodOrders.stream().map(x -> "ObjectId(\"%s\")".formatted(x.optionId()))
-          .toList();
+      // handle case product id and option id is same
+      Set<OrderProductCheckRequest> orderProductSet = new HashSet<>();
+      for (OrderProductCheckRequest orderProduct : prodOrders) {
+        OrderProductCheckRequest existingProduct = orderProductSet.stream()
+            .filter(p -> p.equals(orderProduct)).findFirst().orElse(null);
+        if (existingProduct != null) {
+          orderProductSet.remove(existingProduct);
+          orderProductSet.add(existingProduct.merge(orderProduct));
+        } else {
+          orderProductSet.add(orderProduct);
+        }
+      }
+
+      var prodFilter = orderProductSet.stream().map(OrderProductCheckRequest::productId).toList();
+      var optionFilter = orderProductSet.stream()
+          .map(x -> "ObjectId(\"%s\")".formatted(x.optionId())).toList();
 
       var aggregate = createQueryClassification(prodFilter, optionFilter);
 
@@ -169,23 +188,33 @@ public class ProductService implements IProductService {
       var documents = results.getMappedResults();
       var orders = documents.stream().map(doc -> {
         Document productClassificationsDoc = doc.get("productClassifications", Document.class);
-        OrderProductCheckRequest prodOrder = prodOrders.stream().filter(
+
+        OrderProductCheckRequest prodOrder = orderProductSet.stream().filter(
                 x -> x.productId().equals(doc.getObjectId("_id").toString()) && x.optionId()
                     .equals(productClassificationsDoc.getObjectId("_id").toString())).findFirst()
             .orElseThrow(() -> new BadRequestException("Product not found"));
         if (productClassificationsDoc.getInteger("quantity") < prodOrder.quantity()) {
           throw new BadRequestException("Product out of stock");
         }
+
+        Double promotionalPrice = 0.0;
+        if (productClassificationsDoc.get("promotionalPrice") != null) {
+          promotionalPrice = productClassificationsDoc.getDouble("promotionalPrice");
+        }
+
         return ProductOrderVm.builder().productId(doc.getObjectId("_id").toString())
+            .name(doc.getString("name"))
             .optionId(productClassificationsDoc.getObjectId("_id").toString())
-            .quantity(prodOrder.quantity())
-            .price(productClassificationsDoc.getDouble("price"))
-            .nameOption(productClassificationsDoc.getString("name"))
-            .totalPrice(productClassificationsDoc.getDouble("price") * prodOrder.quantity())
-            .build();
+            .quantity(prodOrder.quantity()).price(productClassificationsDoc.getDouble("price"))
+            .promotionalPrice(promotionalPrice)
+            .nameOption(productClassificationsDoc.getString("name")).totalPrice(
+                productClassificationsDoc.getDouble("promotionalPrice") == null ?
+                    productClassificationsDoc.getDouble("price") * prodOrder.quantity()
+                    : productClassificationsDoc.getDouble("promotionalPrice")
+                        * prodOrder.quantity()).storeId(doc.getString("storeId")).build();
       }).toList();
 
-      if (orders.size() != prodOrders.size()) {
+      if (orders.size() != orderProductSet.size()) {
         throw new NotFoundException("Product not found");
       }
       return OrderProductResponse.builder()
@@ -232,6 +261,50 @@ public class ProductService implements IProductService {
             productClassificationsDoc.getDouble("price"),
             productClassificationsDoc.getString("image"));
       }).toList();
+    });
+  }
+
+  @Override
+  @Async
+  @Transactional
+  public CompletableFuture<Void> updateQuantity(List<UpdateProductQuantityRequest> request) {
+    return CompletableFuture.supplyAsync(() -> {
+      List<Product> products = new ArrayList<>();
+      for (UpdateProductQuantityRequest req : request) {
+
+        Product product = null;
+        int index = products.indexOf(new Product(req.productId()));
+        if (index < 0) {
+          product = productRepository.findById(req.productId())
+              .orElseThrow(() -> new BadRequestException("Product not found"));
+        } else {
+          product = products.get(index);
+        }
+
+        boolean isFound = false;
+        for (ProductClassification productClassification : product.getProductClassifications()) {
+          if (productClassification.getId().equals(req.optionId())) {
+            if (productClassification.getQuantity() < req.quantity()) {
+              throw new BadRequestException("Product out of stock");
+            }
+            productClassification.setQuantity(
+                productClassification.getQuantity() - req.quantity());
+
+            isFound = true;
+            break;
+          }
+        }
+
+        if (!isFound) {
+          throw new BadRequestException("Product classification not found");
+        }
+
+        if (index < 0) {
+          products.add(product);
+        }
+      }
+      productRepository.saveAll(products);
+      return null;
     });
   }
 
@@ -385,9 +458,19 @@ public class ProductService implements IProductService {
         }""";
 
     return Aggregation.newAggregation(ProductClassification.class,
-        Aggregation.match(Criteria.where("_id").in(prods)),
-        new CustomAggregationOperation(unwind),
-        new CustomAggregationOperation(matchOption.formatted(String.join(",", options)))
-    );
+        Aggregation.match(Criteria.where("_id").in(prods)), new CustomAggregationOperation(unwind),
+        new CustomAggregationOperation(matchOption.formatted(String.join(",", options))));
+  }
+
+  public int findIndexProduct(List<Product> products, String prodId) {
+    int index = -1;
+    products.indexOf(new Product(prodId));
+    for (int i = 0; i < products.size(); i++) {
+      if (products.get(i).getId().equals(prodId)) {
+        index = i;
+        break;
+      }
+    }
+    return index;
   }
 }

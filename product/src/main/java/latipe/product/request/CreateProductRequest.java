@@ -12,6 +12,7 @@ public record CreateProductRequest(
     @NotEmpty(message = "Product Description  is required")
     String description,
     Double price,
+    Double promotionalPrice,
     @Size(min = 1, message = "Product Categories is required")
     @NotEmpty(message = "Product Categories is required")
     List<String> categories,

@@ -8,8 +8,10 @@ public record ProductOrderVm(
     String name,
     int quantity,
     double price,
+    double promotionalPrice,
     String optionId,
     String nameOption,
+    String storeId,
     Double totalPrice) {
 
 }
