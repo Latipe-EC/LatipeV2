@@ -10,8 +10,6 @@
 
 - Java 17
 - Spring boot 3
-- ReactJS
-- Keycloak
 - RabbitMQ
 - Elasticsearch
 - K8s
