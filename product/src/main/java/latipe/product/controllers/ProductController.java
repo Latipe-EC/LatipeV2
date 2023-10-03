@@ -65,7 +65,7 @@ public class ProductController {
 
   @Authenticate
   @ResponseStatus(HttpStatus.OK)
-  @GetMapping(value = "/check-in-stock", produces = MediaType.APPLICATION_JSON_VALUE)
+  @PostMapping(value = "/check-in-stock", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<OrderProductResponse> checkProductInStock(
       @Valid @RequestBody List<OrderProductCheckRequest> prodOrders) {
     return productService.checkProductInStock(prodOrders);
