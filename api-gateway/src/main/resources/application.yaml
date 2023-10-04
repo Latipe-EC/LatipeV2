@@ -9,10 +9,20 @@ app:
 spring:
   application:
     name: api-gateway
+  main:
+    web-application-type: reactive
   profiles:
     active: dev
   cloud:
     gateway:
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods: "*"
+            allowedHeaders: "*"
       routes:
         - id: auth_service
           uri: http://localhost:8081
