@@ -24,12 +24,13 @@ public class UserAddress {
   private String phone;
   @NotEmpty(message = "Detail Address is required")
   private String detailAddress;
-  private String city;
   private String zipCode;
+  private Long cityOrProvinceId;
+  private String cityOrProvinceName;
   private Long districtId;
   private String districtName;
-  private Long stateOrProvinceId;
-  private String stateOrProvinceName;
+  private Long wardId;
+  private String wardName;
   private Long countryId = 84L;
   private String countryName = "VietNam";
 

@@ -59,13 +59,6 @@ spring:
           filters:
             - RewritePath=/(?<segment>.*), /$\{segment}
 
-        - id: category_service
-          uri: http://localhost:8645
-          predicates:
-            - Path=/api/v1/categories/**
-          filters:
-            - RewritePath=/(?<segment>.*), /$\{segment}
-
         - id: search_service
           uri: http://localhost:8092
           predicates:

@@ -2,6 +2,7 @@ package latipe.user.services.user;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import latipe.user.dtos.PagedResultDto;
 import latipe.user.entity.UserAddress;
 import latipe.user.request.CreateUserAddressRequest;
 import latipe.user.request.CreateUserRequest;
@@ -14,12 +15,14 @@ public interface IUserService {
 
   public CompletableFuture<UserResponse> create(CreateUserRequest input);
 
-  public CompletableFuture<List<UserAddress>> getMyAddresses(String id, int page, int size);
+  public CompletableFuture<PagedResultDto<UserAddress>> getMyAddresses(String id, int page, int size);
 
   public CompletableFuture<UserAddress> addMyAddresses(String id,
       CreateUserAddressRequest input);
 
   public CompletableFuture<Void> deleteMyAddresses(String id, String userId);
+
+  public CompletableFuture<UserAddress> getMyAddresses(String id, String userId);
 
   public CompletableFuture<UserAddress> updateMyAddresses(UpdateUserAddressRequest input,
       String userId, String addressId);
@@ -31,4 +34,6 @@ public interface IUserService {
   public CompletableFuture<UserResponse> getProfile(String id);
 
   public CompletableFuture<Void> upgradeVendor(String userId);
+
+  public CompletableFuture<Integer> countMyAddress(String userId);
 }

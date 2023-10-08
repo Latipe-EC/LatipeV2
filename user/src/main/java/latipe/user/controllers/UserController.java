@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import latipe.user.annotations.ApiPrefixController;
 import latipe.user.annotations.Authenticate;
+import latipe.user.dtos.PagedResultDto;
 import latipe.user.entity.UserAddress;
 import latipe.user.request.CreateUserAddressRequest;
 import latipe.user.request.CreateUserRequest;
@@ -62,7 +63,7 @@ public class UserController {
   @ResponseStatus(HttpStatus.OK)
   @Authenticate
   @GetMapping(value = "/my-address", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<List<UserAddress>> getMyAddresses(
+  public CompletableFuture<PagedResultDto<UserAddress>> getMyAddresses(
       @RequestParam(name = "page", defaultValue = "1") int page,
       @RequestParam(name = "size", defaultValue = "10") int size
   ) {
@@ -105,6 +106,26 @@ public class UserController {
 
   }
 
+  @ResponseStatus(HttpStatus.OK)
+  @Authenticate
+  @GetMapping(value = "/my-address/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+  public CompletableFuture<UserAddress> getMyAddress(@PathVariable String id) {
+
+    UserCredentialResponse userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
+        .getAttribute("user")));
+    return userService.getMyAddresses(id, userCredential.id());
+
+  }
+
+  @Authenticate
+  @ResponseStatus(HttpStatus.CREATED)
+  @GetMapping(value = "/count-my-address", produces = MediaType.APPLICATION_JSON_VALUE)
+  public CompletableFuture<Integer> countMyUserAddress() {
+    UserCredentialResponse userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
+        .getAttribute("user")));
+    return userService.countMyAddress(userCredential.id());
+  }
+
   @ResponseStatus(HttpStatus.CREATED)
   @Authenticate
   @PostMapping(value = "/create-user", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -126,4 +147,5 @@ public class UserController {
         .getAttribute("user")));
     return userService.upgradeVendor(userCredential.id());
   }
+
 }
