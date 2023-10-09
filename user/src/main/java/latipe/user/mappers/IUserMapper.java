@@ -17,27 +17,19 @@ import org.mapstruct.ReportingPolicy;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface IUserMapper {
 
-  @Mappings({
-      @Mapping(target = "id", ignore = true),
-  })
-  public abstract void mapBeforeUpdateUserAddress(@MappingTarget UserAddress userAddress,
-      UpdateUserAddressRequest user);
+  void mapBeforeUpdateUserAddress(@MappingTarget  UserAddress address,
+      UpdateUserAddressRequest input);
 
-  public abstract void mapBeforeUpdateUser(@MappingTarget User user,
-      UpdateUserRequest input);
+  void mapBeforeUpdateUser(@MappingTarget User user, UpdateUserRequest input);
 
   @Mappings({@Mapping(target = "role", ignore = true)})
-  public abstract User mapBeforeCreateUserAddress(CreateUserRequest input, String displayName,
-      String password);
+  User mapBeforeCreateUserAddress(CreateUserRequest input, String displayName, String password);
 
-  @Mappings({
-      @Mapping(target = "role", source = "role"),
+  @Mappings({@Mapping(target = "role", source = "role"),
       @Mapping(target = "displayName", source = "displayName"),
-      @Mapping(target = "hashedPassword", source = "password"),
-  })
-  public abstract User mapBeforeCreate(RegisterRequest input, Role role, String displayName,
-      String password);
+      @Mapping(target = "hashedPassword", source = "password"),})
+  User mapBeforeCreate(RegisterRequest input, Role role, String displayName, String password);
 
   @Mappings({@Mapping(target = "role", source = "user.role.name")})
-  public abstract UserResponse mapToResponse(User user);
+  UserResponse mapToResponse(User user);
 }

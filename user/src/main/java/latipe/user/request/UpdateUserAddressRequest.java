@@ -9,12 +9,11 @@ public record UpdateUserAddressRequest(
     String phone,
     @NotEmpty(message = "Detail Address is required")
     String detailAddress,
-    String city,
     String zipCode,
     Long districtId,
     String districtName,
-    Long stateOrProvinceId,
-    String stateOrProvinceName,
+    Long cityOrProvinceId,
+    String cityOrProvinceName,
     Long countryId,
     String countryName
 ) {
