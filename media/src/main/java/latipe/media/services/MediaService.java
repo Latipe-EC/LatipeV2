@@ -3,6 +3,8 @@ package latipe.media.services;
 import static latipe.media.constants.CONSTANTS.IMAGE;
 import static latipe.media.constants.CONSTANTS.VIDEO;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
@@ -37,6 +39,7 @@ public class MediaService implements IMediaService {
 
   private final IMediaRepository mediaRepository;
   private final MediaMapper mediaMapper;
+  private final Cloudinary cloudinary;
 
   @Override
   @Async
@@ -111,11 +114,40 @@ public class MediaService implements IMediaService {
   }
 
   @Override
+  public CompletableFuture<MediaVm> saveMediaToCloud(MultipartFile file, String userId) {
+    return CompletableFuture.supplyAsync(
+        () -> {
+          if (file.getOriginalFilename() == null) {
+            throw new BadRequestException("File name is null");
+          }
+
+          String type = FileCategorizeUtils.categorizeFile(file.getOriginalFilename());
+
+          String fileName = System.currentTimeMillis() + "-" + UUID.randomUUID() + "."
+              + FileCategorizeUtils.getFileExtension(file.getOriginalFilename());
+
+          if (!type.equals(IMAGE) && !type.equals(VIDEO)) {
+            throw new BadRequestException("Only upload image or video");
+          }
+          try {
+            var uploadResult = cloudinary.uploader().upload(file, ObjectUtils.emptyMap());
+            // Trả về URL của file đã upload
+            var media = mediaRepository.save(
+                new Media(fileName, type, (String) uploadResult.get("url"), file.getSize()));
+            return mediaMapper.mapToMediaResponse(media);
+          } catch (IOException e) {
+            throw new BadRequestException(e.getMessage());
+          }
+        }
+    );
+  }
+
+  @Override
   @Async
   public CompletableFuture<Void> remove(String id) {
     return CompletableFuture.supplyAsync(
         () -> {
-          Media noFileMediaVm = mediaRepository.findById(id)
+          mediaRepository.findById(id)
               .orElseThrow(() -> new NotFoundException(String.format("Media %s is not found", id)));
           mediaRepository.deleteById(id);
           return null;

@@ -19,7 +19,7 @@ public interface ProductMapper {
       @Mapping(target = "categories", source = "product.categories"),
       @Mapping(target = "storeId", source = "storeId"),
   })
-  public abstract Product mapToProductBeforeCreate(CreateProductRequest product, String storeId);
+  Product mapToProductBeforeCreate(CreateProductRequest product, String storeId);
 
   @Mappings({
       @Mapping(target = "product.productVariants.id", ignore = true),
@@ -27,13 +27,14 @@ public interface ProductMapper {
       @Mapping(target = "categories", source = "product.categories"),
       @Mapping(target = "storeId", source = "storeId"),
   })
-  public abstract Product mapToProductBeforeCreate(String id, UpdateProductRequest product, String storeId);
+  Product mapToProductBeforeCreate(String id, UpdateProductRequest product,
+      String storeId);
 
   @Mappings({
       @Mapping(target = "productVariants", source = "product.productVariants"),
       @Mapping(target = "productClassifications", source = "product.productClassifications"),
 
   })
-  public abstract ProductResponse mapToProductToResponse(Product product);
+  ProductResponse mapToProductToResponse(Product product);
 
 }

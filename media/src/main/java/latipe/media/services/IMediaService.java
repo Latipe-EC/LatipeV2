@@ -10,7 +10,9 @@ public interface IMediaService {
 
   CompletableFuture<MediaVm> saveMedia(MultipartFile file, String userId);
 
-  public CompletableFuture<Void> remove(String id);
+  CompletableFuture<Void> remove(String id);
 
-  public CompletableFuture<Page<MediaVm>> findAllPaginate(String fileName, Pageable pageable);
+  CompletableFuture<Page<MediaVm>> findAllPaginate(String fileName, Pageable pageable);
+
+  CompletableFuture<MediaVm> saveMediaToCloud(MultipartFile file, String userId);
 }

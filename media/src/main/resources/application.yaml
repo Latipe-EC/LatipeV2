@@ -4,11 +4,22 @@ spring:
   data:
     mongodb:
       uri: mongodb://localhost:27017/Latipe-Media-DB
-
+  servlet:
+    multipart:
+      enabled: 'true'
+      max-request-size: 125MB
+      max-file-size: 125MB
 server:
   port: '7657'
 #  servlet:
 #    context-path: /api/v1
+
+# Cloudiary
+cloudinary:
+  api-key: 118683767447614
+  api-secret: yXGR6ZXh9pjooT6EzKGfuBvqJQw
+  cloud-name: dqe4dzug2
+
 management:
   endpoints:
     web:

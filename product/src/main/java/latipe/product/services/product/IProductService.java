@@ -19,25 +19,25 @@ import latipe.product.viewmodel.ProductThumbnailVm;
 public interface IProductService {
 
 
-  public CompletableFuture<OrderProductResponse> checkProductInStock(
+  CompletableFuture<OrderProductResponse> checkProductInStock(
       List<OrderProductCheckRequest> prodOrders);
 
-  public CompletableFuture<ProductPriceVm> getPrice(String prodId, String code);
+  CompletableFuture<ProductPriceVm> getPrice(String prodId, String code);
 
-  public CompletableFuture<ProductResponse> update(String userId, String id,
+  CompletableFuture<ProductResponse> update(String userId, String id,
       UpdateProductRequest input, HttpServletRequest request);
 
-  public CompletableFuture<Void> remove(String userId, String id, HttpServletRequest request);
+  CompletableFuture<Void> remove(String userId, String id, HttpServletRequest request);
 
-  public CompletableFuture<Void> ban(String id, BanProductRequest input);
+  CompletableFuture<Void> ban(String id, BanProductRequest input);
 
-  public CompletableFuture<List<ProductThumbnailVm>> getFeatureProduct(
+  CompletableFuture<List<ProductThumbnailVm>> getFeatureProduct(
       List<ProductFeatureRequest> products);
 
-  public CompletableFuture<ProductESDetailVm> getProductESDetailById(String productId);
+  CompletableFuture<ProductESDetailVm> getProductESDetailById(String productId);
 
-  public CompletableFuture<ProductResponse> create(String userId, CreateProductRequest input,
+  CompletableFuture<ProductResponse> create(String userId, CreateProductRequest input,
       HttpServletRequest request);
 
-  public CompletableFuture<Void> updateQuantity(List<UpdateProductQuantityRequest> request);
+  CompletableFuture<Void> updateQuantity(List<UpdateProductQuantityRequest> request);
 }

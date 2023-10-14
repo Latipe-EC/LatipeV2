@@ -3,6 +3,9 @@ package latipe.product.entity;
 import jakarta.validation.constraints.Min;
 import java.util.ArrayList;
 import java.util.List;
+import latipe.product.entity.attribute.AttributeValue;
+import latipe.product.entity.product.ProductClassification;
+import latipe.product.entity.product.ProductVariant;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -37,6 +40,7 @@ public class Product extends AbstractAuditEntity {
   private List<ProductClassification> productClassifications = new ArrayList<>();
   private List<ProductVariant> productVariants = new ArrayList<>();
   private String reasonBan;
+  List<AttributeValue> detailsProduct;
 
   public Product(String prodId) {
     this.id = prodId;

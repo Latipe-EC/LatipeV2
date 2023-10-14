@@ -1,4 +1,4 @@
-package latipe.product.entity;
+package latipe.product.entity.product;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

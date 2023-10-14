@@ -1,4 +1,4 @@
-package latipe.product.entity;
+package latipe.product.entity.product;
 
 import jakarta.validation.constraints.Min;
 import java.util.ArrayList;

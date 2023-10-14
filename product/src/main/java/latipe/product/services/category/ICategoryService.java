@@ -9,15 +9,15 @@ import latipe.product.response.CategoryResponse;
 
 public interface ICategoryService {
 
-  public CompletableFuture<List<CategoryResponse>> getListChildrenCategory(String parentId);
+  CompletableFuture<List<CategoryResponse>> getListChildrenCategory(String parentId);
 
-  public CompletableFuture<PagedResultDto<CategoryResponse>> getPaginateCategory(long skip,
+  CompletableFuture<PagedResultDto<CategoryResponse>> getPaginateCategory(long skip,
       int limit, String name);
 
-  public CompletableFuture<CategoryResponse> update(String id, UpdateCategoryRequest input);
+  CompletableFuture<CategoryResponse> update(String id, UpdateCategoryRequest input);
 
-  public CompletableFuture<Void> remove(String id);
+  CompletableFuture<Void> remove(String id);
 
-  public CompletableFuture<CategoryResponse> create(CreateCategoryRequest input);
+  CompletableFuture<CategoryResponse> create(CreateCategoryRequest input);
 
 }

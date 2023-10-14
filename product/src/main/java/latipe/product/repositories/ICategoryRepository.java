@@ -25,7 +25,7 @@ public interface ICategoryRepository extends MongoRepository<Category, String> {
   List<Category> findCategoryWithPaginationAndSearch(long skip, int limit, String name);
 
   @Query(value = "{'name': {$regex: ?0, $options: 'i'}, 'isDeleted': false}", count = true)
-  public Long countByName(String name);
+  Long countByName(String name);
 
 //    @Aggregation(pipeline = {
 //            "{ $match: { isDeleted: false, name: { $regex: ?0, $options: 'i'  }  } }",

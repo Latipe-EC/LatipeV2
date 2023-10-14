@@ -19,7 +19,7 @@ import latipe.product.configs.CustomAggregationOperation;
 import latipe.product.constants.Action;
 import latipe.product.entity.Category;
 import latipe.product.entity.Product;
-import latipe.product.entity.ProductClassification;
+import latipe.product.entity.product.ProductClassification;
 import latipe.product.exceptions.BadRequestException;
 import latipe.product.exceptions.NotFoundException;
 import latipe.product.mapper.ProductMapper;

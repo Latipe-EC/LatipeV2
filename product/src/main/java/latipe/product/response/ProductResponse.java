@@ -4,8 +4,8 @@ package latipe.product.response;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotEmpty;
 import java.util.List;
-import latipe.product.entity.ProductClassification;
-import latipe.product.entity.ProductVariant;
+import latipe.product.entity.product.ProductClassification;
+import latipe.product.entity.product.ProductVariant;
 
 public record ProductResponse(
     @JsonProperty(value = "id", required = true)

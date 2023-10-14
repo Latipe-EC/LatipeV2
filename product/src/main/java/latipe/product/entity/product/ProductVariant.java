@@ -1,4 +1,4 @@
-package latipe.product.entity;
+package latipe.product.entity.product;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
