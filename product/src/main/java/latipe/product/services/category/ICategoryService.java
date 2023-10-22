@@ -16,6 +16,8 @@ public interface ICategoryService {
 
   CompletableFuture<CategoryResponse> update(String id, UpdateCategoryRequest input);
 
+  CompletableFuture<CategoryResponse> get(String id);
+
   CompletableFuture<Void> remove(String id);
 
   CompletableFuture<CategoryResponse> create(CreateCategoryRequest input);

@@ -6,7 +6,8 @@ public record UpdateCategoryRequest(
     @NotNull(message = "Name cannot be null")
     String name,
     String parentCategoryId,
-    String image
+    String image,
+    String idAttributeCategory
 ) {
 
 

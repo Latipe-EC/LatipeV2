@@ -10,8 +10,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.data.mongodb.core.mapping.FieldType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -42,8 +45,10 @@ public class User extends AbstractAuditEntity implements UserDetails {
   private String tokenResetPassword;
   private Boolean isDeleted = false;
   private List<UserAddress> addresses = new ArrayList<>();
-  @DBRef
+  @Transient
   private Role role;
+  @Field(targetType = FieldType.OBJECT_ID)
+  private String roleId;
   private String phoneNumber;
 
   @Override

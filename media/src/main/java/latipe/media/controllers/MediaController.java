@@ -24,7 +24,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@ApiPrefixController("categories")
+@ApiPrefixController("medias")
 public class MediaController {
 
   private final IMediaService mediaService;
@@ -37,19 +37,17 @@ public class MediaController {
   @ResponseStatus(HttpStatus.OK)
   @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<Page<MediaVm>> getPaginateCategory(
-      @RequestParam(name = "name", defaultValue = "") String content,
-      Pageable pageable) {
+      @RequestParam(name = "name", defaultValue = "") String content, Pageable pageable) {
     return mediaService.findAllPaginate(content, pageable);
   }
 
   @Authenticate
   @ResponseStatus(HttpStatus.CREATED)
-  @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<MediaVm> createStore(@RequestPart("file") MultipartFile file
-  ) {
+  @PostMapping(consumes = "multipart/form-data")
+  public CompletableFuture<MediaVm> uploadFile(@RequestPart("file") MultipartFile file) {
     UserCredentialResponse userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
         .getAttribute("user")));
-    return mediaService.saveMedia(file, userCredential.id());
+    return mediaService.saveMediaToCloud(file, userCredential.id());
   }
 
   @RequiresAuthorization("ADMIN")

@@ -20,6 +20,7 @@ public class Category extends AbstractAuditEntity {
   private Boolean isDeleted = false;
   private String parentCategoryId;
   private String image;
+  String idAttributeCategory;
 
   public Category(String name) {
     this.name = name;

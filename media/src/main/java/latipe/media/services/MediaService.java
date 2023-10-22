@@ -130,7 +130,7 @@ public class MediaService implements IMediaService {
             throw new BadRequestException("Only upload image or video");
           }
           try {
-            var uploadResult = cloudinary.uploader().upload(file, ObjectUtils.emptyMap());
+            var uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
             // Trả về URL của file đã upload
             var media = mediaRepository.save(
                 new Media(fileName, type, (String) uploadResult.get("url"), file.getSize()));

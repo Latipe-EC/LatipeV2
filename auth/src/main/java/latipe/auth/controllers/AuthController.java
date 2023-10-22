@@ -11,12 +11,12 @@ import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import latipe.auth.config.ApiPrefixController;
 import latipe.auth.config.JwtTokenService;
 import latipe.auth.constants.CONSTANTS.TOKEN_TYPE;
+import latipe.auth.entity.Role;
 import latipe.auth.entity.User;
 import latipe.auth.exceptions.BadRequestException;
 import latipe.auth.exceptions.NotFoundException;
@@ -31,7 +31,12 @@ import latipe.auth.response.RefreshTokenResponse;
 import latipe.auth.response.TokenResetPasswordResponse;
 import latipe.auth.response.UserCredentialResponse;
 import latipe.auth.utils.GenTokenUtils;
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -49,16 +54,19 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
   private final JwtTokenService jwtUtil;
-  //    private final IUserRepository userRepository;
   private final IUserRepository userRepository;
+  private final MongoTemplate mongoTemplate;
 
   @Value("${URL_FE}")
   private String URL;
 
-  public AuthController(JwtTokenService jwtUtil, IUserRepository userRepository) {
+  public AuthController(JwtTokenService jwtUtil, IUserRepository userRepository,
+      MongoTemplate mongoTemplate) {
     this.jwtUtil = jwtUtil;
     this.userRepository = userRepository;
+    this.mongoTemplate = mongoTemplate;
   }
+
 
   @PostMapping("/login")
   @ResponseStatus(HttpStatus.OK)
@@ -72,18 +80,10 @@ public class AuthController {
       final String accessToken = jwtUtil.createAccessToken(user);
       final String refreshToken = jwtUtil.createRefreshToken(user.getEmail());
 
-      return LoginResponse.builder()
-          .accessToken(accessToken)
-          .refreshToken(refreshToken)
-          .id(user.getId())
-          .firstName(user.getFirstName())
-          .lastName(user.getLastName())
-          .displayName(user.getDisplayName())
-          .phone(user.getPhoneNumber())
-          .email(user.getEmail())
-          .bio(user.getBio())
-          .role(user.getRole().getName())
-          .lastActiveAt(user.getLastLogin())
+      return LoginResponse.builder().accessToken(accessToken).refreshToken(refreshToken)
+          .id(user.getId()).firstName(user.getFirstName()).lastName(user.getLastName())
+          .displayName(user.getDisplayName()).phone(user.getPhoneNumber()).email(user.getEmail())
+          .bio(user.getBio()).role(user.getRole().getName()).lastActiveAt(user.getLastLogin())
           .build();
     });
   }
@@ -131,12 +131,8 @@ public class AuthController {
 
       try {
         if (jwtUtil.validateToken(accessToken.token(), user)) {
-          return UserCredentialResponse.builder()
-              .email(user.getEmail())
-              .phone(user.getPhoneNumber())
-              .id(user.getId())
-              .role(user.getRole().getName())
-              .build();
+          return UserCredentialResponse.builder().email(user.getEmail())
+              .phone(user.getPhoneNumber()).id(user.getId()).role(user.getRole().getName()).build();
         }
         throw new UnauthorizedException(TOKEN_EXPIRED);
       } catch (RuntimeException | NoSuchAlgorithmException | InvalidKeySpecException e) {
@@ -187,10 +183,8 @@ public class AuthController {
     User user = userRepository.findByPhoneNumber(phoneNumber)
         .orElseThrow(() -> new NotFoundException("User not found"));
     TokenResetPasswordResponse token = TokenResetPasswordResponse.builder()
-        .token(GenTokenUtils.generateRandomDigits())
-        .email(user.getEmail())
-        .expired(LocalDateTime.now().plusMinutes(1).plusSeconds(2))
-        .type(TOKEN_TYPE.VERIFY_EMAIL)
+        .token(GenTokenUtils.generateRandomDigits()).email(user.getEmail())
+        .expired(LocalDateTime.now().plusMinutes(1).plusSeconds(2)).type(TOKEN_TYPE.VERIFY_EMAIL)
         .build();
     GenTokenUtils.setToken(user, token);
     user = userRepository.save(user);
@@ -201,8 +195,7 @@ public class AuthController {
 
   @PostMapping("/validate-pin/{phone}")
   public ResponseEntity<String> validatePin(@PathVariable String phone,
-      @RequestBody TokenRequest input)
-      throws UnsupportedEncodingException {
+      @RequestBody TokenRequest input) throws UnsupportedEncodingException {
     User user = userRepository.findByPhoneNumber(phone)
         .orElseThrow(() -> new NotFoundException("User not found"));
     TokenResetPasswordResponse tokenResetPassword = GenTokenUtils.decodeToken(
@@ -221,10 +214,21 @@ public class AuthController {
   }
 
   private User getUser(String username) {
-    List<User> users = userRepository.findByPhoneAndEmail(username);
-    if (users.isEmpty()) {
-      throw new NotFoundException("Cannot find user with email");
+    Criteria criteria = new Criteria().orOperator(Criteria.where("email").is(username),
+        Criteria.where("phoneNumber").is(username));
+
+    Aggregation aggregation = Aggregation.newAggregation(Aggregation.match(criteria),
+//        new CustomAggregationOperation(lookup),
+        Aggregation.lookup(mongoTemplate.getCollectionName(Role.class), "roleId", "_id", "roles"),
+        Aggregation.addFields()
+            .addFieldWithValue("role", ArrayOperators.arrayOf("roles").elementAt(0)).build());
+    var userRaw = mongoTemplate.aggregate(aggregation, mongoTemplate.getCollectionName(User.class),
+        Document.class).getUniqueMappedResult();
+    if (userRaw == null) {
+      throw new NotFoundException("User not found");
     }
-    return users.get(0);
+    var user = mongoTemplate.getConverter().read(User.class, userRaw);
+    user.setRole(mongoTemplate.getConverter().read(Role.class, userRaw.get("role", Document.class)));
+    return user;
   }
 }

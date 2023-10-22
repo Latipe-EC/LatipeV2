@@ -6,6 +6,7 @@ import latipe.product.dtos.PagedResultDto;
 import latipe.product.dtos.Pagination;
 import latipe.product.entity.Category;
 import latipe.product.exceptions.BadRequestException;
+import latipe.product.exceptions.NotFoundException;
 import latipe.product.mapper.CategoryMapper;
 import latipe.product.repositories.ICategoryRepository;
 import latipe.product.request.CreateCategoryRequest;
@@ -26,7 +27,7 @@ public class CategoryService implements ICategoryService {
   @Async
   public CompletableFuture<List<CategoryResponse>> getListChildrenCategory(String parentId) {
     return CompletableFuture.supplyAsync(() -> {
-      List<Category> categories = cateRepository.findChildrenCate(parentId);
+      var categories = cateRepository.findChildrenCate(parentId);
       return categories.stream().map(categoryMapper::mapToCategoryResponse).toList();
     });
   }
@@ -36,10 +37,8 @@ public class CategoryService implements ICategoryService {
   public CompletableFuture<PagedResultDto<CategoryResponse>> getPaginateCategory(long skip,
       int limit, String name) {
     return CompletableFuture.supplyAsync(() -> {
-      List<Category> categories = cateRepository.findCategoryWithPaginationAndSearch(skip, limit,
-          name);
-      return PagedResultDto.create(
-          Pagination.create(cateRepository.countByName(name), skip, limit),
+      var categories = cateRepository.findCategoryWithPaginationAndSearch(skip, limit, name);
+      return PagedResultDto.create(Pagination.create(cateRepository.countByName(name), skip, limit),
           categories.stream().map(categoryMapper::mapToCategoryResponse).toList());
     });
   }
@@ -48,12 +47,12 @@ public class CategoryService implements ICategoryService {
   @Async
   public CompletableFuture<CategoryResponse> create(CreateCategoryRequest input) {
     return CompletableFuture.supplyAsync(() -> {
-      Category cate = cateRepository.findByName(input.name());
+      var cate = cateRepository.findByName(input.name());
       if (cate != null) {
-        throw new BadRequestException("Name product should be unique");
+        throw new BadRequestException("Name category should be unique");
       }
       cate = categoryMapper.mapToCategoryBeforeCreate(input);
-      cateRepository.save(cate);
+      cate = cateRepository.save(cate);
       return categoryMapper.mapToCategoryResponse(cate);
     });
   }
@@ -63,9 +62,9 @@ public class CategoryService implements ICategoryService {
   public CompletableFuture<CategoryResponse> update(String id, UpdateCategoryRequest input) {
     return CompletableFuture.supplyAsync(() -> {
 
-      Category cate = cateRepository.findByName(input.name());
+      var cate = cateRepository.findByName(input.name());
       if (cate != null) {
-        throw new BadRequestException("Name product should be unique");
+        throw new BadRequestException("Name category should be unique");
       }
       cate = cateRepository.findById(id)
           .orElseThrow(() -> new BadRequestException("Category not found"));
@@ -81,15 +80,39 @@ public class CategoryService implements ICategoryService {
   }
 
   @Override
+  public CompletableFuture<CategoryResponse> get(String id) {
+    return CompletableFuture.supplyAsync(() -> {
+      var cate = cateRepository.findById(id)
+          .orElseThrow(() -> new NotFoundException("Category not found"));
+      return categoryMapper.mapToCategoryResponse(cate);
+    });
+  }
+
+  @Override
   @Async
   public CompletableFuture<Void> remove(String id) {
     return CompletableFuture.supplyAsync(() -> {
       Category cate = cateRepository.findById(id)
           .orElseThrow(() -> new BadRequestException("Category not found"));
+
+      var children = cateRepository.findChildrenCate(id);
+      if (!children.isEmpty()) {
+        String idAlter;
+        if (cate.getParentCategoryId() == null) {
+          var firstCate = cateRepository.findFirst().get(0);
+          idAlter = firstCate.getId();
+        } else {
+          idAlter = cate.getParentCategoryId();
+        }
+        children = children.stream().peek(child -> child.setParentCategoryId(idAlter)).toList();
+        cateRepository.saveAll(children);
+      }
+      if (cate.getIsDeleted()) {
+        throw new BadRequestException("Category is deleted");
+      }
       cate.setIsDeleted(true);
       cateRepository.save(cate);
       return null;
     });
   }
-
 }

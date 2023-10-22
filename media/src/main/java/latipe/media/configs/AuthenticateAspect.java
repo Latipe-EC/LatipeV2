@@ -36,7 +36,7 @@ public class AuthenticateAspect {
         throw new UnauthorizedException("Unauthorized");
       }
       HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-      request.setAttribute("store", credential);
+      request.setAttribute("user", credential);
     } catch (FeignException e) {
       throw new UnauthorizedException(e.getMessage());
     }

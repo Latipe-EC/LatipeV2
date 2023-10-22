@@ -26,6 +26,12 @@ public interface ICategoryRepository extends MongoRepository<Category, String> {
 
   @Query(value = "{'name': {$regex: ?0, $options: 'i'}, 'isDeleted': false}", count = true)
   Long countByName(String name);
+  @Aggregation(pipeline = {
+      "{ 'isDeleted' : false }",
+      "{ $skip: 0}",
+      "{ $limit: 1 }"
+  })
+  List<Category> findFirst();
 
 //    @Aggregation(pipeline = {
 //            "{ $match: { isDeleted: false, name: { $regex: ?0, $options: 'i'  }  } }",

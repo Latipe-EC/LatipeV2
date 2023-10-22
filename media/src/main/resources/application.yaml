@@ -16,9 +16,9 @@ server:
 
 # Cloudiary
 cloudinary:
-  api-key: 118683767447614
-  api-secret: yXGR6ZXh9pjooT6EzKGfuBvqJQw
-  cloud-name: dqe4dzug2
+  api-key: 874849675994347
+  api-secret: ub3xaoO8-A7j1pnT5NPFBLHvpeg
+  cloud-name: dj5jx4llf
 
 management:
   endpoints:
