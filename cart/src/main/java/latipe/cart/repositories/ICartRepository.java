@@ -14,4 +14,5 @@ public interface ICartRepository extends MongoRepository<Cart, String> {
 
   @Query("{ 'userId' : ?0 , 'isDeleted': false}")
   Optional<Cart> findByUserId(String userId);
+
 }

@@ -5,6 +5,14 @@ spring:
     mongodb:
       uri: mongodb://localhost:27017/Latipe-Cart-DB
 
+rabbitmq:
+  routing:
+    key: cart_routing_key
+  exchange:
+    name: cart_exchange
+  queue:
+    name: cart_queue
+
 server:
   port: '7650'
 #  servlet:

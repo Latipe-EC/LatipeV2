@@ -1,5 +1,7 @@
 package latipe.product.services.product;
 
+import static latipe.product.configs.test.generateHash;
+import static latipe.product.configs.test.getPrivateKey;
 import static latipe.product.constants.CONSTANTS.URL;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -28,6 +30,7 @@ import latipe.product.repositories.ICategoryRepository;
 import latipe.product.repositories.IProductRepository;
 import latipe.product.request.BanProductRequest;
 import latipe.product.request.CreateProductRequest;
+import latipe.product.request.GetProvinceCodesRequest;
 import latipe.product.request.OrderProductCheckRequest;
 import latipe.product.request.ProductFeatureRequest;
 import latipe.product.request.UpdateProductQuantityRequest;
@@ -42,8 +45,9 @@ import latipe.product.viewmodel.ProductOrderVm;
 import latipe.product.viewmodel.ProductPriceVm;
 import latipe.product.viewmodel.ProductThumbnailVm;
 import latipe.product.viewmodel.ProductVariantVm;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.bson.Document;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
@@ -54,7 +58,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ProductService implements IProductService {
 
   private final IProductRepository productRepository;
@@ -62,6 +66,9 @@ public class ProductService implements IProductService {
   private final ProductMapper productMapper;
   private final MongoTemplate mongoTemplate;
   private final RabbitMQProducer rabbitMQProducer;
+
+  @Value("${secure-internal.private-key}")
+  private String key;
 
   @Override
   @Async
@@ -150,6 +157,8 @@ public class ProductService implements IProductService {
 
       var results = mongoTemplate.aggregate(aggregate, Product.class, Document.class);
       var documents = results.getMappedResults();
+      List<String> storeIds = new ArrayList<>();
+
       var orders = documents.stream().map(doc -> {
         Document productClassificationsDoc = doc.get("productClassifications", Document.class);
 
@@ -166,6 +175,8 @@ public class ProductService implements IProductService {
           promotionalPrice = productClassificationsDoc.getDouble("promotionalPrice");
         }
 
+        storeIds.add(doc.getString("storeId"));
+
         return ProductOrderVm.builder().productId(doc.getObjectId("_id").toString())
             .name(doc.getString("name"))
             .optionId(productClassificationsDoc.getObjectId("_id").toString())
@@ -181,9 +192,21 @@ public class ProductService implements IProductService {
       if (orders.size() != orderProductSet.size()) {
         throw new NotFoundException("Product not found");
       }
+      var storeClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
+          .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL).target(StoreClient.class, URL);
+
+      String hash = null;
+      try {
+        hash = generateHash("cart-service", getPrivateKey());
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+      var storeProvinceCodes = storeClient.getProvinceCodes(hash,
+          GetProvinceCodesRequest.builder().ids(storeIds).build());
+
       return OrderProductResponse.builder()
           .totalPrice(orders.stream().mapToDouble(ProductOrderVm::totalPrice).sum())
-          .products(orders).build();
+          .products(orders).storeProvinceCodes(storeProvinceCodes.codes()).build();
     });
   }
 
@@ -251,8 +274,7 @@ public class ProductService implements IProductService {
             if (productClassification.getQuantity() < req.quantity()) {
               throw new BadRequestException("Product out of stock");
             }
-            productClassification.setQuantity(
-                productClassification.getQuantity() - req.quantity());
+            productClassification.setQuantity(productClassification.getQuantity() - req.quantity());
             product.setCountSale(product.getCountSale() + req.quantity());
             isFound = true;
             break;
@@ -292,12 +314,8 @@ public class ProductService implements IProductService {
         .orElseThrow(() -> new BadRequestException("Product not found"));
 
     // check permission to change product (store service)
-    var storeClient = Feign.builder()
-        .client(new OkHttpClient())
-        .encoder(new GsonEncoder())
-        .decoder(new GsonDecoder())
-        .logLevel(Logger.Level.FULL)
-        .target(StoreClient.class, URL);
+    var storeClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
+        .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL).target(StoreClient.class, URL);
     var store = storeClient.getStoreId(request.getHeader("Authorization"), userId);
 
     if (!store.equals(product.getStoreId())) {
@@ -309,13 +327,9 @@ public class ProductService implements IProductService {
       checkProductNoOption(input.price(), input.quantity(), input.images());
 
       input.productClassifications().clear();
-      input.productClassifications()
-          .add(ProductClassificationVm.builder()
-              .name("Default")
-              .price(input.price())
-              .quantity(input.quantity())
-              .image(input.images().get(0))
-              .build());
+      input.productClassifications().add(
+          ProductClassificationVm.builder().name("Default").price(input.price())
+              .quantity(input.quantity()).image(input.images().get(0)).build());
     } else {
       CheckProductHaveOption(input.productVariants(), input.productClassifications());
     }
@@ -341,19 +355,17 @@ public class ProductService implements IProductService {
     }
 
     if (productVariantVms.size() == 1) {
-      if (productVariantVms.get(0).options().size() != productClassificationVms
-          .size()) {
+      if (productVariantVms.get(0).options().size() != productClassificationVms.size()) {
         throw new BadRequestException("Product classification must be filled");
       }
       for (int i = 0; i < productVariantVms.get(0).options().size(); i++) {
         productClassificationVms.set(i,
-            ProductClassificationVm.setCodeName(productClassificationVms.get(i),
-                String.valueOf(i), productVariantVms.get(0).options().get(i)));
+            ProductClassificationVm.setCodeName(productClassificationVms.get(i), String.valueOf(i),
+                productVariantVms.get(0).options().get(i)));
       }
     } else {
       int count =
-          productVariantVms.get(0).options().size() * productVariantVms.get(1)
-              .options().size();
+          productVariantVms.get(0).options().size() * productVariantVms.get(1).options().size();
 
       if (count != productClassificationVms.size()) {
         throw new BadRequestException("Product classification must be filled");
@@ -365,8 +377,9 @@ public class ProductService implements IProductService {
         for (int j = 0; j < productVariantVms.get(1).options().size(); j++) {
           productClassificationVms.set(i,
               ProductClassificationVm.setCodeName(productClassificationVms.get(i),
-                  String.valueOf(i), productVariantVms.get(0).options().get(i) + " - "
-                      + productVariantVms.get(1).options().get(j)));
+                  String.valueOf(i),
+                  productVariantVms.get(0).options().get(i) + " - " + productVariantVms.get(1)
+                      .options().get(j)));
 
           count++;
         }

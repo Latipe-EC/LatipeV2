@@ -97,6 +97,10 @@
       <artifactId>spring-boot-starter-amqp</artifactId>
       <groupId>org.springframework.boot</groupId>
     </dependency>
+    <dependency>
+      <artifactId>gson</artifactId>
+      <groupId>com.google.code.gson</groupId>
+    </dependency>
   </dependencies>
   <dependencyManagement>
     <dependencies>

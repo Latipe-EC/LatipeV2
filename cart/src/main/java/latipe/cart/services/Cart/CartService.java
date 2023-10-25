@@ -23,6 +23,7 @@ import latipe.cart.response.CartListResponse;
 import latipe.cart.response.ProductThumbnailResponse;
 import latipe.cart.response.UserCredentialResponse;
 import latipe.cart.services.Product.ProductService;
+import latipe.cart.viewmodel.UpdateCartAfterOrderVm;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
@@ -44,56 +45,53 @@ public class CartService implements ICartService {
   @Override
   public CompletableFuture<Page<CartListResponse>> getCarts(Pageable pageable) {
     return CompletableFuture.supplyAsync(
-        () -> cartRepository.findAll(pageable).map(CartListResponse::fromModel)
-    );
+        () -> cartRepository.findAll(pageable).map(CartListResponse::fromModel));
   }
 
   @Async
   @Override
   public CompletableFuture<CartGetDetailResponse> addToCart(List<CartItemRequest> cartItemRequests,
       UserCredentialResponse userCredential) {
-    return CompletableFuture.supplyAsync(
-        () -> {
-          List<ProductFeatureRequest> productIds = cartItemRequests.stream()
-              .map(x -> new ProductFeatureRequest(x.productId(), x.productOptionId())).toList();
-          String userId = userCredential.id();
-          // Call API to check all products will be added to cart are existed
-          List<ProductThumbnailResponse> productThumbnailResponseList = null;
-          try {
-            productThumbnailResponseList = productService.getProducts(productIds).get();
-          } catch (InterruptedException | ExecutionException e) {
-            throw new RuntimeException(e);
-          }
-          if (productThumbnailResponseList.size() != productIds.size()) {
-            throw new NotFoundException("Not found product");
-          }
-          Cart cart = cartRepository.findByUserId(userId).orElse(null);
-          Set<CartItem> existedCartItems = new HashSet<>();
-          if (cart == null) {
-            cart = new Cart();
-            cart.setUserId(userId);
-            cart.setCartItems(existedCartItems);
-            cart.setCreatedDate(new Date());
-          } else {
-            existedCartItems = cart.getCartItems();
-          }
+    return CompletableFuture.supplyAsync(() -> {
+      List<ProductFeatureRequest> productIds = cartItemRequests.stream()
+          .map(x -> new ProductFeatureRequest(x.productId(), x.productOptionId())).toList();
+      String userId = userCredential.id();
+      // Call API to check all products will be added to cart are existed
+      List<ProductThumbnailResponse> productThumbnailResponseList = null;
+      try {
+        productThumbnailResponseList = productService.getProducts(productIds).get();
+      } catch (InterruptedException | ExecutionException e) {
+        throw new RuntimeException(e);
+      }
+      if (productThumbnailResponseList.size() != productIds.size()) {
+        throw new NotFoundException("Not found product");
+      }
+      Cart cart = cartRepository.findByUserId(userId).orElse(null);
+      Set<CartItem> existedCartItems = new HashSet<>();
+      if (cart == null) {
+        cart = new Cart();
+        cart.setUserId(userId);
+        cart.setCartItems(existedCartItems);
+        cart.setCreatedDate(new Date());
+      } else {
+        existedCartItems = cart.getCartItems();
+      }
 
-          for (CartItemRequest cartItemRequest : cartItemRequests) {
-            CartItem cartItem = getCartItemByProductIdAndOptionId(existedCartItems,
-                cartItemRequest.productId(), cartItemRequest.productOptionId());
-            if (cartItem.getId() != null) {
-              cartItem.setQuantity(cartItem.getQuantity() + cartItemRequest.quantity());
-            } else {
-              cartItem.setProductId(cartItemRequest.productId());
-              cartItem.setQuantity(cartItemRequest.quantity());
-              cartItem.setProductOptionId(cartItemRequest.productOptionId());
-              cart.getCartItems().add(cartItem);
-            }
-          }
-          cart = cartRepository.save(cart);
-          return CartGetDetailResponse.fromModel(cart);
+      for (CartItemRequest cartItemRequest : cartItemRequests) {
+        CartItem cartItem = getCartItemByProductIdAndOptionId(existedCartItems,
+            cartItemRequest.productId(), cartItemRequest.productOptionId());
+        if (cartItem.getId() != null) {
+          cartItem.setQuantity(cartItem.getQuantity() + cartItemRequest.quantity());
+        } else {
+          cartItem.setProductId(cartItemRequest.productId());
+          cartItem.setQuantity(cartItemRequest.quantity());
+          cartItem.setProductOptionId(cartItemRequest.productOptionId());
+          cart.getCartItems().add(cartItem);
         }
-    );
+      }
+      cart = cartRepository.save(cart);
+      return CartGetDetailResponse.fromModel(cart);
+    });
 
   }
 
@@ -101,9 +99,8 @@ public class CartService implements ICartService {
   @Override
   public CompletableFuture<CartGetDetailResponse> getCartDetailByCustomerId(String userId) {
     return CompletableFuture.supplyAsync(
-        () -> cartRepository.findByUserId(userId).stream().findFirst().map(
-            CartGetDetailResponse::fromModel).orElse(null)
-    );
+        () -> cartRepository.findByUserId(userId).stream().findFirst()
+            .map(CartGetDetailResponse::fromModel).orElse(null));
   }
 
   @Async
@@ -111,11 +108,23 @@ public class CartService implements ICartService {
   public CompletableFuture<Void> removeCartItemById(String cartId, String cartItemId,
       UserCredentialResponse userCredential) {
     Cart cart = cartRepository.findById(cartId).orElseThrow(
-        () -> new NotFoundException("Not found cart with %s cartId".formatted(cartId))
-    );
-    return removeListCartItemsById(List.of(
-        cartItemId
-    ), cart, userCredential);
+        () -> new NotFoundException("Not found cart with %s cartId".formatted(cartId)));
+    return removeListCartItemsById(List.of(cartItemId), cart, userCredential);
+  }
+
+  @Async
+  @Override
+  @Transactional
+  public CompletableFuture<Void> removeCartItemAfterOrder(
+      UpdateCartAfterOrderVm updateCartAfterOrderVm) {
+    return CompletableFuture.supplyAsync(() -> {
+      updateCartAfterOrderVm.cartIdVmList().forEach(item -> {
+        Cart cart = cartRepository.findById(item.cart_id()).orElseThrow(
+            () -> new NotFoundException("Not found cart with %s cartId".formatted(item.cart_id())));
+        cart.getCartItems().removeIf(cartItem -> cartItem.getId().equals(item.cart_item_id()));
+      });
+      return null;
+    });
   }
 
   @Async
@@ -123,11 +132,9 @@ public class CartService implements ICartService {
   public CompletableFuture<Void> removeCartItemById(ProductFeatureRequest product,
       UserCredentialResponse userCredential) {
     Cart cart = cartRepository.findByUserId(userCredential.id()).orElseThrow(
-        () -> new NotFoundException("Not found user with %s userId".formatted(userCredential.id()))
-    );
-    return removeListCartItemsByOptionId(List.of(
-        product
-    ), userCredential, cart);
+        () -> new NotFoundException(
+            "Not found user with %s userId".formatted(userCredential.id())));
+    return removeListCartItemsByOptionId(List.of(product), userCredential, cart);
   }
 
 
@@ -137,8 +144,7 @@ public class CartService implements ICartService {
   public CompletableFuture<Void> removeCartItemByIdList(String cartId, List<String> cartItemIds,
       UserCredentialResponse userCredential) {
     Cart cart = cartRepository.findById(cartId).orElseThrow(
-        () -> new NotFoundException("Not found cart with %s cartId".formatted(cartId))
-    );
+        () -> new NotFoundException("Not found cart with %s cartId".formatted(cartId)));
     return removeListCartItemsById(cartItemIds, cart, userCredential);
   }
 
@@ -148,8 +154,8 @@ public class CartService implements ICartService {
   public CompletableFuture<Void> removeCartItemByIdList(List<ProductFeatureRequest> productIdList,
       UserCredentialResponse userCredential) {
     Cart cart = cartRepository.findByUserId(userCredential.id()).orElseThrow(
-        () -> new NotFoundException("Not found user with %s userId".formatted(userCredential.id()))
-    );
+        () -> new NotFoundException(
+            "Not found user with %s userId".formatted(userCredential.id())));
     return removeListCartItemsByOptionId(productIdList, userCredential, cart);
   }
 
@@ -157,40 +163,32 @@ public class CartService implements ICartService {
   @Override
   public CompletableFuture<CartItemPutResponse> updateCartItems(CartItemRequest cartItemRequest,
       String cartId, UserCredentialResponse userCredential) {
-    return CompletableFuture.supplyAsync(
-        () -> {
-          Cart cart = cartRepository.findById(cartId).orElseThrow(
-              () -> new NotFoundException("Not found cart with %s cartId".formatted(cartId))
-          );
-          return update(cart, userCredential.id(), cartItemRequest);
-        }
-    );
+    return CompletableFuture.supplyAsync(() -> {
+      Cart cart = cartRepository.findById(cartId).orElseThrow(
+          () -> new NotFoundException("Not found cart with %s cartId".formatted(cartId)));
+      return update(cart, userCredential.id(), cartItemRequest);
+    });
   }
 
   @Override
   @Async
   public CompletableFuture<CartItemPutResponse> updateCartItems(CartItemRequest cartItemRequest,
       UserCredentialResponse userCredential) {
-    return CompletableFuture.supplyAsync(
-        () -> {
-          Cart cart = cartRepository.findByUserId(userCredential.id()).orElseThrow(
-              () -> new NotFoundException(
-                  "Not found user with %s userId".formatted(userCredential.id()))
-          );
-          return update(cart, userCredential.id(), cartItemRequest);
-        }
-    );
+    return CompletableFuture.supplyAsync(() -> {
+      Cart cart = cartRepository.findByUserId(userCredential.id()).orElseThrow(
+          () -> new NotFoundException(
+              "Not found user with %s userId".formatted(userCredential.id())));
+      return update(cart, userCredential.id(), cartItemRequest);
+    });
   }
 
   @Async
   @Override
   public CompletableFuture<Integer> countNumberItemInCart(String userId) {
-    return CompletableFuture.supplyAsync(
-        () -> {
-          Optional<Cart> cartOp = cartRepository.findByUserId(userId);
-          return cartOp.map(cart -> cart.getCartItems().size()).orElse(0);
-        }
-    );
+    return CompletableFuture.supplyAsync(() -> {
+      Optional<Cart> cartOp = cartRepository.findByUserId(userId);
+      return cartOp.map(cart -> cart.getCartItems().size()).orElse(0);
+    });
   }
 
   private void validateCart(Cart cart, String cartItemId) {
@@ -209,8 +207,8 @@ public class CartService implements ICartService {
       throw new BadRequestException("NOT EXISTING ITEM IN CART");
     }
     Set<CartItem> cartDetailListVm = cart.getCartItems();
-    boolean itemExist = cartDetailListVm.stream().anyMatch(item ->
-        item.getProductOptionId().equals(optionId));
+    boolean itemExist = cartDetailListVm.stream()
+        .anyMatch(item -> item.getProductOptionId().equals(optionId));
     if (!itemExist) {
       throw new NotFoundException("NOT FOUND ITEM IN CART");
     }
@@ -232,10 +230,10 @@ public class CartService implements ICartService {
       throw new ForbiddenException("You are not allowed to update this cart");
     }
     int newQuantity = cartItemRequest.quantity();
-    CartItem cartItem = cart.getCartItems().stream()
-        .filter(item -> item.getProductId().equals(cartItemRequest.productId())
-            && item.getProductOptionId().equals(cartItemRequest.productOptionId()))
-        .findFirst().orElseThrow(() -> new NotFoundException("Not found cart item"));
+    CartItem cartItem = cart.getCartItems().stream().filter(
+            item -> item.getProductId().equals(cartItemRequest.productId()) && item.getProductOptionId()
+                .equals(cartItemRequest.productOptionId())).findFirst()
+        .orElseThrow(() -> new NotFoundException("Not found cart item"));
     cartItem.setQuantity(newQuantity);
     if (newQuantity == 0) {
       cart.getCartItems().remove(cartItem);

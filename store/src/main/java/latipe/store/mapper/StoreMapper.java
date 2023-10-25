@@ -1,9 +1,11 @@
 package latipe.store.mapper;
 
 
+import java.util.List;
 import latipe.store.Entity.Store;
 import latipe.store.request.CreateStoreRequest;
 import latipe.store.request.UpdateStoreRequest;
+import latipe.store.response.ProvinceCodesResponse;
 import latipe.store.response.StoreResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

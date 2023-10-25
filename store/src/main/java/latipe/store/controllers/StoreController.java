@@ -1,10 +1,14 @@
 package latipe.store.controllers;
 
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import latipe.store.annotations.ApiPrefixController;
 import latipe.store.annotations.Authenticate;
+import latipe.store.annotations.SecureInternalPhase;
 import latipe.store.request.CreateStoreRequest;
+import latipe.store.request.GetProvinceCodesRequest;
+import latipe.store.response.ProvinceCodesResponse;
 import latipe.store.response.StoreResponse;
 import latipe.store.response.UserCredentialResponse;
 import latipe.store.services.store.IStoreService;
@@ -47,6 +51,15 @@ public class StoreController {
     UserCredentialResponse userCredential = (UserCredentialResponse) (request.getAttribute(
         "user"));
     return storeService.create(userCredential.id(), input, token);
+
+  }
+
+  @SecureInternalPhase
+  @ResponseStatus(HttpStatus.OK)
+  @PostMapping(value = "/get-province-codes", produces = MediaType.APPLICATION_JSON_VALUE)
+  public CompletableFuture<ProvinceCodesResponse> getProvinceCodes(
+      @RequestBody GetProvinceCodesRequest input) {
+    return storeService.getProvinceCodes(input);
 
   }
 }

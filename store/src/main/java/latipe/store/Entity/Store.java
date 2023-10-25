@@ -23,4 +23,5 @@ public class Store {
   private Boolean isDeleted = false;
   private Boolean isBan = false;
   private String reasonBan;
+  private StoreAddress address;
 }

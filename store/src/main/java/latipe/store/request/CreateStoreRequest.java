@@ -1,6 +1,7 @@
 package latipe.store.request;
 
 import jakarta.validation.constraints.NotEmpty;
+import latipe.store.Entity.StoreAddress;
 
 public record CreateStoreRequest(
     @NotEmpty(message = "Name must not be empty")
@@ -9,6 +10,7 @@ public record CreateStoreRequest(
 
     String description,
     String logo,
-    String cover) {
+    String cover,
+    StoreAddress address) {
 
 }

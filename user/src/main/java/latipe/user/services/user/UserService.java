@@ -201,7 +201,7 @@ public class UserService implements IUserService {
 
     var vendorRole = roleRepository.findRoleByName(Constants.VENDOR)
         .orElseThrow(() -> new NotFoundException("Have error from server, please try again later"));
-    user.setRole(vendorRole);
+    user.setRoleId(vendorRole.getId());
     userRepository.save(user);
     return null;
   }
