@@ -1,5 +1,6 @@
 package latipe.product.entity;
 
+import latipe.product.entity.attribute.Attribute;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,7 +22,7 @@ public class Category extends AbstractAuditEntity {
   private String parentCategoryId;
   private String image;
   String idAttributeCategory;
-
+  Attribute attributeCategory;
   public Category(String name) {
     this.name = name;
   }

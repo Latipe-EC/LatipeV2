@@ -34,5 +34,4 @@ public class UserAddress {
   private Long countryId = 84L;
   private String countryName = "VietNam";
 
-
 }

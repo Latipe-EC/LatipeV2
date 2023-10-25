@@ -1,6 +1,5 @@
 package latipe.user.mappers;
 
-import latipe.user.entity.Role;
 import latipe.user.entity.User;
 import latipe.user.entity.UserAddress;
 import latipe.user.request.CreateUserRequest;
@@ -17,7 +16,7 @@ import org.mapstruct.ReportingPolicy;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface IUserMapper {
 
-  void mapBeforeUpdateUserAddress(@MappingTarget  UserAddress address,
+  void mapBeforeUpdateUserAddress(@MappingTarget UserAddress address,
       UpdateUserAddressRequest input);
 
   void mapBeforeUpdateUser(@MappingTarget User user, UpdateUserRequest input);
@@ -25,10 +24,10 @@ public interface IUserMapper {
   @Mappings({@Mapping(target = "role", ignore = true)})
   User mapBeforeCreateUserAddress(CreateUserRequest input, String displayName, String password);
 
-  @Mappings({@Mapping(target = "role", source = "role"),
+  @Mappings({@Mapping(target = "roleId", source = "roleId"),
       @Mapping(target = "displayName", source = "displayName"),
       @Mapping(target = "hashedPassword", source = "password"),})
-  User mapBeforeCreate(RegisterRequest input, Role role, String displayName, String password);
+  User mapBeforeCreate(RegisterRequest input, String roleId, String displayName, String password);
 
   @Mappings({@Mapping(target = "role", source = "user.role.name")})
   UserResponse mapToResponse(User user);

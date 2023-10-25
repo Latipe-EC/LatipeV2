@@ -92,6 +92,11 @@
       <groupId>commons-beanutils</groupId>
       <version>1.9.4</version>
     </dependency>
+    <!-- RabbitMQ -->
+    <dependency>
+      <artifactId>spring-boot-starter-amqp</artifactId>
+      <groupId>org.springframework.boot</groupId>
+    </dependency>
   </dependencies>
   <dependencyManagement>
     <dependencies>

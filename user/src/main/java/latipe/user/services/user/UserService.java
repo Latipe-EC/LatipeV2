@@ -87,8 +87,8 @@ public class UserService implements IUserService {
           .detailAddress(input.detailAddress()).zipCode(input.zipCode())
           .countryId(input.countryId()).countryName(input.countryName())
           .cityOrProvinceId(input.cityOrProvinceId()).cityOrProvinceName(input.cityOrProvinceName())
-          .districtId(input.districtId()).districtName(input.districtName())
-          .wardId(input.wardId()).wardName(input.districtName()).build();
+          .districtId(input.districtId()).districtName(input.districtName()).wardId(input.wardId())
+          .wardName(input.districtName()).build();
       user.getAddresses().add(address);
       userRepository.save(user);
       return address;
@@ -161,9 +161,9 @@ public class UserService implements IUserService {
       var user = userMapper.mapBeforeCreateUserAddress(input,
           input.firstName() + " " + input.lastName(),
           passwordEncoder.encode(input.hashedPassword()));
-      user.setRole(role);
+      user.setRoleId(role.getId());
       var savedUser = userRepository.save(user);
-      // send mail verrify account
+      // send mail verify account
       return UserResponse.fromUser(savedUser);
     });
   }
@@ -182,9 +182,11 @@ public class UserService implements IUserService {
         throw new BadRequestException("Phone number already exists");
       }
 
-      var user = userMapper.mapBeforeCreate(input, role, input.firstName() + " " + input.lastName(),
+      var user = userMapper.mapBeforeCreate(input, role.getId(),
+          input.firstName() + " " + input.lastName(),
           passwordEncoder.encode(input.hashedPassword()));
       var savedUser = userRepository.save(user);
+      savedUser.setRole(role);
       // send mail verify account
       return UserResponse.fromUser(savedUser);
     });
