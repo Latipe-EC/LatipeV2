@@ -50,7 +50,7 @@ public class UserService implements IUserService {
       var user = userRepository.findById(id)
           .orElseThrow(() -> new NotFoundException("User not found"));
       userMapper.mapBeforeUpdateUser(user, input);
-      userRepository.save(user);
+      user = userRepository.save(user);
       return userMapper.mapToResponse(user);
     });
   }

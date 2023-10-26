@@ -8,9 +8,11 @@ import org.springframework.data.mongodb.repository.Query;
 
 public interface ICategoryRepository extends MongoRepository<Category, String> {
 
+  @Query("{ 'name' : ?0, '_id' : { $ne: ?1 } }")
+  Category findByNameAndExceptId(String name, String id);
+
   @Query("{ 'name' : ?0 }")
   Category findByName(String name);
-
   @Query("{ 'parentCategoryId' : ?0 }")
   List<Category> findChildrenCate(String id);
 

@@ -51,6 +51,10 @@ public class CategoryService implements ICategoryService {
       if (cate != null) {
         throw new BadRequestException("Name category should be unique");
       }
+      if (input.idAttributeCategory() != null) {
+        cateRepository.findById(input.idAttributeCategory())
+            .orElseThrow(() -> new BadRequestException("Parent Category not found"));
+      }
       cate = categoryMapper.mapToCategoryBeforeCreate(input);
       cate = cateRepository.save(cate);
       return categoryMapper.mapToCategoryResponse(cate);
@@ -62,7 +66,7 @@ public class CategoryService implements ICategoryService {
   public CompletableFuture<CategoryResponse> update(String id, UpdateCategoryRequest input) {
     return CompletableFuture.supplyAsync(() -> {
 
-      var cate = cateRepository.findByName(input.name());
+      var cate = cateRepository.findByNameAndExceptId(input.name(), id);
       if (cate != null) {
         throw new BadRequestException("Name category should be unique");
       }
@@ -72,6 +76,10 @@ public class CategoryService implements ICategoryService {
         throw new BadRequestException("Category is deleted");
       }
 
+      if (input.idAttributeCategory() != null) {
+        cateRepository.findById(input.idAttributeCategory())
+            .orElseThrow(() -> new BadRequestException("Parent Category not found"));
+      }
       categoryMapper.mapToCategoryBeforeUpdate(cate, input);
       cateRepository.save(cate);
 

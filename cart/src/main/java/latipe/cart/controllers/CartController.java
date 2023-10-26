@@ -79,8 +79,7 @@ public class CartController {
       @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ExceptionResponse.class))),
       @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ExceptionResponse.class)))})
   public CompletableFuture<CartGetDetailResponse> createCart(
-      @Valid @RequestBody @NotEmpty List<CartItemRequest> cartItemRequests
-  ) {
+      @Valid @RequestBody @NotEmpty List<CartItemRequest> cartItemRequests) {
     UserCredentialResponse userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
         .getAttribute("user")));
     return cartService.addToCart(cartItemRequests, userCredential);
@@ -89,9 +88,7 @@ public class CartController {
   @Authenticate
   @PutMapping("/{cartId}/cart-item")
   public CompletableFuture<CartItemPutResponse> updateCart(
-      @Valid @RequestBody CartItemRequest cartItemRequest,
-      @PathVariable String cartId
-  ) {
+      @Valid @RequestBody CartItemRequest cartItemRequest, @PathVariable String cartId) {
     UserCredentialResponse userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
         .getAttribute("user")));
 
@@ -101,8 +98,7 @@ public class CartController {
   @Authenticate
   @PutMapping("/cart-item")
   public CompletableFuture<CartItemPutResponse> updateCart(
-      @Valid @RequestBody CartItemRequest cartItemRequest
-  ) {
+      @Valid @RequestBody CartItemRequest cartItemRequest) {
     UserCredentialResponse userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
         .getAttribute("user")));
 
@@ -112,8 +108,7 @@ public class CartController {
   @Authenticate
   @DeleteMapping("/{cartId}/cart-item")
   public CompletableFuture<Void> removeCartItemByProductId(@PathVariable String cartId,
-      @RequestParam String cartItemId
-  ) {
+      @RequestParam String cartItemId) {
     UserCredentialResponse userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
         .getAttribute("user")));
 
@@ -122,10 +117,8 @@ public class CartController {
 
   @Authenticate
   @DeleteMapping("/{cartId}/cart-item/multi-delete")
-  public CompletableFuture<Void> removeCartItemListByProductIdList(
-      @PathVariable String cartId,
-      @RequestParam List<String> productIds
-  ) {
+  public CompletableFuture<Void> removeCartItemListByProductIdList(@PathVariable String cartId,
+      @RequestParam List<String> productIds) {
     UserCredentialResponse userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
         .getAttribute("user")));
 
@@ -135,8 +128,7 @@ public class CartController {
   @Authenticate
   @DeleteMapping("/cart-item")
   public CompletableFuture<Void> removeCartItemByProductId(
-      @Valid @RequestBody ProductFeatureRequest product
-  ) {
+      @Valid @RequestBody ProductFeatureRequest product) {
     UserCredentialResponse userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
         .getAttribute("user")));
 
@@ -146,8 +138,7 @@ public class CartController {
   @Authenticate
   @DeleteMapping("/cart-item/multi-delete")
   public CompletableFuture<Void> removeCartItemListByProductIdList(
-      @Valid @RequestBody List<ProductFeatureRequest> products
-  ) {
+      @Valid @RequestBody List<ProductFeatureRequest> products) {
     UserCredentialResponse userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
         .getAttribute("user")));
 
