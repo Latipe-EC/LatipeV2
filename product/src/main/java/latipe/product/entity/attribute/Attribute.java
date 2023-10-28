@@ -15,7 +15,7 @@ public class Attribute {
 
   String name;
   @ValuesAllow(values = {NUMBER, TEXT, DATE})
-  String type;
+  String typeValue;
   String prefixUnit;
   String options;
   Boolean isRequired;
