@@ -7,6 +7,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.index.IndexDefinition;
 import org.springframework.data.mongodb.core.index.IndexOperations;
+import org.springframework.stereotype.Component;
 
 //@Component
 public class IndexConfiguration implements CommandLineRunner {
@@ -24,12 +25,11 @@ public class IndexConfiguration implements CommandLineRunner {
     if (skipCommandLineRunners) {
       return;
     }
-    createUniqueIndexIfNotExists(mongoTemplate, "phoneNumber");
-    createUniqueIndexIfNotExists(mongoTemplate, "email");
+    createUniqueIndexIfNotExists(mongoTemplate, "name");
   }
 
   private void createUniqueIndexIfNotExists(MongoTemplate mongoTemplate, String fieldName) {
-    IndexOperations indexOperations = mongoTemplate.indexOps("Users");
+    IndexOperations indexOperations = mongoTemplate.indexOps("Categories");
     IndexDefinition indexDefinition = new Index().on(fieldName, Sort.Direction.ASC).unique();
     indexOperations.ensureIndex(indexDefinition);
   }

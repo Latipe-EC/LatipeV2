@@ -1,0 +1,44 @@
+[
+  {
+    "name": "Thương hiệu",
+    "type": "string",
+    "isRequired": true,
+    "prefixUnit": null,
+    "options": null
+  },
+  {
+    "name": "Hạn bảo hành",
+    "type": "selectbox",
+    "isRequired": false,
+    "prefixUnit": null,
+    "options": "1 tháng,2 tháng,3 tháng,6 tháng,12 tháng,24 tháng,3 năm, 5 năm"
+  },
+  {
+    "name": "Xuất xứ",
+    "type": "selectbox",
+    "isRequired": false,
+    "prefixUnit": null,
+    "options": "Mỹ,Băng-la-đét,Trung quốc,Ấn độ,Việt nam,Nhật bản,Hàn quốc,Indonesia"
+  },
+  {
+    "name": "Loại bảo hành",
+    "type": "selectbox",
+    "isRequired": false,
+    "prefixUnit": null,
+    "options": "Bảo hành quốc tế,Bảo hành nhà sản xuất,Bảo hành nhà cung cấp,Không bảo hành"
+  },
+  {
+    "name": "Tên tổ chức chịu trách nhiệm sản xuất",
+    "type": "string",
+    "isRequired": false,
+    "prefixUnit": null,
+    "options": null
+  },
+  {
+    "name": "Địa chỉ tổ chức chịu trách nhiệm sản xuất",
+    "type": "string",
+    "isRequired": false,
+    "prefixUnit": null,
+    "options": null
+  }
+]
