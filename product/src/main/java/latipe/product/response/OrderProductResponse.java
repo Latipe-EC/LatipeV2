@@ -8,7 +8,7 @@ import lombok.Builder;
 @Builder
 public record OrderProductResponse(
     List<ProductOrderVm> products,
-    List<String> storeProvinceCodes,
+    List<Long> storeProvinceCodes,
     Double totalPrice) {
 
 }

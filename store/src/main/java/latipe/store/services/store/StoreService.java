@@ -108,7 +108,7 @@ public class StoreService implements IStoreService {
   public CompletableFuture<ProvinceCodesResponse> getProvinceCodes(GetProvinceCodesRequest input) {
     return CompletableFuture.supplyAsync(() -> {
       Set<String> storeIds = Set.copyOf(input.ids());
-      List<String> codes = storeRepository.findByIdIn(input.ids()).stream()
+      List<Long> codes = storeRepository.findByIdIn(input.ids()).stream()
           .map(x -> x.getAddress().getCityOrProvinceId()).toList();
       if (codes.size() != storeIds.size()) {
         throw new BadRequestException("Invalid province id");

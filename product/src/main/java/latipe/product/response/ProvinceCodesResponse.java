@@ -2,6 +2,6 @@ package latipe.product.response;
 
 import java.util.List;
 
-public record ProvinceCodesResponse(List<String> codes) {
+public record ProvinceCodesResponse(List<Long> codes) {
 
 }

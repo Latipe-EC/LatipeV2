@@ -25,11 +25,11 @@ public class StoreAddress {
   @NotEmpty(message = "Detail Address is required")
   private String detailAddress;
   private String zipCode;
-  private String cityOrProvinceId;
+  private Long cityOrProvinceId;
   private String cityOrProvinceName;
-  private String districtId;
+  private Long districtId;
   private String districtName;
-  private String wardId;
+  private Long wardId;
   private String wardName;
   private Long countryId = 84L;
   private String countryName = "VietNam";

@@ -11,11 +11,11 @@ public record CreateUserAddressRequest(@NotEmpty(message = "Contact name is requ
                                        @NotEmpty(message = "Detail Address is required")
                                        String detailAddress,
                                        String zipCode,
-                                       String cityOrProvinceId,
+                                       Long cityOrProvinceId,
                                        String cityOrProvinceName,
-                                       String districtId,
+                                       Long districtId,
                                        String districtName,
-                                       String wardId,
+                                       Long wardId,
                                        String wardName,
                                        Long countryId,
                                        String countryName) {
