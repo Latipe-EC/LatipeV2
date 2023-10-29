@@ -27,7 +27,26 @@ public class CategoryService implements ICategoryService {
   @Async
   public CompletableFuture<List<CategoryResponse>> getListChildrenCategory(String parentId) {
     return CompletableFuture.supplyAsync(() -> {
-      var categories = cateRepository.findChildrenCate(parentId);
+      List<Category> categories;
+      if (parentId.equals("null")) {
+        categories = cateRepository.findChildrenCate(null);
+      } else {
+        categories = cateRepository.findChildrenCate(parentId);
+      }
+      return categories.stream().map(categoryMapper::mapToCategoryResponse).toList();
+    });
+  }
+
+  @Override
+  @Async
+  public CompletableFuture<List<CategoryResponse>> searchNameCate(String name) {
+    return CompletableFuture.supplyAsync(() -> {
+      var categories = cateRepository.findCateByName(name);
+      var ids = categories.stream().map(Category::getFirstParentCategoryId).toList();
+      if (ids.isEmpty()) {
+        return List.of();
+      }
+      categories = cateRepository.findAllById(ids);
       return categories.stream().map(categoryMapper::mapToCategoryResponse).toList();
     });
   }

@@ -19,7 +19,7 @@ public class CommandHandler {
 
   public CommandHandler(ICategoryRepository categoryRepository) throws IOException {
     this.categoryRepository = categoryRepository;
-    addAttribute(categoryRepository);
+    handleCommand(categoryRepository);
   }
 
   @PostConstruct

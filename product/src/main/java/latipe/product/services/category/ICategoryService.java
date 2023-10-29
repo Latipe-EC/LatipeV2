@@ -10,6 +10,7 @@ import latipe.product.response.CategoryResponse;
 public interface ICategoryService {
 
   CompletableFuture<List<CategoryResponse>> getListChildrenCategory(String parentId);
+  CompletableFuture<List<CategoryResponse>> searchNameCate(String name);
 
   CompletableFuture<PagedResultDto<CategoryResponse>> getPaginateCategory(long skip,
       int limit, String name);

@@ -39,11 +39,11 @@
     ]
   },
   {
-    "name": "Bóng Đá, Futsal &amp; Cầu Mây",
+    "name": "Bóng Đá, Futsal & Cầu Mây",
     "data": [
       "Bóng",
-      "Găng Tay &amp; Ống Đồng",
-      "Khung Thành &amp; Lưới",
+      "Găng Tay & Ống Đồng",
+      "Khung Thành & Lưới",
       "Khác"
     ]
   },
@@ -57,11 +57,11 @@
     ]
   },
   {
-    "name": "Máy In &amp; Máy Scan",
+    "name": "Máy In & Máy Scan",
     "data": [
-      "Máy In, Máy Scan &amp; Máy Photo",
+      "Máy In, Máy Scan & Máy Photo",
       "Máy In Mã Vạch",
-      "Mực In &amp; Khay Mực",
+      "Mực In & Khay Mực",
       "Máy In 3D",
       "Khác"
     ]
@@ -84,16 +84,16 @@
     "name": "Nhạc Cụ Dây",
     "data": [
       "Đàn Ukulele",
-      "Guitar &amp; Bass",
+      "Guitar & Bass",
       "Khác"
     ]
   },
   {
-    "name": "Đấm bốc &amp; Võ Tổng Hợp",
+    "name": "Đấm bốc & Võ Tổng Hợp",
     "data": [
-      "Bao Cát &amp; Đệm",
+      "Bao Cát & Đệm",
       "Đai Võ",
-      "Găng Tay, Bao Tay &amp; Mũ Bảo Hộ",
+      "Găng Tay, Bao Tay & Mũ Bảo Hộ",
       "Khác"
     ]
   },
@@ -125,7 +125,7 @@
   {
     "name": "Bút Các Loại",
     "data": [
-      "Bút &amp; Mực",
+      "Bút & Mực",
       "Bút Chì",
       "Dụng Cụ Tẩy Xóa",
       "Bút Lông Màu",
@@ -134,7 +134,7 @@
     ]
   },
   {
-    "name": "Bơi Lội &amp; Lặn",
+    "name": "Bơi Lội & Lặn",
     "data": [
       "Mũ Bơi",
       "Kính Bơi",
@@ -161,7 +161,7 @@
       "Bình nước",
       "Bộ ấm trà",
       "Cốc, ly, tách uống nước",
-      "Bình nước &amp; phụ kiện",
+      "Bình nước & phụ kiện",
       "Tô",
       "Dĩa",
       "Bộ dao kéo",
@@ -172,11 +172,11 @@
     ]
   },
   {
-    "name": "Bộ phận đánh lửa &amp; động cơ",
+    "name": "Bộ phận đánh lửa & động cơ",
     "data": [
       "Bộ tản nhiệt",
       "Pít tông",
-      "Hộp đánh lửa &amp; hộp đen",
+      "Hộp đánh lửa & hộp đen",
       "Bugi",
       "Cuộn dây đánh lửa",
       "Dây Curoa",
@@ -185,7 +185,7 @@
     ]
   },
   {
-    "name": "Chuột &amp; Bàn Phím",
+    "name": "Chuột & Bàn Phím",
     "data": [
       "Chuột Máy Tính",
       "Bàn Phím Máy Tính",
@@ -197,10 +197,10 @@
     "name": "Chăm sóc ô tô",
     "data": [
       "Dung dịch tẩy rửa",
-      "Rửa kính &amp; Chất chống bám nước",
+      "Rửa kính & Chất chống bám nước",
       "Chăm sóc nội thất",
-      "Chăm sóc lốp &amp; vành",
-      "Đánh bóng, sơn phủ &amp; chất làm kín",
+      "Chăm sóc lốp & vành",
+      "Đánh bóng, sơn phủ & chất làm kín",
       "Khác"
     ]
   },
@@ -209,7 +209,7 @@
     "data": [
       "Chất khử mùi, làm thơm",
       "Tinh dầu thơm",
-      "Máy khuếch tán, tạo ẩm &amp; xông tinh dầu",
+      "Máy khuếch tán, tạo ẩm & xông tinh dầu",
       "Khác"
     ]
   },
@@ -236,18 +236,18 @@
     ]
   },
   {
-    "name": "Cắm Trại &amp; Dã ngoại",
+    "name": "Cắm Trại & Dã ngoại",
     "data": [
       "Dụng Cụ Nấu Ăn Dã Ngoại",
-      "Đèn &amp; Đèn Pin",
-      "Lều &amp; Phụ Kiện",
+      "Đèn & Đèn Pin",
+      "Lều & Phụ Kiện",
       "Túi Ngủ",
-      "Ống Nhòm &amp; Kính Thiên Văn",
+      "Ống Nhòm & Kính Thiên Văn",
       "La Bàn",
-      "Dao &amp; Bộ Dụng Cụ Cắm Trại",
+      "Dao & Bộ Dụng Cụ Cắm Trại",
       "Võng",
       "Gậy Đi Bộ",
-      "Thảm &amp; Giỏ Dã Ngoại",
+      "Thảm & Giỏ Dã Ngoại",
       "Khác"
     ]
   },
@@ -258,7 +258,7 @@
       "Đồng hồ đo",
       "Bạt phủ",
       "Hình dán, logo, huy hiệu",
-      "Ghế &amp; bọc ghế",
+      "Ghế & bọc ghế",
       "Gương và phụ kiện",
       "Khóa và thiết bị chống trộm",
       "Thùng chứa đồ",
@@ -268,31 +268,31 @@
     ]
   },
   {
-    "name": "Dụng Cụ Thể Thao &amp; Dã Ngoại",
+    "name": "Dụng Cụ Thể Thao & Dã Ngoại",
     "data": [
       "Câu Cá",
       "Đạp Xe",
-      "Cắm Trại &amp; Dã ngoại",
+      "Cắm Trại & Dã ngoại",
       "Leo Núi",
       "Thể Thao Ván Trượt",
-      "Bóng Đá, Futsal &amp; Cầu Mây",
+      "Bóng Đá, Futsal & Cầu Mây",
       "Bóng Rổ",
       "Bóng Chuyền",
       "Cầu Lông",
       "Tennis",
       "Bóng Bàn",
-      "Đấm bốc &amp; Võ Tổng Hợp",
+      "Đấm bốc & Võ Tổng Hợp",
       "Golf",
-      "Bóng Chày &amp; Bóng Ném",
+      "Bóng Chày & Bóng Ném",
       "Bóng Quần",
-      "Bắn Súng &amp; Game Sinh Tồn",
+      "Bắn Súng & Game Sinh Tồn",
       "Bóng Bầu Dục",
       "Bida",
       "Lướt Ván",
-      "Trượt Tuyết &amp; Thể Thao Mùa Đông",
-      "Bơi Lội &amp; Lặn",
+      "Trượt Tuyết & Thể Thao Mùa Đông",
+      "Bơi Lội & Lặn",
       "Chèo Thuyền",
-      "Yoga &amp; Pilates",
+      "Yoga & Pilates",
       "Thiết Bị Thể Thao",
       "Ném Phi Tiêu",
       "Môn Thể Thao Khác"
@@ -306,13 +306,13 @@
       "Bộ cờ lê",
       "Búa",
       "Kìm",
-      "Đinh, vít &amp; chốt",
-      "Máy khoan, máy vặn vít &amp; phụ kiện",
-      "Cưa, máy cắt &amp; máy mài",
+      "Đinh, vít & chốt",
+      "Máy khoan, máy vặn vít & phụ kiện",
+      "Cưa, máy cắt & máy mài",
       "Máy rửa áp lực nước",
       "Máy phát điện",
-      "Máy đo điện &amp; đồng hồ vạn năng",
-      "Ống thăng bằng &amp; bánh xe đo",
+      "Máy đo điện & đồng hồ vạn năng",
+      "Ống thăng bằng & bánh xe đo",
       "Máy đo khoảng cách",
       "Máy nén khí",
       "Giấy nhám, máy chà nhám và phụ kiện",
@@ -322,36 +322,36 @@
     ]
   },
   {
-    "name": "Dụng cụ &amp; Thiết bị tiện ích",
+    "name": "Dụng cụ & Thiết bị tiện ích",
     "data": [
-      "Keo &amp; chất kết chính công nghiệp",
-      "Găng tay, kính bảo hộ &amp; mặt nạ",
-      "Chậu rửa &amp; vòi nước",
-      "Mái &amp; sàn",
-      "Sơn &amp; chất chống thấm tường",
+      "Keo & chất kết chính công nghiệp",
+      "Găng tay, kính bảo hộ & mặt nạ",
+      "Chậu rửa & vòi nước",
+      "Mái & sàn",
+      "Sơn & chất chống thấm tường",
       "Dụng cụ",
-      "Máy bơm nước &amp; phụ kiện",
-      "Máy bơm khí &amp; phụ kiện",
+      "Máy bơm nước & phụ kiện",
+      "Máy bơm khí & phụ kiện",
       "Thang",
       "Xe đẩy",
       "Mái hiên, bạt phủ",
       "Vật liệu xây dựng",
-      "Cửa &amp; cửa sổ",
+      "Cửa & cửa sổ",
       "Khác"
     ]
   },
   {
     "name": "Dụng cụ chăm sóc nhà cửa",
     "data": [
-      "Dây phơi &amp; giá phơi quần áo",
+      "Dây phơi & giá phơi quần áo",
       "Bàn chải vệ sinh",
       "Chổi",
       "Chổi phủi bụi",
       "Cây lau nhà",
-      "Chậu, xô &amp; gáo nước",
+      "Chậu, xô & gáo nước",
       "Miếng bọt biển, miếng chà vệ sinh",
       "Thùng rác",
-      "Túi nilon &amp; túi rác",
+      "Túi nilon & túi rác",
       "Khăn vệ sinh",
       "Thuốc và dụng cụ diệt côn trùng",
       "Khăn giấy, giấy ướt",
@@ -364,8 +364,8 @@
   {
     "name": "Dụng cụ nhà bếp",
     "data": [
-      "Lò nướng &amp; phụ kiện",
-      "Dụng cụ nướng &amp; trang trí bánh",
+      "Lò nướng & phụ kiện",
+      "Dụng cụ nướng & trang trí bánh",
       "Chảo",
       "Nồi",
       "Hộp đựng thực phẩm",
@@ -373,10 +373,10 @@
       "Giấy bạc",
       "Dụng cụ pha trà, cà phê",
       "Kệ để đồ nhà bếp",
-      "Tạp dề &amp; găng tay nấu nướng",
-      "Cây vét bột &amp; đồ gắp thức ăn",
+      "Tạp dề & găng tay nấu nướng",
+      "Cây vét bột & đồ gắp thức ăn",
       "Thớt",
-      "Dao &amp; kéo",
+      "Dao & kéo",
       "Phới đánh trứng",
       "Dụng cụ mở hộp",
       "Dụng cụ đo lường",
@@ -390,7 +390,7 @@
   {
     "name": "Dụng cụ sửa chữa ô tô",
     "data": [
-      "Dụng cụ Kiểm tra, chẩn đoán &amp; sửa chữa",
+      "Dụng cụ Kiểm tra, chẩn đoán & sửa chữa",
       "Máy đo áp suất lốp",
       "Khác"
     ]
@@ -420,13 +420,13 @@
     "name": "Họa cụ",
     "data": [
       "Bút Chì Màu",
-      "Bút Màu &amp; Phấn Màu",
+      "Bút Màu & Phấn Màu",
       "Màu Nước",
       "Sơn Dầu",
       "Sơn Acrylic",
       "Cọ Vẽ",
       "Bảng Màu",
-      "Vải &amp; Giá Vẽ",
+      "Vải & Giá Vẽ",
       "Sổ vẽ phác thảo",
       "Khác"
     ]
@@ -455,7 +455,7 @@
       "Trang trí vườn",
       "Đất trồng",
       "Phân bón",
-      "Hạt giống &amp; chất hỗ trợ trồng cây",
+      "Hạt giống & chất hỗ trợ trồng cây",
       "Chậu cây",
       "Hệ thống tưới nước",
       "Dụng cụ làm vườn",
@@ -497,14 +497,14 @@
       "Ghế, ghế dài, ghế đẩu",
       "Ghế sofa",
       "Tủ bếp",
-      "Kệ &amp; Giá",
+      "Kệ & Giá",
       "Khác"
     ]
   },
   {
-    "name": "Nhạc Cụ &amp; Phụ Kiện",
+    "name": "Nhạc Cụ & Phụ Kiện",
     "data": [
-      "Đàn Piano &amp; Organ",
+      "Đàn Piano & Organ",
       "Nhạc Cụ Gõ",
       "Sáo, kèn",
       "Phụ Kiện Âm Nhạc",
@@ -515,9 +515,9 @@
   {
     "name": "Phụ Kiện Máy Tính",
     "data": [
-      "Bộ chia cổng USB &amp; Đọc thẻ nhớ",
+      "Bộ chia cổng USB & Đọc thẻ nhớ",
       "Webcam",
-      "Miếng Dán &amp; Ốp Laptop",
+      "Miếng Dán & Ốp Laptop",
       "Đế Tản Nhiệt",
       "Bàn Laptop",
       "Miếng Dán Bàn Phím",
@@ -531,26 +531,26 @@
   {
     "name": "Phụ kiện chăm sóc máy ảnh",
     "data": [
-      "Tủ &amp; hộp chống ẩm",
+      "Tủ & hộp chống ẩm",
       "Bộ vệ sinh máy ảnh",
       "Gói hút ẩm",
       "Bóng thổi bụi",
-      "Bút lau &amp; bàn chải làm sạch ống kính",
+      "Bút lau & bàn chải làm sạch ống kính",
       "Khác"
     ]
   },
   {
-    "name": "Phụ Kiện Thể Thao &amp; Dã Ngoại",
+    "name": "Phụ Kiện Thể Thao & Dã Ngoại",
     "data": [
-      "Đồng Hồ Bấm Giây &amp; Máy Đếm Bước Chân",
+      "Đồng Hồ Bấm Giây & Máy Đếm Bước Chân",
       "Túi Đựng Giày",
       "Vòng Tay Thể Thao",
       "Băng Đô Thể Thao",
-      "Mũ Thể Thao &amp; Dã Ngoại",
+      "Mũ Thể Thao & Dã Ngoại",
       "Túi Chống Thấm",
       "Áo Mưa",
       "Ô/Dù",
-      "Dụng Cụ Bảo Vệ Miệng &amp; Băng Keo Thể Thao",
+      "Dụng Cụ Bảo Vệ Miệng & Băng Keo Thể Thao",
       "Phụ Kiện Tập Luyện",
       "Đồ Bảo Hộ Gym",
       "Phụ Kiện Khác"
@@ -563,7 +563,7 @@
       "Phụ kiện đèn Flash",
       "Tay cầm chống rung",
       "Thiết bị ánh sáng và phòng chụp",
-      "Giấy &amp; phim in ảnh",
+      "Giấy & phim in ảnh",
       "Máy in ảnh",
       "Túi đựng máy ảnh",
       "Bộ sạc pin",
@@ -582,8 +582,8 @@
       "Tấm chắn bùn",
       "Nẹp cửa chống trầy",
       "Rãnh thoát nước mưa",
-      "Còi &amp; phụ kiện",
-      "Gương &amp; Phụ kiện",
+      "Còi & phụ kiện",
+      "Gương & Phụ kiện",
       "Phụ kiện biển số",
       "Khác"
     ]
@@ -595,26 +595,26 @@
       "Hệ thống loa",
       "Dụng cụ chứa",
       "Nước hoa, Nước hoa khử mùi, Thiết bị lọc không khí",
-      "Thảm &amp; Đệm lót",
-      "Gối tựa đầu &amp; lưng",
+      "Thảm & Đệm lót",
+      "Gối tựa đầu & lưng",
       "Nệm giường ô tô",
-      "Vô lăng &amp; Bọc vô lăng",
-      "Ghế &amp; Áo ghế",
+      "Vô lăng & Bọc vô lăng",
+      "Ghế & Áo ghế",
       "Giá đỡ điện thoại",
-      "Cốc sạc USB, Thiết bị thu phát FM &amp; Bluetooth",
+      "Cốc sạc USB, Thiết bị thu phát FM & Bluetooth",
       "Chân ga và Cần số",
       "Tấm che nắng và Thảm Taplo",
       "Khóa và thiết bị chống trộm",
-      "Camera hành trình &amp; Camera lùi",
+      "Camera hành trình & Camera lùi",
       "HUD, Đồng hồ tốc độ, Đồng hồ số",
       "Khác"
     ]
   },
   {
-    "name": "Phụ kiện trẻ em &amp; trẻ sơ sinh",
+    "name": "Phụ kiện trẻ em & trẻ sơ sinh",
     "data": [
-      "Túi xách &amp; vali cho trẻ",
-      "Mũ &amp; mũ lưỡi trai cho trẻ",
+      "Túi xách & vali cho trẻ",
+      "Mũ & mũ lưỡi trai cho trẻ",
       "Mắt kính cho trẻ",
       "Phụ kiện tóc trẻ em",
       "Găng tay trẻ em",
@@ -635,7 +635,7 @@
       "Đồng hồ đo",
       "Bạt phủ",
       "Hình dán, logo, huy hiệu",
-      "Ghế &amp; bọc ghế",
+      "Ghế & bọc ghế",
       "Gương và phụ kiện",
       "Khóa và thiết bị chống trộm",
       "Thùng chứa đồ",
@@ -655,7 +655,7 @@
   {
     "name": "Phụ kiện ống kính",
     "data": [
-      "Ngàm ống kính &amp; Ngàm chuyển đổi ống",
+      "Ngàm ống kính & Ngàm chuyển đổi ống",
       "Nắp ống kính",
       "Kính lọc",
       "Loa che sáng ống kính",
@@ -665,18 +665,18 @@
   {
     "name": "Phụ tùng xe máy",
     "data": [
-      "Bộ phận đánh lửa &amp; động cơ",
+      "Bộ phận đánh lửa & động cơ",
       "Hệ thống xử lý nhiên liệu",
       "Hệ thống phanh",
       "Hệ thống giảm xóc",
       "Hệ thống dẫn động",
-      "Pin &amp; Phụ kiện",
-      "Còi &amp; Phụ kiện",
-      "Dây cáp &amp; Ống",
+      "Pin & Phụ kiện",
+      "Còi & Phụ kiện",
+      "Dây cáp & Ống",
       "Hệ thống khung xe",
       "Hệ thống khí xả",
-      "Bánh xe, Vành &amp; Phụ kiện",
-      "Lốp xe &amp; Phụ kiện",
+      "Bánh xe, Vành & Phụ kiện",
+      "Lốp xe & Phụ kiện",
       "Đèn",
       "Khác"
     ]
@@ -685,14 +685,14 @@
     "name": "Phụ tùng ô tô",
     "data": [
       "Hệ thống khung xe và giảm sóc",
-      "Cần gạt nước &amp; vòng đệm kính chắn gió",
+      "Cần gạt nước & vòng đệm kính chắn gió",
       "Hệ thống khí xả",
-      "Bánh xe, Vành &amp; Phụ kiện",
-      "Lốp &amp; Phụ kiện",
+      "Bánh xe, Vành & Phụ kiện",
+      "Lốp & Phụ kiện",
       "Giảm xóc, thanh chống và hệ thống treo",
-      "Bộ tản nhiệt, Làm mát động cơ &amp; Kiểm soát nhiệt",
-      "Hệ thống truyền động, hộp số &amp; ly hợp",
-      "Vòng bi &amp; con dấu",
+      "Bộ tản nhiệt, Làm mát động cơ & Kiểm soát nhiệt",
+      "Hệ thống truyền động, hộp số & ly hợp",
+      "Vòng bi & con dấu",
       "Bộ phận động cơ",
       "Hệ thống phanh",
       "Dây chuyền động",
@@ -733,7 +733,7 @@
       "Áo bé trai",
       "Áo khoác bé trai",
       "Quần bé trai",
-      "Com lê &amp; đồ bộ bé trai",
+      "Com lê & đồ bộ bé trai",
       "Khác"
     ]
   },
@@ -759,32 +759,32 @@
       "Sách Thiếu Nhi",
       "Sách Nông - Lâm - Ngư Nghiệp",
       "Sách Người Lớn",
-      "Sách Nghệ thuật, Thiết kế &amp; Nhiếp ảnh",
+      "Sách Nghệ thuật, Thiết kế & Nhiếp ảnh",
       "Sách Dạy Nấu Ăn",
       "Sách Kinh Tế - Kinh Doanh",
-      "Sách Chính Trị - Pháp Lý &amp; Khoa Học",
+      "Sách Chính Trị - Pháp Lý & Khoa Học",
       "Sách Công Nghệ Thông Tin",
-      "Sách Sức Khỏe, Rèn Luyện &amp; Ăn Kiêng",
+      "Sách Sức Khỏe, Rèn Luyện & Ăn Kiêng",
       "Sách Du Lịch - Du Ký",
-      "Sách Học Ngoại Ngữ &amp; Từ Điển",
+      "Sách Học Ngoại Ngữ & Từ Điển",
       "Sách Sở Thích Cá Nhân",
       "Văn Học LGBTQ+",
       "Light Novels",
       "Văn Học Kinh Điển",
       "Văn Học Giả Tưởng",
-      "Văn Học Hành Động, Tội Phạm &amp; Kinh Dị",
+      "Văn Học Hành Động, Tội Phạm & Kinh Dị",
       "Văn Học Lãng Mạn",
       "Tiểu Sử - Hồi Ký",
       "Khoa Học - Toán Học",
       "Sách Y Học",
       "Sách Gia Đình",
       "Sách Tâm Lý Học",
-      "Sách Tôn giáo &amp; Triết học",
+      "Sách Tôn giáo & Triết học",
       "Sách Lịch Sử - Văn Hóa",
-      "Sách Hướng Nghiệp &amp; Phát Triển Bản Thân",
+      "Sách Hướng Nghiệp & Phát Triển Bản Thân",
       "Sách Chiêm Tinh",
       "Sách Giáo Dục",
-      "Sách Hình Dán &amp; Tô Màu",
+      "Sách Hình Dán & Tô Màu",
       "Sách Âm Nhạc",
       "Sách Vải",
       "Sách Nói",
@@ -792,7 +792,7 @@
     ]
   },
   {
-    "name": "Sổ &amp; Giấy Các Loại",
+    "name": "Sổ & Giấy Các Loại",
     "data": [
       "Đánh Dấu Trang",
       "Bọc Sách",
@@ -821,7 +821,7 @@
       "Ổ Cứng Di Động",
       "Ổ Cứng SSD",
       "Ổ Cứng Mạng (NAS)",
-      "USB &amp; OTG",
+      "USB & OTG",
       "Thiết Bị Đựng Ổ Cứng",
       "Đĩa CD",
       "Khác"
@@ -846,31 +846,31 @@
     "data": [
       "Tạ Tập",
       "Dây Nhảy",
-      "Bóng Tập Yoga &amp; Gym",
+      "Bóng Tập Yoga & Gym",
       "Máy Tập",
       "Con Lăn Tập Bụng",
-      "Xà &amp; Dụng Cụ Chống Đẩy",
+      "Xà & Dụng Cụ Chống Đẩy",
       "Khác"
     ]
   },
   {
     "name": "Thiết Bị Trường Học",
     "data": [
-      "Bảng Viết &amp; Giá Treo Bảng",
+      "Bảng Viết & Giá Treo Bảng",
       "Máy tính cầm tay",
-      "Dao Rọc Giấy &amp; Máy Cắt Giấy",
-      "Dây &amp; Băng Keo Dán",
+      "Dao Rọc Giấy & Máy Cắt Giấy",
+      "Dây & Băng Keo Dán",
       "Hồ Dán",
       "Máy In Nhãn",
-      "Dây Đeo Thẻ &amp; Thẻ Tên",
-      "Kẹp &amp; Ghim Bấm",
+      "Dây Đeo Thẻ & Thẻ Tên",
+      "Kẹp & Ghim Bấm",
       "Máy Đục Lỗ",
       "Kéo",
       "Mực Đóng Dấu",
       "Đồ Bấm Kim và Kim Bấm",
       "Lịch",
       "Dụng Cụ Lưu Trữ Giấy Tờ",
-      "Thước Các Loại &amp; Giấy Nến",
+      "Thước Các Loại & Giấy Nến",
       "Gọt bút chì",
       "Hộp Bút",
       "Khác"
@@ -879,14 +879,14 @@
   {
     "name": "Thư Tín",
     "data": [
-      "Phong Bì &amp; Bao Lì Xì",
+      "Phong Bì & Bao Lì Xì",
       "Bưu Thiếp",
       "Tem Các Loại",
       "Khác"
     ]
   },
   {
-    "name": "Thời Trang Thể Thao &amp; Dã Ngoại",
+    "name": "Thời Trang Thể Thao & Dã Ngoại",
     "data": [
       "Bộ Đồ Thể Thao",
       "Áo Khoác",
@@ -905,13 +905,13 @@
       "Hoa trang trí",
       "Vỏ bọc nội thất",
       "Rèm cửa, màn che",
-      "Khung ảnh &amp; vật trang trí tường",
+      "Khung ảnh & vật trang trí tường",
       "Decal, tranh dán tường",
       "Đồng hồ",
       "Thảm chùi chân",
       "Thảm trải sàn",
       "Bình trang trí",
-      "Nến &amp; đồ đựng nến",
+      "Nến & đồ đựng nến",
       "Gương",
       "Khăn trải bàn",
       "Khác"
@@ -933,10 +933,10 @@
   {
     "name": "Thể Thao Ván Trượt",
     "data": [
-      "Ván Trượt &amp; Giày Patin",
-      "Scooters &amp; Xe Đạp 1 Bánh",
+      "Ván Trượt & Giày Patin",
+      "Scooters & Xe Đạp 1 Bánh",
       "Xe Điện Cân Bằng",
-      "Nón Bảo Hiểm &amp; Đồ Bảo Hộ",
+      "Nón Bảo Hiểm & Đồ Bảo Hộ",
       "Khác"
     ]
   },
@@ -965,7 +965,7 @@
     ]
   },
   {
-    "name": "Yoga &amp; Pilates",
+    "name": "Yoga & Pilates",
     "data": [
       "Thảm Yoga",
       "Dụng Cụ Hỗ Trợ Yoga",
@@ -1008,20 +1008,20 @@
     "data": [
       "Thiết bị giám sát trẻ",
       "Màn chống muỗi",
-      "Bộ đệm cũi, Quây cũi &amp; Thanh chắn giường",
-      "Bọc góc &amp; Cạnh",
-      "Thanh chắn cửa &amp; Cầu thang",
-      "Khóa &amp; Dây đai an toàn",
+      "Bộ đệm cũi, Quây cũi & Thanh chắn giường",
+      "Bọc góc & Cạnh",
+      "Thanh chắn cửa & Cầu thang",
+      "Khóa & Dây đai an toàn",
       "Khác"
     ]
   },
   {
     "name": "Áo khoác bé gái",
     "data": [
-      "Áo choàng &amp; áo khoác bé gái",
+      "Áo choàng & áo khoác bé gái",
       "Áo khoác mùa đông bé gái",
       "Áo gi lê bé gái",
-      "Áo len chui đầu &amp; cardigan bé gái",
+      "Áo len chui đầu & cardigan bé gái",
       "Blazers bé gái",
       "Áo hoodie bé gái",
       "Khác"
@@ -1051,10 +1051,10 @@
   {
     "name": "Áo khoác bé trai",
     "data": [
-      "Áo choàng &amp; áo khoác bé trai",
+      "Áo choàng & áo khoác bé trai",
       "Áo khoác mùa đông bé trai",
       "Áo gi lê bé trai",
-      "Áo len chui đầu &amp; cardigan bé trai",
+      "Áo len chui đầu & cardigan bé trai",
       "Blazers bé trai",
       "Áo nỉ có mũ bé trai",
       "Khác"
@@ -1064,7 +1064,7 @@
     "name": "Bình sữa",
     "data": [
       "Túi ủ bình sữa",
-      "Bình sữa &amp; Phụ kiện",
+      "Bình sữa & Phụ kiện",
       "Dụng cụ vệ sinh bình sữa",
       "Máy hâm sữa",
       "Máy tiệt trùng bình sữa",
@@ -1072,7 +1072,7 @@
     ]
   },
   {
-    "name": "Bốt",
+    "name": "Bốt nam",
     "data": [
       "Bốt thời trang nam",
       "Bốt đi mưa nam",
@@ -1081,16 +1081,16 @@
     ]
   },
   {
-    "name": "Búp bê",
+    "name": "Búp bê & Thú nhồi bông",
     "data": [
-      "Búp bê &amp; Phụ kiện",
-      "Nhà búp bê &amp; Phụ kiện",
+      "Búp bê & Phụ kiện",
+      "Nhà búp bê & Phụ kiện",
       "Thú nhồi bông",
       "Khác"
     ]
   },
   {
-    "name": "botdimua",
+    "name": "Bốt đi mưa nam",
     "data": [
       "Bốt đi mưa",
       "Bốt thời trang",
@@ -1107,7 +1107,7 @@
     ]
   },
   {
-    "name": "Cameras &amp; Flycam",
+    "name": "Cameras & Flycam",
     "data": [
       "Máy ảnh",
       "Camera giám sát",
@@ -1123,7 +1123,7 @@
   {
     "name": "Cặp laptop",
     "data": [
-      "Túi &amp; cặp đứng laptop",
+      "Túi & cặp đứng laptop",
       "Túi chống sốc laptop",
       "Ba lô laptop",
       "Khác"
@@ -1139,16 +1139,16 @@
       "Tã người lớn",
       "Chăm sóc phụ nữ",
       "Dụng cụ massage và trị liệu",
-      "Chống muỗi &amp; xua đuổi côn trùng",
+      "Chống muỗi & xua đuổi côn trùng",
       "Khác"
     ]
   },
   {
-    "name": "Cáp, sạc &amp; bộ chuyển đổi",
+    "name": "Cáp, sạc & bộ chuyển đổi",
     "data": [
-      "Bao đựng cáp, Bảo vệ cáp &amp; Cuộn dây",
+      "Bao đựng cáp, Bảo vệ cáp & Cuộn dây",
       "Bộ sạc du lịch",
-      "Cáp &amp; Bộ chuyển đổi di động",
+      "Cáp & Bộ chuyển đổi di động",
       "Bộ sạc",
       "Đế sạc đứng",
       "Khác"
@@ -1159,14 +1159,14 @@
     "data": [
       "Khử mùi hôi chân",
       "Mặt nạ cho chân",
-      "Kem dưỡng, dầu dưỡng &amp; sữa dưỡng",
+      "Kem dưỡng, dầu dưỡng & sữa dưỡng",
       "Khác"
     ]
   },
   {
     "name": "Chăm sóc da cho bé",
     "data": [
-      "Sữa &amp; Kem dưỡng da",
+      "Sữa & Kem dưỡng da",
       "Dầu cho bé",
       "Phấn cho bé",
       "Khác"
@@ -1196,7 +1196,7 @@
     "name": "Chăm sóc da nam giới",
     "data": [
       "Sữa rửa mặt",
-      "Kem dưỡng ẩm &amp; dưỡng da",
+      "Kem dưỡng ẩm & dưỡng da",
       "Khác"
     ]
   },
@@ -1211,13 +1211,13 @@
   {
     "name": "Chăm sóc móng",
     "data": [
-      "Sơn nền &amp; sơn bóng",
+      "Sơn nền & sơn bóng",
       "Sơn móng",
       "Dụng cụ tẩy sơn móng",
       "Dưỡng móng",
       "Móng giả",
       "Hình dán móng",
-      "Dụng cụ &amp; thiết bị làm móng",
+      "Dụng cụ & thiết bị làm móng",
       "Khác",
       "Nail Gel"
     ]
@@ -1225,9 +1225,9 @@
   {
     "name": "Chăm sóc nam giới",
     "data": [
-      "Sữa tắm &amp; chăm sóc cơ thể",
+      "Sữa tắm & chăm sóc cơ thể",
       "Chăm sóc da nam giới",
-      "Sản phẩm cạo râu &amp; hớt tóc",
+      "Sản phẩm cạo râu & hớt tóc",
       "Chăm sóc tóc",
       "Khác"
     ]
@@ -1235,7 +1235,7 @@
   {
     "name": "Chăm sóc phụ nữ",
     "data": [
-      "Băng vệ sinh có cánh &amp; không cánh",
+      "Băng vệ sinh có cánh & không cánh",
       "Tampon",
       "Que thử thai",
       "Cốc nguyệt san",
@@ -1247,7 +1247,7 @@
   {
     "name": "Chăm sóc sức khỏe bé",
     "data": [
-      "Vitamin &amp; Thực phẩm bổ sung",
+      "Vitamin & Thực phẩm bổ sung",
       "Chăm sóc mũi cho bé",
       "Chăm sóc da cho bé",
       "Chăm sóc răng miệng cho bé",
@@ -1259,7 +1259,7 @@
     "name": "Chăm sóc sức khỏe mẹ",
     "data": [
       "Sữa bầu",
-      "Vitamin &amp; Thực phẩm bổ sung cho mẹ",
+      "Vitamin & Thực phẩm bổ sung cho mẹ",
       "Kem dưỡng ẩm cho mẹ",
       "Khác"
     ]
@@ -1274,13 +1274,13 @@
     "name": "Chăm sóc tai",
     "data": [
       "Mặt nạ cho tay",
-      "Kem dưỡng, dầu dưỡng &amp; sữa dưỡng",
+      "Kem dưỡng, dầu dưỡng & sữa dưỡng",
       "Xà phòng rửa tay",
       "Khác"
     ]
   },
   {
-    "name": "Chăm sóc tay, chân &amp; móng",
+    "name": "Chăm sóc tay, chân & móng",
     "data": [
       "Chăm sóc tay",
       "Chăm sóc chân",
@@ -1309,7 +1309,7 @@
       "Dây đai vali",
       "Khóa vali",
       "Cân hành lý",
-      "Gối &amp; Bịt mắt",
+      "Gối & Bịt mắt",
       "Bộ chiết mỹ phẩm",
       "Phụ kiện khác"
     ]
@@ -1321,7 +1321,7 @@
       "Phụ kiện cho thú cưng",
       "Vệ sinh cho thú cưng",
       "Làm đẹp cho thú cưng",
-      "Quần áo &amp; phụ kiện",
+      "Quần áo & phụ kiện",
       "Chăm sóc sức khỏe thú cưng",
       "Khác"
     ]
@@ -1329,10 +1329,10 @@
   {
     "name": "Phụ kiện giày dép nam",
     "data": [
-      "Dụng cụ chăm sóc &amp; Vệ sinh giày nam",
+      "Dụng cụ chăm sóc & Vệ sinh giày nam",
       "Khử mùi giày dép nam",
       "Dây giày nam",
-      "Cây đón gót &amp; Giữ form giày nam",
+      "Cây đón gót & Giữ form giày nam",
       "Lót giày nam",
       "Khác"
     ]
@@ -1349,10 +1349,10 @@
   {
     "name": "Phụ kiện cho thú cưng",
     "data": [
-      "Bát &amp; dụng cụ ăn",
+      "Bát & dụng cụ ăn",
       "Thiết bị du lịch",
-      "Vòng cổ, dây dắt &amp; rọ mõm",
-      "Đồ chơi",
+      "Vòng cổ, dây dắt & rọ mõm",
+      "Đồ chơi cho thú cưng",
       "Nội thất cho thú cưng",
       "Phụ kiện thủy sinh",
       "Khác"
@@ -1361,7 +1361,7 @@
   {
     "name": "Phụ kiện thêm",
     "data": [
-      "Trâm &amp; Ghim cài áo",
+      "Trâm & Ghim cài áo",
       "Miếng vá áo",
       "Mặt dây chuyền và Charm",
       "Măng sét nam",
@@ -1379,14 +1379,14 @@
       "Khăn choàng",
       "Găng tay",
       "Phụ kiện tóc",
-      "Vòng tay &amp; Lắc tay",
+      "Vòng tay & Lắc tay",
       "Lắc chân",
       "Mũ",
       "Dây chuyền",
       "Kính mắt",
       "Kim loại quý",
       "Thắt lưng",
-      "Cà vạt &amp; Nơ cổ",
+      "Cà vạt & Nơ cổ",
       "Phụ kiện thêm",
       "Bộ phụ kiện",
       "Khác"
@@ -1396,9 +1396,9 @@
     "name": "Phụ kiện tóc",
     "data": [
       "Băng đô tóc",
-      "Đồ buộc tóc &amp; Nơ",
+      "Đồ buộc tóc & Nơ",
       "Kẹp tóc",
-      "Tóc giả &amp; Tóc nối",
+      "Tóc giả & Tóc nối",
       "Cài tóc, vương miện cài tóc",
       "Khác"
     ]
@@ -1415,11 +1415,11 @@
     ]
   },
   {
-    "name": "Phụ kiện &amp; chăm sóc giày nữ",
+    "name": "Phụ kiện & chăm sóc giày nữ",
     "data": [
       "Đồ khử mùi giày nữ",
       "Miếng lót giày nữ",
-      "Cây đón gót &amp; Giữ form giày nữ",
+      "Cây đón gót & Giữ form giày nữ",
       "Đồ chăm sóc và làm sạch giày nữ",
       "Dây giày nữ",
       "Khác"
@@ -1466,16 +1466,16 @@
       "Quần bé gái",
       "Đồ liền thân bé gái",
       "Váy bé gái",
-      "Com lê &amp; đồ bộ bé gái",
+      "Com lê & đồ bộ bé gái",
       "Khác"
     ]
   },
   {
-    "name": "Quần áo &amp; phụ kiện",
+    "name": "Quần áo & phụ kiện",
     "data": [
       "Quần áo thú cưng",
       "Áo mưa chó mèo",
-      "Giày, tất &amp; bảo vệ móng",
+      "Giày, tất & bảo vệ móng",
       "Phụ kiện đeo cổ",
       "Kính mắt",
       "Phụ kiện lông",
@@ -1512,7 +1512,7 @@
   {
     "name": "Quần/Chân váy trẻ em",
     "data": [
-      "Quần dài &amp; legging",
+      "Quần dài & legging",
       "Quần ngắn",
       "Chân váy",
       "Khác"
@@ -1542,21 +1542,21 @@
       "Rau gia vị",
       "Các loại rau cải",
       "Họ cà tím, họ bầu bí",
-      "Bông cải &amp; súp lơ",
+      "Bông cải & súp lơ",
       "Ớt",
-      "Tỏi, gừng &amp; củ hành",
-      "Đậu, hạt &amp; bắp",
-      "Rau dạng củ &amp; thân",
+      "Tỏi, gừng & củ hành",
+      "Đậu, hạt & bắp",
+      "Rau dạng củ & thân",
       "Rau mầm",
       "Các loại rau salad",
-      "Rau củ sơ chế &amp; set rau củ",
+      "Rau củ sơ chế & set rau củ",
       "Khác"
     ]
   },
   {
     "name": "Sắc Đẹp",
     "data": [
-      "Chăm sóc tay, chân &amp; móng",
+      "Chăm sóc tay, chân & móng",
       "Chăm sóc tóc",
       "Chăm sóc nam giới",
       "Nước hoa",
@@ -1565,19 +1565,19 @@
       "Chăm sóc da mặt",
       "Bộ sản phẩm làm đẹp",
       "Khác",
-      "Tắm &amp; chăm sóc cơ thể"
+      "Tắm & chăm sóc cơ thể"
     ]
   },
   {
     "name": "Sách",
     "data": [
-      "Tạp Chí &amp; Báo Giấy",
+      "Tạp Chí & Báo Giấy",
       "E-Books",
       "Khác"
     ]
   },
   {
-    "name": "Sạc dự phòng &amp; Pin",
+    "name": "Sạc dự phòng & Pin",
     "data": [
       "Pin",
       "Sạc dự phòng",
@@ -1590,7 +1590,7 @@
     "data": [
       "Kem dưỡng mắt",
       "Mặt nạ cho mắt",
-      "Tinh chất dưỡng mày &amp; mi",
+      "Tinh chất dưỡng mày & mi",
       "Khác"
     ]
   },
@@ -1604,10 +1604,10 @@
     ]
   },
   {
-    "name": "Sản phẩm cạo râu &amp; hớt tóc",
+    "name": "Sản phẩm cạo râu & hớt tóc",
     "data": [
       "Dưỡng da sau cạo râu",
-      "Kem dưỡng, kem tạo bọt &amp; gel",
+      "Kem dưỡng, kem tạo bọt & gel",
       "Dao cạo râu",
       "Máy cạo râu",
       "Cọ cạo râu",
@@ -1617,13 +1617,13 @@
     ]
   },
   {
-    "name": "Sở thích &amp; Sưu tầm",
+    "name": "Sở thích & Sưu tầm",
     "data": [
       "Đồ Sưu Tầm",
       "Quà Lưu Niệm",
       "Đồ chơi - Giải trí",
       "Băng - Đĩa",
-      "Nhạc Cụ &amp; Phụ Kiện",
+      "Nhạc Cụ & Phụ Kiện",
       "Đĩa Than",
       "Album Ảnh",
       "Dụng Cụ May Vá",
@@ -1646,8 +1646,8 @@
       "Sữa",
       "Sữa chua",
       "Bột kem béo",
-      "Bơ động vật &amp; thực vật",
-      "Phô mai &amp; bột phô mai",
+      "Bơ động vật & thực vật",
+      "Phô mai & bột phô mai",
       "Kem",
       "Trứng",
       "Đậu phụ",
@@ -1655,10 +1655,10 @@
     ]
   },
   {
-    "name": "Sữa công thức &amp; Thực phẩm cho bé",
+    "name": "Sữa công thức & Thực phẩm cho bé",
     "data": [
       "Sữa công thức",
-      "Cháo, Thực phẩm xay nhuyễn &amp; Ngũ cốc",
+      "Cháo, Thực phẩm xay nhuyễn & Ngũ cốc",
       "Đồ ăn nhẹ cho bé",
       "Khác",
       "Sữa pha sẵn"
@@ -1675,60 +1675,60 @@
     ]
   },
   {
-    "name": "Sữa tắm &amp; chăm sóc cơ thể",
+    "name": "Sữa tắm & chăm sóc cơ thể",
     "data": [
-      "Xà phòng &amp; sữa tắm",
+      "Xà phòng & sữa tắm",
       "Tẩy tế bào chết cơ thể",
       "Mặt nạ ủ cơ thể",
       "Dầu dưỡng da",
-      "Kem &amp; sữa dưỡng thể",
+      "Kem & sữa dưỡng thể",
       "Khử mùi cơ thể",
       "Dầu massage",
-      "Kem tẩy lông &amp; wax lông",
+      "Kem tẩy lông & wax lông",
       "Chống nắng",
       "Chăm sóc ngực",
       "Khác"
     ]
   },
   {
-    "name": "Thể Thao &amp; Dã Ngoại",
+    "name": "Thể Thao & Dã Ngoại",
     "data": [
-      "Dụng Cụ Thể Thao &amp; Dã Ngoại",
+      "Dụng Cụ Thể Thao & Dã Ngoại",
       "Giày Thể Thao",
-      "Thời Trang Thể Thao &amp; Dã Ngoại",
-      "Phụ Kiện Thể Thao &amp; Dã Ngoại",
+      "Thời Trang Thể Thao & Dã Ngoại",
+      "Phụ Kiện Thể Thao & Dã Ngoại",
       "Khác"
     ]
   },
   {
-    "name": "Tã &amp; bô em bé",
+    "name": "Tã & bô em bé",
     "data": [
       "Bộ lót thay tã",
-      "Bệ thu nhỏ bồn cầu &amp; Bô vệ sinh",
+      "Bệ thu nhỏ bồn cầu & Bô vệ sinh",
       "Tã dùng một lần",
-      "Tã vải &amp; Phụ kiện",
+      "Tã vải & Phụ kiện",
       "Khác"
     ]
   },
   {
     "name": "Thiết Bị Âm Thanh",
     "data": [
-      "Tai nghe nhét tai &amp; chụp tai",
+      "Tai nghe nhét tai & chụp tai",
       "Máy nghe nhạc",
       "Micro thu âm",
       "Amply và đầu chỉnh âm",
       "Dàn âm thanh",
-      "Cáp âm thanh/ video &amp; Đầu chuyển",
+      "Cáp âm thanh/ video & Đầu chuyển",
       "Khác"
     ]
   },
   {
     "name": "Thiết bị điện gia dụng lớn",
     "data": [
-      "Máy giặt &amp; Máy sấy",
+      "Máy giặt & Máy sấy",
       "Máy nước nóng",
       "Thiết bị làm mát",
-      "Thiết bị sấy khô nệm &amp; Giày",
+      "Thiết bị sấy khô nệm & Giày",
       "Máy sưởi",
       "Khác"
     ]
@@ -1736,20 +1736,20 @@
   {
     "name": "Thiết bị điện gia dụng nhỏ",
     "data": [
-      "Thiết bị vệ sinh chân &amp; Thư giãn",
+      "Thiết bị vệ sinh chân & Thư giãn",
       "Máy tăm nước",
-      "Máy may &amp; Phụ kiện",
+      "Máy may & Phụ kiện",
       "Điện thoại",
-      "Bàn là khô &amp; Hơi nước",
+      "Bàn là khô & Hơi nước",
       "Thiết bị xử lý không khí",
-      "Máy hút bụi &amp; Thiết bị làm sạch sàn",
+      "Máy hút bụi & Thiết bị làm sạch sàn",
       "Khác"
     ]
   },
   {
     "name": "Thiết bị đeo thông minh",
     "data": [
-      "Đồng hồ thông minh &amp; Vòng đeo tay sức khỏe",
+      "Đồng hồ thông minh & Vòng đeo tay sức khỏe",
       "Thiết bị thực tế ảo",
       "Thiết bị định vị GPS",
       "Khác"
@@ -1758,12 +1758,12 @@
   {
     "name": "Thiết Bị Điện Gia Dụng",
     "data": [
-      "Máy chiếu &amp; Phụ kiện",
+      "Máy chiếu & Phụ kiện",
       "Thiết bị điện gia dụng nhỏ",
       "Thiết bị điện gia dụng lớn",
-      "Tivi &amp; Phụ kiện",
+      "Tivi & Phụ kiện",
       "Đồ gia dụng nhà bếp",
-      "Mạch điện &amp; Phụ tùng",
+      "Mạch điện & Phụ tùng",
       "Pin",
       "Thiết bị điều khiển từ xa",
       "Khác"
@@ -1773,7 +1773,7 @@
     "name": "Thời trang nam",
     "data": [
       "Quần jean nam",
-      "Hoodie &amp; Áo nỉ nam",
+      "Hoodie & Áo nỉ nam",
       "Áo len nam",
       "Áo khoác nam",
       "Com lê nam",
@@ -1815,7 +1815,7 @@
       "Áo len nữ",
       "Hoodie và Áo nỉ nữ",
       "Bộ nữ",
-      "Đồ lót nữ nữ",
+      "Đồ lót nữ",
       "Đồ ngủ nữ",
       "Đồ Bầu nữ",
       "Đồ truyền thống nữ",
@@ -1826,11 +1826,11 @@
     ]
   },
   {
-    "name": "Thời trang trẻ em &amp; trẻ sơ sinh",
+    "name": "Thời trang trẻ em & trẻ sơ sinh",
     "data": [
       "Quần áo trẻ em",
-      "Bao tay trẻ em &amp; Tất",
-      "Phụ kiện trẻ em &amp; trẻ sơ sinh",
+      "Bao tay trẻ em & Tất",
+      "Phụ kiện trẻ em & trẻ sơ sinh",
       "Quần áo bé trai",
       "Quần áo bé gái",
       "Giày bé trai",
@@ -1877,14 +1877,14 @@
   {
     "name": "Thực phẩm khô",
     "data": [
-      "Đậu &amp; ngũ cốc",
+      "Đậu & ngũ cốc",
       "Hải sản sấy khô",
       "Thảo mộc truyền thống",
       "Khác"
     ]
   },
   {
-    "name": "Thực phẩm tươi sống &amp; đông lạnh",
+    "name": "Thực phẩm tươi sống & đông lạnh",
     "data": [
       "Thịt",
       "Hải sản",
@@ -1905,10 +1905,10 @@
       "Nhu yếu phẩm",
       "Nguyên liệu nấu ăn",
       "Đồ làm bánh",
-      "Ngũ cốc &amp; mứt",
+      "Ngũ cốc & mứt",
       "Đồ uống",
       "Sữa - trứng",
-      "Thực phẩm tươi sống &amp; đông lạnh",
+      "Thực phẩm tươi sống & đông lạnh",
       "Các loại bánh",
       "Đồ uống có cồn",
       "Bộ quà tặng",
@@ -1918,24 +1918,24 @@
   {
     "name": "Trái cây",
     "data": [
-      "Táo &amp; Lê",
+      "Táo & Lê",
       "Chuối",
       "Các loại quả mọng",
       "Họ cam quýt",
       "Nho",
       "Các loại dưa",
       "Các loại quả hạch",
-      "Trái cây nhiệt đới &amp; ngoại lai",
-      "Trái cây sơ chế &amp; set trái cây",
+      "Trái cây nhiệt đới & ngoại lai",
+      "Trái cây sơ chế & set trái cây",
       "Khác"
     ]
   },
   {
-    "name": "Tivi &amp; Phụ kiện",
+    "name": "Tivi & Phụ kiện",
     "data": [
       "Tivi",
       "Ăng ten Tivi",
-      "Tivi box &amp; Đầu thu kỹ thuật số",
+      "Tivi box & Đầu thu kỹ thuật số",
       "Giá treo tivi",
       "Khác"
     ]
@@ -1955,10 +1955,10 @@
     "data": [
       "Kem lót",
       "Kem nền",
-      "Kem BB &amp; CC",
+      "Kem BB & CC",
       "Phấn phủ",
       "Che khuyết điểm",
-      "Tạo khối &amp; bắt sáng",
+      "Tạo khối & bắt sáng",
       "Xịt giữ makeup",
       "Má hồng",
       "Khác"
@@ -2000,11 +2000,11 @@
     "data": [
       "Ba lô nữ",
       "Cặp laptop nữ",
-      "Ví dự tiệc &amp; Ví cầm tay",
-      "Túi đeo hông &amp; Túi đeo ngực",
+      "Ví dự tiệc & Ví cầm tay",
+      "Túi đeo hông & Túi đeo ngực",
       "Túi tote nữ",
       "Túi quai xách",
-      "Túi đeo chéo &amp; Túi đeo vai",
+      "Túi đeo chéo & Túi đeo vai",
       "Ví",
       "Phụ kiện túi",
       "Khác"
@@ -2018,7 +2018,7 @@
       "Túi tote nam",
       "Cặp xách công sở",
       "Ví cầm tay",
-      "Túi đeo hông &amp; Túi đeo ngực",
+      "Túi đeo hông & Túi đeo ngực",
       "Túi đeo chéo",
       "Bóp/ Ví",
       "Khác"
@@ -2031,7 +2031,7 @@
       "Bút Các Loại",
       "Thiết Bị Trường Học",
       "Họa cụ",
-      "Sổ &amp; Giấy Các Loại",
+      "Sổ & Giấy Các Loại",
       "Thư Tín",
       "Khác"
     ]
@@ -2055,11 +2055,11 @@
   {
     "name": "Vệ sinh cho thú cưng",
     "data": [
-      "Khay &amp; Bồn vệ sinh cho mèo",
+      "Khay & Bồn vệ sinh cho mèo",
       "Lót chuồng cho thú nhỏ",
       "Tã cho thú cưng",
       "Khay huấn luyện vệ sinh cho chó",
-      "Túi &amp; Xẻng dọn vệ sinh",
+      "Túi & Xẻng dọn vệ sinh",
       "Khác"
     ]
   },
@@ -2067,7 +2067,7 @@
     "name": "Vệ sinh răng miệng",
     "data": [
       "Bàn chải đánh răng",
-      "Bàn chải điện &amp; phụ kiện",
+      "Bàn chải điện & phụ kiện",
       "Kem đánh răng",
       "Chỉ nha khoa",
       "Nước súc miệng",
@@ -2082,22 +2082,22 @@
     "data": [
       "Ví đựng thẻ",
       "Ví mini đựng tiền",
-      "Ví đựng điện thoại &amp; chìa khóa",
+      "Ví đựng điện thoại & chìa khóa",
       "Ví gập",
       "Ví dài",
       "Ví khác"
     ]
   },
   {
-    "name": "Vỏ bao, Ốp lưng &amp; Miếng dán",
+    "name": "Vỏ bao, Ốp lưng & Miếng dán",
     "data": [
-      "Vỏ bao, Ốp lưng &amp; Miếng dán máy tính bảng",
-      "Vỏ bao, Ốp lưng &amp; Miếng dán điện thoại",
+      "Vỏ bao, Ốp lưng & Miếng dán máy tính bảng",
+      "Vỏ bao, Ốp lưng & Miếng dán điện thoại",
       "Khác"
     ]
   },
   {
-    "name": "Xăng-đan &amp; Dép nam",
+    "name": "Xăng-đan & Dép nam",
     "data": [
       "Dép xỏ ngón",
       "Xăng-đan",
@@ -2107,7 +2107,7 @@
     ]
   },
   {
-    "name": "Xăng-đan &amp; Dép nữ",
+    "name": "Xăng-đan & dép nữ",
     "data": [
       "Xăng-đan đế bằng",
       "Dép kẹp/ dép xỏ ngón",
@@ -2120,7 +2120,7 @@
     "name": "Đạp Xe",
     "data": [
       "Xe Đạp",
-      "Phụ Tùng &amp; Phụ Kiện Xe Đạp",
+      "Phụ Tùng & Phụ Kiện Xe Đạp",
       "Mũ Bảo Hiểm Xe Đạp",
       "Khác"
     ]
@@ -2138,7 +2138,7 @@
   {
     "name": "Đồ chơi - Giải trí",
     "data": [
-      "Đồ chơi thẻ bài &amp; boardgame",
+      "Đồ chơi thẻ bài & boardgame",
       "Đồ chơi ảo thuật",
       "Đồ chơi chọc ghẹo",
       "Đồ chơi rubik",
@@ -2159,7 +2159,7 @@
       "Kệ để đồ phòng tắm",
       "Bồn tắm",
       "Khăn mặt, khăn tắm, áo choàng tắm",
-      "Vòi sen &amp; vòi xịt vệ sinh",
+      "Vòi sen & vòi xịt vệ sinh",
       "Bông tắm",
       "Rèm cửa nhà tắm",
       "Ghế nhà tắm, ghế chống trượt",
@@ -2178,14 +2178,14 @@
       "Bộ sưu tập nhân vật nổi tiếng",
       "Bộ sưu tập thể thao",
       "Bộ sưu tập hoạt hình truyện tranh",
-      "Tiền xu &amp; tiền giấy sưu tầm",
+      "Tiền xu & tiền giấy sưu tầm",
       "Khác"
     ]
   },
   {
     "name": "Chống nắng",
     "data": [
-      "Chống nắng &amp; chăm sóc sau đi nắng",
+      "Chống nắng & chăm sóc sau đi nắng",
       "Thuốc nhuộm da",
       "Khác"
     ]
@@ -2194,9 +2194,9 @@
     "name": "Com lê nam",
     "data": [
       "Bộ Com lê",
-      "Áo Khoác &amp; Blazer",
+      "Áo Khoác & Blazer",
       "Quần âu",
-      "Áo vest &amp; Gi lê",
+      "Áo vest & Gi lê",
       "Khác"
     ]
   },
@@ -2219,8 +2219,8 @@
       "Phụ Kiện Thời Trang",
       "Thiết Bị Điện Gia Dụng",
       "Giày Dép Nam",
-      "Điện Thoại &amp; Phụ Kiện",
-      "Du lịch &amp; Hành lý",
+      "Điện Thoại & Phụ Kiện",
+      "Du lịch & Hành lý",
       "Túi Ví Nữ",
       "Giày Dép Nữ",
       "Túi Ví Nam",
@@ -2228,19 +2228,19 @@
       "Thiết Bị Âm Thanh",
       "Thực phẩm và đồ uống",
       "Chăm Sóc Thú Cưng",
-      "Mẹ &amp; Bé",
-      "Thời trang trẻ em &amp; trẻ sơ sinh",
-      "Gaming &amp; Console",
-      "Cameras &amp; Flycam",
-      "Nhà cửa &amp; Đời sống",
-      "Thể Thao &amp; Dã Ngoại",
+      "Mẹ & Bé",
+      "Thời trang trẻ em & trẻ sơ sinh",
+      "Gaming & Console",
+      "Cameras & Flycam",
+      "Nhà cửa & Đời sống",
+      "Thể Thao & Dã Ngoại",
       "Văn Phòng Phẩm",
-      "Sở thích &amp; Sưu tầm",
+      "Sở thích & Sưu tầm",
       "Ô tô",
       "Mô tô, xe máy",
-      "Voucher &amp; Dịch vụ",
-      "Sách &amp; Tạp Chí",
-      "Máy tính &amp; Laptop",
+      "Voucher & Dịch vụ",
+      "Sách & Tạp Chí",
+      "Máy tính & Laptop",
       "Deal Gần bạn"
     ]
   },
@@ -2249,26 +2249,26 @@
     "data": [
       "Phụ kiện selfie",
       "Ống kính điện thoại",
-      "Đèn flash điện thoại &amp; Đèn selfie",
-      "Quạt USB &amp; Quạt điện thoại",
+      "Đèn flash điện thoại & Đèn selfie",
+      "Quạt USB & Quạt điện thoại",
       "Bút cảm ứng",
       "Kẹp điện thoại",
-      "Dây đeo điện thoại &amp; Móc khóa",
+      "Dây đeo điện thoại & Móc khóa",
       "Thẻ nhớ",
       "Thiết bị trình chiếu",
       "Túi đựng điện thoại",
-      "Cáp, sạc &amp; bộ chuyển đổi",
-      "Đèn USB &amp; Đèn điện thoại",
+      "Cáp, sạc & bộ chuyển đổi",
+      "Đèn USB & Đèn điện thoại",
       "Bộ phát Wifi bỏ túi",
-      "Sạc dự phòng &amp; Pin",
+      "Sạc dự phòng & Pin",
       "Phụ kiện cho đồng hồ thông minh",
       "Miếng dán màn hình",
-      "Vỏ bao, Ốp lưng &amp; Miếng dán",
+      "Vỏ bao, Ốp lưng & Miếng dán",
       "Khác"
     ]
   },
   {
-    "name": "Điện Thoại &amp; Phụ Kiện",
+    "name": "Điện Thoại & Phụ Kiện",
     "data": [
       "Thẻ sim",
       "Máy tính bảng",
@@ -2291,7 +2291,7 @@
       "Các loại rong biển ăn liền",
       "Các loại đậu sấy khô",
       "Khác",
-      "Pudding, thạch &amp; kẹo dẻo",
+      "Pudding, thạch & kẹo dẻo",
       "Thức ăn khô"
     ]
   },
@@ -2309,18 +2309,18 @@
     "name": "Đồ chơi cho chó mèo",
     "data": [
       "Đồ chơi đuổi bắt",
-      "Đồ chơi gặm, xương nhai &amp; bóng",
+      "Đồ chơi gặm, xương nhai & bóng",
       "Đĩa bay huấn luyện",
       "Khác"
     ]
   },
   {
-    "name": "Đồ chơi cho trẻ sơ sinh &amp; trẻ nhỏ",
+    "name": "Đồ chơi cho trẻ sơ sinh & trẻ nhỏ",
     "data": [
       "Thảm chơi nhạc",
-      "Cũi &amp; Quây em bé",
+      "Cũi & Quây em bé",
       "Đồ chơi nhà tắm",
-      "Đồ chơi treo cũi, nôi &amp; Lục lạc",
+      "Đồ chơi treo cũi, nôi & Lục lạc",
       "Gặm nướu",
       "Khác"
     ]
@@ -2328,28 +2328,28 @@
   {
     "name": "Đồ chơi cho em bé",
     "data": [
-      "Đồ chơi cho trẻ sơ sinh &amp; trẻ nhỏ",
+      "Đồ chơi cho trẻ sơ sinh & trẻ nhỏ",
       "Đồ chơi lắp ráp",
-      "Búp bê &amp; Thú nhồi bông",
+      "Búp bê & Thú nhồi bông",
       "Đồ chơi nhập vai",
       "Xe đồ chơi",
-      "Đồ chơi vận động &amp; Ngoài trời",
+      "Đồ chơi vận động & Ngoài trời",
       "Đồ chơi giáo dục",
       "Đồ chơi Robot",
-      "Slime &amp; Đồ chơi nhựa dẻo",
+      "Slime & Đồ chơi nhựa dẻo",
       "Khác"
     ]
   },
   {
     "name": "Đồ chơi giáo dục",
     "data": [
-      "Đồ chơi mỹ thuật &amp; Thủ công",
+      "Đồ chơi mỹ thuật & Thủ công",
       "Đồ chơi toán học",
-      "Đồ chơi khoa học &amp; Công nghệ",
+      "Đồ chơi khoa học & Công nghệ",
       "Đồ chơi hình khối",
       "Đồ chơi xếp hình",
       "Đồ chơi âm nhạc",
-      "Đồ chơi điện tử &amp; Máy tính đồ chơi",
+      "Đồ chơi điện tử & Máy tính đồ chơi",
       "Khác"
     ]
   },
@@ -2363,15 +2363,15 @@
     ]
   },
   {
-    "name": "Đồ chơi vận động &amp; Ngoài trời",
+    "name": "Đồ chơi vận động & Ngoài trời",
     "data": [
-      "Xe đạp, Xe chòi chân &amp; Xe điện",
-      "Nhà hơi &amp; Cầu trượt",
-      "Lều, Ống đường hầm &amp; Nhà banh",
-      "Phao tắm, Đồ chơi nước &amp; Xúc cát",
+      "Xe đạp, Xe chòi chân & Xe điện",
+      "Nhà hơi & Cầu trượt",
+      "Lều, Ống đường hầm & Nhà banh",
+      "Phao tắm, Đồ chơi nước & Xúc cát",
       "Súng đồ chơi",
       "Đồ chơi thể thao",
-      "Đồ chơi mô hình bay, diều &amp; Chong chóng",
+      "Đồ chơi mô hình bay, diều & Chong chóng",
       "Khác"
     ]
   },
@@ -2381,10 +2381,10 @@
       "Địu em bé",
       "Xe đẩy",
       "Phụ kiện xe đẩy",
-      "Ghế ngồi ô tô &amp; xe máy",
-      "Phụ kiện ghế ngồi ô tô &amp; xe máy",
+      "Ghế ngồi ô tô & xe máy",
+      "Phụ kiện ghế ngồi ô tô & xe máy",
       "Túi đựng bỉm sữa",
-      "Dây &amp; Đai dắt trẻ",
+      "Dây & Đai dắt trẻ",
       "Khác"
     ]
   },
@@ -2413,22 +2413,22 @@
   {
     "name": "Đồ dùng phòng ngủ cho bé",
     "data": [
-      "Nôi &amp; Cũi &amp; Giường cho bé",
-      "Ghế rung, Ghế nhún &amp; Xích đu tập đi",
+      "Nôi & Cũi & Giường cho bé",
+      "Ghế rung, Ghế nhún & Xích đu tập đi",
       "Xe tập đi",
       "Nệm và chăn ga",
-      "Kệ &amp; Tủ",
+      "Kệ & Tủ",
       "Khác"
     ]
   },
   {
-    "name": "Đồ dùng phòng tắm &amp; Chăm sóc cơ thể bé",
+    "name": "Đồ dùng phòng tắm & Chăm sóc cơ thể bé",
     "data": [
-      "Chậu tắm &amp; Ghế tắm",
-      "Áo choàng tắm, Khăn tắm &amp; Khăn mặt",
+      "Chậu tắm & Ghế tắm",
+      "Áo choàng tắm, Khăn tắm & Khăn mặt",
       "Nón tắm",
-      "Dụng cụ tắm &amp; Phụ kiện",
-      "Sản phẩm tắm &amp; gội cho bé",
+      "Dụng cụ tắm & Phụ kiện",
+      "Sản phẩm tắm & gội cho bé",
       "Nước hoa cho bé",
       "Bộ chăm sóc trẻ sơ sinh",
       "Khăn lau",
@@ -2442,20 +2442,20 @@
       "Máy lọc nước",
       "Ấm đun siêu tốc",
       "Tủ ủ rượu",
-      "Máy ép, Xay sinh tố &amp; Máy làm sữa đậu nành",
-      "Máy pha cà phê &amp; Phụ kiện",
+      "Máy ép, Xay sinh tố & Máy làm sữa đậu nành",
+      "Máy pha cà phê & Phụ kiện",
       "Máy trộn thực phẩm",
       "Máy rửa bát đĩa",
-      "Lò sưởi, Bếp từ &amp; Bộ điều chỉnh gas",
+      "Lò sưởi, Bếp từ & Bộ điều chỉnh gas",
       "Nồi chiên không dầu",
       "Nồi chiên ngập dầu",
       "Lò vi sóng",
       "Lò nướng",
       "Máy nướng bánh",
-      "Máy chế biến thực phẩm &amp; Xay thịt",
+      "Máy chế biến thực phẩm & Xay thịt",
       "Nồi nấu đa năng",
       "Nồi áp suất",
-      "Nồi nấu chậm &amp; Dụng cụ nấu chân không",
+      "Nồi nấu chậm & Dụng cụ nấu chân không",
       "Nồi cơm điện",
       "Dụng cụ nấu đặc biệt",
       "Tủ lạnh",
@@ -2499,7 +2499,7 @@
     "data": [
       "Đồng hồ nữ",
       "Đồng hồ nam",
-      "Bộ đồng hồ &amp; Đồng hồ cặp",
+      "Bộ đồng hồ & Đồng hồ cặp",
       "Phụ kiện đồng hồ",
       "Khác"
     ]
@@ -2508,7 +2508,7 @@
     "name": "Đồ uống",
     "data": [
       "Cà phê",
-      "Trà &amp; trà túi lọc",
+      "Trà & trà túi lọc",
       "Thức uống Sô cô la",
       "Nước tăng lực",
       "Nước tinh khiết",
@@ -2527,14 +2527,14 @@
     "name": "Đồ uống có cồn",
     "data": [
       "Bia và trái cây lên men",
-      "Rượu vang &amp; Sâm panh",
+      "Rượu vang & Sâm panh",
       "Rượu mạnh",
-      "Rượu sake, soju &amp; umeshu",
+      "Rượu sake, soju & umeshu",
       "Khác"
     ]
   },
   {
-    "name": "Du lịch &amp; Hành lý",
+    "name": "Du lịch & Hành lý",
     "data": [
       "Vali",
       "Túi du lịch",
@@ -2546,7 +2546,7 @@
     "name": "Dụng cụ chăm sóc da mặt",
     "data": [
       "Máy xông mặt",
-      "Dụng cụ làm thon gọn &amp; mát xa mặt",
+      "Dụng cụ làm thon gọn & mát xa mặt",
       "Dụng cụ rửa mặt",
       "Khác"
     ]
@@ -2578,7 +2578,7 @@
       "Băng gạc y tế",
       "Phụ kiện sơ cấp cứu",
       "Kem và thuốc mỡ",
-      "Thuốc sát trùng &amp; khử trùng y tế",
+      "Thuốc sát trùng & khử trùng y tế",
       "Khác"
     ]
   },
@@ -2595,12 +2595,12 @@
       "Kẹp bấm mi",
       "Khuôn kẻ chân mày",
       "Mi giả",
-      "Miếng dán mí &amp; keo dán mí",
+      "Miếng dán mí & keo dán mí",
       "Chuốt chì kẻ mày"
     ]
   },
   {
-    "name": "Gaming &amp; Console",
+    "name": "Gaming & Console",
     "data": [
       "Máy chơi game",
       "Phụ kiện console",
@@ -2609,13 +2609,13 @@
     ]
   },
   {
-    "name": "Gia vị &amp; Hương liệu",
+    "name": "Gia vị & Hương liệu",
     "data": [
       "Tiêu",
       "Muối",
-      "Gia vị &amp; Thảo mộc",
+      "Gia vị & Thảo mộc",
       "Các loại sốt",
-      "Ớt &amp; sa tế",
+      "Ớt & sa tế",
       "Giấm",
       "Rượu nấu ăn",
       "Nước chấm",
@@ -2639,8 +2639,8 @@
     "data": [
       "Giày bale",
       "Giày lười",
-      "Giày Oxford &amp; Giày buộc dây",
-      "Giày sục &amp; Giày búp bê",
+      "Giày Oxford & Giày buộc dây",
+      "Giày sục & Giày búp bê",
       "Khác"
     ]
   },
@@ -2651,8 +2651,8 @@
       "Giày thể thao/ Sneakers nam",
       "Giày sục nam",
       "Giày tây lười nam",
-      "Giày Oxfords &amp; Giày buộc dây nam",
-      "Xăng-đan &amp; Dép nam",
+      "Giày Oxfords & Giày buộc dây nam",
+      "Xăng-đan & Dép nam",
       "Phụ kiện giày dép nam",
       "Khác"
     ]
@@ -2662,11 +2662,11 @@
     "data": [
       "Bốt nữ",
       "Giày thể thao/ sneaker nữ",
-      "Giày đế bằng nữ",
+      "Giày đế bằng",
       "Giày cao gót nữ",
       "Giày đế xuồng nữ",
-      "Xăng-đan &amp; dép nữ",
-      "Phụ kiện &amp; chăm sóc giày nữ",
+      "Xăng-đan & dép nữ",
+      "Phụ kiện & chăm sóc giày nữ",
       "Khác"
     ]
   },
@@ -2675,7 +2675,7 @@
     "data": [
       "Bóng Golf",
       "Gậy Golf",
-      "Đồ Bảo Hộ &amp; Luyện Tập",
+      "Đồ Bảo Hộ & Luyện Tập",
       "Túi Đựng Dụng Cụ Golf",
       "Khác"
     ]
@@ -2729,7 +2729,7 @@
   {
     "name": "Kim loại quý",
     "data": [
-      "Platinum &amp; Vàng",
+      "Platinum & Vàng",
       "Bạc",
       "Kim cương",
       "Ngọc bích, Cẩm thạch",
@@ -2755,9 +2755,9 @@
     ]
   },
   {
-    "name": "Mạch điện &amp; Phụ tùng",
+    "name": "Mạch điện & Phụ tùng",
     "data": [
-      "Ổ cắm điện &amp; Dây nối",
+      "Ổ cắm điện & Dây nối",
       "Thiết bị an toàn điện tử",
       "Chuông cửa",
       "Công tắc",
@@ -2780,17 +2780,17 @@
     ]
   },
   {
-    "name": "Máy chiếu &amp; Phụ kiện",
+    "name": "Máy chiếu & Phụ kiện",
     "data": [
-      "Máy chiếu &amp; Màn hình chiếu",
+      "Máy chiếu & Màn hình chiếu",
       "Bút trình chiếu",
       "Khác"
     ]
   },
   {
-    "name": "Máy chiếu &amp; Phụ kiện",
+    "name": "Máy chiếu & Phụ kiện",
     "data": [
-      "Máy hút sữa &amp; phụ kiện",
+      "Máy hút sữa & phụ kiện",
       "Miếng lót thấm sữa",
       "Khăn choàng cho con bú",
       "Túi trữ sữa",
@@ -2800,15 +2800,15 @@
   {
     "name": "Máy nghe nhạc",
     "data": [
-      "MP3 &amp; MP4",
-      "CD, DVD &amp; Bluray",
+      "MP3 & MP4",
+      "CD, DVD & Bluray",
       "Máy ghi âm",
-      "Radio &amp; Cát-sét",
+      "Radio & Cát-sét",
       "Khác"
     ]
   },
   {
-    "name": "Máy tính &amp; Laptop",
+    "name": "Máy tính & Laptop",
     "data": [
       "Máy Tính Bàn",
       "Màn Hình",
@@ -2817,28 +2817,28 @@
       "Thiết Bị Mạng",
       "Phần Mềm",
       "Thiết Bị Văn Phòng",
-      "Máy In &amp; Máy Scan",
+      "Máy In & Máy Scan",
       "Phụ Kiện Máy Tính",
-      "Chuột &amp; Bàn Phím",
+      "Chuột & Bàn Phím",
       "Laptop",
       "Phụ Kiện Máy Tính Khác"
     ]
   },
   {
-    "name": "Mẹ &amp; Bé",
+    "name": "Mẹ & Bé",
     "data": [
       "Đồ dùng du lịch cho bé",
       "Đồ dùng ăn dặm cho bé",
       "Phụ kiện cho mẹ",
       "Chăm sóc sức khỏe mẹ",
-      "Đồ dùng phòng tắm &amp; Chăm sóc cơ thể bé",
+      "Đồ dùng phòng tắm & Chăm sóc cơ thể bé",
       "Đồ dùng phòng ngủ cho bé",
       "An toàn cho bé",
-      "Sữa công thức &amp; Thực phẩm cho bé",
+      "Sữa công thức & Thực phẩm cho bé",
       "Chăm sóc sức khỏe bé",
-      "Tã &amp; bô em bé",
+      "Tã & bô em bé",
       "Đồ chơi cho em bé",
-      "Bộ &amp; Gói quà tặng",
+      "Bộ & Gói quà tặng",
       "Khác"
     ]
   },
@@ -2848,21 +2848,21 @@
       "Mô tô, xe máy",
       "Phụ kiện xe máy",
       "Phụ tùng xe máy",
-      "Mũ bảo hiểm &amp; Phụ kiện",
+      "Mũ bảo hiểm & Phụ kiện",
       "Khác"
     ]
   },
   {
     "name": "Nệm và chăn ga",
     "data": [
-      "Chăn &amp; Quấn em bé",
+      "Chăn & Quấn em bé",
       "Gối",
       "Ga trải giường",
       "Khác"
     ]
   },
   {
-    "name": "Ngũ cốc &amp; mứt",
+    "name": "Ngũ cốc & mứt",
     "data": [
       "Mật ong và siro",
       "Mứt",
@@ -2875,10 +2875,10 @@
     "name": "Nguyên liệu nấu ăn",
     "data": [
       "Dầu ăn",
-      "Gia vị &amp; Hương liệu",
+      "Gia vị & Hương liệu",
       "Đường",
       "Chất tạo ngọt",
-      "Sốt &amp; súp ăn liền",
+      "Sốt & súp ăn liền",
       "Gói/ bột gia vị",
       "Phụ gia thực phẩm",
       "Bột phủ",
@@ -2886,7 +2886,7 @@
     ]
   },
   {
-    "name": "Nhà cửa &amp; Đời sống",
+    "name": "Nhà cửa & Đời sống",
     "data": [
       "Chất khử mùi, làm thơm nhà",
       "Đồ dùng phòng tắm",
@@ -2895,7 +2895,7 @@
       "Túi làm ấm",
       "Nội thất",
       "Làm vườn",
-      "Dụng cụ &amp; Thiết bị tiện ích",
+      "Dụng cụ & Thiết bị tiện ích",
       "Dụng cụ chăm sóc nhà cửa",
       "Dụng cụ nhà bếp",
       "Bộ đồ bàn ăn",
@@ -2922,11 +2922,11 @@
   {
     "name": "Nội thất cho thú cưng",
     "data": [
-      "Đệm &amp; Thảm",
+      "Đệm & Thảm",
       "Nhà",
-      "Phụ kiện nhà &amp; chuồng",
-      "Chuồng &amp; lồng",
-      "Bàn &amp; cây cào móng",
+      "Phụ kiện nhà & chuồng",
+      "Chuồng & lồng",
+      "Bàn & cây cào móng",
       "Khác"
     ]
   },
