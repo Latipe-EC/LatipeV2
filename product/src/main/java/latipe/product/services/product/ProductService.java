@@ -47,7 +47,6 @@ import latipe.product.viewmodel.ProductThumbnailVm;
 import latipe.product.viewmodel.ProductVariantVm;
 import lombok.RequiredArgsConstructor;
 import org.bson.Document;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
@@ -67,16 +66,17 @@ public class ProductService implements IProductService {
   private final MongoTemplate mongoTemplate;
   private final RabbitMQProducer rabbitMQProducer;
 
-  @Value("${secure-internal.private-key}")
-  private String key;
 
   @Override
   @Async
   public CompletableFuture<ProductResponse> create(String userId, CreateProductRequest input,
       HttpServletRequest request) {
     return CompletableFuture.supplyAsync(() -> {
+      if (input.images().isEmpty()) {
+        throw new BadRequestException("Product must have at least 1 image");
+      }
       if (input.productVariants().isEmpty()) {
-        checkProductNoOption(input.price(), input.quantity(), input.images());
+        checkProductNoOption(input.price(), input.quantity());
 
         input.productClassifications().add(
             ProductClassificationVm.builder().name("Default").price(input.price())
@@ -84,7 +84,6 @@ public class ProductService implements IProductService {
                 .promotionalPrice(input.promotionalPrice()).image(input.images().get(0)).build());
       } else {
         CheckProductHaveOption(input.productVariants(), input.productClassifications());
-
       }
       StoreClient storeClient = Feign.builder().client(new OkHttpClient())
           .encoder(new GsonEncoder()).decoder(new GsonDecoder()).logLevel(Logger.Level.FULL)
@@ -96,7 +95,7 @@ public class ProductService implements IProductService {
       var savedProd = productRepository.save(prod);
 
       // send message create message
-      String message = null;
+      String message;
       try {
         message = ParseObjectToString.parse(new ProductMessageVm(savedProd.getId(), Action.CREATE));
       } catch (JsonProcessingException e) {
@@ -259,7 +258,7 @@ public class ProductService implements IProductService {
       List<Product> products = new ArrayList<>();
       for (UpdateProductQuantityRequest req : request) {
 
-        Product product = null;
+        Product product;
         int index = products.indexOf(new Product(req.productId()));
         if (index < 0) {
           product = productRepository.findById(req.productId())
@@ -292,7 +291,7 @@ public class ProductService implements IProductService {
 
       products = productRepository.saveAll(products);
       for (Product prod : products) {
-        String message = null;
+        String message;
         try {
           message = ParseObjectToString.parse(new ProductMessageVm(prod.getId(), Action.CREATE));
         } catch (JsonProcessingException e) {
@@ -322,9 +321,12 @@ public class ProductService implements IProductService {
       throw new BadRequestException("You don't have permission to change this product");
     }
 
+    if (input.images().isEmpty()) {
+      throw new BadRequestException("Product must have at least 1 image");
+    }
     if (input.productVariants().isEmpty()) {
 
-      checkProductNoOption(input.price(), input.quantity(), input.images());
+      checkProductNoOption(input.price(), input.quantity());
 
       input.productClassifications().clear();
       input.productClassifications().add(
@@ -337,7 +339,7 @@ public class ProductService implements IProductService {
     var savedProd = productMapper.mapToProductBeforeCreate(product.getId(), input, store);
 
     // send message create message
-    String message = null;
+    String message;
     try {
       message = ParseObjectToString.parse(new ProductMessageVm(savedProd.getId(), Action.UPDATE));
     } catch (JsonProcessingException e) {
@@ -387,16 +389,14 @@ public class ProductService implements IProductService {
     }
   }
 
-  private void checkProductNoOption(Double price, int quantity, List<String> images) {
+  private void checkProductNoOption(Double price, int quantity) {
     if (price == null || price <= 0) {
       throw new BadRequestException("Price must be greater than 0");
     }
     if (quantity <= 0) {
       throw new BadRequestException("Quantity must be greater than 0");
     }
-    if (images.isEmpty()) {
-      throw new BadRequestException("Product must have at least 1 image");
-    }
+
 
   }
 
@@ -418,7 +418,7 @@ public class ProductService implements IProductService {
       var savedProduct = productRepository.save(product);
 
       // send message create message
-      String message = null;
+      String message;
       try {
         message = ParseObjectToString.parse(
             new ProductMessageVm(savedProduct.getId(), Action.UPDATE));
@@ -443,7 +443,7 @@ public class ProductService implements IProductService {
       var savedProduct = productRepository.save(product);
 
       // send message create message
-      String message = null;
+      String message;
       try {
         message = ParseObjectToString.parse(new ProductMessageVm(savedProduct.getId(), Action.BAN));
       } catch (JsonProcessingException e) {
