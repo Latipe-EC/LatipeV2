@@ -24,8 +24,8 @@ public interface IProductService {
 
   CompletableFuture<ProductPriceVm> getPrice(String prodId, String code);
 
-  CompletableFuture<ProductResponse> update(String userId, String id,
-      UpdateProductRequest input, HttpServletRequest request);
+  CompletableFuture<ProductResponse> update(String userId, String id, UpdateProductRequest input,
+      HttpServletRequest request);
 
   CompletableFuture<Void> remove(String userId, String id, HttpServletRequest request);
 
@@ -38,6 +38,8 @@ public interface IProductService {
 
   CompletableFuture<ProductResponse> create(String userId, CreateProductRequest input,
       HttpServletRequest request);
+
+  CompletableFuture<ProductResponse> get(String userId, String prodId, HttpServletRequest request);
 
   CompletableFuture<Void> updateQuantity(List<UpdateProductQuantityRequest> request);
 }

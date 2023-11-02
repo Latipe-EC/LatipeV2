@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -47,10 +48,8 @@ public class ProductController {
   @RequiresAuthorization("VENDOR")
   @ResponseStatus(HttpStatus.CREATED)
   @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<ProductResponse> create(
-      @Valid @RequestBody CreateProductRequest input) {
-    HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).
-        getRequest();
+  public CompletableFuture<ProductResponse> create(@Valid @RequestBody CreateProductRequest input) {
+    HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
     UserCredentialResponse userCredential = (UserCredentialResponse) (request.getAttribute("user"));
     return productService.create(userCredential.id(), input, request);
   }
@@ -71,11 +70,19 @@ public class ProductController {
 
   @RequiresAuthorization("VENDOR")
   @ResponseStatus(HttpStatus.OK)
-  @PatchMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<ProductResponse> update(
-      @PathVariable("id") String prodId, @Valid @RequestBody UpdateProductRequest input) {
-    HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).
-        getRequest();
+  @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+  public CompletableFuture<ProductResponse> get(@PathVariable("id") String prodId) {
+    HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+    UserCredentialResponse userCredential = (UserCredentialResponse) (request.getAttribute("user"));
+    return productService.get(userCredential.id(), prodId, request);
+  }
+
+  @RequiresAuthorization("VENDOR")
+  @ResponseStatus(HttpStatus.OK)
+  @PutMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+  public CompletableFuture<ProductResponse> update(@PathVariable("id") String prodId,
+      @Valid @RequestBody UpdateProductRequest input) {
+    HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
     UserCredentialResponse userCredential = (UserCredentialResponse) (request.getAttribute("user"));
     return productService.update(userCredential.id(), prodId, input, request);
   }
@@ -85,8 +92,7 @@ public class ProductController {
   @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<Void> delete(@PathVariable("id") String prodId) {
 
-    HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).
-        getRequest();
+    HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
     UserCredentialResponse userCredential = (UserCredentialResponse) (request.getAttribute("user"));
     return productService.remove(userCredential.id(), prodId, request);
   }
@@ -94,11 +100,8 @@ public class ProductController {
   @RequiresAuthorization("ADMIN")
   @ResponseStatus(HttpStatus.OK)
   @PatchMapping(value = "/ban/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<Void> ban(
-      @PathVariable("id") String prodId,
+  public CompletableFuture<Void> ban(@PathVariable("id") String prodId,
       @Valid @RequestBody BanProductRequest input) {
-    UserCredentialResponse userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
-        .getAttribute("user")));
     return productService.ban(prodId, input);
   }
 

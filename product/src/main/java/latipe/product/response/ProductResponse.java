@@ -4,6 +4,7 @@ package latipe.product.response;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotEmpty;
 import java.util.List;
+import latipe.product.entity.attribute.AttributeValue;
 import latipe.product.entity.product.ProductClassification;
 import latipe.product.entity.product.ProductVariant;
 
@@ -15,7 +16,9 @@ public record ProductResponse(
     @NotEmpty(message = "Product Description  is required")
     String description,
     Double price,
+    Double promotionalPrice,
     List<String> images,
+    List<CategoryResponse> categories,
     int quantity,
     List<ProductVariant> productVariants,
     List<ProductClassification> productClassifications,
@@ -23,7 +26,8 @@ public record ProductResponse(
     Boolean isDeleted,
     boolean isBanned,
     boolean isPublished,
-    int countSale
+    int countSale,
+    List<AttributeValue> detailsProduct
 ) {
 
 }

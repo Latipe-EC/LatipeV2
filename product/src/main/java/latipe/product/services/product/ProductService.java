@@ -54,7 +54,6 @@ import org.springframework.data.mongodb.core.aggregation.TypedAggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -66,6 +65,27 @@ public class ProductService implements IProductService {
   private final MongoTemplate mongoTemplate;
   private final RabbitMQProducer rabbitMQProducer;
 
+
+  @Override
+  @Async
+  public CompletableFuture<ProductResponse> get(String userId, String prodId,
+      HttpServletRequest request) {
+    return CompletableFuture.supplyAsync(() -> {
+      var prod = productRepository.findById(prodId)
+          .orElseThrow(() -> new BadRequestException("Product not found"));
+      var storeClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
+          .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL)
+          .target(StoreClient.class, "http://localhost:8181/api/v1");
+      // get store id from store service
+      var storeId = storeClient.getStoreId(request.getHeader("Authorization"), userId);
+
+      if (!storeId.equals(prod.getStoreId())) {
+        throw new BadRequestException("You don't have permission to change this product");
+      }
+      var cates = categoryRepository.findAllById(prod.getCategories());
+      return productMapper.mapToProductToResponse(prod, cates);
+    });
+  }
 
   @Override
   @Async
@@ -81,12 +101,12 @@ public class ProductService implements IProductService {
         input.productClassifications().add(
             ProductClassificationVm.builder().name("Default").price(input.price())
                 .promotionalPrice(input.promotionalPrice()).quantity(input.quantity())
-                .promotionalPrice(input.promotionalPrice()).image(input.images().get(0)).build());
+                .promotionalPrice(input.promotionalPrice()).build());
       } else {
         CheckProductHaveOption(input.productVariants(), input.productClassifications());
       }
-      StoreClient storeClient = Feign.builder().client(new OkHttpClient())
-          .encoder(new GsonEncoder()).decoder(new GsonDecoder()).logLevel(Logger.Level.FULL)
+      var storeClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
+          .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL)
           .target(StoreClient.class, "http://localhost:8181/api/v1");
       // get store id from store service
       var storeId = storeClient.getStoreId(request.getHeader("Authorization"), userId);
@@ -103,7 +123,7 @@ public class ProductService implements IProductService {
       }
       rabbitMQProducer.sendMessage(message);
 
-      return productMapper.mapToProductToResponse(savedProd);
+      return productMapper.mapToProductToResponse(savedProd, null);
     });
 
   }
@@ -252,7 +272,6 @@ public class ProductService implements IProductService {
 
   @Override
   @Async
-  @Transactional
   public CompletableFuture<Void> updateQuantity(List<UpdateProductQuantityRequest> request) {
     return CompletableFuture.supplyAsync(() -> {
       List<Product> products = new ArrayList<>();
@@ -306,7 +325,7 @@ public class ProductService implements IProductService {
 
   @Override
   @Async
-  @Transactional
+
   public CompletableFuture<ProductResponse> update(String userId, String id,
       UpdateProductRequest input, HttpServletRequest request) {
     var product = productRepository.findById(id)
@@ -331,12 +350,13 @@ public class ProductService implements IProductService {
       input.productClassifications().clear();
       input.productClassifications().add(
           ProductClassificationVm.builder().name("Default").price(input.price())
-              .quantity(input.quantity()).image(input.images().get(0)).build());
+              .quantity(input.quantity()).build());
     } else {
       CheckProductHaveOption(input.productVariants(), input.productClassifications());
     }
 
-    var savedProd = productMapper.mapToProductBeforeCreate(product.getId(), input, store);
+    var savedProd = productMapper.mapToProductBeforeUpdate(product.getId(), input, store);
+    savedProd = productRepository.save(savedProd);
 
     // send message create message
     String message;
@@ -347,7 +367,7 @@ public class ProductService implements IProductService {
     }
     rabbitMQProducer.sendMessage(message);
 
-    return CompletableFuture.completedFuture(productMapper.mapToProductToResponse(savedProd));
+    return CompletableFuture.completedFuture(productMapper.mapToProductToResponse(savedProd, null));
   }
 
   private void CheckProductHaveOption(List<ProductVariantVm> productVariantVms,
@@ -363,7 +383,7 @@ public class ProductService implements IProductService {
       for (int i = 0; i < productVariantVms.get(0).options().size(); i++) {
         productClassificationVms.set(i,
             ProductClassificationVm.setCodeName(productClassificationVms.get(i), String.valueOf(i),
-                productVariantVms.get(0).options().get(i)));
+                productVariantVms.get(0).options().get(i).getValue()));
       }
     } else {
       int count =
@@ -396,8 +416,6 @@ public class ProductService implements IProductService {
     if (quantity <= 0) {
       throw new BadRequestException("Quantity must be greater than 0");
     }
-
-
   }
 
   @Override
