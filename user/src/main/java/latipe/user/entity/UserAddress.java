@@ -25,11 +25,11 @@ public class UserAddress {
   @NotEmpty(message = "Detail Address is required")
   private String detailAddress;
   private String zipCode;
-  private Long cityOrProvinceId;
+  private String cityOrProvinceId;
   private String cityOrProvinceName;
-  private Long districtId;
+  private String districtId;
   private String districtName;
-  private Long wardId;
+  private String wardId;
   private String wardName;
   private Long countryId = 84L;
   private String countryName = "VietNam";

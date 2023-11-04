@@ -3,7 +3,6 @@ package latipe.product.FeignClient;
 import feign.Headers;
 import feign.Param;
 import feign.RequestLine;
-import java.util.List;
 import latipe.product.request.GetProvinceCodesRequest;
 import latipe.product.response.ProvinceCodesResponse;
 import org.springframework.web.bind.annotation.RequestBody;

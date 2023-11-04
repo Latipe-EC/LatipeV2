@@ -7,7 +7,6 @@ import latipe.product.response.CategoryResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
-import org.mapstruct.Mappings;
 import org.mapstruct.ReportingPolicy;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
@@ -18,7 +17,7 @@ public interface CategoryMapper {
 
   void mapToCategoryBeforeUpdate(@MappingTarget Category category, UpdateCategoryRequest input);
 
-//  @Mappings({
+  //  @Mappings({
 //      @Mapping(target = "id", source = "id"),
 //      @Mapping(target = "name", source = "name"),
 //      @Mapping(target = "isDeleted", source = "isDeleted"),

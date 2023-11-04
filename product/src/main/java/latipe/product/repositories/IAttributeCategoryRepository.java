@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 public interface IAttributeCategoryRepository extends MongoRepository<AttributeCategory, String> {
 
   Optional<AttributeCategory> findByCategoryId(String categoryId);
+
   @Aggregation(pipeline = {
       "{$skip: ?0}",
       "{$limit: ?1}"

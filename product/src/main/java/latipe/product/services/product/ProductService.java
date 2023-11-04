@@ -19,6 +19,8 @@ import java.util.concurrent.CompletableFuture;
 import latipe.product.FeignClient.StoreClient;
 import latipe.product.configs.CustomAggregationOperation;
 import latipe.product.constants.Action;
+import latipe.product.dtos.PagedResultDto;
+import latipe.product.dtos.Pagination;
 import latipe.product.entity.Category;
 import latipe.product.entity.Product;
 import latipe.product.entity.product.ProductClassification;
@@ -37,6 +39,7 @@ import latipe.product.request.UpdateProductQuantityRequest;
 import latipe.product.request.UpdateProductRequest;
 import latipe.product.response.OrderProductResponse;
 import latipe.product.response.ProductResponse;
+import latipe.product.response.ProductStoreResponse;
 import latipe.product.utils.ParseObjectToString;
 import latipe.product.viewmodel.ProductClassificationVm;
 import latipe.product.viewmodel.ProductESDetailVm;
@@ -47,6 +50,8 @@ import latipe.product.viewmodel.ProductThumbnailVm;
 import latipe.product.viewmodel.ProductVariantVm;
 import lombok.RequiredArgsConstructor;
 import org.bson.Document;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
@@ -66,6 +71,28 @@ public class ProductService implements IProductService {
   private final RabbitMQProducer rabbitMQProducer;
 
 
+  @Async
+  @Override
+  public CompletableFuture<PagedResultDto<ProductStoreResponse>> getMyProductStore(long skip,
+      int limit, String name, String orderBy, String storeId) {
+    return CompletableFuture.supplyAsync(() -> {
+      var aggregate = createQueryProduct(skip, limit, name, orderBy, storeId, false, false);
+      var total = productRepository.countProductByStoreId(storeId, name);
+      return getProductResponsePagedResultDto(skip, limit, total, aggregate);
+    });
+  }
+
+  @Async
+  @Override
+  public CompletableFuture<PagedResultDto<ProductStoreResponse>> getBanProductStore(long skip,
+      int limit, String name, String orderBy, String storeId) {
+    return CompletableFuture.supplyAsync(() -> {
+      var aggregate = createQueryProduct(skip, limit, name, orderBy, storeId, true, false);
+      var total = productRepository.countProductBanByStoreId(storeId, name);
+      return getProductResponsePagedResultDto(skip, limit, total, aggregate);
+    });
+  }
+
   @Override
   @Async
   public CompletableFuture<ProductResponse> get(String userId, String prodId,
@@ -82,8 +109,8 @@ public class ProductService implements IProductService {
       if (!storeId.equals(prod.getStoreId())) {
         throw new BadRequestException("You don't have permission to change this product");
       }
-      var cates = categoryRepository.findAllById(prod.getCategories());
-      return productMapper.mapToProductToResponse(prod, cates);
+      var categories = categoryRepository.findAllById(prod.getCategories());
+      return productMapper.mapToProductToResponse(prod, categories);
     });
   }
 
@@ -214,12 +241,13 @@ public class ProductService implements IProductService {
       var storeClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
           .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL).target(StoreClient.class, URL);
 
-      String hash = null;
+      String hash;
       try {
-        hash = generateHash("cart-service", getPrivateKey());
+        hash = generateHash("store-service", getPrivateKey());
       } catch (Exception e) {
         throw new RuntimeException(e);
       }
+
       var storeProvinceCodes = storeClient.getProvinceCodes(hash,
           GetProvinceCodesRequest.builder().ids(storeIds).build());
 
@@ -476,13 +504,6 @@ public class ProductService implements IProductService {
 
   private TypedAggregation<ProductClassification> createQueryClassification(List<String> prods,
       List<String> options) {
-    String matchProduct = """
-        {$match: {
-            "_id": {
-                $in: [%s]
-            }
-          }
-        }""";
     String unwind = """
         { $unwind: "$productClassifications"
         }
@@ -500,4 +521,29 @@ public class ProductService implements IProductService {
         new CustomAggregationOperation(matchOption.formatted(String.join(",", options))));
   }
 
+  private TypedAggregation<ProductStoreResponse> createQueryProduct(long skip, int limit,
+      String name, String orderBy, String storeId, Boolean ban, Boolean isDeleted) {
+    Direction direction = orderBy.charAt(0) == '-' ? Direction.DESC : Direction.ASC;
+    String orderByField = orderBy.charAt(0) == '-' ? orderBy.substring(1) : orderBy;
+    return Aggregation.newAggregation(ProductStoreResponse.class, Aggregation.match(
+            Criteria.where("storeId").is(storeId).and("isBanned").is(ban).and("isDeleted").is(isDeleted)
+                .and("name").regex(name, "i")), Aggregation.skip(skip), Aggregation.limit(limit),
+        Aggregation.sort(direction, orderByField));
+  }
+
+  @NotNull
+  private PagedResultDto<ProductStoreResponse> getProductResponsePagedResultDto(long skip,
+      int limit, long total, TypedAggregation<ProductStoreResponse> aggregate) {
+    var results = mongoTemplate.aggregate(aggregate, Product.class, Document.class);
+    var documents = results.getMappedResults();
+    var list = documents.stream().map(doc -> {
+      int countProductVariants = ((List) doc.get("productVariants")).size();
+      return ProductStoreResponse.builder().id(doc.getObjectId("_id").toString())
+          .name(doc.getString("name")).image(doc.getList("images", String.class).get(0))
+          .countProductVariants(countProductVariants).countSale(doc.getInteger("countSale"))
+          .build();
+
+    }).toList();
+    return PagedResultDto.create(Pagination.create(total, skip, limit), list);
+  }
 }

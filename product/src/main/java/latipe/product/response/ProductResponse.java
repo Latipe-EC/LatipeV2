@@ -7,7 +7,9 @@ import java.util.List;
 import latipe.product.entity.attribute.AttributeValue;
 import latipe.product.entity.product.ProductClassification;
 import latipe.product.entity.product.ProductVariant;
+import lombok.Builder;
 
+@Builder
 public record ProductResponse(
     @JsonProperty(value = "id", required = true)
     String id,

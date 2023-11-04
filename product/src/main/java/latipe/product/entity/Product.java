@@ -24,6 +24,7 @@ public class Product extends AbstractAuditEntity {
   boolean isDeleted = false;
   boolean isPublished = true;
   Double promotionalPrice;
+  List<AttributeValue> detailsProduct;
   @Id
   private String id;
   private String name;
@@ -40,7 +41,6 @@ public class Product extends AbstractAuditEntity {
   private List<ProductClassification> productClassifications = new ArrayList<>();
   private List<ProductVariant> productVariants = new ArrayList<>();
   private String reasonBan;
-  List<AttributeValue> detailsProduct;
 
   public Product(String prodId) {
     this.id = prodId;

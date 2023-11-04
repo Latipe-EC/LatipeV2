@@ -35,7 +35,7 @@ public class SecureInternalPhaseAspect {
     }
 
     RSAPublicKey publicKey = getPublicKey();
-    if (!verifyHash("cart-service", token, publicKey)) {
+    if (!verifyHash("store-service", token, publicKey)) {
       throw new UnauthorizedException("Unauthorized");
     }
   }

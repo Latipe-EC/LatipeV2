@@ -7,6 +7,7 @@ import java.util.concurrent.CompletableFuture;
 import latipe.product.annotations.ApiPrefixController;
 import latipe.product.annotations.RequiresAuthorization;
 import latipe.product.annotations.SecureInternalPhase;
+import latipe.product.dtos.PagedResultDto;
 import latipe.product.request.BanProductRequest;
 import latipe.product.request.CreateProductRequest;
 import latipe.product.request.OrderProductCheckRequest;
@@ -15,6 +16,7 @@ import latipe.product.request.UpdateProductQuantityRequest;
 import latipe.product.request.UpdateProductRequest;
 import latipe.product.response.OrderProductResponse;
 import latipe.product.response.ProductResponse;
+import latipe.product.response.ProductStoreResponse;
 import latipe.product.response.UserCredentialResponse;
 import latipe.product.services.product.IProductService;
 import latipe.product.viewmodel.ProductESDetailVm;
@@ -116,6 +118,26 @@ public class ProductController {
   @GetMapping(value = "/products-es/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<ProductESDetailVm> getProductESDetailById(@PathVariable String id) {
     return productService.getProductESDetailById(id);
+  }
+
+  @SecureInternalPhase
+  @ResponseStatus(HttpStatus.OK)
+  @GetMapping(value = "/store/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+  public CompletableFuture<PagedResultDto<ProductStoreResponse>> getProductStore(
+      @PathVariable String id,
+      @RequestParam String name, @RequestParam long skip, @RequestParam int size,
+      @RequestParam String orderBy) {
+    return productService.getMyProductStore(skip, size, name, orderBy, id);
+  }
+
+  @SecureInternalPhase
+  @ResponseStatus(HttpStatus.OK)
+  @GetMapping(value = "/store/{id}/ban", produces = MediaType.APPLICATION_JSON_VALUE)
+  public CompletableFuture<PagedResultDto<ProductStoreResponse>> getBanProductStore(
+      @PathVariable String id,
+      @RequestParam String name, @RequestParam long skip, @RequestParam int size,
+      @RequestParam String orderBy) {
+    return productService.getBanProductStore(skip, size, name, orderBy, id);
   }
 
   @SecureInternalPhase

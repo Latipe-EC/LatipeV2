@@ -1,4 +1,4 @@
-package latipe.product.entity.product;
+package latipe.store.response.product;
 
 import lombok.Getter;
 import lombok.Setter;
