@@ -13,7 +13,8 @@ public record ProductStoreResponse(
     String name,
     String image,
     int countProductVariants,
-    int countSale
+    int countSale,
+    String reasonBan
 ) {
 
 }

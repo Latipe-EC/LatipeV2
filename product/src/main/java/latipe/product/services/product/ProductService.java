@@ -540,7 +540,7 @@ public class ProductService implements IProductService {
       return ProductStoreResponse.builder().id(doc.getObjectId("_id").toString())
           .name(doc.getString("name")).image(doc.getList("images", String.class).get(0))
           .countProductVariants(countProductVariants).countSale(doc.getInteger("countSale"))
-          .build();
+          .reasonBan(doc.getString("reasonBan")).build();
 
     }).toList();
     return PagedResultDto.create(Pagination.create(total, skip, limit), list);
