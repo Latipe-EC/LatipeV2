@@ -18,5 +18,4 @@ public interface StoreClient {
   ProvinceCodesResponse getProvinceCodes(@Param("requester") String requester,
       @RequestBody GetProvinceCodesRequest request);
 
-
 }
