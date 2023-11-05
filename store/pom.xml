@@ -128,6 +128,10 @@
       <scope>provided</scope>
       <version>${mapstruct.version}</version>
     </dependency>
+    <dependency>
+      <artifactId>spring-boot-starter-amqp</artifactId>
+      <groupId>org.springframework.boot</groupId>
+    </dependency>
   </dependencies>
   <dependencyManagement>
     <dependencies>

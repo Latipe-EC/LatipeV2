@@ -103,11 +103,6 @@
       <groupId>org.aspectj</groupId>
     </dependency>
     <dependency>
-      <artifactId>spring-cloud-starter-feign</artifactId>
-      <groupId>org.springframework.cloud</groupId>
-      <version>1.4.7.RELEASE</version>
-    </dependency>
-    <dependency>
       <artifactId>mapstruct</artifactId>
       <groupId>org.mapstruct</groupId>
       <version>${mapstruct.version}</version>

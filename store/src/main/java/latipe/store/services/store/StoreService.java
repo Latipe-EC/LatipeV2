@@ -1,9 +1,11 @@
 package latipe.store.services.store;
 
 
+import static latipe.store.constants.CONSTANTS.URL;
 import static latipe.store.utils.GenTokenInternal.generateHash;
 import static latipe.store.utils.GenTokenInternal.getPrivateKey;
 
+import com.google.gson.Gson;
 import feign.Feign;
 import feign.Logger;
 import feign.gson.GsonDecoder;
@@ -15,10 +17,12 @@ import java.util.concurrent.CompletableFuture;
 import latipe.store.FeignClient.ProductClient;
 import latipe.store.FeignClient.UserClient;
 import latipe.store.configs.SecureInternalProperties;
+import latipe.store.constants.Action;
 import latipe.store.dtos.PagedResultDto;
 import latipe.store.exceptions.BadRequestException;
 import latipe.store.exceptions.NotFoundException;
 import latipe.store.mapper.StoreMapper;
+import latipe.store.producer.RabbitMQProducer;
 import latipe.store.repositories.IStoreRepository;
 import latipe.store.request.CreateStoreRequest;
 import latipe.store.request.GetProvinceCodesRequest;
@@ -26,6 +30,7 @@ import latipe.store.request.UpdateStoreRequest;
 import latipe.store.response.ProvinceCodesResponse;
 import latipe.store.response.StoreResponse;
 import latipe.store.response.product.ProductStoreResponse;
+import latipe.store.viewmodel.StoreMessage;
 import lombok.AllArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -37,6 +42,8 @@ public class StoreService implements IStoreService {
   private final IStoreRepository storeRepository;
   private final StoreMapper storeMapper;
   private final SecureInternalProperties secureInternalProperties;
+  private final RabbitMQProducer rabbitMQProducer;
+  private final Gson gson;
 
   @Override
   @Async
@@ -44,7 +51,7 @@ public class StoreService implements IStoreService {
       String token) {
     UserClient userClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
         .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL)
-        .target(UserClient.class, "http://localhost:8181/api/v1");
+        .target(UserClient.class, URL);
 
     return CompletableFuture.supplyAsync(() -> {
 
@@ -63,6 +70,9 @@ public class StoreService implements IStoreService {
 
       // update role store
       userClient.upgradeVendor(token);
+      String message = gson.toJson(
+          StoreMessage.builder().id(store.getId()).op(Action.CREATE).build());
+      rabbitMQProducer.sendMessage(message);
       return storeMapper.mapToStoreResponse(store);
     });
   }
@@ -151,7 +161,7 @@ public class StoreService implements IStoreService {
 
       var productClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
           .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL)
-          .target(ProductClient.class, "http://localhost:8181/api/v1");
+          .target(ProductClient.class, URL);
 
       return productClient.getProductStore(hash, name, skip, limit, orderBy, store.getId());
     });
@@ -182,7 +192,7 @@ public class StoreService implements IStoreService {
 
       var productClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
           .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL)
-          .target(ProductClient.class, "http://localhost:8181/api/v1");
+          .target(ProductClient.class, URL);
 
       return productClient.getBanProductStore(hash, name, skip, limit, orderBy, store.getId());
     });

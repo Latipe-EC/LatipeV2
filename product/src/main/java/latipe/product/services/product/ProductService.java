@@ -70,7 +70,6 @@ public class ProductService implements IProductService {
   private final MongoTemplate mongoTemplate;
   private final RabbitMQProducer rabbitMQProducer;
 
-
   @Async
   @Override
   public CompletableFuture<PagedResultDto<ProductStoreResponse>> getMyProductStore(long skip,
