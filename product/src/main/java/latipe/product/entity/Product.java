@@ -41,6 +41,7 @@ public class Product extends AbstractAuditEntity {
   private List<ProductClassification> productClassifications = new ArrayList<>();
   private List<ProductVariant> productVariants = new ArrayList<>();
   private String reasonBan;
+  List<Integer> ratings = new ArrayList<>();
 
   public Product(String prodId) {
     this.id = prodId;

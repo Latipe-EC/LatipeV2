@@ -1,8 +1,8 @@
 package latipe.product.services.product;
 
-import static latipe.product.configs.test.generateHash;
-import static latipe.product.configs.test.getPrivateKey;
 import static latipe.product.constants.CONSTANTS.URL;
+import static latipe.product.utils.GenTokenInternal.generateHash;
+import static latipe.product.utils.GenTokenInternal.getPrivateKey;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import feign.Feign;
@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import latipe.product.FeignClient.StoreClient;
 import latipe.product.configs.CustomAggregationOperation;
+import latipe.product.configs.SecureInternalProperties;
 import latipe.product.constants.Action;
 import latipe.product.dtos.PagedResultDto;
 import latipe.product.dtos.Pagination;
@@ -26,6 +27,7 @@ import latipe.product.entity.Product;
 import latipe.product.entity.product.ProductClassification;
 import latipe.product.exceptions.BadRequestException;
 import latipe.product.exceptions.NotFoundException;
+import latipe.product.mapper.CategoryMapper;
 import latipe.product.mapper.ProductMapper;
 import latipe.product.producer.RabbitMQProducer;
 import latipe.product.repositories.ICategoryRepository;
@@ -38,6 +40,7 @@ import latipe.product.request.ProductFeatureRequest;
 import latipe.product.request.UpdateProductQuantityRequest;
 import latipe.product.request.UpdateProductRequest;
 import latipe.product.response.OrderProductResponse;
+import latipe.product.response.ProductDetailResponse;
 import latipe.product.response.ProductResponse;
 import latipe.product.response.ProductStoreResponse;
 import latipe.product.utils.ParseObjectToString;
@@ -69,6 +72,8 @@ public class ProductService implements IProductService {
   private final ProductMapper productMapper;
   private final MongoTemplate mongoTemplate;
   private final RabbitMQProducer rabbitMQProducer;
+  private final CategoryMapper categoryMapper;
+  private final SecureInternalProperties secureInternalProperties;
 
   @Async
   @Override
@@ -106,7 +111,7 @@ public class ProductService implements IProductService {
       var storeId = storeClient.getStoreId(request.getHeader("Authorization"), userId);
 
       if (!storeId.equals(prod.getStoreId())) {
-        throw new BadRequestException("You don't have permission to change this product");
+        throw new BadRequestException("You don't have permission to view this product");
       }
       var categories = categoryRepository.findAllById(prod.getCategories());
       return productMapper.mapToProductToResponse(prod, categories);
@@ -242,7 +247,8 @@ public class ProductService implements IProductService {
 
       String hash;
       try {
-        hash = generateHash("store-service", getPrivateKey());
+        hash = generateHash("store-service",
+            getPrivateKey(secureInternalProperties.getPrivateKey()));
       } catch (Exception e) {
         throw new RuntimeException(e);
       }
@@ -269,7 +275,31 @@ public class ProductService implements IProductService {
           product.getPrice(), product.isPublished(), product.getImages(), product.getDescription(),
           product.getProductClassifications(),
           product.getProductClassifications().stream().map(ProductClassification::getName).toList(),
-          categoryNames, product.isBanned(), product.isDeleted(), product.getCreatedDate());
+          categoryNames, product.getDetailsProduct(), product.isBanned(), product.isDeleted(),
+          product.getCreatedDate());
+    });
+  }
+
+  @Override
+  @Async
+  public CompletableFuture<ProductDetailResponse> getProductDetail(String productId) {
+    return CompletableFuture.supplyAsync(() -> {
+      Product product = productRepository.findById(productId)
+          .orElseThrow(() -> new NotFoundException("PRODUCT_NOT_FOUND", productId));
+
+      List<Category> categories = categoryRepository.findAllById(product.getCategories());
+
+      var storeClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
+          .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL).target(StoreClient.class, URL);
+
+      var store = storeClient.getDetailStore(product.getStoreId());
+
+      return new ProductDetailResponse(product.getId(), product.getName(), product.getSlug(),
+          product.getPrice(), product.isPublished(), product.getImages(), product.getDescription(),
+          product.getProductClassifications(), product.getProductVariants(),
+          categories.stream().map(categoryMapper::mapToCategoryResponse).toList(),
+          product.getDetailsProduct(), product.isBanned(), product.isDeleted(),
+          product.getCreatedDate(), store);
     });
   }
 
@@ -541,7 +571,6 @@ public class ProductService implements IProductService {
           .name(doc.getString("name")).image(doc.getList("images", String.class).get(0))
           .countProductVariants(countProductVariants).countSale(doc.getInteger("countSale"))
           .reasonBan(doc.getString("reasonBan")).build();
-
     }).toList();
     return PagedResultDto.create(Pagination.create(total, skip, limit), list);
   }

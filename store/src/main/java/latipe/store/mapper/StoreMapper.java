@@ -18,6 +18,6 @@ public interface StoreMapper {
 
   void mapToStoreBeforeUpdate(@MappingTarget Store category, UpdateStoreRequest input);
 
-  StoreResponse mapToStoreResponse(Store category);
+  StoreResponse mapToStoreResponse(Store store);
 
 }

@@ -50,8 +50,7 @@ public class StoreService implements IStoreService {
   public CompletableFuture<StoreResponse> create(String userId, CreateStoreRequest input,
       String token) {
     UserClient userClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
-        .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL)
-        .target(UserClient.class, URL);
+        .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL).target(UserClient.class, URL);
 
     return CompletableFuture.supplyAsync(() -> {
 
@@ -127,6 +126,16 @@ public class StoreService implements IStoreService {
 
   @Override
   @Async
+  public CompletableFuture<StoreResponse> getDetailStoreById(String storeId) {
+    return CompletableFuture.supplyAsync(() -> {
+      var store = storeRepository.findById(storeId)
+          .orElseThrow(() -> new NotFoundException("Store not found"));
+      return storeMapper.mapToStoreResponse(store);
+    });
+  }
+
+  @Override
+  @Async
   public CompletableFuture<ProvinceCodesResponse> getProvinceCodes(GetProvinceCodesRequest input) {
     return CompletableFuture.supplyAsync(() -> {
       Set<String> storeIds = Set.copyOf(input.ids());
@@ -160,8 +169,7 @@ public class StoreService implements IStoreService {
       }
 
       var productClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
-          .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL)
-          .target(ProductClient.class, URL);
+          .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL).target(ProductClient.class, URL);
 
       return productClient.getProductStore(hash, name, skip, limit, orderBy, store.getId());
     });
@@ -191,8 +199,7 @@ public class StoreService implements IStoreService {
       }
 
       var productClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
-          .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL)
-          .target(ProductClient.class, URL);
+          .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL).target(ProductClient.class, URL);
 
       return productClient.getBanProductStore(hash, name, skip, limit, orderBy, store.getId());
     });

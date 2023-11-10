@@ -15,6 +15,7 @@ import latipe.product.request.ProductFeatureRequest;
 import latipe.product.request.UpdateProductQuantityRequest;
 import latipe.product.request.UpdateProductRequest;
 import latipe.product.response.OrderProductResponse;
+import latipe.product.response.ProductDetailResponse;
 import latipe.product.response.ProductResponse;
 import latipe.product.response.ProductStoreResponse;
 import latipe.product.response.UserCredentialResponse;
@@ -70,14 +71,21 @@ public class ProductController {
     return productService.checkProductInStock(prodOrders);
   }
 
-  @RequiresAuthorization("VENDOR")
   @ResponseStatus(HttpStatus.OK)
   @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<ProductResponse> get(@PathVariable("id") String prodId) {
+  public CompletableFuture<ProductDetailResponse> getProductDetail(@PathVariable("id") String prodId) {
+    return productService.getProductDetail(prodId);
+  }
+
+  @RequiresAuthorization("VENDOR")
+  @ResponseStatus(HttpStatus.OK)
+  @GetMapping(value = "/{id}/advance", produces = MediaType.APPLICATION_JSON_VALUE)
+  public CompletableFuture<ProductResponse> getProductDetailByVendor(@PathVariable("id") String prodId) {
     HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
     UserCredentialResponse userCredential = (UserCredentialResponse) (request.getAttribute("user"));
     return productService.get(userCredential.id(), prodId, request);
   }
+
 
   @RequiresAuthorization("VENDOR")
   @ResponseStatus(HttpStatus.OK)
@@ -120,13 +128,18 @@ public class ProductController {
     return productService.getProductESDetailById(id);
   }
 
+  @ResponseStatus(HttpStatus.OK)
+  @GetMapping(value = "/products-es/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+  public CompletableFuture<ProductESDetailVm> getDetailProduct(@PathVariable String id) {
+    return productService.getProductESDetailById(id);
+  }
+
   @SecureInternalPhase
   @ResponseStatus(HttpStatus.OK)
   @GetMapping(value = "/store/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<PagedResultDto<ProductStoreResponse>> getProductStore(
-      @PathVariable String id,
-      @RequestParam String name, @RequestParam long skip, @RequestParam int size,
-      @RequestParam String orderBy) {
+      @PathVariable String id, @RequestParam String name, @RequestParam long skip,
+      @RequestParam int size, @RequestParam String orderBy) {
     return productService.getMyProductStore(skip, size, name, orderBy, id);
   }
 
@@ -134,9 +147,8 @@ public class ProductController {
   @ResponseStatus(HttpStatus.OK)
   @GetMapping(value = "/store/{id}/ban", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<PagedResultDto<ProductStoreResponse>> getBanProductStore(
-      @PathVariable String id,
-      @RequestParam String name, @RequestParam long skip, @RequestParam int size,
-      @RequestParam String orderBy) {
+      @PathVariable String id, @RequestParam String name, @RequestParam long skip,
+      @RequestParam int size, @RequestParam String orderBy) {
     return productService.getBanProductStore(skip, size, name, orderBy, id);
   }
 

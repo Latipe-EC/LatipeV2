@@ -12,6 +12,7 @@ import latipe.product.request.ProductFeatureRequest;
 import latipe.product.request.UpdateProductQuantityRequest;
 import latipe.product.request.UpdateProductRequest;
 import latipe.product.response.OrderProductResponse;
+import latipe.product.response.ProductDetailResponse;
 import latipe.product.response.ProductResponse;
 import latipe.product.response.ProductStoreResponse;
 import latipe.product.viewmodel.ProductESDetailVm;
@@ -50,4 +51,6 @@ public interface IProductService {
 
   CompletableFuture<PagedResultDto<ProductStoreResponse>> getBanProductStore(long skip, int limit,
       String name, String orderBy, String storeId);
+
+  CompletableFuture<ProductDetailResponse> getProductDetail(String productId);
 }

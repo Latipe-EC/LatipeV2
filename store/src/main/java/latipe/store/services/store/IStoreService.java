@@ -21,6 +21,8 @@ public interface IStoreService {
 
   CompletableFuture<String> getStoreByUserId(String userId);
 
+  CompletableFuture<StoreResponse> getDetailStoreById(String storeId);
+
   CompletableFuture<ProvinceCodesResponse> getProvinceCodes(
       @RequestBody GetProvinceCodesRequest input);
 

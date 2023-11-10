@@ -46,6 +46,12 @@ public class StoreController {
     return storeService.getStoreByUserId(userId);
   }
 
+  @ResponseStatus(HttpStatus.OK)
+  @GetMapping(value = "/{storeId}", produces = MediaType.APPLICATION_JSON_VALUE)
+  public CompletableFuture<StoreResponse> getDetailStore(@PathVariable String storeId) {
+    return storeService.getDetailStoreById(storeId);
+  }
+
   @Authenticate
   @ResponseStatus(HttpStatus.CREATED)
   @PostMapping(value = "/register-store", produces = MediaType.APPLICATION_JSON_VALUE)
