@@ -128,11 +128,6 @@ public class ProductController {
     return productService.getProductESDetailById(id);
   }
 
-  @ResponseStatus(HttpStatus.OK)
-  @GetMapping(value = "/products-es/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<ProductESDetailVm> getDetailProduct(@PathVariable String id) {
-    return productService.getProductESDetailById(id);
-  }
 
   @SecureInternalPhase
   @ResponseStatus(HttpStatus.OK)
