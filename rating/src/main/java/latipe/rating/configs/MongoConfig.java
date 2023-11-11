@@ -19,7 +19,7 @@ import org.springframework.data.mongodb.core.mapping.MongoMappingContext;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
 @Configuration
-@EnableMongoRepositories(basePackages = "latipe.store.repositories")
+@EnableMongoRepositories(basePackages = "latipe.rating.repositories")
 @EnableMongoAuditing
 public class MongoConfig extends AbstractMongoClientConfiguration {
 

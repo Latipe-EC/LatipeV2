@@ -10,6 +10,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.util.Objects;
 import latipe.rating.FeignClient.AuthClient;
 import latipe.rating.exceptions.UnauthorizedException;
+import latipe.rating.request.TokenRequest;
+import latipe.rating.response.UserCredentialResponse;
 import lombok.AllArgsConstructor;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;

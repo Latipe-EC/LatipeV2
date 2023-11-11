@@ -1,7 +1,7 @@
 package latipe.rating.utils;
 
 import jakarta.servlet.http.HttpServletRequest;
-import latipe.store.exceptions.NotFoundException;
+import latipe.rating.exceptions.NotFoundException;
 
 public class GetBearerToken {
 

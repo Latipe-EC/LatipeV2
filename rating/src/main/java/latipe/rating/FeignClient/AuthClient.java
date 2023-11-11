@@ -2,6 +2,8 @@ package latipe.rating.FeignClient;
 
 import feign.Headers;
 import feign.RequestLine;
+import latipe.rating.request.TokenRequest;
+import latipe.rating.response.UserCredentialResponse;
 
 public interface AuthClient {
 

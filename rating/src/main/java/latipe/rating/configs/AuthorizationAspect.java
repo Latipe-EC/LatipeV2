@@ -12,6 +12,8 @@ import latipe.rating.FeignClient.AuthClient;
 import latipe.rating.annotations.RequiresAuthorization;
 import latipe.rating.exceptions.ForbiddenException;
 import latipe.rating.exceptions.UnauthorizedException;
+import latipe.rating.request.TokenRequest;
+import latipe.rating.response.UserCredentialResponse;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;

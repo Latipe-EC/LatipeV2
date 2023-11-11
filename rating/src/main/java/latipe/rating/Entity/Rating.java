@@ -31,7 +31,7 @@ public class Rating extends AbstractAuditEntity {
 
   private String userName;
 
-  private String orderId;
-
   private String orderItemId;
+
+  private Boolean isChange = false;
 }
