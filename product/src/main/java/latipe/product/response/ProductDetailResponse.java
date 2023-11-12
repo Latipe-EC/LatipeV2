@@ -8,7 +8,8 @@ import latipe.product.entity.product.ProductClassification;
 import latipe.product.entity.product.ProductVariant;
 
 public record ProductDetailResponse(String id, String name, String slug, Double price,
-                                    Boolean isPublished, List<String> images, String description,
+                                    Double promotionalPrice, Boolean isPublished,
+                                    List<String> images, String description,
                                     List<ProductClassification> productClassifications,
                                     List<ProductVariant> productVariants,
                                     List<CategoryResponse> categories,

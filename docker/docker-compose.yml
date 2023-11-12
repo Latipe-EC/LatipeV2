@@ -31,9 +31,23 @@ services:
     ports:
       - "9411:9411"
   #    restart: always
+  mysql:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 123123@Dat
+      MYSQL_DATABASE: backend_orders_service
+    ports:
+      - "3306:3306"
+    command: --default-authentication-plugin=mysql_native_password
 
   rabbitmq:
     image: rabbitmq:3.12-management
     ports:
       - "5672:5672"
       - "15672:15672"
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"

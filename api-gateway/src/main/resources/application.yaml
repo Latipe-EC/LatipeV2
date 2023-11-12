@@ -118,7 +118,27 @@ spring:
           uri: http://localhost:8777
           predicates:
             - Path=/api/v1/ratings/**
-            - Path=/api/v1/ratings/**
+          filters:
+            - RewritePath=/(?<segment>.*), /$\{segment}
+
+        - id: orders-service
+          uri: http://localhost:5000
+          predicates:
+            - Path=/api/v1/orders/**
+          filters:
+            - RewritePath=/(?<segment>.*), /$\{segment}
+
+        - id: delivery-service
+          uri: http://localhost:5005
+          predicates:
+            - Path=/api/v1/delivery/**
+          filters:
+            - RewritePath=/(?<segment>.*), /$\{segment}
+
+        - id: vouchers-service
+          uri: http://localhost:5010
+          predicates:
+            - Path=/api/v1/vouchers/**
           filters:
             - RewritePath=/(?<segment>.*), /$\{segment}
 

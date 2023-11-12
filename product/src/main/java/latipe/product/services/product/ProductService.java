@@ -232,6 +232,7 @@ public class ProductService implements IProductService {
             .optionId(productClassificationsDoc.getObjectId("_id").toString())
             .quantity(prodOrder.quantity()).price(productClassificationsDoc.getDouble("price"))
             .promotionalPrice(promotionalPrice)
+            .image(doc.getList("images", String.class).get(0))
             .nameOption(productClassificationsDoc.getString("name")).totalPrice(
                 productClassificationsDoc.getDouble("promotionalPrice") == null ?
                     productClassificationsDoc.getDouble("price") * prodOrder.quantity()
@@ -295,8 +296,9 @@ public class ProductService implements IProductService {
       var store = storeClient.getDetailStore(product.getStoreId());
 
       return new ProductDetailResponse(product.getId(), product.getName(), product.getSlug(),
-          product.getPrice(), product.isPublished(), product.getImages(), product.getDescription(),
-          product.getProductClassifications(), product.getProductVariants(),
+          product.getPrice(), product.getPromotionalPrice(), product.isPublished(),
+          product.getImages(), product.getDescription(), product.getProductClassifications(),
+          product.getProductVariants(),
           categories.stream().map(categoryMapper::mapToCategoryResponse).toList(),
           product.getDetailsProduct(), product.isBanned(), product.isDeleted(),
           product.getCreatedDate(), store);
@@ -566,7 +568,7 @@ public class ProductService implements IProductService {
     var results = mongoTemplate.aggregate(aggregate, Product.class, Document.class);
     var documents = results.getMappedResults();
     var list = documents.stream().map(doc -> {
-      int countProductVariants = ((List) doc.get("productVariants")).size();
+      int countProductVariants = ((List<?>) doc.get("productVariants")).size();
       return ProductStoreResponse.builder().id(doc.getObjectId("_id").toString())
           .name(doc.getString("name")).image(doc.getList("images", String.class).get(0))
           .countProductVariants(countProductVariants).countSale(doc.getInteger("countSale"))
