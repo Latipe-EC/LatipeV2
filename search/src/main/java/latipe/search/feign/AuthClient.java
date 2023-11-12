@@ -1,9 +1,9 @@
-package latipe.rating.FeignClient;
+package latipe.search.feign;
 
 import feign.Headers;
 import feign.RequestLine;
-import latipe.rating.request.TokenRequest;
-import latipe.rating.response.UserCredentialResponse;
+import latipe.search.request.TokenRequest;
+import latipe.search.response.UserCredentialResponse;
 
 public interface AuthClient {
 

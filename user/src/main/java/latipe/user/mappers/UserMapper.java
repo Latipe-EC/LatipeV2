@@ -2,6 +2,7 @@ package latipe.user.mappers;
 
 import latipe.user.entity.User;
 import latipe.user.entity.UserAddress;
+import latipe.user.request.CreateUserAddressRequest;
 import latipe.user.request.CreateUserRequest;
 import latipe.user.request.RegisterRequest;
 import latipe.user.request.UpdateUserAddressRequest;
@@ -14,21 +15,25 @@ import org.mapstruct.Mappings;
 import org.mapstruct.ReportingPolicy;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
-public interface IUserMapper {
+public abstract class UserMapper {
 
-  void mapBeforeUpdateUserAddress(@MappingTarget UserAddress address,
+  public abstract void mapBeforeUpdateUserAddress(@MappingTarget UserAddress address,
       UpdateUserAddressRequest input);
 
-  void mapBeforeUpdateUser(@MappingTarget User user, UpdateUserRequest input);
+  public abstract void mapBeforeUpdateUser(@MappingTarget User user, UpdateUserRequest input);
 
   @Mappings({@Mapping(target = "role", ignore = true)})
-  User mapBeforeCreateUserAddress(CreateUserRequest input, String displayName, String password);
+  public abstract User mapBeforeCreateUserAddress(CreateUserRequest input, String displayName,
+      String password);
 
   @Mappings({@Mapping(target = "roleId", source = "roleId"),
       @Mapping(target = "displayName", source = "displayName"),
       @Mapping(target = "hashedPassword", source = "password"),})
-  User mapBeforeCreate(RegisterRequest input, String roleId, String displayName, String password);
+  public abstract User mapBeforeCreate(RegisterRequest input, String roleId, String displayName,
+      String password);
 
   @Mappings({@Mapping(target = "role", source = "user.role.name")})
-  UserResponse mapToResponse(User user);
+  public abstract UserResponse mapToResponse(User user);
+
+  public abstract UserAddress mapToUserAddress(String id, CreateUserAddressRequest address);
 }

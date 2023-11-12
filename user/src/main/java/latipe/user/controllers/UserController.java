@@ -1,7 +1,6 @@
 package latipe.user.controllers;
 
 import jakarta.validation.Valid;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import latipe.user.annotations.ApiPrefixController;
 import latipe.user.annotations.Authenticate;

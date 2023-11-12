@@ -7,7 +7,7 @@ import latipe.user.entity.User;
 import latipe.user.entity.UserAddress;
 import latipe.user.exceptions.BadRequestException;
 import latipe.user.exceptions.NotFoundException;
-import latipe.user.mappers.IUserMapper;
+import latipe.user.mappers.UserMapper;
 import latipe.user.repositories.IRoleRepository;
 import latipe.user.repositories.IUserRepository;
 import latipe.user.request.CreateUserAddressRequest;
@@ -31,7 +31,7 @@ public class UserService implements IUserService {
   private final IUserRepository userRepository;
   private final IRoleRepository roleRepository;
   private final PasswordEncoder passwordEncoder;
-  private final IUserMapper userMapper;
+  private final UserMapper userMapper;
 
   @Async
   @Override
@@ -82,13 +82,7 @@ public class UserService implements IUserService {
       if (user.getAddresses().size() > 9) {
         throw new BadRequestException("You can only add up to 10 addresses");
       }
-      var address = UserAddress.builder().id(new ObjectId().toString())
-          .contactName(input.contactName()).phone(input.phone())
-          .detailAddress(input.detailAddress()).zipCode(input.zipCode())
-          .countryId(input.countryId()).countryName(input.countryName())
-          .cityOrProvinceId(input.cityOrProvinceId()).cityOrProvinceName(input.cityOrProvinceName())
-          .districtId(input.districtId()).districtName(input.districtName()).wardId(input.wardId())
-          .wardName(input.districtName()).build();
+      var address = userMapper.mapToUserAddress(new ObjectId().toString(), input);
       user.getAddresses().add(address);
       userRepository.save(user);
       return address;

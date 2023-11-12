@@ -6,6 +6,26 @@
   <build>
     <plugins>
       <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <annotationProcessorPaths>
+            <path>
+              <artifactId>lombok</artifactId>
+              <groupId>org.projectlombok</groupId>
+              <version>${lombok.version}</version>
+            </path>
+            <path>
+              <artifactId>mapstruct-processor</artifactId>
+              <groupId>org.mapstruct</groupId>
+              <version>${mapstruct.version}</version>
+            </path>
+          </annotationProcessorPaths>
+          <source>${java.version}</source>
+          <target>${java.version}</target>
+        </configuration>
+        <groupId>org.apache.maven.plugins</groupId>
+      </plugin>
+      <plugin>
         <artifactId>spring-boot-maven-plugin</artifactId>
         <configuration>
           <mainClass>${mainClass}</mainClass>
@@ -77,22 +97,38 @@
     <dependency>
       <artifactId>elasticsearch-rest-client</artifactId>
       <groupId>org.elasticsearch.client</groupId>
-      <version>7.17.2</version>
+      <version>8.10.4</version>
     </dependency>
-    <!-- https://mvnrepository.com/artifact/org.elasticsearch.client/transport -->
     <dependency>
       <artifactId>transport</artifactId>
       <groupId>org.elasticsearch.client</groupId>
       <version>7.17.2</version>
     </dependency>
     <dependency>
-      <artifactId>commons-collections4</artifactId>
-      <groupId>org.apache.commons</groupId>
+      <artifactId>mapstruct</artifactId>
+      <groupId>org.mapstruct</groupId>
+      <version>${mapstruct.version}</version>
     </dependency>
     <dependency>
-      <artifactId>spring-cloud-starter-feign</artifactId>
-      <groupId>org.springframework.cloud</groupId>
-      <version>1.4.7.RELEASE</version>
+      <artifactId>mapstruct-processor</artifactId>
+      <groupId>org.mapstruct</groupId>
+      <scope>provided</scope>
+      <version>${mapstruct.version}</version>
+    </dependency>
+    <dependency>
+      <artifactId>feign-okhttp</artifactId>
+      <groupId>io.github.openfeign</groupId>
+      <version>10.11</version>
+    </dependency>
+    <dependency>
+      <artifactId>feign-gson</artifactId>
+      <groupId>io.github.openfeign</groupId>
+      <version>10.11</version>
+    </dependency>
+    <dependency>
+      <artifactId>feign-slf4j</artifactId>
+      <groupId>io.github.openfeign</groupId>
+      <version>10.11</version>
     </dependency>
     <dependency>
       <artifactId>swagger-annotations-jakarta</artifactId>
@@ -118,6 +154,10 @@
     <dependency>
       <artifactId>gson</artifactId>
       <groupId>com.google.code.gson</groupId>
+    </dependency>
+    <dependency>
+      <artifactId>aspectjweaver</artifactId>
+      <groupId>org.aspectj</groupId>
     </dependency>
   </dependencies>
   <dependencyManagement>
@@ -146,10 +186,12 @@
   <properties>
     <java.version>17</java.version>
     <mainClass>latipe.search.SearchApplication</mainClass>
+    <mapstruct.version>1.5.5.Final</mapstruct.version>
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
     <spring-cloud.version>2022.0.3</spring-cloud.version>
     <springdoc-openapi-starter-webmvc-ui.version>2.0.2</springdoc-openapi-starter-webmvc-ui.version>
+
   </properties>
 
   <version>1.0.0-SNAPSHOT</version>

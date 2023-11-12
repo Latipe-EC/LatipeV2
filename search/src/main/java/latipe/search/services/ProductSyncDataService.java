@@ -1,33 +1,41 @@
 package latipe.search.services;
 
 
+import static latipe.search.constants.CONSTANTS.URL;
+
+import feign.Feign;
+import feign.Logger;
+import feign.gson.GsonDecoder;
+import feign.gson.GsonEncoder;
+import feign.okhttp.OkHttpClient;
 import latipe.search.constants.MessageCode;
-import latipe.search.controllers.APIClient;
 import latipe.search.document.Product;
 import latipe.search.exceptions.NotFoundException;
+import latipe.search.feign.ProductClient;
+import latipe.search.mapper.ProductMapper;
 import latipe.search.repositories.ProductRepository;
 import latipe.search.viewmodel.ProductESDetailVm;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@AllArgsConstructor
 public class ProductSyncDataService {
 
-  private final APIClient apiClient;
   private final ProductRepository productRepository;
-
-  public ProductSyncDataService(APIClient apiClient, ProductRepository productRepository) {
-    this.apiClient = apiClient;
-    this.productRepository = productRepository;
-  }
+  private final ProductMapper productMapper;
 
   public ProductESDetailVm getProductESDetailById(String id) {
-    return apiClient.getProductESDetailById(id);
+
+    var productClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
+        .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL).target(ProductClient.class, URL);
+    return productClient.getProductESDetailById(id);
   }
 
   public void updateProduct(String id) {
     ProductESDetailVm productESDetailVm = getProductESDetailById(id);
-    Product product = productRepository.findById(id).orElseThrow(()
-        -> new NotFoundException(MessageCode.PRODUCT_NOT_FOUND, id));
+    Product product = productRepository.findById(id)
+        .orElseThrow(() -> new NotFoundException(MessageCode.PRODUCT_NOT_FOUND, id));
 
     product.setName(productESDetailVm.name());
     product.setSlug(productESDetailVm.slug());
@@ -47,24 +55,8 @@ public class ProductSyncDataService {
   }
 
   public void createProduct(String id) {
-    ProductESDetailVm productESDetailVm = getProductESDetailById(id);
-
-    Product product = Product.builder()
-        .id(id)
-        .name(productESDetailVm.name())
-        .slug(productESDetailVm.slug())
-        .price(productESDetailVm.price())
-        .isPublished(productESDetailVm.isPublished())
-        .categories(productESDetailVm.categories())
-        .classifications(productESDetailVm.classifications())
-        .productClassifications(productESDetailVm.productClassifications())
-        .images(productESDetailVm.images())
-        .createdDate(productESDetailVm.createdDate())
-        .description(productESDetailVm.description())
-        .isBanned(productESDetailVm.isBanned())
-        .countSale(productESDetailVm.countSale())
-        .isDeleted(productESDetailVm.isDeleted())
-        .build();
+    var productESDetailVm = getProductESDetailById(id);
+    var product = productMapper.mapToProduct(productESDetailVm);
     productRepository.save(product);
   }
 
@@ -78,9 +70,8 @@ public class ProductSyncDataService {
   }
 
   public void banProduct(String id) {
-    var productExisted = productRepository.findById(id).orElseThrow(
-        () -> new NotFoundException(MessageCode.PRODUCT_NOT_FOUND, id)
-    );
+    var productExisted = productRepository.findById(id)
+        .orElseThrow(() -> new NotFoundException(MessageCode.PRODUCT_NOT_FOUND, id));
     productExisted.setBanned(true);
     productRepository.save(productExisted);
   }

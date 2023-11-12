@@ -228,7 +228,8 @@ public class AuthController {
       throw new NotFoundException("User not found");
     }
     var user = mongoTemplate.getConverter().read(User.class, userRaw);
-    user.setRole(mongoTemplate.getConverter().read(Role.class, userRaw.get("role", Document.class)));
+    user.setRole(
+        mongoTemplate.getConverter().read(Role.class, userRaw.get("role", Document.class)));
     return user;
   }
 }
