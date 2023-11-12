@@ -1,7 +1,6 @@
 package latipe.rating.repositories;
 
 
-import java.util.List;
 import latipe.rating.Entity.Rating;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;

@@ -24,13 +24,13 @@ services:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
-#    restart: always
+  #    restart: always
 
   zipkin:
     image: openzipkin/zipkin
     ports:
       - "9411:9411"
-#    restart: always
+  #    restart: always
 
   rabbitmq:
     image: rabbitmq:3.12-management

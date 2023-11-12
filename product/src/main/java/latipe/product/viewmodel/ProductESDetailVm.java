@@ -3,7 +3,6 @@ package latipe.product.viewmodel;
 
 import java.util.Date;
 import java.util.List;
-import latipe.product.entity.attribute.Attribute;
 import latipe.product.entity.attribute.AttributeValue;
 import latipe.product.entity.product.ProductClassification;
 

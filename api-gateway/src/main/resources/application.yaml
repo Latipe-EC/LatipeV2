@@ -114,6 +114,14 @@ spring:
           predicates:
             - Path=/eureka/**
 
+        - id: rating-service
+          uri: http://localhost:8777
+          predicates:
+            - Path=/api/v1/ratings/**
+            - Path=/api/v1/ratings/**
+          filters:
+            - RewritePath=/(?<segment>.*), /$\{segment}
+
 logging:
   #  level:
   #    org.springframework.web.HttpLogging: TRACE

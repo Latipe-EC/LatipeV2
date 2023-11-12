@@ -1,11 +1,13 @@
-package latipe.user;
+package latipe.rating;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class UserApplication {
+public class RatingApplication {
+
   public static void main(String[] args) {
-    SpringApplication.run(UserApplication.class, args);
+    SpringApplication.run(RatingApplication.class, args);
   }
+
 }

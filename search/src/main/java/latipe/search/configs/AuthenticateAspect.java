@@ -26,7 +26,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 public class AuthenticateAspect {
 
 
-  @Before("@annotation(latipe.rating.annotations.Authenticate)")
+  @Before("@annotation(latipe.search.annotations.Authenticate)")
   public void authenticate() throws UnauthorizedException {
     AuthClient authClient = Feign.builder()
         .client(new OkHttpClient())

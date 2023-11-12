@@ -73,14 +73,16 @@ public class ProductController {
 
   @ResponseStatus(HttpStatus.OK)
   @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<ProductDetailResponse> getProductDetail(@PathVariable("id") String prodId) {
+  public CompletableFuture<ProductDetailResponse> getProductDetail(
+      @PathVariable("id") String prodId) {
     return productService.getProductDetail(prodId);
   }
 
   @RequiresAuthorization("VENDOR")
   @ResponseStatus(HttpStatus.OK)
   @GetMapping(value = "/{id}/advance", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<ProductResponse> getProductDetailByVendor(@PathVariable("id") String prodId) {
+  public CompletableFuture<ProductResponse> getProductDetailByVendor(
+      @PathVariable("id") String prodId) {
     HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
     UserCredentialResponse userCredential = (UserCredentialResponse) (request.getAttribute("user"));
     return productService.get(userCredential.id(), prodId, request);

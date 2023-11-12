@@ -50,7 +50,8 @@ public class RatingService implements IRatingService {
 
       String message = gson.toJson(
           RatingMessage.builder().orderItemId(rating.getOrderItemId()).ratingId(rating.getId())
-              .op(Action.CREATE).build());
+              .rating(rating.getRating()).productId(rating.getProductId()).op(Action.CREATE)
+              .build());
       rabbitMQProducer.sendMessage(message);
       return ratingMapper.mapToRatingResponse(rating);
     });
@@ -79,7 +80,8 @@ public class RatingService implements IRatingService {
 
       String message = gson.toJson(
           RatingMessage.builder().orderItemId(rating.getOrderItemId()).ratingId(rating.getId())
-              .op(Action.UPDATE).build());
+              .rating(rating.getRating()).productId(rating.getProductId()).op(Action.UPDATE)
+              .build());
       rabbitMQProducer.sendMessage(message);
 
       return ratingMapper.mapToRatingResponse(rating);
@@ -103,7 +105,8 @@ public class RatingService implements IRatingService {
 
       String message = gson.toJson(
           RatingMessage.builder().orderItemId(rating.getOrderItemId()).ratingId(rating.getId())
-              .op(Action.DELETE).build());
+              .rating(rating.getRating()).productId(rating.getProductId()).op(Action.DELETE)
+              .build());
       rabbitMQProducer.sendMessage(message);
 
       return null;
@@ -137,7 +140,6 @@ public class RatingService implements IRatingService {
       var total = ratingRepository.countRatingByStoreId(storeId);
 
       return PagedResultDto.create(Pagination.create(total, skip, pageSize), list);
-
     });
   }
 

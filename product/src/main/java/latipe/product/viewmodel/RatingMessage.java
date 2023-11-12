@@ -1,4 +1,4 @@
-package latipe.rating.viewmodel;
+package latipe.product.viewmodel;
 
 import lombok.Builder;
 
