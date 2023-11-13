@@ -57,7 +57,7 @@ public class CartService implements ICartService {
           .map(x -> new ProductFeatureRequest(x.productId(), x.productOptionId())).toList();
       String userId = userCredential.id();
       // Call API to check all products will be added to cart are existed
-      List<ProductThumbnailResponse> productThumbnailResponseList = null;
+      List<ProductThumbnailResponse> productThumbnailResponseList ;
       try {
         productThumbnailResponseList = productService.getProducts(productIds).get();
       } catch (InterruptedException | ExecutionException e) {
@@ -241,7 +241,7 @@ public class CartService implements ICartService {
       return CartItemPutResponse.fromModel(cartItem, String.format("PRODUCT %s", "DELETED"));
     } else {
       cartItem.setQuantity(newQuantity);
-      cart = cartRepository.save(cart);
+      cartRepository.save(cart);
       return CartItemPutResponse.fromModel(cartItem, String.format("PRODUCT %s", "UPDATED"));
     }
   }

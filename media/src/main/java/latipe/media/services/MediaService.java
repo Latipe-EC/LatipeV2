@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import javax.imageio.ImageIO;
@@ -56,7 +57,8 @@ public class MediaService implements IMediaService {
             }
           }
           String fileName = System.currentTimeMillis() + "-" + UUID.randomUUID() + "."
-              + FileCategorizeUtils.getFileExtension(file.getOriginalFilename());
+              + FileCategorizeUtils.getFileExtension(
+              Objects.requireNonNull(file.getOriginalFilename()));
           HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
 
           Path path = Paths.get(uploadPath.toString(), fileName);

@@ -83,7 +83,7 @@ public class JwtTokenService {
   }
 
   public boolean isTokenExpired(String token) {
-    Date expirationDate = null;
+    Date expirationDate;
     try {
       expirationDate = getExpirationDateFromToken(token);
     } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
@@ -143,8 +143,8 @@ public class JwtTokenService {
   }
 
   public String checkToken(String token, String type) {
-    String username = null;
-    Claims claims = null;
+    String username;
+    Claims claims;
     try {
       claims = getBodyToken(token);
     } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {

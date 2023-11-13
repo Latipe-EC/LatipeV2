@@ -187,7 +187,7 @@ public class AuthController {
         .expired(LocalDateTime.now().plusMinutes(1).plusSeconds(2)).type(TOKEN_TYPE.VERIFY_EMAIL)
         .build();
     GenTokenUtils.setToken(user, token);
-    user = userRepository.save(user);
+    userRepository.save(user);
     String messageText = "Mã xác thực của bạn là: %s".formatted(token.token());
     // notification will cover
 //        smsService.sendSMS(phoneNumber.replaceFirst("^0", "+84"), messageText);

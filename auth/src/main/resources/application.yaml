@@ -28,14 +28,6 @@ eureka:
     serviceUrl:
       defaultZone: http://eureka:password@localhost:8761/eureka
 springdoc:
-  swagger-ui:
-    oauth:
-      use-pkce-with-authorization-code-grant: 'true'
-      client-id: swagger-ui
-    path: /swagger-ui
-  oauthflow:
-    token-url: http://localhost:8080/realms/latipe-realm/protocol/openid-connect/token
-    authorization-url: http://localhost:8080/realms/latipe-realm/protocol/openid-connect/auth
   packagesToScan: latipe.auth
 
 URL_FE: http://localhost:4200

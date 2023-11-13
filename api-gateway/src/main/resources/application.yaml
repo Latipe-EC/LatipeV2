@@ -103,14 +103,14 @@ spring:
             - RewritePath=/(?<segment>.*), /$\{segment}
 
         - id: discovery_server
-          uri: http://eureka:password@${app.eureka-server}:8761
+          uri: https://eureka:password@${app.eureka-server}:8761
           predicates:
             - Path=/eureka/web
           filters:
             - SetPath=/
 
         - id: discovery_server_static
-          uri: http://eureka:password@${app.eureka-server}:8761
+          uri: https://eureka:password@${app.eureka-server}:8761
           predicates:
             - Path=/eureka/**
 
