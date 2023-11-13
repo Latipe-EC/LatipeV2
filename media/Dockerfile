@@ -1,3 +1,6 @@
 FROM eclipse-temurin:17-jre-alpine
-ADD target/media-0.0.1-SNAPSHOT.jar media-0.0.1-SNAPSHOT.jar
-ENTRYPOINT ["java", "-jar", "/media-0.0.1-SNAPSHOT.jar"]
+MAINTAINER Latipe
+ARG JAR_FILE
+COPY target/media-1.0.0-SNAPSHOT.jar media-1.0.0.jar
+EXPOSE 7657
+ENTRYPOINT ["java", "-Djava.security.egd=file:/dev/./urandom", "-jar", "media-1.0.0.jar"]

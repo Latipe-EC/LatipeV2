@@ -1,3 +1,6 @@
 FROM eclipse-temurin:17-jre-alpine
-ADD target/search-0.0.1-SNAPSHOT.jar search-0.0.1-SNAPSHOT.jar
-ENTRYPOINT ["java", "-jar", "/search-0.0.1-SNAPSHOT.jar"]
+MAINTAINER Latipe
+ARG JAR_FILE
+COPY target/search-1.0.0-SNAPSHOT.jar search-1.0.0.jar
+EXPOSE 8092
+ENTRYPOINT ["java", "-Djava.security.egd=file:/dev/./urandom", "-jar", "search-1.0.0.jar"]

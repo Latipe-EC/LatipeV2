@@ -1,3 +1,6 @@
 FROM eclipse-temurin:17-jre-alpine
-ADD target/api-gateway-0.0.1-SNAPSHOT.jar api-gateway-0.0.1-SNAPSHOT.jar
-ENTRYPOINT ["java", "-jar", "/api-gateway-0.0.1-SNAPSHOT.jar"]
+MAINTAINER Latipe
+ARG JAR_FILE
+COPY target/api-1.0.0-SNAPSHOT.jar api-1.0.0.jar
+EXPOSE 8181
+ENTRYPOINT ["java", "-Djava.security.egd=file:/dev/./urandom", "-jar", "api-1.0.0.jar"]

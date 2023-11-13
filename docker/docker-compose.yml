@@ -25,7 +25,6 @@ services:
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
   #    restart: always
-
   zipkin:
     image: openzipkin/zipkin
     ports:

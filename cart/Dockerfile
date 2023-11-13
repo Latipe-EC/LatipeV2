@@ -1,3 +1,6 @@
 FROM eclipse-temurin:17-jre-alpine
-ADD target/cart-0.0.1-SNAPSHOT.jar cart-0.0.1-SNAPSHOT.jar
-ENTRYPOINT ["java", "-jar", "/cart-0.0.1-SNAPSHOT.jar"]
+MAINTAINER Latipe
+ARG JAR_FILE
+COPY target/cart-1.0.0-SNAPSHOT.jar cart-1.0.0.jar
+EXPOSE 7650
+ENTRYPOINT ["java", "-Djava.security.egd=file:/dev/./urandom", "-jar", "cart-1.0.0.jar"]
