@@ -53,7 +53,6 @@ public class CartController {
     return cartService.getCarts(pageable);
   }
 
-  @Authenticate
   @RequiresAuthorization(ADMIN)
   @GetMapping("/{userId}")
   public CompletableFuture<CartGetDetailResponse> listCartDetailByCustomerId(
@@ -61,7 +60,6 @@ public class CartController {
     return cartService.getCartDetailByCustomerId(userId);
   }
 
-  @Authenticate
   @GetMapping("/my-cart")
   public CompletableFuture<CartGetDetailResponse> getMyCart() {
     UserCredentialResponse userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()

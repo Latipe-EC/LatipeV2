@@ -231,8 +231,7 @@ public class ProductService implements IProductService {
             .name(doc.getString("name"))
             .optionId(productClassificationsDoc.getObjectId("_id").toString())
             .quantity(prodOrder.quantity()).price(productClassificationsDoc.getDouble("price"))
-            .promotionalPrice(promotionalPrice)
-            .image(doc.getList("images", String.class).get(0))
+            .promotionalPrice(promotionalPrice).image(doc.getList("images", String.class).get(0))
             .nameOption(productClassificationsDoc.getString("name")).totalPrice(
                 productClassificationsDoc.getDouble("promotionalPrice") == null ?
                     productClassificationsDoc.getDouble("price") * prodOrder.quantity()
@@ -301,7 +300,7 @@ public class ProductService implements IProductService {
           product.getProductVariants(),
           categories.stream().map(categoryMapper::mapToCategoryResponse).toList(),
           product.getDetailsProduct(), product.isBanned(), product.isDeleted(),
-          product.getCreatedDate(), store);
+          product.getCreatedDate(), store, product.getRatings());
     });
   }
 
