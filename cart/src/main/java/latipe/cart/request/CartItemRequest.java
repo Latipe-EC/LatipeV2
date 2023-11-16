@@ -1,11 +1,9 @@
 package latipe.cart.request;
 
-import latipe.cart.Entity.CartItem;
+import jakarta.validation.constraints.Size;
+import java.util.List;
+import latipe.cart.viewmodel.CartItemVm;
 
-public record CartItemRequest(String productId, int quantity, String productOptionId) {
+public record CartItemRequest(List<@Size(min = 1) CartItemVm> cartItems) {
 
-  public static CartItemRequest fromModel(CartItem cartItem) {
-    return new CartItemRequest(cartItem.getProductId(), cartItem.getQuantity(),
-        cartItem.getProductOptionId());
-  }
 }

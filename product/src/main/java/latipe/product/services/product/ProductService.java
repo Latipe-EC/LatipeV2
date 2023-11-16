@@ -35,6 +35,7 @@ import latipe.product.repositories.IProductRepository;
 import latipe.product.request.BanProductRequest;
 import latipe.product.request.CreateProductRequest;
 import latipe.product.request.GetProvinceCodesRequest;
+import latipe.product.request.MultipleStoreRequest;
 import latipe.product.request.OrderProductCheckRequest;
 import latipe.product.request.ProductFeatureRequest;
 import latipe.product.request.UpdateProductQuantityRequest;
@@ -318,12 +319,30 @@ public class ProductService implements IProductService {
       AggregationResults<Document> results = mongoTemplate.aggregate(aggregate,
           ProductClassification.class, Document.class);
       List<Document> documents = results.getMappedResults();
+
+      var storeClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
+          .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL).target(StoreClient.class, URL);
+
+      String hash;
+      try {
+        hash = generateHash("store-service",
+            getPrivateKey(secureInternalProperties.getPrivateKey()));
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+
+      var stores = storeClient.getDetailStores(hash,
+          MultipleStoreRequest.builder().ids(prodFilter).build());
+
       return documents.stream().map(doc -> {
         Document productClassificationsDoc = doc.get("productClassifications", Document.class);
+        var store = stores.stream().filter(x -> x.id().equals(doc.getString("storeId"))).findFirst()
+            .orElseThrow();
+        stores.remove(store);
         return new ProductThumbnailVm(doc.getObjectId("_id").toString(), doc.getString("name"),
             productClassificationsDoc.getString("name"),
             productClassificationsDoc.getDouble("price"),
-            productClassificationsDoc.getString("image"));
+            productClassificationsDoc.getString("image"), store.id(), store.name());
       }).toList();
     });
   }

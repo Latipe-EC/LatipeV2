@@ -1,16 +1,20 @@
 package latipe.cart.response;
 
 
-import java.util.List;
 import latipe.cart.Entity.Cart;
+import lombok.Builder;
 
-public record CartGetDetailResponse(String id, String userId,
-                                    List<CartDetailResponse> cartDetails) {
+@Builder
+public record CartGetDetailResponse(String id, String userId, String productId,
+                                    String productOptionId, int quantity, String productName,
+                                    String storeId, String storeName, String image,
+                                    String nameOption) {
 
-  public static CartGetDetailResponse fromModel(Cart cart) {
-    return new CartGetDetailResponse(
-        cart.getId(),
-        cart.getUserId(),
-        cart.getCartItems().stream().map(CartDetailResponse::fromModel).toList());
+  public static CartGetDetailResponse fromModel(Cart cart, ProductThumbnailResponse product) {
+    return new CartGetDetailResponse(cart.getId(), cart.getUserId(), cart.getProductId(),
+        cart.getProductOptionId(), cart.getQuantity(), product.name(), product.storeId(),
+        product.storeName(), product.thumbnailUrl(), product.nameOption());
   }
+
+
 }

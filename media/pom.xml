@@ -61,8 +61,8 @@
       <groupId>org.springframework.security</groupId>
     </dependency>
     <dependency>
-      <groupId>com.cloudinary</groupId>
       <artifactId>cloudinary-http44</artifactId>
+      <groupId>com.cloudinary</groupId>
       <version>1.35.0</version>
     </dependency>
     <dependency>

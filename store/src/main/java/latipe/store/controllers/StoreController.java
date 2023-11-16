@@ -2,6 +2,7 @@ package latipe.store.controllers;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import latipe.store.annotations.ApiPrefixController;
 import latipe.store.annotations.Authenticate;
@@ -10,9 +11,11 @@ import latipe.store.annotations.SecureInternalPhase;
 import latipe.store.dtos.PagedResultDto;
 import latipe.store.request.CreateStoreRequest;
 import latipe.store.request.GetProvinceCodesRequest;
+import latipe.store.request.MultipleStoreRequest;
 import latipe.store.request.UpdateStoreRequest;
 import latipe.store.response.ProvinceCodesResponse;
 import latipe.store.response.StoreResponse;
+import latipe.store.response.StoreSimplifyResponse;
 import latipe.store.response.UserCredentialResponse;
 import latipe.store.response.product.ProductStoreResponse;
 import latipe.store.services.store.IStoreService;
@@ -108,6 +111,14 @@ public class StoreController {
   public CompletableFuture<ProvinceCodesResponse> getProvinceCodes(
       @RequestBody GetProvinceCodesRequest input) {
     return storeService.getProvinceCodes(input);
+  }
+
+  @SecureInternalPhase
+  @ResponseStatus(HttpStatus.OK)
+  @PostMapping(value = "/multiple-detail-store", produces = MediaType.APPLICATION_JSON_VALUE)
+  public CompletableFuture<List<StoreSimplifyResponse>> getMultipleStore(
+      @RequestBody MultipleStoreRequest input) {
+    return storeService.getMultipleStore(input);
 
   }
 }

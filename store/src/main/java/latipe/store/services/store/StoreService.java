@@ -26,9 +26,11 @@ import latipe.store.producer.RabbitMQProducer;
 import latipe.store.repositories.IStoreRepository;
 import latipe.store.request.CreateStoreRequest;
 import latipe.store.request.GetProvinceCodesRequest;
+import latipe.store.request.MultipleStoreRequest;
 import latipe.store.request.UpdateStoreRequest;
 import latipe.store.response.ProvinceCodesResponse;
 import latipe.store.response.StoreResponse;
+import latipe.store.response.StoreSimplifyResponse;
 import latipe.store.response.product.ProductStoreResponse;
 import latipe.store.viewmodel.StoreMessage;
 import lombok.AllArgsConstructor;
@@ -204,5 +206,17 @@ public class StoreService implements IStoreService {
       return productClient.getBanProductStore(hash, name, skip, limit, orderBy, store.getId());
     });
 
+  }
+
+  @Override
+  public CompletableFuture<List<StoreSimplifyResponse>> getMultipleStore(
+      MultipleStoreRequest input) {
+    return CompletableFuture.supplyAsync(() -> {
+      var stores = storeRepository.findByIdIn(input.ids());
+      if (stores.size() != input.ids().size()) {
+        throw new BadRequestException("Invalid store id");
+      }
+      return stores.stream().map(storeMapper::mapToStoreSimplifyResponse).toList();
+    });
   }
 }

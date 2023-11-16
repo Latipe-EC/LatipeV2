@@ -2,6 +2,7 @@ package latipe.product.controllers;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Size;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import latipe.product.annotations.ApiPrefixController;
@@ -118,9 +119,9 @@ public class ProductController {
   }
 
   @ResponseStatus(HttpStatus.OK)
-  @GetMapping(value = "/list-featured", produces = MediaType.APPLICATION_JSON_VALUE)
+  @PostMapping(value = "/list-featured", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<List<ProductThumbnailVm>> getFeatureProduct(
-      List<ProductFeatureRequest> products) {
+      @Valid @RequestBody List< @Size(min = 1) ProductFeatureRequest> products) {
     return productService.getFeatureProduct(products);
   }
 

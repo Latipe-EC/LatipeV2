@@ -14,6 +14,7 @@ public record ProductDetailResponse(String id, String name, String slug, Double 
                                     List<ProductVariant> productVariants,
                                     List<CategoryResponse> categories,
                                     List<AttributeValue> detailsProduct, Boolean isBanned,
-                                    Boolean isDeleted, Date createdOn, StoreResponse store,List<Integer> ratings) {
+                                    Boolean isDeleted, Date createdOn, StoreResponse store,
+                                    List<Integer> ratings) {
 
 }

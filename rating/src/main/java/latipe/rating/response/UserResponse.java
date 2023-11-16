@@ -1,5 +1,5 @@
 package latipe.rating.response;
 
-public record UserResponse (String name, String avatar){
+public record UserResponse(String name, String avatar) {
 
 }

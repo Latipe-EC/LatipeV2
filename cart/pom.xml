@@ -83,14 +83,19 @@
       <groupId>org.aspectj</groupId>
     </dependency>
     <dependency>
-      <artifactId>spring-cloud-starter-feign</artifactId>
-      <groupId>org.springframework.cloud</groupId>
-      <version>1.4.7.RELEASE</version>
+      <artifactId>feign-okhttp</artifactId>
+      <groupId>io.github.openfeign</groupId>
+      <version>10.11</version>
     </dependency>
     <dependency>
-      <artifactId>commons-beanutils</artifactId>
-      <groupId>commons-beanutils</groupId>
-      <version>1.9.4</version>
+      <artifactId>feign-gson</artifactId>
+      <groupId>io.github.openfeign</groupId>
+      <version>10.11</version>
+    </dependency>
+    <dependency>
+      <artifactId>feign-slf4j</artifactId>
+      <groupId>io.github.openfeign</groupId>
+      <version>10.11</version>
     </dependency>
     <!-- RabbitMQ -->
     <dependency>

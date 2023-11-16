@@ -70,8 +70,11 @@ public class RatingController {
   @ResponseStatus(HttpStatus.OK)
   @GetMapping(value = "rating-product", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<PagedResultDto<RatingResponse>> getRatingProduct(
-      @RequestParam String productId, @RequestParam (defaultValue = "0")long skip, @RequestParam(defaultValue = "5") int size,
-      @RequestParam(defaultValue = "createdDate") String orderBy, Star filterStar) {
+      @RequestParam String productId,
+      @RequestParam(defaultValue = "0") long skip,
+      @RequestParam(defaultValue = "5") int size,
+      @RequestParam(defaultValue = "createdDate") String orderBy,
+      Star filterStar) {
 
     return ratingService.getRatingProduct(productId, skip, size, orderBy, filterStar);
   }
@@ -80,7 +83,8 @@ public class RatingController {
   @ResponseStatus(HttpStatus.OK)
   @GetMapping(value = "rating-store", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<PagedResultDto<RatingResponse>> getRatingStore(
-      @RequestParam String storeId, @RequestParam(defaultValue = "0") long skip, @RequestParam(defaultValue = "5") int size,
+      @RequestParam String storeId, @RequestParam(defaultValue = "0") long skip,
+      @RequestParam(defaultValue = "5") int size,
       @RequestParam(defaultValue = "createdDate") String orderBy, Star filterStar) {
 
     return ratingService.getRatingStore(storeId, skip, size, orderBy, filterStar);
