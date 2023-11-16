@@ -1,11 +1,11 @@
 package latipe.cart.request;
 
-import jakarta.validation.constraints.NotEmpty;
+import latipe.cart.annotations.IsObjectId;
 
 public record ProductFeatureRequest(
-    @NotEmpty(message = "Product id is required")
+    @IsObjectId
     String productId,
-    @NotEmpty(message = "Option id is required")
+    @IsObjectId
     String optionId) {
 
 }

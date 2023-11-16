@@ -1,5 +1,10 @@
 package latipe.cart.viewmodel;
 
-public record CartItemVm(String productId, int quantity, String productOptionId) {
+import jakarta.validation.constraints.Min;
+import latipe.cart.annotations.IsObjectId;
+
+public record CartItemVm(@IsObjectId String productId,
+                         @Min(value = 1, message = "quantity must be greater than 0") int quantity,
+                         @IsObjectId String productOptionId) {
 
 }

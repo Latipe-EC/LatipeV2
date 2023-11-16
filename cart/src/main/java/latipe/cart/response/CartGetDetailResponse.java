@@ -5,10 +5,11 @@ import latipe.cart.Entity.Cart;
 import lombok.Builder;
 
 @Builder
-public record CartGetDetailResponse(String id, String userId, String productId,
-                                    String productOptionId, int quantity, String productName,
-                                    String storeId, String storeName, String image,
-                                    String nameOption) {
+public record CartGetDetailResponse(
+    String id, String userId, String productId,
+    String productOptionId, int quantity, String productName,
+    String storeId, String storeName, String image,
+    String nameOption) {
 
   public static CartGetDetailResponse fromModel(Cart cart, ProductThumbnailResponse product) {
     return new CartGetDetailResponse(cart.getId(), cart.getUserId(), cart.getProductId(),

@@ -26,6 +26,7 @@ import latipe.product.viewmodel.ProductPriceVm;
 import latipe.product.viewmodel.ProductThumbnailVm;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -41,6 +42,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 @RestController
 @ApiPrefixController("products")
+@Validated
 public class ProductController {
 
   private final IProductService productService;
@@ -121,7 +123,7 @@ public class ProductController {
   @ResponseStatus(HttpStatus.OK)
   @PostMapping(value = "/list-featured", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<List<ProductThumbnailVm>> getFeatureProduct(
-      @Valid @RequestBody List< @Size(min = 1) ProductFeatureRequest> products) {
+      @Valid @RequestBody @Size(min = 1) List<ProductFeatureRequest> products) {
     return productService.getFeatureProduct(products);
   }
 

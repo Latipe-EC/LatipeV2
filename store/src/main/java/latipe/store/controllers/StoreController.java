@@ -21,6 +21,7 @@ import latipe.store.response.product.ProductStoreResponse;
 import latipe.store.services.store.IStoreService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,6 +35,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 @RestController
 @ApiPrefixController("stores")
+@Validated
 public class StoreController {
 
   private final IStoreService storeService;

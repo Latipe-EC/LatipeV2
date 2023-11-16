@@ -6,18 +6,17 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import latipe.product.validator.ValuesAllowedValidator;
+import latipe.product.validator.IsObjectIdValidator;
 
-@Target({ElementType.FIELD, ElementType.PARAMETER})
+@Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = {ValuesAllowedValidator.class})
-public @interface ValuesAllow {
+@Constraint(validatedBy = {IsObjectIdValidator.class})
+public @interface IsObjectId {
 
-  String message() default "field-value-should-be-from-list-of-";
+  String message() default "field-value-should-be-object-id";
 
   Class<?>[] groups() default {};
 
   Class<? extends Payload>[] payload() default {};
 
-  String[] values();
 }

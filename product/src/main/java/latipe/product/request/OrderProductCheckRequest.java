@@ -1,9 +1,12 @@
 package latipe.product.request;
 
 import java.util.Objects;
+import latipe.product.annotations.IsObjectId;
 
 public record OrderProductCheckRequest(
+    @IsObjectId
     String productId,
+    @IsObjectId
     String optionId,
     int quantity) {
 

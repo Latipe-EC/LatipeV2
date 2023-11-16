@@ -1,8 +1,10 @@
 package latipe.product.request;
 
-import jakarta.validation.constraints.NotBlank;
+import latipe.product.annotations.IsObjectId;
 
-public record ProductFeatureRequest(@NotBlank(message = "can-not-be-blank") String productId,
-                                    @NotBlank(message = "can-not-be-blank") String optionId) {
+public record ProductFeatureRequest(
+    @IsObjectId String productId,
+
+    @IsObjectId String optionId) {
 
 }

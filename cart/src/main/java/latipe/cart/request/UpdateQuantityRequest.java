@@ -1,10 +1,10 @@
 package latipe.cart.request;
 
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
+import latipe.cart.annotations.IsObjectId;
 
 public record UpdateQuantityRequest(
-    @NotBlank(message = "can-not-be-blank")
+    @IsObjectId
     String id,
     @Min(1)
     int quantity) {

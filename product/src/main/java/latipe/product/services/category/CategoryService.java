@@ -13,6 +13,8 @@ import latipe.product.request.CreateCategoryRequest;
 import latipe.product.request.UpdateCategoryRequest;
 import latipe.product.response.CategoryResponse;
 import lombok.AllArgsConstructor;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -22,11 +24,21 @@ public class CategoryService implements ICategoryService {
 
   private final ICategoryRepository cateRepository;
   private final CategoryMapper categoryMapper;
+  private final CacheManager cacheManager;
 
   @Override
   @Async
+  @Cacheable(value = "child_category_cache", key = "parentId")
   public CompletableFuture<List<CategoryResponse>> getListChildrenCategory(String parentId) {
     return CompletableFuture.supplyAsync(() -> {
+      var cache = cacheManager.getCache("child_category_cache");
+      if (cache != null) {
+        List<?> cachedCategories = cache.get(parentId, List.class);
+        if (cachedCategories != null) {
+          return cachedCategories.stream().map(category -> (CategoryResponse) category).toList();
+        }
+      }
+
       List<Category> categories;
       if (parentId.equals("null")) {
         categories = cateRepository.findChildrenCate(null);
@@ -39,8 +51,18 @@ public class CategoryService implements ICategoryService {
 
   @Override
   @Async
+  @Cacheable(value = "search_name_category_cache", key = "name")
   public CompletableFuture<List<CategoryResponse>> searchNameCate(String name) {
     return CompletableFuture.supplyAsync(() -> {
+
+      var cache = cacheManager.getCache("search_name_category_cache");
+      if (cache != null) {
+        List<?> cachedCategories = cache.get(name, List.class);
+        if (cachedCategories != null) {
+          return cachedCategories.stream().map(category -> (CategoryResponse) category).toList();
+        }
+      }
+
       var categories = cateRepository.findCateByName(name);
       var ids = categories.stream().map(Category::getFirstParentCategoryId).toList();
       if (ids.isEmpty()) {
@@ -53,9 +75,18 @@ public class CategoryService implements ICategoryService {
 
   @Override
   @Async
+  @Cacheable(value = "get_paginate_category", key = "{ #skip, #limit, #name }")
   public CompletableFuture<PagedResultDto<CategoryResponse>> getPaginateCategory(long skip,
       int limit, String name) {
     return CompletableFuture.supplyAsync(() -> {
+      var cache = cacheManager.getCache("get_paginate_category");
+      if (cache != null) {
+        String cacheKey = "{ #%s, #%s, #%s }".formatted(skip, limit, name);
+        var cachedResult = cache.get(cacheKey, PagedResultDto.class);
+        if (cachedResult != null) {
+          return (PagedResultDto<CategoryResponse>) cachedResult;
+        }
+      }
       var categories = cateRepository.findCategoryWithPaginationAndSearch(skip, limit, name);
       return PagedResultDto.create(Pagination.create(cateRepository.countByName(name), skip, limit),
           categories.stream().map(categoryMapper::mapToCategoryResponse).toList());

@@ -1,9 +1,10 @@
-package latipe.product.annotations;
+package latipe.product.validator;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import java.util.Arrays;
 import java.util.List;
+import latipe.product.annotations.ValuesAllow;
 
 public class ValuesAllowedValidator implements ConstraintValidator<ValuesAllow, String> {
 

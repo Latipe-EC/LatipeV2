@@ -1,9 +1,10 @@
 package latipe.store.request;
 
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.NotEmpty;
 import java.util.List;
 
 public record MultipleStoreRequest(
-    List<@Size(min = 1) String> ids) {
+    @NotEmpty(message = "ids can not be empty")
+    List<String> ids) {
 
 }

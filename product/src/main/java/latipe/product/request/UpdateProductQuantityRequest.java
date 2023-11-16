@@ -1,11 +1,11 @@
 package latipe.product.request;
 
-import jakarta.validation.constraints.NotBlank;
+import latipe.product.annotations.IsObjectId;
 
 public record UpdateProductQuantityRequest(
-    @NotBlank(message = "Product ID cannot be blank")
+    @IsObjectId
     String productId,
-    @NotBlank(message = "Option ID cannot be blank")
+    @IsObjectId
     String optionId,
     int quantity) {
 

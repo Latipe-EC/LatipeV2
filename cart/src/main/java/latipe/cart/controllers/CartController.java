@@ -22,6 +22,7 @@ import latipe.cart.response.DeleteCartItemRequest;
 import latipe.cart.response.UserCredentialResponse;
 import latipe.cart.services.Cart.ICartService;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,6 +36,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 @RestController
 @ApiPrefixController("carts")
+@Validated
 public class CartController {
 
   private final ICartService cartService;
@@ -61,7 +63,7 @@ public class CartController {
 
   @Authenticate
   @ResponseStatus(HttpStatus.CREATED)
-  @PostMapping(path = "/carts/add-to-cart")
+  @PostMapping(path = "/add-to-cart")
   @Operation(summary = "Add product to shopping cart. When no cart exists, this will create a new cart.")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "201", description = "Add to cart successfully", content = @Content(schema = @Schema(implementation = CartGetDetailResponse.class))),

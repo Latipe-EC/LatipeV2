@@ -1,11 +1,10 @@
 package latipe.product.request;
 
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.NotEmpty;
 import java.util.List;
 import lombok.Builder;
 
 @Builder
-public record MultipleStoreRequest(
-    List<@Size(min = 1) String> ids) {
+public record MultipleStoreRequest(@NotEmpty(message = "ids can not be empty") List<String> ids) {
 
 }

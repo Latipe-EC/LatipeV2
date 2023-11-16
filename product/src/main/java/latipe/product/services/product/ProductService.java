@@ -54,6 +54,7 @@ import latipe.product.viewmodel.ProductThumbnailVm;
 import latipe.product.viewmodel.ProductVariantVm;
 import lombok.RequiredArgsConstructor;
 import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -311,7 +312,15 @@ public class ProductService implements IProductService {
       List<ProductFeatureRequest> products) {
     return CompletableFuture.supplyAsync(() -> {
 
-      var prodFilter = products.stream().map(ProductFeatureRequest::productId).toList();
+      var prodFilter = new ArrayList<String>();
+
+      products.forEach(x -> {
+        if (ObjectId.isValid(x.optionId())) {
+          throw new BadRequestException("Option id is not valid");
+        }
+        prodFilter.add(x.productId());
+      });
+
       var optionFilter = products.stream().map(x -> "ObjectId(\"%s\")".formatted(x.optionId()))
           .toList();
 
