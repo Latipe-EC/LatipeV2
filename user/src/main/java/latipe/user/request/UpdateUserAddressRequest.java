@@ -14,6 +14,8 @@ public record UpdateUserAddressRequest(
     String districtName,
     String cityOrProvinceId,
     String cityOrProvinceName,
+    String wardId,
+    String wardName,
     Long countryId,
     String countryName
 ) {

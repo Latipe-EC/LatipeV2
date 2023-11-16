@@ -3,7 +3,6 @@ package latipe.product.request;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import java.util.List;
-import latipe.product.entity.attribute.Attribute;
 import latipe.product.entity.attribute.AttributeValue;
 import latipe.product.viewmodel.ProductClassificationVm;
 import latipe.product.viewmodel.ProductVariantVm;

@@ -40,6 +40,12 @@ public class CategoryController {
     return categoryService.getPaginateCategory(skip, limit, name);
   }
 
+  @ResponseStatus(HttpStatus.OK)
+  @GetMapping(value = "/search", produces = MediaType.APPLICATION_JSON_VALUE)
+  public CompletableFuture<List<CategoryResponse>> searchNameCate(
+      @RequestParam(value = "name") String name) {
+    return categoryService.searchNameCate(name);
+  }
 
   @ResponseStatus(HttpStatus.OK)
   @GetMapping(value = "/children-categories/{parentId}", produces = MediaType.APPLICATION_JSON_VALUE)

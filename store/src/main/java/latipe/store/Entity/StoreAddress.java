@@ -2,7 +2,6 @@ package latipe.store.Entity;
 
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,7 +12,6 @@ import org.springframework.data.annotation.Id;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 public class StoreAddress {
 
   @Id

@@ -1,3 +1,6 @@
 FROM eclipse-temurin:17-jre-alpine
-ADD target/store-0.0.1-SNAPSHOT.jar store-0.0.1-SNAPSHOT.jar
-ENTRYPOINT ["java", "-jar", "/store-0.0.1-SNAPSHOT.jar"]
+MAINTAINER Latipe
+ARG JAR_FILE
+COPY target/store-1.0.0-SNAPSHOT.jar store-1.0.0.jar
+EXPOSE 8645
+ENTRYPOINT ["java", "-Djava.security.egd=file:/dev/./urandom", "-jar", "store-1.0.0.jar"]

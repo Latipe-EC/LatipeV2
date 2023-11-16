@@ -2,7 +2,7 @@ package latipe.auth.utils;
 
 public final class Constants {
 
-  public final class ErrorCode {
+  public static final class ErrorCode {
 
     public static final String SIGN_IN_REQUIRED = "SIGN_IN_REQUIRED";
     public static final String FORBIDDEN = "FORBIDDEN";

@@ -30,7 +30,7 @@ public class IndexConfiguration implements CommandLineRunner {
 
   private void createUniqueIndexIfNotExists(MongoTemplate mongoTemplate) {
     IndexOperations indexOperations = mongoTemplate.indexOps("Carts");
-    IndexDefinition indexDefinition = new Index().on("userID", Sort.Direction.ASC).unique();
+    IndexDefinition indexDefinition = new Index().on("userId", Sort.Direction.ASC).unique();
     indexOperations.ensureIndex(indexDefinition);
   }
 }

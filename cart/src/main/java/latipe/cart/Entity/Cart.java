@@ -1,10 +1,6 @@
 package latipe.cart.Entity;
 
-import com.mongodb.annotations.Sealed;
-import java.util.HashSet;
-import java.util.Set;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,8 +19,9 @@ public class Cart extends AbstractAuditEntity {
   @Id
   private String id;
   private String userId;
-  private Set<CartItem> cartItems = new HashSet<>();
-  private Boolean isDeleted = false;
+  private String productId;
+  private String productOptionId = null;
+  private int quantity;
 
   @Override
   public boolean equals(Object o) {
@@ -39,7 +36,6 @@ public class Cart extends AbstractAuditEntity {
 
   @Override
   public int hashCode() {
-    // see https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
     return getClass().hashCode();
   }
 }

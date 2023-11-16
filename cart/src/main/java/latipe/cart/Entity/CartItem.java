@@ -5,6 +5,7 @@ import org.springframework.data.annotation.Id;
 
 @Data
 public class CartItem extends AbstractAuditEntity {
+
   @Id
   private String id;
   private String productId;

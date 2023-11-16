@@ -1,3 +1,6 @@
 FROM eclipse-temurin:17-jre-alpine
-ADD target/user-0.0.1-SNAPSHOT.jar user-0.0.1-SNAPSHOT.jar
-ENTRYPOINT ["java", "-jar", "/user-0.0.1-SNAPSHOT.jar"]
+MAINTAINER Latipe
+ARG JAR_FILE
+COPY target/user-1.0.0-SNAPSHOT.jar user-1.0.0.jar
+EXPOSE 8888
+ENTRYPOINT ["java", "-Djava.security.egd=file:/dev/./urandom", "-jar", "user-1.0.0.jar"]

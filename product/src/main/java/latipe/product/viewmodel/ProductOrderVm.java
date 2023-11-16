@@ -9,6 +9,7 @@ public record ProductOrderVm(
     int quantity,
     double price,
     double promotionalPrice,
+    String image,
     String optionId,
     String nameOption,
     String storeId,

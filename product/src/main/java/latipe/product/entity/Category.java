@@ -23,6 +23,7 @@ public class Category extends AbstractAuditEntity {
   String parentCategoryId;
   String image;
   List<Attribute> attributes;
+  String firstParentCategoryId;
 
   public Category(String name) {
     this.name = name;

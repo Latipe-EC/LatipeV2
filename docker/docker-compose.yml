@@ -24,16 +24,28 @@ services:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
-    restart: always
-
+  #    restart: always
   zipkin:
     image: openzipkin/zipkin
     ports:
       - "9411:9411"
-    restart: always
+  #    restart: always
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: 123123@Dat
+      MYSQL_DATABASE: backend_orders_service
+    ports:
+      - "3306:3306"
+    command: --default-authentication-plugin=mysql_native_password
 
   rabbitmq:
     image: rabbitmq:3.12-management
     ports:
       - "5672:5672"
       - "15672:15672"
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"

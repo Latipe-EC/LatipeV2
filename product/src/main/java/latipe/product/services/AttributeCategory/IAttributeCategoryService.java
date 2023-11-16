@@ -1,6 +1,5 @@
 package latipe.product.services.AttributeCategory;
 
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import latipe.product.dtos.PagedResultDto;
 import latipe.product.request.CreateAttributeCategoryRequest;
@@ -10,7 +9,9 @@ import latipe.product.response.AttributeCategoryResponse;
 public interface IAttributeCategoryService {
 
   CompletableFuture<AttributeCategoryResponse> getDetail(String id);
+
   CompletableFuture<AttributeCategoryResponse> getDetailByCateId(String cateId);
+
   CompletableFuture<PagedResultDto<AttributeCategoryResponse>> getAttributeCategories(long skip,
       int limit);
 

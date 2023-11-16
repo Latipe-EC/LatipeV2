@@ -1,27 +1,39 @@
 package latipe.cart.services.Product;
 
+import static latipe.cart.constants.CONSTANTS.URL;
+import static latipe.cart.utils.GenTokenInternal.generateHash;
+import static latipe.cart.utils.GenTokenInternal.getPrivateKey;
+
+import feign.Feign;
+import feign.Logger;
+import feign.gson.GsonDecoder;
+import feign.gson.GsonEncoder;
+import feign.okhttp.OkHttpClient;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import latipe.cart.controllers.APIClient;
+import latipe.cart.configs.SecureInternalProperties;
+import latipe.cart.feign.ProductClient;
 import latipe.cart.request.ProductFeatureRequest;
 import latipe.cart.response.ProductThumbnailResponse;
-import org.springframework.scheduling.annotation.Async;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class ProductService {
 
-  private final APIClient apiClient;
+  private final SecureInternalProperties secureInternalProperties;
 
-  public ProductService(APIClient apiClient) {
-    this.apiClient = apiClient;
-  }
-
-  @Async
-  public CompletableFuture<List<ProductThumbnailResponse>> getProducts(
+  public List<ProductThumbnailResponse> getProducts(
       List<ProductFeatureRequest> ids) {
-    return CompletableFuture.supplyAsync(
-        () -> apiClient.getProducts(ids)
-    );
+    var productClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
+        .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL).target(ProductClient.class, URL);
+    String hash;
+    try {
+      hash = generateHash("product-service",
+          getPrivateKey(secureInternalProperties.getPrivateKey()));
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+    return productClient.getProducts(hash, ids);
   }
 }

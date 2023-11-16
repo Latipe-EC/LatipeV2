@@ -1,8 +1,8 @@
 package latipe.product.services.product;
 
-import static latipe.product.configs.test.generateHash;
-import static latipe.product.configs.test.getPrivateKey;
 import static latipe.product.constants.CONSTANTS.URL;
+import static latipe.product.utils.GenTokenInternal.generateHash;
+import static latipe.product.utils.GenTokenInternal.getPrivateKey;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import feign.Feign;
@@ -18,12 +18,16 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import latipe.product.FeignClient.StoreClient;
 import latipe.product.configs.CustomAggregationOperation;
+import latipe.product.configs.SecureInternalProperties;
 import latipe.product.constants.Action;
+import latipe.product.dtos.PagedResultDto;
+import latipe.product.dtos.Pagination;
 import latipe.product.entity.Category;
 import latipe.product.entity.Product;
 import latipe.product.entity.product.ProductClassification;
 import latipe.product.exceptions.BadRequestException;
 import latipe.product.exceptions.NotFoundException;
+import latipe.product.mapper.CategoryMapper;
 import latipe.product.mapper.ProductMapper;
 import latipe.product.producer.RabbitMQProducer;
 import latipe.product.repositories.ICategoryRepository;
@@ -31,12 +35,15 @@ import latipe.product.repositories.IProductRepository;
 import latipe.product.request.BanProductRequest;
 import latipe.product.request.CreateProductRequest;
 import latipe.product.request.GetProvinceCodesRequest;
+import latipe.product.request.MultipleStoreRequest;
 import latipe.product.request.OrderProductCheckRequest;
 import latipe.product.request.ProductFeatureRequest;
 import latipe.product.request.UpdateProductQuantityRequest;
 import latipe.product.request.UpdateProductRequest;
 import latipe.product.response.OrderProductResponse;
+import latipe.product.response.ProductDetailResponse;
 import latipe.product.response.ProductResponse;
+import latipe.product.response.ProductStoreResponse;
 import latipe.product.utils.ParseObjectToString;
 import latipe.product.viewmodel.ProductClassificationVm;
 import latipe.product.viewmodel.ProductESDetailVm;
@@ -47,7 +54,8 @@ import latipe.product.viewmodel.ProductThumbnailVm;
 import latipe.product.viewmodel.ProductVariantVm;
 import lombok.RequiredArgsConstructor;
 import org.bson.Document;
-import org.springframework.beans.factory.annotation.Value;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
@@ -55,7 +63,6 @@ import org.springframework.data.mongodb.core.aggregation.TypedAggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -66,28 +73,72 @@ public class ProductService implements IProductService {
   private final ProductMapper productMapper;
   private final MongoTemplate mongoTemplate;
   private final RabbitMQProducer rabbitMQProducer;
+  private final CategoryMapper categoryMapper;
+  private final SecureInternalProperties secureInternalProperties;
 
-  @Value("${secure-internal.private-key}")
-  private String key;
+  @Async
+  @Override
+  public CompletableFuture<PagedResultDto<ProductStoreResponse>> getMyProductStore(long skip,
+      int limit, String name, String orderBy, String storeId) {
+    return CompletableFuture.supplyAsync(() -> {
+      var aggregate = createQueryProduct(skip, limit, name, orderBy, storeId, false, false);
+      var total = productRepository.countProductByStoreId(storeId, name);
+      return getProductResponsePagedResultDto(skip, limit, total, aggregate);
+    });
+  }
+
+  @Async
+  @Override
+  public CompletableFuture<PagedResultDto<ProductStoreResponse>> getBanProductStore(long skip,
+      int limit, String name, String orderBy, String storeId) {
+    return CompletableFuture.supplyAsync(() -> {
+      var aggregate = createQueryProduct(skip, limit, name, orderBy, storeId, true, false);
+      var total = productRepository.countProductBanByStoreId(storeId, name);
+      return getProductResponsePagedResultDto(skip, limit, total, aggregate);
+    });
+  }
+
+  @Override
+  @Async
+  public CompletableFuture<ProductResponse> get(String userId, String prodId,
+      HttpServletRequest request) {
+    return CompletableFuture.supplyAsync(() -> {
+      var prod = productRepository.findById(prodId)
+          .orElseThrow(() -> new BadRequestException("Product not found"));
+      var storeClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
+          .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL)
+          .target(StoreClient.class, "http://localhost:8181/api/v1");
+      // get store id from store service
+      var storeId = storeClient.getStoreId(request.getHeader("Authorization"), userId);
+
+      if (!storeId.equals(prod.getStoreId())) {
+        throw new BadRequestException("You don't have permission to view this product");
+      }
+      var categories = categoryRepository.findAllById(prod.getCategories());
+      return productMapper.mapToProductToResponse(prod, categories);
+    });
+  }
 
   @Override
   @Async
   public CompletableFuture<ProductResponse> create(String userId, CreateProductRequest input,
       HttpServletRequest request) {
     return CompletableFuture.supplyAsync(() -> {
+      if (input.images().isEmpty()) {
+        throw new BadRequestException("Product must have at least 1 image");
+      }
       if (input.productVariants().isEmpty()) {
-        checkProductNoOption(input.price(), input.quantity(), input.images());
+        checkProductNoOption(input.price(), input.quantity());
 
         input.productClassifications().add(
             ProductClassificationVm.builder().name("Default").price(input.price())
                 .promotionalPrice(input.promotionalPrice()).quantity(input.quantity())
-                .promotionalPrice(input.promotionalPrice()).image(input.images().get(0)).build());
+                .promotionalPrice(input.promotionalPrice()).build());
       } else {
         CheckProductHaveOption(input.productVariants(), input.productClassifications());
-
       }
-      StoreClient storeClient = Feign.builder().client(new OkHttpClient())
-          .encoder(new GsonEncoder()).decoder(new GsonDecoder()).logLevel(Logger.Level.FULL)
+      var storeClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
+          .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL)
           .target(StoreClient.class, "http://localhost:8181/api/v1");
       // get store id from store service
       var storeId = storeClient.getStoreId(request.getHeader("Authorization"), userId);
@@ -96,7 +147,7 @@ public class ProductService implements IProductService {
       var savedProd = productRepository.save(prod);
 
       // send message create message
-      String message = null;
+      String message;
       try {
         message = ParseObjectToString.parse(new ProductMessageVm(savedProd.getId(), Action.CREATE));
       } catch (JsonProcessingException e) {
@@ -104,7 +155,7 @@ public class ProductService implements IProductService {
       }
       rabbitMQProducer.sendMessage(message);
 
-      return productMapper.mapToProductToResponse(savedProd);
+      return productMapper.mapToProductToResponse(savedProd, null);
     });
 
   }
@@ -181,7 +232,7 @@ public class ProductService implements IProductService {
             .name(doc.getString("name"))
             .optionId(productClassificationsDoc.getObjectId("_id").toString())
             .quantity(prodOrder.quantity()).price(productClassificationsDoc.getDouble("price"))
-            .promotionalPrice(promotionalPrice)
+            .promotionalPrice(promotionalPrice).image(doc.getList("images", String.class).get(0))
             .nameOption(productClassificationsDoc.getString("name")).totalPrice(
                 productClassificationsDoc.getDouble("promotionalPrice") == null ?
                     productClassificationsDoc.getDouble("price") * prodOrder.quantity()
@@ -195,12 +246,14 @@ public class ProductService implements IProductService {
       var storeClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
           .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL).target(StoreClient.class, URL);
 
-      String hash = null;
+      String hash;
       try {
-        hash = generateHash("cart-service", getPrivateKey());
+        hash = generateHash("store-service",
+            getPrivateKey(secureInternalProperties.getPrivateKey()));
       } catch (Exception e) {
         throw new RuntimeException(e);
       }
+
       var storeProvinceCodes = storeClient.getProvinceCodes(hash,
           GetProvinceCodesRequest.builder().ids(storeIds).build());
 
@@ -223,7 +276,32 @@ public class ProductService implements IProductService {
           product.getPrice(), product.isPublished(), product.getImages(), product.getDescription(),
           product.getProductClassifications(),
           product.getProductClassifications().stream().map(ProductClassification::getName).toList(),
-          categoryNames, product.isBanned(), product.isDeleted(), product.getCreatedDate());
+          categoryNames, product.getDetailsProduct(), product.isBanned(), product.isDeleted(),
+          product.getCreatedDate());
+    });
+  }
+
+  @Override
+  @Async
+  public CompletableFuture<ProductDetailResponse> getProductDetail(String productId) {
+    return CompletableFuture.supplyAsync(() -> {
+      Product product = productRepository.findById(productId)
+          .orElseThrow(() -> new NotFoundException("PRODUCT_NOT_FOUND", productId));
+
+      List<Category> categories = categoryRepository.findAllById(product.getCategories());
+
+      var storeClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
+          .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL).target(StoreClient.class, URL);
+
+      var store = storeClient.getDetailStore(product.getStoreId());
+
+      return new ProductDetailResponse(product.getId(), product.getName(), product.getSlug(),
+          product.getPrice(), product.getPromotionalPrice(), product.isPublished(),
+          product.getImages(), product.getDescription(), product.getProductClassifications(),
+          product.getProductVariants(),
+          categories.stream().map(categoryMapper::mapToCategoryResponse).toList(),
+          product.getDetailsProduct(), product.isBanned(), product.isDeleted(),
+          product.getCreatedDate(), store, product.getRatings());
     });
   }
 
@@ -241,25 +319,42 @@ public class ProductService implements IProductService {
       AggregationResults<Document> results = mongoTemplate.aggregate(aggregate,
           ProductClassification.class, Document.class);
       List<Document> documents = results.getMappedResults();
+
+      var storeClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
+          .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL).target(StoreClient.class, URL);
+
+      String hash;
+      try {
+        hash = generateHash("store-service",
+            getPrivateKey(secureInternalProperties.getPrivateKey()));
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+
+      var stores = storeClient.getDetailStores(hash,
+          MultipleStoreRequest.builder().ids(prodFilter).build());
+
       return documents.stream().map(doc -> {
         Document productClassificationsDoc = doc.get("productClassifications", Document.class);
+        var store = stores.stream().filter(x -> x.id().equals(doc.getString("storeId"))).findFirst()
+            .orElseThrow();
+        stores.remove(store);
         return new ProductThumbnailVm(doc.getObjectId("_id").toString(), doc.getString("name"),
             productClassificationsDoc.getString("name"),
             productClassificationsDoc.getDouble("price"),
-            productClassificationsDoc.getString("image"));
+            productClassificationsDoc.getString("image"), store.id(), store.name());
       }).toList();
     });
   }
 
   @Override
   @Async
-  @Transactional
   public CompletableFuture<Void> updateQuantity(List<UpdateProductQuantityRequest> request) {
     return CompletableFuture.supplyAsync(() -> {
       List<Product> products = new ArrayList<>();
       for (UpdateProductQuantityRequest req : request) {
 
-        Product product = null;
+        Product product;
         int index = products.indexOf(new Product(req.productId()));
         if (index < 0) {
           product = productRepository.findById(req.productId())
@@ -292,7 +387,7 @@ public class ProductService implements IProductService {
 
       products = productRepository.saveAll(products);
       for (Product prod : products) {
-        String message = null;
+        String message;
         try {
           message = ParseObjectToString.parse(new ProductMessageVm(prod.getId(), Action.CREATE));
         } catch (JsonProcessingException e) {
@@ -307,7 +402,7 @@ public class ProductService implements IProductService {
 
   @Override
   @Async
-  @Transactional
+
   public CompletableFuture<ProductResponse> update(String userId, String id,
       UpdateProductRequest input, HttpServletRequest request) {
     var product = productRepository.findById(id)
@@ -322,22 +417,26 @@ public class ProductService implements IProductService {
       throw new BadRequestException("You don't have permission to change this product");
     }
 
+    if (input.images().isEmpty()) {
+      throw new BadRequestException("Product must have at least 1 image");
+    }
     if (input.productVariants().isEmpty()) {
 
-      checkProductNoOption(input.price(), input.quantity(), input.images());
+      checkProductNoOption(input.price(), input.quantity());
 
       input.productClassifications().clear();
       input.productClassifications().add(
           ProductClassificationVm.builder().name("Default").price(input.price())
-              .quantity(input.quantity()).image(input.images().get(0)).build());
+              .quantity(input.quantity()).build());
     } else {
       CheckProductHaveOption(input.productVariants(), input.productClassifications());
     }
 
-    var savedProd = productMapper.mapToProductBeforeCreate(product.getId(), input, store);
+    var savedProd = productMapper.mapToProductBeforeUpdate(product.getId(), input, store);
+    savedProd = productRepository.save(savedProd);
 
     // send message create message
-    String message = null;
+    String message;
     try {
       message = ParseObjectToString.parse(new ProductMessageVm(savedProd.getId(), Action.UPDATE));
     } catch (JsonProcessingException e) {
@@ -345,7 +444,7 @@ public class ProductService implements IProductService {
     }
     rabbitMQProducer.sendMessage(message);
 
-    return CompletableFuture.completedFuture(productMapper.mapToProductToResponse(savedProd));
+    return CompletableFuture.completedFuture(productMapper.mapToProductToResponse(savedProd, null));
   }
 
   private void CheckProductHaveOption(List<ProductVariantVm> productVariantVms,
@@ -361,7 +460,7 @@ public class ProductService implements IProductService {
       for (int i = 0; i < productVariantVms.get(0).options().size(); i++) {
         productClassificationVms.set(i,
             ProductClassificationVm.setCodeName(productClassificationVms.get(i), String.valueOf(i),
-                productVariantVms.get(0).options().get(i)));
+                productVariantVms.get(0).options().get(i).getValue()));
       }
     } else {
       int count =
@@ -387,17 +486,13 @@ public class ProductService implements IProductService {
     }
   }
 
-  private void checkProductNoOption(Double price, int quantity, List<String> images) {
+  private void checkProductNoOption(Double price, int quantity) {
     if (price == null || price <= 0) {
       throw new BadRequestException("Price must be greater than 0");
     }
     if (quantity <= 0) {
       throw new BadRequestException("Quantity must be greater than 0");
     }
-    if (images.isEmpty()) {
-      throw new BadRequestException("Product must have at least 1 image");
-    }
-
   }
 
   @Override
@@ -418,7 +513,7 @@ public class ProductService implements IProductService {
       var savedProduct = productRepository.save(product);
 
       // send message create message
-      String message = null;
+      String message;
       try {
         message = ParseObjectToString.parse(
             new ProductMessageVm(savedProduct.getId(), Action.UPDATE));
@@ -443,7 +538,7 @@ public class ProductService implements IProductService {
       var savedProduct = productRepository.save(product);
 
       // send message create message
-      String message = null;
+      String message;
       try {
         message = ParseObjectToString.parse(new ProductMessageVm(savedProduct.getId(), Action.BAN));
       } catch (JsonProcessingException e) {
@@ -458,13 +553,6 @@ public class ProductService implements IProductService {
 
   private TypedAggregation<ProductClassification> createQueryClassification(List<String> prods,
       List<String> options) {
-    String matchProduct = """
-        {$match: {
-            "_id": {
-                $in: [%s]
-            }
-          }
-        }""";
     String unwind = """
         { $unwind: "$productClassifications"
         }
@@ -482,4 +570,28 @@ public class ProductService implements IProductService {
         new CustomAggregationOperation(matchOption.formatted(String.join(",", options))));
   }
 
+  private TypedAggregation<ProductStoreResponse> createQueryProduct(long skip, int limit,
+      String name, String orderBy, String storeId, Boolean ban, Boolean isDeleted) {
+    Direction direction = orderBy.charAt(0) == '-' ? Direction.DESC : Direction.ASC;
+    String orderByField = orderBy.charAt(0) == '-' ? orderBy.substring(1) : orderBy;
+    return Aggregation.newAggregation(ProductStoreResponse.class, Aggregation.match(
+            Criteria.where("storeId").is(storeId).and("isBanned").is(ban).and("isDeleted").is(isDeleted)
+                .and("name").regex(name, "i")), Aggregation.skip(skip), Aggregation.limit(limit),
+        Aggregation.sort(direction, orderByField));
+  }
+
+  @NotNull
+  private PagedResultDto<ProductStoreResponse> getProductResponsePagedResultDto(long skip,
+      int limit, long total, TypedAggregation<ProductStoreResponse> aggregate) {
+    var results = mongoTemplate.aggregate(aggregate, Product.class, Document.class);
+    var documents = results.getMappedResults();
+    var list = documents.stream().map(doc -> {
+      int countProductVariants = ((List<?>) doc.get("productVariants")).size();
+      return ProductStoreResponse.builder().id(doc.getObjectId("_id").toString())
+          .name(doc.getString("name")).image(doc.getList("images", String.class).get(0))
+          .countProductVariants(countProductVariants).countSale(doc.getInteger("countSale"))
+          .reasonBan(doc.getString("reasonBan")).build();
+    }).toList();
+    return PagedResultDto.create(Pagination.create(total, skip, limit), list);
+  }
 }

@@ -1,18 +1,25 @@
 package latipe.cart.repositories;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import latipe.cart.Entity.Cart;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 
 public interface ICartRepository extends MongoRepository<Cart, String> {
 
-  @Query("{ 'userId' : ?0 , 'isDeleted': false}")
-  Page<Cart> findPaginateByUserId(String userId, Pageable pageable);
+  @Aggregation(pipeline = {"{ $match: { userId: ?0} }", "{ $skip: ?1 }", "{ $limit: ?2 }"})
+  List<Cart> findMyCart(String userId, Long skip, int limit);
 
-  @Query("{ 'userId' : ?0 , 'isDeleted': false}")
-  Optional<Cart> findByUserId(String userId);
+  Long countByUserId(String userId);
+
+  @Query("{ 'userId' : ?0 , 'productOptionId' : ?1 , 'productId' : ?2}")
+  Optional<Cart> findByUserIdAndProductOptionIdAndProductId(String userId, String productOptionId,
+      String productId);
+
+  @Query("{'id' : { $in: ?0 }, 'userId' : ?0 ,}")
+  List<Cart> findAllByIdAndUserId(Set<String> ids, String userId);
 
 }

@@ -187,7 +187,7 @@ public class AuthController {
         .expired(LocalDateTime.now().plusMinutes(1).plusSeconds(2)).type(TOKEN_TYPE.VERIFY_EMAIL)
         .build();
     GenTokenUtils.setToken(user, token);
-    user = userRepository.save(user);
+    userRepository.save(user);
     String messageText = "Mã xác thực của bạn là: %s".formatted(token.token());
     // notification will cover
 //        smsService.sendSMS(phoneNumber.replaceFirst("^0", "+84"), messageText);
@@ -228,7 +228,8 @@ public class AuthController {
       throw new NotFoundException("User not found");
     }
     var user = mongoTemplate.getConverter().read(User.class, userRaw);
-    user.setRole(mongoTemplate.getConverter().read(Role.class, userRaw.get("role", Document.class)));
+    user.setRole(
+        mongoTemplate.getConverter().read(Role.class, userRaw.get("role", Document.class)));
     return user;
   }
 }
