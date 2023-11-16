@@ -10,9 +10,9 @@ public record UpdateUserAddressRequest(
     @NotEmpty(message = "Detail Address is required")
     String detailAddress,
     String zipCode,
-    Long districtId,
+    String districtId,
     String districtName,
-    Long cityOrProvinceId,
+    String cityOrProvinceId,
     String cityOrProvinceName,
     Long countryId,
     String countryName
