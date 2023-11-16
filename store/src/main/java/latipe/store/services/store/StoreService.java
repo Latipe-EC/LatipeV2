@@ -209,6 +209,7 @@ public class StoreService implements IStoreService {
   }
 
   @Override
+  @Async
   public CompletableFuture<List<StoreSimplifyResponse>> getMultipleStore(
       MultipleStoreRequest input) {
     return CompletableFuture.supplyAsync(() -> {

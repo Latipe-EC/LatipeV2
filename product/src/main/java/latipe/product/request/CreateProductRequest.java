@@ -1,5 +1,6 @@
 package latipe.product.request;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import java.util.List;
@@ -19,9 +20,9 @@ public record CreateProductRequest(
     List<String> categories,
     List<String> images,
     int quantity,
-    List<ProductVariantVm> productVariants,
+    List<@Valid ProductVariantVm> productVariants,
     Boolean isPublished,
-    List<ProductClassificationVm> productClassifications,
+    List<@Valid ProductClassificationVm> productClassifications,
     List<AttributeValue> detailsProduct) {
 
 }

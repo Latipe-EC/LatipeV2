@@ -54,7 +54,6 @@ import latipe.product.viewmodel.ProductThumbnailVm;
 import latipe.product.viewmodel.ProductVariantVm;
 import lombok.RequiredArgsConstructor;
 import org.bson.Document;
-import org.bson.types.ObjectId;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -312,23 +311,18 @@ public class ProductService implements IProductService {
       List<ProductFeatureRequest> products) {
     return CompletableFuture.supplyAsync(() -> {
 
-      var prodFilter = new ArrayList<String>();
-
-      products.forEach(x -> {
-        if (ObjectId.isValid(x.optionId())) {
-          throw new BadRequestException("Option id is not valid");
-        }
-        prodFilter.add(x.productId());
-      });
-
+      var prodFilter = products.stream().map(ProductFeatureRequest::productId).toList();
       var optionFilter = products.stream().map(x -> "ObjectId(\"%s\")".formatted(x.optionId()))
           .toList();
 
       var aggregate = createQueryClassification(prodFilter, optionFilter);
       AggregationResults<Document> results = mongoTemplate.aggregate(aggregate,
-          ProductClassification.class, Document.class);
-      List<Document> documents = results.getMappedResults();
+          Product.class, Document.class);
+      var documents = results.getMappedResults();
 
+      if (documents.isEmpty()) {
+        throw new NotFoundException("Product not found");
+      }
       var storeClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
           .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL).target(StoreClient.class, URL);
 
@@ -340,11 +334,11 @@ public class ProductService implements IProductService {
         throw new RuntimeException(e);
       }
 
-      var stores = storeClient.getDetailStores(hash,
-          MultipleStoreRequest.builder().ids(prodFilter).build());
+      var stores = storeClient.getDetailStores(hash, MultipleStoreRequest.builder()
+          .ids(documents.stream().map(doc -> (doc.getString("storeId"))).toList()).build());
 
       return documents.stream().map(doc -> {
-        Document productClassificationsDoc = doc.get("productClassifications", Document.class);
+        var productClassificationsDoc = doc.get("productClassifications", Document.class);
         var store = stores.stream().filter(x -> x.id().equals(doc.getString("storeId"))).findFirst()
             .orElseThrow();
         stores.remove(store);
@@ -461,6 +455,12 @@ public class ProductService implements IProductService {
     if (productVariantVms.size() > 2) {
       throw new BadRequestException("Product have maximum 2 variants");
     }
+
+    productVariantVms.forEach(productVariantVm -> {
+      if (productVariantVm.options().isEmpty() || productVariantVm.image().isBlank()) {
+        throw new BadRequestException("invalid value");
+      }
+    });
 
     if (productVariantVms.size() == 1) {
       if (productVariantVms.get(0).options().size() != productClassificationVms.size()) {
