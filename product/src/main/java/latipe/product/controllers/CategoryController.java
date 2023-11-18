@@ -1,15 +1,12 @@
 package latipe.product.controllers;
 
 import jakarta.validation.Valid;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import latipe.product.annotations.ApiPrefixController;
 import latipe.product.annotations.Authenticate;
 import latipe.product.annotations.RequiresAuthorization;
-import latipe.product.dtos.PagedResultDto;
 import latipe.product.request.CreateCategoryRequest;
 import latipe.product.request.UpdateCategoryRequest;
-import latipe.product.response.CategoryResponse;
 import latipe.product.services.category.ICategoryService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -33,7 +30,7 @@ public class CategoryController {
 
   @ResponseStatus(HttpStatus.OK)
   @GetMapping(value = "/paginate", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<PagedResultDto<CategoryResponse>> getPaginateCategory(
+  public CompletableFuture<?> getPaginateCategory(
       @RequestParam(value = "skip", defaultValue = "0") long skip,
       @RequestParam(value = "limit", defaultValue = "10") int limit,
       @RequestParam(value = "name", defaultValue = "") String name) {
@@ -42,14 +39,14 @@ public class CategoryController {
 
   @ResponseStatus(HttpStatus.OK)
   @GetMapping(value = "/search", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<List<CategoryResponse>> searchNameCate(
+  public CompletableFuture<?> searchNameCate(
       @RequestParam(value = "name") String name) {
     return categoryService.searchNameCate(name);
   }
 
   @ResponseStatus(HttpStatus.OK)
   @GetMapping(value = "/children-categories/{parentId}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<List<CategoryResponse>> getListChildrenCategory(
+  public CompletableFuture<?> getListChildrenCategory(
       @PathVariable String parentId) {
     return categoryService.getListChildrenCategory(parentId);
   }
@@ -58,7 +55,7 @@ public class CategoryController {
   @RequiresAuthorization("ADMIN")
   @ResponseStatus(HttpStatus.CREATED)
   @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<CategoryResponse> createStore(
+  public CompletableFuture<?> createStore(
       @Valid @RequestBody CreateCategoryRequest input) {
     return categoryService.create(input);
   }
@@ -67,7 +64,7 @@ public class CategoryController {
   @RequiresAuthorization("ADMIN")
   @ResponseStatus(HttpStatus.OK)
   @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<CategoryResponse> get(@PathVariable("id") String id) {
+  public CompletableFuture<?> get(@PathVariable("id") String id) {
     return categoryService.get(id);
   }
 
@@ -75,7 +72,7 @@ public class CategoryController {
   @RequiresAuthorization("ADMIN")
   @ResponseStatus(HttpStatus.OK)
   @PutMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<CategoryResponse> updateStore(@PathVariable("id") String id,
+  public CompletableFuture<?> updateStore(@PathVariable("id") String id,
       @Valid @RequestBody UpdateCategoryRequest input) {
     return categoryService.update(id, input);
   }
@@ -84,7 +81,7 @@ public class CategoryController {
   @RequiresAuthorization("ADMIN")
   @ResponseStatus(HttpStatus.OK)
   @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<Void> deleteCategory(@PathVariable("id") String id) {
+  public CompletableFuture<?> deleteCategory(@PathVariable("id") String id) {
     return categoryService.remove(id);
   }
 }
