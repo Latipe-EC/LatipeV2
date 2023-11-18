@@ -13,6 +13,9 @@ rabbitmq:
     delivery-register-topic:
       routing:
         key: email.delivery.register
+    forgot-password-topic:
+      routing:
+        key: email.forgot_password
     exchange:
       name: email_topic_exchange
 
@@ -22,6 +25,7 @@ secure-internal:
 
 expiration:
   verification: 604800
+  password-reset: 900
 
 encryption:
   key: Jf57xtfgC5X9tktm

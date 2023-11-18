@@ -5,6 +5,7 @@ import java.util.concurrent.CompletableFuture;
 import latipe.user.annotations.ApiPrefixController;
 import latipe.user.annotations.Authenticate;
 import latipe.user.annotations.RequiresAuthorization;
+import latipe.user.annotations.SecureInternalPhase;
 import latipe.user.dtos.PagedResultDto;
 import latipe.user.entity.UserAddress;
 import latipe.user.request.CreateUserAddressRequest;
@@ -133,9 +134,10 @@ public class UserController {
     return userService.create(input);
   }
 
+  @SecureInternalPhase
   @ResponseStatus(HttpStatus.CREATED)
   @PostMapping(value = "/register", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<UserResponse> register(@Valid @RequestBody RegisterRequest input) {
+  public CompletableFuture<UserResponse> register(@RequestBody RegisterRequest input) {
     return userService.register(input);
   }
 
