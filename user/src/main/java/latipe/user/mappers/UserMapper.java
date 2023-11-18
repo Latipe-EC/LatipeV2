@@ -22,9 +22,14 @@ public abstract class UserMapper {
 
   public abstract void mapBeforeUpdateUser(@MappingTarget User user, UpdateUserRequest input);
 
-  @Mappings({@Mapping(target = "role", ignore = true)})
-  public abstract User mapBeforeCreateUserAddress(CreateUserRequest input, String displayName,
-      String password);
+  @Mappings({
+      @Mapping(target = "role", ignore = true),
+      @Mapping(target = "roleId", source = "roleId"),
+      @Mapping(target = "hashedPassword", source = "password"),
+      @Mapping(target = "displayName", source = "displayName"),
+  })
+  public abstract User mapBeforeCreate(CreateUserRequest input, String displayName,
+      String password, String roleId);
 
   @Mappings({@Mapping(target = "roleId", source = "roleId"),
       @Mapping(target = "displayName", source = "displayName"),

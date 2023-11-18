@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 
 
 @Component
-
 public class CommandHandler {
 
   private final IRoleRepository roleRepository;
@@ -28,13 +27,14 @@ public class CommandHandler {
       Role role = new Role(CONSTANTS.VENDOR);
       roleRepository.save(role);
     }
+    if (!roleRepository.existsByName(CONSTANTS.DELIVERY)) {
+      Role role = new Role(CONSTANTS.DELIVERY);
+      roleRepository.save(role);
+    }
     if (!roleRepository.existsByName(CONSTANTS.ADMIN)) {
       Role role = new Role(CONSTANTS.ADMIN);
       roleRepository.save(role);
     }
   }
 
-  public void handleCommand() {
-    // Handle command here
-  }
 }

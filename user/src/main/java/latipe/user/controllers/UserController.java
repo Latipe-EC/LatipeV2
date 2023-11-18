@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import java.util.concurrent.CompletableFuture;
 import latipe.user.annotations.ApiPrefixController;
 import latipe.user.annotations.Authenticate;
+import latipe.user.annotations.RequiresAuthorization;
 import latipe.user.dtos.PagedResultDto;
 import latipe.user.entity.UserAddress;
 import latipe.user.request.CreateUserAddressRequest;
@@ -126,7 +127,7 @@ public class UserController {
   }
 
   @ResponseStatus(HttpStatus.CREATED)
-  @Authenticate
+  @RequiresAuthorization("ADMIN")
   @PostMapping(value = "/create-user", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<UserResponse> createUser(@Valid @RequestBody CreateUserRequest input) {
     return userService.create(input);

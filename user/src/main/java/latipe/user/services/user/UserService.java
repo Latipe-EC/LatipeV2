@@ -152,11 +152,11 @@ public class UserService implements IUserService {
         throw new BadRequestException("Phone number already exists");
       }
 
-      var user = userMapper.mapBeforeCreateUserAddress(input,
+      var user = userMapper.mapBeforeCreate(input,
           input.firstName() + " " + input.lastName(),
-          passwordEncoder.encode(input.hashedPassword()));
-      user.setRoleId(role.getId());
+          passwordEncoder.encode("123123@Admin"), role.getId());
       var savedUser = userRepository.save(user);
+      savedUser.setRole(role);
       // send mail verify account
       return UserResponse.fromUser(savedUser);
     });

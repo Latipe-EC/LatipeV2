@@ -5,5 +5,6 @@ public class CONSTANTS {
   public static String USER = "USER";
   public static String ADMIN = "ADMIN";
   public static String VENDOR = "VENDOR";
+  public static String DELIVERY = "DELIVERY";
 
 }
