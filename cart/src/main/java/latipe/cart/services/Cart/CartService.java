@@ -10,7 +10,6 @@ import latipe.cart.dtos.PagedResultDto;
 import latipe.cart.dtos.Pagination;
 import latipe.cart.exceptions.NotFoundException;
 import latipe.cart.repositories.ICartRepository;
-import latipe.cart.request.CartItemRequest;
 import latipe.cart.request.ProductFeatureRequest;
 import latipe.cart.request.UpdateQuantityRequest;
 import latipe.cart.response.CartGetDetailResponse;
@@ -33,41 +32,34 @@ public class CartService implements ICartService {
 
   @Async
   @Override
-  public CompletableFuture<List<CartGetDetailResponse>> addToCart(CartItemRequest cartItemRequest,
+  public CompletableFuture<CartGetDetailResponse> addToCart(CartItemVm cartItemRequest,
       UserCredentialResponse userCredential) {
     return CompletableFuture.supplyAsync(() -> {
-      List<ProductFeatureRequest> productIds = cartItemRequest.cartItems().stream()
-          .map(x -> new ProductFeatureRequest(x.productId(), x.productOptionId())).toList();
+      List<ProductFeatureRequest> productIds =
+          List.of(new ProductFeatureRequest(cartItemRequest.productId(),
+              cartItemRequest.productOptionId()));
 
       String userId = userCredential.id();
       // Call API to check all products will be added to cart are existed
       var productThumbnailResponseList = productService.getProducts(productIds);
-      if (productThumbnailResponseList.size() != productIds.size()) {
+      if (productThumbnailResponseList.isEmpty()) {
         throw new NotFoundException("Not found product");
       }
 
-      List<Cart> carts = new ArrayList<>();
-      for (CartItemVm cartItemVm : cartItemRequest.cartItems()) {
-        Cart cart = cartRepository.findByUserIdAndProductOptionIdAndProductId(userId,
-            cartItemVm.productOptionId(), cartItemVm.productId()).orElse(null);
-        if (cart != null) {
-          cart.setQuantity(cart.getQuantity() + cartItemVm.quantity());
-        } else {
-          cart = new Cart();
-          cart.setUserId(userId);
-          cart.setProductId(cartItemVm.productId());
-          cart.setProductOptionId(cartItemVm.productOptionId());
-          cart.setQuantity(cartItemVm.quantity());
-        }
-        carts.add(cart);
+      var cart = cartRepository.findByUserIdAndProductOptionIdAndProductId(userId,
+          cartItemRequest.productOptionId(), cartItemRequest.productId()).orElse(null);
+      if (cart != null) {
+        cart.setQuantity(cart.getQuantity() + cartItemRequest.quantity());
+      } else {
+        cart = new Cart();
+        cart.setUserId(userId);
+        cart.setProductId(cartItemRequest.productId());
+        cart.setProductOptionId(cartItemRequest.productOptionId());
+        cart.setQuantity(cartItemRequest.quantity());
       }
-      carts = cartRepository.saveAll(carts);
+      cart = cartRepository.save(cart);
 
-      return carts.stream().map(x -> {
-        var productDetail = productThumbnailResponseList.stream()
-            .filter(y -> y.id().equals(x.getProductId())).findFirst().orElseThrow();
-        return CartGetDetailResponse.fromModel(x, productDetail);
-      }).toList();
+      return CartGetDetailResponse.fromModel(cart, productThumbnailResponseList.get(0));
     });
 
   }
@@ -89,7 +81,6 @@ public class CartService implements ICartService {
       }
 
       var productThumbnailResponseList = productService.getProducts(productIds);
-      ;
 
       if (productThumbnailResponseList.size() != productIds.size()) {
         throw new NotFoundException("Not found product");

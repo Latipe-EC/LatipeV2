@@ -2,10 +2,7 @@ package latipe.cart.configs;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.index.Index;
-import org.springframework.data.mongodb.core.index.IndexDefinition;
 import org.springframework.data.mongodb.core.index.IndexOperations;
 import org.springframework.stereotype.Component;
 
@@ -30,8 +27,8 @@ public class IndexConfiguration implements CommandLineRunner {
 
   private void createUniqueIndexIfNotExists(MongoTemplate mongoTemplate) {
     IndexOperations indexOperations = mongoTemplate.indexOps("Carts");
-    IndexDefinition indexDefinition = new Index().on("userId", Sort.Direction.ASC).unique();
-    indexOperations.ensureIndex(indexDefinition);
+//    IndexDefinition indexDefinition = new Index().on("userId", Sort.Direction.ASC).unique();
+//    indexOperations.ensureIndex(indexDefinition);
   }
 }
 

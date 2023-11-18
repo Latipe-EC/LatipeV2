@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
@@ -14,6 +15,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 @Getter
 @Setter
+@CompoundIndex(def = "{'userId': 1, 'productId': 1, 'productOptionId': 1}", unique = true)
 public class Cart extends AbstractAuditEntity {
 
   @Id

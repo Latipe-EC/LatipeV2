@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import latipe.cart.annotations.ApiPrefixController;
 import latipe.cart.annotations.Authenticate;
@@ -15,12 +14,12 @@ import latipe.cart.exceptions.BadRequestException;
 import latipe.cart.exceptions.ForbiddenException;
 import latipe.cart.exceptions.NotFoundException;
 import latipe.cart.exceptions.UnauthorizedException;
-import latipe.cart.request.CartItemRequest;
 import latipe.cart.request.UpdateQuantityRequest;
 import latipe.cart.response.CartGetDetailResponse;
 import latipe.cart.response.DeleteCartItemRequest;
 import latipe.cart.response.UserCredentialResponse;
 import latipe.cart.services.Cart.ICartService;
+import latipe.cart.viewmodel.CartItemVm;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -71,8 +70,8 @@ public class CartController {
       @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ForbiddenException.class))),
       @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = NotFoundException.class))),
       @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = BadRequestException.class)))})
-  public CompletableFuture<List<CartGetDetailResponse>> createCart(
-      @Valid @RequestBody CartItemRequest cartItemRequests) {
+  public CompletableFuture<CartGetDetailResponse> createCart(
+      @Valid @RequestBody CartItemVm cartItemRequests) {
     UserCredentialResponse userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
         .getAttribute("user")));
     return cartService.addToCart(cartItemRequests, userCredential);

@@ -334,14 +334,14 @@ public class ProductService implements IProductService {
         throw new RuntimeException(e);
       }
 
+      var storeIds = new HashSet<>(documents.stream().map(doc -> doc.getString("storeId")).toList());
       var stores = storeClient.getDetailStores(hash, MultipleStoreRequest.builder()
-          .ids(documents.stream().map(doc -> (doc.getString("storeId"))).toList()).build());
+          .ids(storeIds).build());
 
       return documents.stream().map(doc -> {
         var productClassificationsDoc = doc.get("productClassifications", Document.class);
         var store = stores.stream().filter(x -> x.id().equals(doc.getString("storeId"))).findFirst()
             .orElseThrow();
-        stores.remove(store);
         return new ProductThumbnailVm(doc.getObjectId("_id").toString(), doc.getString("name"),
             productClassificationsDoc.getString("name"),
             productClassificationsDoc.getDouble("price"),

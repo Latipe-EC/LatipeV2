@@ -1,6 +1,7 @@
 package latipe.store.controllers;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -119,7 +120,7 @@ public class StoreController {
   @ResponseStatus(HttpStatus.OK)
   @PostMapping(value = "/multiple-detail-store", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<List<StoreSimplifyResponse>> getMultipleStore(
-      @RequestBody MultipleStoreRequest input) {
+   @Valid @RequestBody MultipleStoreRequest input) {
     return storeService.getMultipleStore(input);
 
   }
