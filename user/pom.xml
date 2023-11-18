@@ -38,7 +38,6 @@
     <dependency>
       <artifactId>spring-boot-starter-actuator</artifactId>
       <groupId>org.springframework.boot</groupId>
-      <version>3.1.5</version>
     </dependency>
     <dependency>
       <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
@@ -135,6 +134,11 @@
       <artifactId>spring-boot-starter-cache</artifactId>
       <groupId>org.springframework.boot</groupId>
     </dependency>
+    <!-- RabbitMQ -->
+    <dependency>
+      <artifactId>spring-boot-starter-amqp</artifactId>
+      <groupId>org.springframework.boot</groupId>
+    </dependency>
   </dependencies>
   <dependencyManagement>
     <dependencies>
@@ -156,7 +160,7 @@
     <artifactId>spring-boot-starter-parent</artifactId>
     <groupId>org.springframework.boot</groupId>
     <relativePath/>
-    <version>3.1.2</version> <!-- lookup parent from repository -->
+    <version>3.1.5</version> <!-- lookup parent from repository -->
   </parent>
 
   <properties>

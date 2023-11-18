@@ -1,6 +1,12 @@
 package latipe.user.services.user;
 
+import static latipe.user.constants.CONSTANTS.DEFAULT_PASSWORD;
+
+import com.google.gson.Gson;
+import java.time.ZonedDateTime;
 import java.util.concurrent.CompletableFuture;
+import latipe.user.constants.CONSTANTS;
+import latipe.user.constants.KeyType;
 import latipe.user.dtos.PagedResultDto;
 import latipe.user.dtos.Pagination;
 import latipe.user.entity.User;
@@ -8,7 +14,9 @@ import latipe.user.entity.UserAddress;
 import latipe.user.exceptions.BadRequestException;
 import latipe.user.exceptions.NotFoundException;
 import latipe.user.mappers.UserMapper;
+import latipe.user.producer.RabbitMQProducer;
 import latipe.user.repositories.IRoleRepository;
+import latipe.user.repositories.ITokenRepository;
 import latipe.user.repositories.IUserRepository;
 import latipe.user.request.CreateUserAddressRequest;
 import latipe.user.request.CreateUserRequest;
@@ -17,8 +25,10 @@ import latipe.user.request.UpdateUserAddressRequest;
 import latipe.user.request.UpdateUserRequest;
 import latipe.user.response.UserResponse;
 import latipe.user.utils.Constants;
+import latipe.user.utils.TokenUtils;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -32,6 +42,20 @@ public class UserService implements IUserService {
   private final IRoleRepository roleRepository;
   private final PasswordEncoder passwordEncoder;
   private final UserMapper userMapper;
+  private final ITokenRepository tokenRepository;
+  private final RabbitMQProducer rabbitMQProducer;
+  private final Gson gson;
+
+  @Value("${rabbitmq.email.exchange.name}")
+  private String exchange;
+  @Value("${rabbitmq.email.user-register-topic.routing.key}")
+  private String routingUserRegisterKey;
+  @Value("${rabbitmq.email.delivery-register-topic.routing.key}")
+  private String routingDeliveryRegisterKey;
+  @Value("${encryption.key}")
+  private String ENCRYPTION_KEY;
+  @Value("${expiration.verification}")
+  private Long expirationVerifyMs;
 
   @Async
   @Override
@@ -154,10 +178,24 @@ public class UserService implements IUserService {
 
       var user = userMapper.mapBeforeCreate(input,
           input.firstName() + " " + input.lastName(),
-          passwordEncoder.encode("123123@Admin"), role.getId());
+          passwordEncoder.encode(DEFAULT_PASSWORD), role.getId());
       var savedUser = userRepository.save(user);
       savedUser.setRole(role);
+
+      var token = userMapper.mapToToken(savedUser.getId(), KeyType.VERIFY_ACCOUNT,
+          ZonedDateTime.now().plusSeconds(expirationVerifyMs));
+      token = tokenRepository.save(token);
+      var tokenHash = TokenUtils.encodeToken(token.getId(), ENCRYPTION_KEY);
+
       // send mail verify account
+      String message = gson.toJson(userMapper.mapToMessage(
+          token.getUserId(), role.getName(), savedUser.getDisplayName(), savedUser.getEmail(),
+          DEFAULT_PASSWORD, tokenHash));
+
+      rabbitMQProducer.sendMessage(message, exchange,
+          role.getName().equals(CONSTANTS.DELIVERY) ? routingDeliveryRegisterKey
+              : routingUserRegisterKey);
+
       return UserResponse.fromUser(savedUser);
     });
   }
@@ -181,7 +219,18 @@ public class UserService implements IUserService {
           passwordEncoder.encode(input.hashedPassword()));
       var savedUser = userRepository.save(user);
       savedUser.setRole(role);
+
+      var token = userMapper.mapToToken(savedUser.getId(), KeyType.VERIFY_ACCOUNT,
+          ZonedDateTime.now().plusSeconds(expirationVerifyMs));
+      token = tokenRepository.save(token);
+      var tokenHash = TokenUtils.encodeToken(token.getId(), ENCRYPTION_KEY);
+
       // send mail verify account
+      String message = gson.toJson(userMapper.mapToMessage(
+          token.getUserId(), CONSTANTS.USER, savedUser.getDisplayName(), savedUser.getEmail(),
+          null, tokenHash));
+      rabbitMQProducer.sendMessage(message, exchange, routingUserRegisterKey);
+
       return UserResponse.fromUser(savedUser);
     });
   }

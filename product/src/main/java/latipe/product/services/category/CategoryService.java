@@ -33,7 +33,7 @@ public class CategoryService implements ICategoryService {
     var cache = cacheManager.getCache("child_category_cache");
     if (cache != null) {
       List<?> cachedCategories = cache.get(parentId, List.class);
-      if (cachedCategories != null) {
+      if (cachedCategories != null && !cachedCategories.isEmpty()) {
         return CompletableFuture.completedFuture(cachedCategories);
       }
     }
@@ -44,7 +44,6 @@ public class CategoryService implements ICategoryService {
         categories = cateRepository.findChildrenCate(null);
       } else {
         categories = cateRepository.findChildrenCate(parentId);
-
       }
       return categories.stream().map(categoryMapper::mapToCategoryResponse).toList();
     });

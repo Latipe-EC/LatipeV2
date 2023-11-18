@@ -2,7 +2,14 @@ package latipe.auth.controllers;
 
 
 import static latipe.auth.utils.Constants.ErrorCode.TOKEN_EXPIRED;
+import static latipe.auth.utils.GenTokenInternal.generateHash;
+import static latipe.auth.utils.GenTokenInternal.getPrivateKey;
 
+import feign.Feign;
+import feign.Logger;
+import feign.gson.GsonDecoder;
+import feign.gson.GsonEncoder;
+import feign.okhttp.OkHttpClient;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.io.UnsupportedEncodingException;
@@ -15,22 +22,26 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import latipe.auth.config.ApiPrefixController;
 import latipe.auth.config.JwtTokenService;
+import latipe.auth.config.SecureInternalProperties;
 import latipe.auth.constants.CONSTANTS.TOKEN_TYPE;
 import latipe.auth.entity.Role;
 import latipe.auth.entity.User;
 import latipe.auth.exceptions.BadRequestException;
 import latipe.auth.exceptions.NotFoundException;
 import latipe.auth.exceptions.UnauthorizedException;
+import latipe.auth.feign.TokenClient;
 import latipe.auth.repositories.IUserRepository;
 import latipe.auth.request.LoginRequest;
 import latipe.auth.request.RefreshTokenRequest;
 import latipe.auth.request.ResetPasswordByPhoneRequest;
 import latipe.auth.request.TokenRequest;
+import latipe.auth.request.VerifyAccountRequest;
 import latipe.auth.response.LoginResponse;
 import latipe.auth.response.RefreshTokenResponse;
 import latipe.auth.response.TokenResetPasswordResponse;
 import latipe.auth.response.UserCredentialResponse;
 import latipe.auth.utils.GenTokenUtils;
+import lombok.RequiredArgsConstructor;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -51,21 +62,16 @@ import org.springframework.web.bind.annotation.RestController;
 @ApiPrefixController("/auth")
 @Tag(name = "User authentication")
 @Validated
+@RequiredArgsConstructor
 public class AuthController {
 
   private final JwtTokenService jwtUtil;
   private final IUserRepository userRepository;
   private final MongoTemplate mongoTemplate;
+  private final SecureInternalProperties secureInternalProperties;
 
   @Value("${URL_FE}")
   private String URL;
-
-  public AuthController(JwtTokenService jwtUtil, IUserRepository userRepository,
-      MongoTemplate mongoTemplate) {
-    this.jwtUtil = jwtUtil;
-    this.userRepository = userRepository;
-    this.mongoTemplate = mongoTemplate;
-  }
 
 
   @PostMapping("/login")
@@ -77,6 +83,15 @@ public class AuthController {
       if (!jwtUtil.comparePassword(loginRequest.password(), user.getPassword())) {
         throw new BadRequestException("Password not correct");
       }
+
+      if (user.getIsDeleted()) {
+        throw new UnauthorizedException("Your account has been deleted");
+      }
+
+      if (user.getVerifiedAt() == null) {
+        throw new UnauthorizedException("Your account has not been verified");
+      }
+
       final String accessToken = jwtUtil.createAccessToken(user);
       final String refreshToken = jwtUtil.createRefreshToken(user.getEmail());
 
@@ -97,6 +112,10 @@ public class AuthController {
       // Check if the refresh token is valid and not expired
       String username = jwtUtil.checkToken(refreshToken, "refresh-token");
       User user = getUser(username);
+      if (user.getIsDeleted()) {
+        throw new UnauthorizedException("Your account has been deleted");
+      }
+
       try {
         if (jwtUtil.validateToken(refreshToken, user)) {
           final String accessToken = jwtUtil.createAccessToken(user);
@@ -139,6 +158,20 @@ public class AuthController {
         throw new RuntimeException(e);
       }
     });
+  }
+
+  @PostMapping("/verify-account")
+  public Void verifyAccount(@Valid @RequestBody VerifyAccountRequest request) {
+    var tokenClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
+        .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL)
+        .target(TokenClient.class, "http://localhost:8181/api/v1");
+    String hash;
+    try {
+      hash = generateHash("user-service", getPrivateKey(secureInternalProperties.getPrivateKey()));
+      return tokenClient.verifyAccount(hash, new VerifyAccountRequest(request.token()));
+    } catch (Exception e) {
+      throw new BadRequestException(e.getMessage());
+    }
   }
 
   @PostMapping("/request-reset-password-by-email")

@@ -15,7 +15,6 @@ import latipe.cart.request.ProductFeatureRequest;
 import latipe.cart.request.UpdateQuantityRequest;
 import latipe.cart.response.CartGetDetailResponse;
 import latipe.cart.response.DeleteCartItemRequest;
-import latipe.cart.response.ProductThumbnailResponse;
 import latipe.cart.response.UserCredentialResponse;
 import latipe.cart.services.Product.ProductService;
 import latipe.cart.viewmodel.CartItemVm;
@@ -89,7 +88,8 @@ public class CartService implements ICartService {
         return PagedResultDto.create(Pagination.create(count, skip, size), new ArrayList<>());
       }
 
-      var productThumbnailResponseList = productService.getProducts(productIds);;
+      var productThumbnailResponseList = productService.getProducts(productIds);
+      ;
 
       if (productThumbnailResponseList.size() != productIds.size()) {
         throw new NotFoundException("Not found product");

@@ -5,6 +5,26 @@ spring:
     mongodb:
       uri: mongodb://localhost:27017/Latipe-User-DB
 
+rabbitmq:
+  email:
+    user-register-topic:
+      routing:
+        key: email.user.register
+    delivery-register-topic:
+      routing:
+        key: email.delivery.register
+    exchange:
+      name: email_topic_exchange
+
+secure-internal:
+  public-key: "MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAKl5SroD9NuxQ955qCcCMERMAMJz2/CZfx3WTHkQa8cvf13FBkRFvRkLD7U1MRCNylxe+oebmy/OF4GzuSxcDl8CAwEAAQ=="
+  private-key: "MIIBUwIBADANBgkqhkiG9w0BAQEFAASCAT0wggE5AgEAAkEAqXlKugP027FD3nmoJwIwREwAwnPb8Jl/HdZMeRBrxy9/XcUGREW9GQsPtTUxEI3KXF76h5ubL84XgbO5LFwOXwIDAQABAkB7y8dDZFp8FNwv6oxjmlyptx8i7EEwWuAZao5ILS+duqnmZLLdSVpTF/tc58bFoBsZyWFru6sxmommxDipxwMBAiEA5FhOxbJeo8zn4OyASEzBuzWNv2QpEX7hpn5H9wlTVoECIQC9/7iLKBzB7YiS6+tKHRROHQt9n4OMcDGau5gfxXG03wIgRmGRpg3cbdByiDldMOu3quRO1Hci0WmyU4cI13PgZAECIEMMNbxtqFBLGXH3bO2Xe23hVAe9vbdWdDrNTm6Px4NzAiBjaQjKKLaSlP24wdaYe0cQxWuC0UlwAu5vHk0twRzV/g=="
+
+expiration:
+  verification: 604800
+
+encryption:
+  key: Jf57xtfgC5X9tktm
 server:
   port: '8888'
 #  servlet:
@@ -28,13 +48,5 @@ eureka:
     serviceUrl:
       defaultZone: http://eureka:password@localhost:8761/eureka
 springdoc:
-  swagger-ui:
-    ouser:
-      use-pkce-with-userorization-code-grant: 'true'
-      client-id: swagger-ui
-    path: /swagger-ui
-  ouserflow:
-    token-url: http://localhost:8080/realms/latipe-realm/protocol/openid-connect/token
-    userorization-url: http://localhost:8080/realms/latipe-realm/protocol/openid-connect/user
   packagesToScan: latipe.user
 

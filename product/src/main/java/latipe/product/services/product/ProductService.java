@@ -457,10 +457,18 @@ public class ProductService implements IProductService {
     }
 
     productVariantVms.forEach(productVariantVm -> {
-      if (productVariantVm.options().isEmpty() || productVariantVm.image().isBlank()) {
+      if (productVariantVm.options().isEmpty()) {
         throw new BadRequestException("invalid value");
       }
     });
+
+    productVariantVms.get(0).options().forEach(
+        option -> {
+          if (option.getImage().isBlank()) {
+            throw new BadRequestException("Image is required");
+          }
+        }
+    );
 
     if (productVariantVms.size() == 1) {
       if (productVariantVms.get(0).options().size() != productClassificationVms.size()) {

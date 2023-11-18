@@ -12,4 +12,5 @@ public record CreateStoreRequest(
     String logo,
     String cover,
     StoreAddress address) {
+
 }

@@ -1,8 +1,8 @@
 package latipe.user.entity;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -30,11 +30,11 @@ public class User extends AbstractAuditEntity implements UserDetails {
   private String lastName;
   private String displayName;
   private int requestCount = 0;
-  private Date lastRequest;
+  private ZonedDateTime lastRequest;
   private String email;
   private boolean isRequiredVerify = false;
-  private Date verifiedAt;
-  private Date lastLogin;
+  private ZonedDateTime verifiedAt;
+  private ZonedDateTime lastLogin;
   private String hashedPassword;
   private String avatar;
   private int point = 0;
