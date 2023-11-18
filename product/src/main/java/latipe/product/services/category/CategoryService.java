@@ -11,7 +11,6 @@ import latipe.product.mapper.CategoryMapper;
 import latipe.product.repositories.ICategoryRepository;
 import latipe.product.request.CreateCategoryRequest;
 import latipe.product.request.UpdateCategoryRequest;
-import latipe.product.response.CategoryResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
@@ -28,22 +27,24 @@ public class CategoryService implements ICategoryService {
 
   @Override
   @Async
-  @Cacheable(value = "child_category_cache", key = "parentId")
-  public CompletableFuture<List<CategoryResponse>> getListChildrenCategory(String parentId) {
-    return CompletableFuture.supplyAsync(() -> {
-      var cache = cacheManager.getCache("child_category_cache");
-      if (cache != null) {
-        List<?> cachedCategories = cache.get(parentId, List.class);
-        if (cachedCategories != null) {
-          return cachedCategories.stream().map(category -> (CategoryResponse) category).toList();
-        }
-      }
+  @Cacheable(value = "child_category_cache", key = "#parentId")
+  public CompletableFuture<List<?>> getListChildrenCategory(String parentId) {
 
+    var cache = cacheManager.getCache("child_category_cache");
+    if (cache != null) {
+      List<?> cachedCategories = cache.get(parentId, List.class);
+      if (cachedCategories != null) {
+        return CompletableFuture.completedFuture(cachedCategories);
+      }
+    }
+
+    return CompletableFuture.supplyAsync(() -> {
       List<Category> categories;
       if (parentId.equals("null")) {
         categories = cateRepository.findChildrenCate(null);
       } else {
         categories = cateRepository.findChildrenCate(parentId);
+
       }
       return categories.stream().map(categoryMapper::mapToCategoryResponse).toList();
     });
@@ -51,17 +52,18 @@ public class CategoryService implements ICategoryService {
 
   @Override
   @Async
-  @Cacheable(value = "search_name_category_cache", key = "name")
-  public CompletableFuture<List<CategoryResponse>> searchNameCate(String name) {
-    return CompletableFuture.supplyAsync(() -> {
+  @Cacheable(value = "search_name_category_cache", key = "#name")
+  public CompletableFuture<List<?>> searchNameCate(String name) {
 
-      var cache = cacheManager.getCache("search_name_category_cache");
-      if (cache != null) {
-        List<?> cachedCategories = cache.get(name, List.class);
-        if (cachedCategories != null) {
-          return cachedCategories.stream().map(category -> (CategoryResponse) category).toList();
-        }
+    var cache = cacheManager.getCache("search_name_category_cache");
+    if (cache != null) {
+      List<?> cachedCategories = cache.get(name, List.class);
+      if (cachedCategories != null) {
+        return CompletableFuture.completedFuture(cachedCategories);
       }
+    }
+
+    return CompletableFuture.supplyAsync(() -> {
 
       var categories = cateRepository.findCateByName(name);
       var ids = categories.stream().map(Category::getFirstParentCategoryId).toList();
@@ -76,17 +78,17 @@ public class CategoryService implements ICategoryService {
   @Override
   @Async
   @Cacheable(value = "get_paginate_category", key = "{ #skip, #limit, #name }")
-  public CompletableFuture<PagedResultDto<CategoryResponse>> getPaginateCategory(long skip,
-      int limit, String name) {
-    return CompletableFuture.supplyAsync(() -> {
-      var cache = cacheManager.getCache("get_paginate_category");
-      if (cache != null) {
-        String cacheKey = "{ #%s, #%s, #%s }".formatted(skip, limit, name);
-        var cachedResult = cache.get(cacheKey, PagedResultDto.class);
-        if (cachedResult != null) {
-          return (PagedResultDto<CategoryResponse>) cachedResult;
-        }
+  public CompletableFuture<?> getPaginateCategory(long skip, int limit, String name) {
+    var cache = cacheManager.getCache("get_paginate_category");
+    if (cache != null) {
+      String cacheKey = "{ #%s, #%s, #%s }".formatted(skip, limit, name);
+      var cachedResult = cache.get(cacheKey, PagedResultDto.class);
+      if (cachedResult != null) {
+        return CompletableFuture.completedFuture(cachedResult);
       }
+    }
+    return CompletableFuture.supplyAsync(() -> {
+
       var categories = cateRepository.findCategoryWithPaginationAndSearch(skip, limit, name);
       return PagedResultDto.create(Pagination.create(cateRepository.countByName(name), skip, limit),
           categories.stream().map(categoryMapper::mapToCategoryResponse).toList());
@@ -95,7 +97,7 @@ public class CategoryService implements ICategoryService {
 
   @Override
   @Async
-  public CompletableFuture<CategoryResponse> create(CreateCategoryRequest input) {
+  public CompletableFuture<?> create(CreateCategoryRequest input) {
     return CompletableFuture.supplyAsync(() -> {
       var cate = cateRepository.findByName(input.name());
       if (cate != null) {
@@ -113,7 +115,7 @@ public class CategoryService implements ICategoryService {
 
   @Override
   @Async
-  public CompletableFuture<CategoryResponse> update(String id, UpdateCategoryRequest input) {
+  public CompletableFuture<?> update(String id, UpdateCategoryRequest input) {
     return CompletableFuture.supplyAsync(() -> {
 
       var cate = cateRepository.findByNameAndExceptId(input.name(), id);
@@ -138,7 +140,7 @@ public class CategoryService implements ICategoryService {
   }
 
   @Override
-  public CompletableFuture<CategoryResponse> get(String id) {
+  public CompletableFuture<?> get(String id) {
     return CompletableFuture.supplyAsync(() -> {
       var cate = cateRepository.findById(id)
           .orElseThrow(() -> new NotFoundException("Category not found"));
@@ -148,7 +150,7 @@ public class CategoryService implements ICategoryService {
 
   @Override
   @Async
-  public CompletableFuture<Void> remove(String id) {
+  public CompletableFuture<?> remove(String id) {
     return CompletableFuture.supplyAsync(() -> {
       Category cate = cateRepository.findById(id)
           .orElseThrow(() -> new BadRequestException("Category not found"));

@@ -1,6 +1,8 @@
 package latipe.user.response;
 
+import java.util.List;
 import latipe.user.entity.User;
+import latipe.user.entity.UserAddress;
 
 public record UserResponse(
     String id,
@@ -12,7 +14,8 @@ public record UserResponse(
     String avatar,
     String role,
     Double eWallet,
-    Integer point
+    Integer point,
+    List<UserAddress> addresses
 
 ) {
 
@@ -27,7 +30,8 @@ public record UserResponse(
         user.getAvatar(),
         user.getRole().getName(),
         user.getEWallet(),
-        user.getPoint()
+        user.getPoint(),
+        user.getAddresses()
     );
   }
 
