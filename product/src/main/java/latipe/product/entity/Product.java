@@ -20,12 +20,12 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @AllArgsConstructor
 public class Product extends AbstractAuditEntity {
 
-  boolean isBanned = false;
-  boolean isDeleted = false;
-  boolean isPublished = true;
-  Double promotionalPrice;
-  List<AttributeValue> detailsProduct;
-  List<Integer> ratings = List.of(0, 0, 0, 0, 0);
+  private Boolean isBanned = false;
+  private Boolean isDeleted = false;
+  private Boolean isPublished = true;
+  private Double promotionalPrice;
+  private List<AttributeValue> detailsProduct;
+  private List<Integer> ratings = List.of(0, 0, 0, 0, 0);
   @Id
   private String id;
   private String name;

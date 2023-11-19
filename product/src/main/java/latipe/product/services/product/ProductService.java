@@ -5,6 +5,7 @@ import static latipe.product.utils.GenTokenInternal.generateHash;
 import static latipe.product.utils.GenTokenInternal.getPrivateKey;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.gson.Gson;
 import feign.Feign;
 import feign.Logger;
 import feign.gson.GsonDecoder;
@@ -50,6 +51,7 @@ import latipe.product.viewmodel.ProductESDetailVm;
 import latipe.product.viewmodel.ProductMessageVm;
 import latipe.product.viewmodel.ProductOrderVm;
 import latipe.product.viewmodel.ProductPriceVm;
+import latipe.product.viewmodel.ProductSample;
 import latipe.product.viewmodel.ProductThumbnailVm;
 import latipe.product.viewmodel.ProductVariantVm;
 import lombok.RequiredArgsConstructor;
@@ -75,6 +77,7 @@ public class ProductService implements IProductService {
   private final RabbitMQProducer rabbitMQProducer;
   private final CategoryMapper categoryMapper;
   private final SecureInternalProperties secureInternalProperties;
+  private final Gson gson;
 
   @Async
   @Override
@@ -273,10 +276,11 @@ public class ProductService implements IProductService {
       List<String> categoryNames = categoryRepository.findAllById(product.getCategories()).stream()
           .map(Category::getName).toList();
       return new ProductESDetailVm(product.getId(), product.getName(), product.getSlug(),
-          product.getPrice(), product.isPublished(), product.getImages(), product.getDescription(),
+          product.getPrice(), product.getIsPublished(), product.getImages(),
+          product.getDescription(),
           product.getProductClassifications(),
           product.getProductClassifications().stream().map(ProductClassification::getName).toList(),
-          categoryNames, product.getDetailsProduct(), product.isBanned(), product.isDeleted(),
+          categoryNames, product.getDetailsProduct(), product.getIsBanned(), product.getIsDeleted(),
           product.getCreatedDate());
     });
   }
@@ -296,11 +300,11 @@ public class ProductService implements IProductService {
       var store = storeClient.getDetailStore(product.getStoreId());
 
       return new ProductDetailResponse(product.getId(), product.getName(), product.getSlug(),
-          product.getPrice(), product.getPromotionalPrice(), product.isPublished(),
+          product.getPrice(), product.getPromotionalPrice(), product.getIsPublished(),
           product.getImages(), product.getDescription(), product.getProductClassifications(),
           product.getProductVariants(),
           categories.stream().map(categoryMapper::mapToCategoryResponse).toList(),
-          product.getDetailsProduct(), product.isBanned(), product.isDeleted(),
+          product.getDetailsProduct(), product.getIsBanned(), product.getIsDeleted(),
           product.getCreatedDate(), store, product.getRatings());
     });
   }
@@ -334,18 +338,31 @@ public class ProductService implements IProductService {
         throw new RuntimeException(e);
       }
 
-      var storeIds = new HashSet<>(documents.stream().map(doc -> doc.getString("storeId")).toList());
+      var storeIds = new HashSet<>(
+          documents.stream().map(doc -> doc.getString("storeId")).toList());
       var stores = storeClient.getDetailStores(hash, MultipleStoreRequest.builder()
           .ids(storeIds).build());
 
       return documents.stream().map(doc -> {
         var productClassificationsDoc = doc.get("productClassifications", Document.class);
+        var productSample = gson.fromJson(doc.toJson(), ProductSample.class);
+        String image =  productSample.productVariants().get(0).options().get(0).getImage();
+//        if (productSample.productVariants().isEmpty()) {
+//          image = doc.getString("image");
+//        } else {
+//          int size = productSample.productVariants().get(0).options().size() * productSample.productVariants().size() == 2 ? productSample.productVariants().get(1)
+//              .options().size() : 1;
+//          image = productSample.productVariants().get(0).options().get(
+//                  size / (Integer.parseInt(productClassificationsDoc.getString("code") + 1)))
+//              .getImage();
+//        }
+
         var store = stores.stream().filter(x -> x.id().equals(doc.getString("storeId"))).findFirst()
             .orElseThrow();
         return new ProductThumbnailVm(doc.getObjectId("_id").toString(), doc.getString("name"),
             productClassificationsDoc.getString("name"),
             productClassificationsDoc.getDouble("price"),
-            productClassificationsDoc.getString("image"), store.id(), store.name());
+            image, store.id(), store.name());
       }).toList();
     });
   }
@@ -526,7 +543,7 @@ public class ProductService implements IProductService {
       if (!store.equals(product.getStoreId())) {
         throw new BadRequestException("You don't have permission to change this product");
       }
-      product.setDeleted(true);
+      product.setIsDeleted(true);
       var savedProduct = productRepository.save(product);
 
       // send message create message
@@ -551,7 +568,7 @@ public class ProductService implements IProductService {
           .orElseThrow(() -> new BadRequestException("Product not found"));
       // check permission to change product (store service)
       product.setReasonBan(input.reason());
-      product.setBanned(true);
+      product.setIsBanned(true);
       var savedProduct = productRepository.save(product);
 
       // send message create message

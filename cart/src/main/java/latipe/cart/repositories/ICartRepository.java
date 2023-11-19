@@ -19,7 +19,7 @@ public interface ICartRepository extends MongoRepository<Cart, String> {
   Optional<Cart> findByUserIdAndProductOptionIdAndProductId(String userId, String productOptionId,
       String productId);
 
-  @Query("{'id' : { $in: ?0 }, 'userId' : ?0 ,}")
+  @Query("{'id' : { $in: ?0 }, 'userId' : ?1}")
   List<Cart> findAllByIdAndUserId(Set<String> ids, String userId);
 
 }
