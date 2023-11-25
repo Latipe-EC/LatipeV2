@@ -50,7 +50,7 @@ public class ProductSyncDataService {
     product.setBanned(productESDetailVm.isBanned());
     product.setDeleted(productESDetailVm.isDeleted());
     product.setCountSale(productESDetailVm.countSale());
-
+    product.setRatings(productESDetailVm.ratings());
     productRepository.save(product);
   }
 
@@ -75,4 +75,6 @@ public class ProductSyncDataService {
     productExisted.setBanned(true);
     productRepository.save(productExisted);
   }
+
+
 }

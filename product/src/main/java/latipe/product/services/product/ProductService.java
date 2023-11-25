@@ -281,7 +281,8 @@ public class ProductService implements IProductService {
           product.getProductClassifications(),
           product.getProductClassifications().stream().map(ProductClassification::getName).toList(),
           categoryNames, product.getDetailsProduct(), product.getIsBanned(), product.getIsDeleted(),
-          product.getCreatedDate());
+          product.getCreatedDate(), product.getCountSale(),
+          calculateRatingAverage(product.getRatings()));
     });
   }
 
@@ -346,7 +347,7 @@ public class ProductService implements IProductService {
       return documents.stream().map(doc -> {
         var productClassificationsDoc = doc.get("productClassifications", Document.class);
         var productSample = gson.fromJson(doc.toJson(), ProductSample.class);
-        String image =  productSample.productVariants().get(0).options().get(0).getImage();
+        String image = productSample.productVariants().get(0).options().get(0).getImage();
 //        if (productSample.productVariants().isEmpty()) {
 //          image = doc.getString("image");
 //        } else {
@@ -627,5 +628,18 @@ public class ProductService implements IProductService {
           .reasonBan(doc.getString("reasonBan")).build();
     }).toList();
     return PagedResultDto.create(Pagination.create(total, skip, limit), list);
+  }
+
+  public double calculateRatingAverage(List<Integer> ratings) {
+    int totalWeight = 0;
+    int weightedSum = 0;
+
+    for (int i = 0; i < ratings.size(); i++) {
+      int weight = i + 1;
+      totalWeight += weight;
+      weightedSum += weight * ratings.get(i);
+    }
+
+    return (double) weightedSum / totalWeight;
   }
 }

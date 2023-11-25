@@ -4,6 +4,7 @@ import co.elastic.clients.elasticsearch._types.aggregations.Aggregation;
 import co.elastic.clients.elasticsearch._types.aggregations.StringTermsAggregate;
 import co.elastic.clients.elasticsearch._types.aggregations.StringTermsBucket;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.MatchAllQuery;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,6 +20,7 @@ import latipe.search.viewmodel.ProductNameListVm;
 import org.elasticsearch.common.unit.Fuzziness;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.elasticsearch.client.elc.ElasticsearchAggregation;
 import org.springframework.data.elasticsearch.client.elc.NativeQuery;
 import org.springframework.data.elasticsearch.client.elc.NativeQueryBuilder;
@@ -51,18 +53,24 @@ public class ProductService {
       NativeQueryBuilder nativeQuery = NativeQuery.builder()
           .withAggregation("categories", Aggregation.of(a -> a
               .terms(ta -> ta.field(ProductField.CATEGORIES))))
-          .withAggregation("classifications", Aggregation.of(a -> a
-              .terms(ta -> ta.field(ProductField.CLASSIFICATIONS))))
-          .withQuery(q -> q
-              .bool(b -> b
-                  .should(s -> s
-                      .multiMatch(m -> m
-                          .fields(ProductField.NAME, ProductField.CLASSIFICATIONS)
-                          .query(keyword)
-                          .fuzziness(Fuzziness.ONE.asString())
+          .withQuery(q -> {
+                if (keyword != null && !keyword.isBlank()) {
+                  q.bool(b -> b
+                      .should(s -> s
+                          .multiMatch(m -> m
+                              .fields(ProductField.NAME, ProductField.CLASSIFICATIONS)
+                              .query(keyword)
+                              .fuzziness(Fuzziness.ONE.asString())
+                          )
                       )
-                  )
-              )
+                  );
+                } else {
+                  q.bool(b -> b.should(s -> s.matchAll(MatchAllQuery.of(
+                      m -> m.boost(0.0F)
+                  ))));
+                }
+                return q;
+              }
           )
           .withPageable(PageRequest.of(page, size));
       nativeQuery.withFilter(f -> f
@@ -80,6 +88,8 @@ public class ProductService {
         nativeQuery.withSort(Sort.by(Sort.Direction.DESC, ProductField.PRICE));
       } else if (sortType == ESortType.COUNT_SALE_ASC) {
         nativeQuery.withSort(Sort.by(Sort.Direction.ASC, ProductField.COUNT_SALE));
+      } else if (sortType == ESortType.RATINGS) {
+        nativeQuery.withSort(Sort.by(Direction.DESC, ProductField.RATINGS));
       } else if (sortType == ESortType.COUNT_SALE_DESC) {
         nativeQuery.withSort(Sort.by(Sort.Direction.DESC, ProductField.COUNT_SALE));
       } else {

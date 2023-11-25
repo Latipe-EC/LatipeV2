@@ -24,7 +24,7 @@ public class Product {
   public boolean isBanned = false;
   @Id
   private String id;
-  @Field(type = FieldType.Text, analyzer = "autocomplete_index", searchAnalyzer = "autocomplete_search")
+  @Field(type = FieldType.Text, analyzer = "vietnamese_analyzer", searchAnalyzer = "autocomplete_search")
   private String name;
   private String description;
   private String slug;
@@ -43,4 +43,5 @@ public class Product {
   private String reasonBan;
   private boolean isDeleted = false;
   private Date lastModifiedDate;
+  private double ratings = 0.0;
 }

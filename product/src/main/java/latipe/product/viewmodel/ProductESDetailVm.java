@@ -20,7 +20,9 @@ public record ProductESDetailVm(
     List<AttributeValue> detailsProduct,
     Boolean isBanned,
     Boolean isDeleted,
-    Date createdOn
+    Date createdOn,
+    int countSale,
+    Double ratings
 ) {
 
 }

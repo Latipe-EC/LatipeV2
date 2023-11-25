@@ -19,7 +19,8 @@ public record ProductESDetailVm(
     List<String> categories,
     Boolean isBanned,
     Boolean isDeleted,
-    Date createdDate
+    Date createdDate,
+    Double ratings
 ) {
 
 }

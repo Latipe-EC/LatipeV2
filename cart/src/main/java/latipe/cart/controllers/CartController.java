@@ -54,10 +54,10 @@ public class CartController {
       @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = BadRequestException.class)))})
   @Operation(summary = "Get my cart.")
   public CompletableFuture<PagedResultDto<CartGetDetailResponse>> getMyCart(
-      @RequestParam(defaultValue = "0") long skip, @RequestParam(defaultValue = "5") int size) {
+      @RequestParam(defaultValue = "0") long skip, @RequestParam(defaultValue = "5") int limit) {
     UserCredentialResponse userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
         .getAttribute("user")));
-    return cartService.getMyCart(userCredential.id(), skip, size);
+    return cartService.getMyCart(userCredential.id(), skip, limit);
   }
 
   @Authenticate

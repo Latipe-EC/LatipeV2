@@ -15,7 +15,9 @@ public record ProductGetVm(String id,
                            List<ProductClassification> productClassifications,
                            Boolean isBanned,
                            Boolean isDeleted,
-                           Date createdDate) {
+                           Date createdDate,
+                           int countSale,
+                           Double ratings) {
 
   public static ProductGetVm fromModel(Product product) {
     return new ProductGetVm(
@@ -28,7 +30,9 @@ public record ProductGetVm(String id,
         product.getProductClassifications(),
         product.isBanned(),
         product.isDeleted(),
-        product.getCreatedDate()
+        product.getCreatedDate(),
+        product.getCountSale(),
+        product.getRatings()
     );
   }
 }

@@ -8,6 +8,7 @@ public class ProductField {
   public static final String CLASSIFICATIONS = "classifications";
   public static final String CREATE_ON = "createdDate";
   public static final String COUNT_SALE = "countSale";
+  public static final String RATINGS = "ratings";
 
 
   private ProductField() {
