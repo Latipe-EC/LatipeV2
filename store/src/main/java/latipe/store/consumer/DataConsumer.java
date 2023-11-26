@@ -37,7 +37,7 @@ public class DataConsumer {
         );
 
         store.setPoint(
-            store.getPoint() + (response.amountReceived() + response.amountReceived()) / 1000);
+            store.getPoint() + (response.amountReceived() + response.amountReceived()) / 10000);
 
         store.setEWallet(store.getEWallet() + response.amountReceived());
         storeRepository.save(store);

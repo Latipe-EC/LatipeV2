@@ -15,6 +15,6 @@ public interface ICommissionService {
   CompletableFuture<CommissionResponse> update(String commissionId,
       UpdateCommissionRequest request);
 
-  Double calcPercentStore(String storeId);
+  Double calcPercentStore(Integer point);
 
 }

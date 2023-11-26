@@ -6,22 +6,22 @@ import latipe.store.exceptions.BadRequestException;
 import latipe.store.exceptions.NotFoundException;
 import latipe.store.mapper.CommissionMapper;
 import latipe.store.repositories.ICommissionRepository;
-import latipe.store.repositories.IStoreRepository;
 import latipe.store.request.CreateCommissionRequest;
 import latipe.store.request.UpdateCommissionRequest;
 import latipe.store.response.CommissionResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class CommissionService implements ICommissionService {
 
-  private final IStoreRepository storeRepository;
   private final ICommissionRepository commissionRepository;
   private final CommissionMapper commissionMapper;
 
   @Override
+  @Async
   public CompletableFuture<CommissionResponse> create(CreateCommissionRequest request) {
     return CompletableFuture.supplyAsync(() -> {
       var check = commissionRepository.existsByFeeOrder(request.feeOrder());
@@ -36,6 +36,7 @@ public class CommissionService implements ICommissionService {
   }
 
   @Override
+  @Async
   public CompletableFuture<Void> delete(String commissionId) {
     return CompletableFuture.supplyAsync(() -> {
       var commission = commissionRepository.findById(commissionId).orElseThrow(
@@ -46,6 +47,7 @@ public class CommissionService implements ICommissionService {
   }
 
   @Override
+  @Async
   public CompletableFuture<CommissionResponse> update(String commissionId,
       UpdateCommissionRequest request) {
     return CompletableFuture.supplyAsync(() -> {
@@ -59,11 +61,7 @@ public class CommissionService implements ICommissionService {
   }
 
   @Override
-  public Double calcPercentStore(String storeId) {
-
-    var store = storeRepository.findById(storeId).orElseThrow(
-        () -> new NotFoundException("Not found store")
-    );
+  public Double calcPercentStore(Integer point) {
 
     var listCommission = commissionRepository.findAll();
 
@@ -72,11 +70,11 @@ public class CommissionService implements ICommissionService {
     }
 
     for (var commission : listCommission) {
-      if (commission.getMinPoint() > store.getPoint()) {
+      if (commission.getMinPoint() > point) {
         return commission.getFeeOrder();
       }
     }
-    return listCommission.get(listCommission.size() - 1).getFeeOrder();
+    return listCommission.get(0).getFeeOrder();
 
   }
 }

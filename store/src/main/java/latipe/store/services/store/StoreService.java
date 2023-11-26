@@ -135,7 +135,7 @@ public class StoreService implements IStoreService {
     return CompletableFuture.supplyAsync(() -> {
       var store = storeRepository.findById(storeId)
           .orElseThrow(() -> new NotFoundException("Store not found"));
-      return storeMapper.mapToStoreResponse(store, commissionService.calcPercentStore(storeId));
+      return storeMapper.mapToStoreResponse(store, commissionService.calcPercentStore(store.getPoint()));
     });
   }
 

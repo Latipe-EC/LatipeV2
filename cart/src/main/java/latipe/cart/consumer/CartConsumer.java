@@ -8,6 +8,9 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Message;
+import org.springframework.amqp.rabbit.annotation.Exchange;
+import org.springframework.amqp.rabbit.annotation.Queue;
+import org.springframework.amqp.rabbit.annotation.QueueBinding;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +21,11 @@ public class CartConsumer {
   private static final Logger LOGGER = LoggerFactory.getLogger(CartConsumer.class);
   private final ICartService cartService;
 
-  @RabbitListener(queues = {"${rabbitmq.queue.name}"})
+  @RabbitListener(bindings = @QueueBinding(
+      value = @Queue(value = "${rabbitmq.queue.name}",
+          durable = "true"),
+      exchange = @Exchange(value = "${rabbitmq.exchange.name}",
+          type = "topic"), key = "${rabbitmq.routing.key}"))
   public void listen(Message consumerRecord) {
     try {
       if (consumerRecord != null) {
