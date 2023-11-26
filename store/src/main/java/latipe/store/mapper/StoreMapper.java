@@ -19,7 +19,8 @@ public interface StoreMapper {
 
   void mapToStoreBeforeUpdate(@MappingTarget Store category, UpdateStoreRequest input);
 
-  StoreResponse mapToStoreResponse(Store store);
+  @Mapping(target = "feePerOrder", source = "percent")
+  StoreResponse mapToStoreResponse(Store store, Double percent);
 
   StoreSimplifyResponse mapToStoreSimplifyResponse(Store store);
 

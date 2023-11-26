@@ -87,6 +87,13 @@ spring:
           filters:
             - RewritePath=/(?<segment>.*), /$\{segment}
 
+        - id: commission_service
+          uri: http://localhost:8118
+          predicates:
+            - Path=/api/v1/commissions/**
+          filters:
+            - RewritePath=/(?<segment>.*), /$\{segment}
+
         - id: payment_service
           uri: http://localhost:8081
           predicates:

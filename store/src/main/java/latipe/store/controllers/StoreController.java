@@ -120,7 +120,7 @@ public class StoreController {
   @ResponseStatus(HttpStatus.OK)
   @PostMapping(value = "/multiple-detail-store", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<List<StoreSimplifyResponse>> getMultipleStore(
-   @Valid @RequestBody MultipleStoreRequest input) {
+      @Valid @RequestBody MultipleStoreRequest input) {
     return storeService.getMultipleStore(input);
 
   }

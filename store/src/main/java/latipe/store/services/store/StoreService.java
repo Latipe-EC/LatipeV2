@@ -32,6 +32,7 @@ import latipe.store.response.ProvinceCodesResponse;
 import latipe.store.response.StoreResponse;
 import latipe.store.response.StoreSimplifyResponse;
 import latipe.store.response.product.ProductStoreResponse;
+import latipe.store.services.commission.ICommissionService;
 import latipe.store.viewmodel.StoreMessage;
 import lombok.AllArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
@@ -46,6 +47,7 @@ public class StoreService implements IStoreService {
   private final SecureInternalProperties secureInternalProperties;
   private final RabbitMQProducer rabbitMQProducer;
   private final Gson gson;
+  private final ICommissionService commissionService;
 
   @Override
   @Async
@@ -74,7 +76,7 @@ public class StoreService implements IStoreService {
       String message = gson.toJson(
           StoreMessage.builder().id(store.getId()).op(Action.CREATE).build());
       rabbitMQProducer.sendMessage(message);
-      return storeMapper.mapToStoreResponse(store);
+      return storeMapper.mapToStoreResponse(store, null);
     });
   }
 
@@ -101,7 +103,7 @@ public class StoreService implements IStoreService {
       storeMapper.mapToStoreBeforeUpdate(store, input);
       store = storeRepository.save(store);
 
-      return storeMapper.mapToStoreResponse(store);
+      return storeMapper.mapToStoreResponse(store, null);
     });
   }
 
@@ -112,7 +114,7 @@ public class StoreService implements IStoreService {
       var store = storeRepository.findByOwnerId(userId);
 
       if (store == null) {
-        throw new BadRequestException("One User can only have one store");
+        throw new NotFoundException("Not found store");
       }
 
       if (store.getAddress() == null) {
@@ -129,10 +131,11 @@ public class StoreService implements IStoreService {
   @Override
   @Async
   public CompletableFuture<StoreResponse> getDetailStoreById(String storeId) {
+
     return CompletableFuture.supplyAsync(() -> {
       var store = storeRepository.findById(storeId)
           .orElseThrow(() -> new NotFoundException("Store not found"));
-      return storeMapper.mapToStoreResponse(store);
+      return storeMapper.mapToStoreResponse(store, commissionService.calcPercentStore(storeId));
     });
   }
 

@@ -51,6 +51,7 @@ public class ProductSyncDataService {
     product.setDeleted(productESDetailVm.isDeleted());
     product.setCountSale(productESDetailVm.countSale());
     product.setRatings(productESDetailVm.ratings());
+
     productRepository.save(product);
   }
 
