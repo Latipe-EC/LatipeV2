@@ -17,7 +17,6 @@ import latipe.cart.response.DeleteCartItemRequest;
 import latipe.cart.response.UserCredentialResponse;
 import latipe.cart.services.Product.ProductService;
 import latipe.cart.viewmodel.CartItemVm;
-import latipe.cart.viewmodel.RemoveCartFromOrder;
 import latipe.cart.viewmodel.UpdateCartAfterOrderVm;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
@@ -131,9 +130,7 @@ public class CartService implements ICartService {
   public CompletableFuture<Void> removeCartItemAfterOrder(
       UpdateCartAfterOrderVm updateCartAfterOrderVm) {
     return CompletableFuture.supplyAsync(() -> {
-      var ids = updateCartAfterOrderVm.cartIdVmList().stream().map(RemoveCartFromOrder::cart_id)
-          .toList();
-      var carts = cartRepository.findAllById(ids);
+      var carts = cartRepository.findAllById(updateCartAfterOrderVm.cartIdVmList());
       cartRepository.deleteAll(carts);
       return null;
     });
