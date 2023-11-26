@@ -9,7 +9,7 @@ import lombok.Builder;
 
 @Builder
 public record CapturedPaymentRequest(
-    Long orderId,
+    String orderId,
     String checkoutId,
     BigDecimal amount,
     Double paymentFee,

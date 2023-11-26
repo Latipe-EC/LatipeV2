@@ -18,6 +18,7 @@ import latipe.user.producer.RabbitMQProducer;
 import latipe.user.repositories.IRoleRepository;
 import latipe.user.repositories.ITokenRepository;
 import latipe.user.repositories.IUserRepository;
+import latipe.user.request.CheckBalanceRequest;
 import latipe.user.request.CreateUserAddressRequest;
 import latipe.user.request.CreateUserRequest;
 import latipe.user.request.RegisterRequest;
@@ -255,6 +256,23 @@ public class UserService implements IUserService {
       var user = userRepository.findById(userId)
           .orElseThrow(() -> new NotFoundException("User not found"));
       return user.getAddresses().size();
+    });
+
+  }
+
+  @Async
+  @Override
+  public CompletableFuture<Void> checkBalance(CheckBalanceRequest request) {
+
+    return CompletableFuture.supplyAsync(() -> {
+      var user = userRepository.findById(request.userId())
+          .orElseThrow(() -> new NotFoundException("User not found"));
+      double money  = Double.parseDouble(request.money().toString());
+      if (user.getEWallet() < money)
+        throw new BadRequestException("Not enough money");
+      user.setEWallet(user.getEWallet() -  money);
+      userRepository.save(user);
+      return null;
     });
 
   }

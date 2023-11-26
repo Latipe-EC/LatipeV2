@@ -20,8 +20,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Payment extends AbstractAuditEntity {
 
   @Id
-  private Long id;
-  private Long orderId;
+  private String id;
+  private String orderId;
+  private String userId;
   private String checkoutId;
   private BigDecimal amount;
   private Double paymentFee;

@@ -3,6 +3,7 @@ package latipe.user.services.user;
 import java.util.concurrent.CompletableFuture;
 import latipe.user.dtos.PagedResultDto;
 import latipe.user.entity.UserAddress;
+import latipe.user.request.CheckBalanceRequest;
 import latipe.user.request.CreateUserAddressRequest;
 import latipe.user.request.CreateUserRequest;
 import latipe.user.request.RegisterRequest;
@@ -35,4 +36,7 @@ public interface IUserService {
   CompletableFuture<Void> upgradeVendor(String userId);
 
   CompletableFuture<Integer> countMyAddress(String userId);
+
+  CompletableFuture<Void> checkBalance(CheckBalanceRequest request);
+
 }

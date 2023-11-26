@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import java.util.concurrent.CompletableFuture;
 import latipe.payment.annotations.ApiPrefixController;
 import latipe.payment.request.CapturedPaymentRequest;
+import latipe.payment.request.PayOrderRequest;
 import latipe.payment.response.CapturedPaymentResponse;
 import latipe.payment.services.PaymentService;
 import lombok.RequiredArgsConstructor;
@@ -22,5 +23,11 @@ public class PaymentController {
   public CompletableFuture<CapturedPaymentResponse> capturePayment(
       @Valid @RequestBody CapturedPaymentRequest capturedPaymentRequest) {
     return paymentService.capturePayment(capturedPaymentRequest);
+  }
+
+  @PostMapping("/{orderId}/pay")
+  public CompletableFuture<Void> validPayment(
+      @Valid @RequestBody PayOrderRequest request) {
+    return paymentService.payOrder(request);
   }
 }

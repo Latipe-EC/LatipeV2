@@ -8,6 +8,7 @@ import latipe.user.annotations.RequiresAuthorization;
 import latipe.user.annotations.SecureInternalPhase;
 import latipe.user.dtos.PagedResultDto;
 import latipe.user.entity.UserAddress;
+import latipe.user.request.CheckBalanceRequest;
 import latipe.user.request.CreateUserAddressRequest;
 import latipe.user.request.CreateUserRequest;
 import latipe.user.request.RegisterRequest;
@@ -148,6 +149,15 @@ public class UserController {
     UserCredentialResponse userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
         .getAttribute("user")));
     return userService.upgradeVendor(userCredential.id());
+  }
+
+
+  @SecureInternalPhase
+  @PostMapping(value = "/check-balance", produces = MediaType.APPLICATION_JSON_VALUE)
+  public CompletableFuture<Void> checkBalance(
+      @RequestBody CheckBalanceRequest request
+  ) {
+    return userService.checkBalance(request);
   }
 
 }
