@@ -3,6 +3,7 @@ package latipe.user.services.user;
 import java.util.concurrent.CompletableFuture;
 import latipe.user.dtos.PagedResultDto;
 import latipe.user.entity.UserAddress;
+import latipe.user.request.CancelOrderRequest;
 import latipe.user.request.CheckBalanceRequest;
 import latipe.user.request.CreateUserAddressRequest;
 import latipe.user.request.CreateUserRequest;
@@ -38,5 +39,8 @@ public interface IUserService {
   CompletableFuture<Integer> countMyAddress(String userId);
 
   CompletableFuture<Void> checkBalance(CheckBalanceRequest request);
+
+  CompletableFuture<Void> cancelOrder(CancelOrderRequest request);
+
 
 }

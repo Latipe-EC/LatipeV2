@@ -24,7 +24,6 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @AllArgsConstructor
 public class AuthenticateAspect {
 
-
   @Before("@annotation(latipe.payment.annotations.Authenticate)")
   public void authenticate() throws UnauthorizedException {
     AuthClient authClient = Feign.builder()

@@ -1,6 +1,7 @@
 package latipe.payment.services;
 
 
+import static latipe.payment.constants.CONSTANTS.URL;
 import static latipe.payment.utils.GenTokenInternal.generateHash;
 import static latipe.payment.utils.GenTokenInternal.getPrivateKey;
 
@@ -72,7 +73,7 @@ public class PaymentService {
 
           var userClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
               .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL)
-              .target(UserClient.class, "http://localhost:8181/api/v1");
+              .target(UserClient.class, URL);
 
           String hash;
           try {

@@ -18,6 +18,7 @@ import latipe.user.producer.RabbitMQProducer;
 import latipe.user.repositories.IRoleRepository;
 import latipe.user.repositories.ITokenRepository;
 import latipe.user.repositories.IUserRepository;
+import latipe.user.request.CancelOrderRequest;
 import latipe.user.request.CheckBalanceRequest;
 import latipe.user.request.CreateUserAddressRequest;
 import latipe.user.request.CreateUserRequest;
@@ -267,13 +268,28 @@ public class UserService implements IUserService {
     return CompletableFuture.supplyAsync(() -> {
       var user = userRepository.findById(request.userId())
           .orElseThrow(() -> new NotFoundException("User not found"));
-      double money  = Double.parseDouble(request.money().toString());
-      if (user.getEWallet() < money)
+      double money = Double.parseDouble(request.money().toString());
+      if (user.getEWallet() < money) {
         throw new BadRequestException("Not enough money");
-      user.setEWallet(user.getEWallet() -  money);
+      }
+      user.setEWallet(user.getEWallet() - money);
       userRepository.save(user);
       return null;
     });
 
+  }
+
+  @Async
+  @Override
+  public CompletableFuture<Void> cancelOrder(CancelOrderRequest request) {
+    return CompletableFuture.supplyAsync(() -> {
+      var user = userRepository.findById(request.userId())
+          .orElseThrow(() -> new NotFoundException("User not found"));
+      double money = Double.parseDouble(request.money().toString());
+      user.setEWallet(user.getEWallet() + money);
+      user.setPoint(user.getPoint() - Integer.parseInt(request.money().toString()) / 1000000);
+      userRepository.save(user);
+      return null;
+    });
   }
 }

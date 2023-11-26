@@ -8,6 +8,7 @@ import latipe.user.annotations.RequiresAuthorization;
 import latipe.user.annotations.SecureInternalPhase;
 import latipe.user.dtos.PagedResultDto;
 import latipe.user.entity.UserAddress;
+import latipe.user.request.CancelOrderRequest;
 import latipe.user.request.CheckBalanceRequest;
 import latipe.user.request.CreateUserAddressRequest;
 import latipe.user.request.CreateUserRequest;
@@ -160,4 +161,11 @@ public class UserController {
     return userService.checkBalance(request);
   }
 
+  @SecureInternalPhase
+  @PostMapping(value = "/cancel-order", produces = MediaType.APPLICATION_JSON_VALUE)
+  public CompletableFuture<Void> cancelOrder(
+      @RequestBody CancelOrderRequest request
+  ) {
+    return userService.cancelOrder(request);
+  }
 }
