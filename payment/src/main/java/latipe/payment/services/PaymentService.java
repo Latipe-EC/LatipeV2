@@ -55,7 +55,6 @@ public class PaymentService {
     );
   }
 
-
   @Async
   public CompletableFuture<Void> payOrder(
       PayOrderRequest request) {
