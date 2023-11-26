@@ -13,7 +13,7 @@ import org.springframework.amqp.rabbit.annotation.QueueBinding;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
 
-@Service(value = "consumer-service")
+@Service
 @RequiredArgsConstructor
 public class DataConsumer {
 
@@ -31,12 +31,14 @@ public class DataConsumer {
         if (message.status().equals(0)) {
           paymentService.handleOrderCreate(message);
         } else if (message.status().equals(4)) {
-          paymentService.handleFinishShipping(message);
+          var payment = paymentService.handleFinishShipping(message);
+          LOGGER.info("User finish shipping order: %s with money %s".formatted(payment.getOrderId(),
+              payment.getAmount()));
         } else if (message.status().equals(-1)) {
           paymentService.handleUserCancelOrder(message);
+          LOGGER.info("User cancel order: {}", message.orderUuid());
         }
       }
-
     } catch (RuntimeException e) {
       LOGGER.warn(e.getMessage());
     }

@@ -134,16 +134,15 @@ public class PaymentService {
       userClient.cancelOrder(hash,
           new CancelOrderRequest(payment.getUserId(), payment.getAmount()));
       payment.setPaymentStatus(EPaymentStatus.CANCELLED);
-      paymentRepository.save(payment);
     }
   }
 
-  public void handleFinishShipping(
+  public Payment handleFinishShipping(
       OrderMessage message) {
     var payment = paymentRepository.findByOrderId(message.orderUuid()).orElseThrow(
         () -> new NotFoundException("Not found payment")
     );
     payment.setPaymentStatus(EPaymentStatus.COMPLETED);
-    paymentRepository.save(payment);
+    return paymentRepository.save(payment);
   }
 }
