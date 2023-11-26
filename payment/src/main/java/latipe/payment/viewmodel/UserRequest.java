@@ -1,9 +1,9 @@
 package latipe.payment.viewmodel;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.gson.annotations.SerializedName;
 
 public record UserRequest(
-    @JsonProperty(value = "user_id")
+    @SerializedName(value = "user_id")
     String userId
 ) {
 
