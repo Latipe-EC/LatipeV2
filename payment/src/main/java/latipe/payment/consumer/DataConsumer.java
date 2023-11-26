@@ -41,7 +41,7 @@ public class DataConsumer {
       value = @Queue(value = "${rabbitmq.queue.name}",
           durable = "true"),
       exchange = @Exchange(value = "${rabbitmq.exchange.name}",
-          type = "topic"), key = "${rabbitmq.routing.key}"))
+          type = "direct"), key = "${rabbitmq.routing.key}"))
   public void listen(Message consumerRecord) {
     try {
       if (consumerRecord != null) {
