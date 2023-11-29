@@ -137,4 +137,36 @@ public class CartService implements ICartService {
   }
 
 
+  @Async
+  @Override
+  public CompletableFuture<List<CartGetDetailResponse>> getListCart(List<String> cartIds,
+      UserCredentialResponse userCredential) {
+    return CompletableFuture.supplyAsync(() -> {
+      Set<String> uniqueIds = new HashSet<>(cartIds);
+
+      var carts = cartRepository.findAllByIdAndUserId(uniqueIds,
+          userCredential.id());
+
+      if (carts.size() != uniqueIds.size()) {
+        throw new NotFoundException("Not found cart");
+      }
+
+      var productIds = carts.stream()
+          .map(x -> new ProductFeatureRequest(x.getProductId(), x.getProductOptionId())).toList();
+
+      var productThumbnailResponseList = productService.getProducts(productIds);
+
+      if (productThumbnailResponseList.size() != productIds.size()) {
+        throw new NotFoundException("Not found product");
+      }
+
+      return carts.stream().map(x -> {
+        var productDetail = productThumbnailResponseList.stream()
+            .filter(y -> y.id().equals(x.getProductId())).findFirst().orElseThrow();
+        return CartGetDetailResponse.fromModel(x, productDetail);
+      }).toList();
+
+    });
+  }
+
 }

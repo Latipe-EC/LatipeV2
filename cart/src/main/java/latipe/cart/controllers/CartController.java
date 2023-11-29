@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import latipe.cart.annotations.ApiPrefixController;
 import latipe.cart.annotations.Authenticate;
@@ -109,4 +110,20 @@ public class CartController {
     return cartService.deleteCartItem(userCredential.id(), request);
   }
 
+  @Authenticate
+  @GetMapping("/multi-cart")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "get cart successfully", content = @Content(schema = @Schema())),
+      @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = UnauthorizedException.class))),
+      @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ForbiddenException.class))),
+      @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = NotFoundException.class))),
+      @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = BadRequestException.class)))})
+  @Operation(summary = "Get multi cart.")
+  public CompletableFuture<List<CartGetDetailResponse>> getListCart(
+      @RequestParam() List<String> cartIds
+  ) {
+    UserCredentialResponse userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
+        .getAttribute("user")));
+    return cartService.getListCart(cartIds, userCredential);
+  }
 }

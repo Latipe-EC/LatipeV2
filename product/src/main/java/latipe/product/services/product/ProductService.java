@@ -363,7 +363,7 @@ public class ProductService implements IProductService {
         return new ProductThumbnailVm(doc.getObjectId("_id").toString(), doc.getString("name"),
             productClassificationsDoc.getString("name"),
             productClassificationsDoc.getDouble("price"),
-            image, store.id(), store.name());
+            image, store.id(), store.name(), store.cityOrProvinceId());
       }).toList();
     });
   }

@@ -1,5 +1,6 @@
 package latipe.cart.services.Cart;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import latipe.cart.dtos.PagedResultDto;
 import latipe.cart.request.UpdateQuantityRequest;
@@ -24,5 +25,7 @@ public interface ICartService {
 
   CompletableFuture<Void> deleteCartItem(String userId, DeleteCartItemRequest request);
 
+  CompletableFuture<List<CartGetDetailResponse>> getListCart(List<String> cartIds,
+      UserCredentialResponse userCredential);
 
 }

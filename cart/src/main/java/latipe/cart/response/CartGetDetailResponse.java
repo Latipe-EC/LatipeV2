@@ -10,13 +10,14 @@ public record CartGetDetailResponse(
     String productOptionId, int quantity, String productName,
     String storeId, String storeName, String image,
     String nameOption,
-    Double price
+    Double price,
+    String cityOrProvinceId
 ) {
 
   public static CartGetDetailResponse fromModel(Cart cart, ProductThumbnailResponse product) {
     return new CartGetDetailResponse(cart.getId(), cart.getUserId(), cart.getProductId(),
         cart.getProductOptionId(), cart.getQuantity(), product.name(), product.storeId(),
-        product.storeName(), product.thumbnailUrl(), product.nameOption(), product.price());
+        product.storeName(), product.thumbnailUrl(), product.nameOption(), product.price(), product.cityOrProvinceId());
   }
 
 

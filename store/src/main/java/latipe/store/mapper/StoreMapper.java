@@ -22,6 +22,7 @@ public interface StoreMapper {
   @Mapping(target = "feePerOrder", source = "percent")
   StoreResponse mapToStoreResponse(Store store, Double percent);
 
+  @Mapping(target = "cityOrProvinceId", source = "store.address.cityOrProvinceId")
   StoreSimplifyResponse mapToStoreSimplifyResponse(Store store);
 
 }
