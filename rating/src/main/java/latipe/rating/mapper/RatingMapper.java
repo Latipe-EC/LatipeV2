@@ -1,7 +1,7 @@
 package latipe.rating.mapper;
 
 
-import latipe.rating.Entity.Rating;
+import latipe.rating.entity.Rating;
 import latipe.rating.request.CreateRatingRequest;
 import latipe.rating.request.UpdateRatingRequest;
 import latipe.rating.response.RatingResponse;

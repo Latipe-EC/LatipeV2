@@ -2,7 +2,7 @@ package latipe.payment.repositories;
 
 
 import java.util.Optional;
-import latipe.payment.Entity.Payment;
+import latipe.payment.entity.Payment;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 

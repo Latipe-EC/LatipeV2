@@ -4,7 +4,7 @@ package latipe.rating.service;
 import com.google.gson.Gson;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import latipe.rating.Entity.Rating;
+import latipe.rating.entity.Rating;
 import latipe.rating.constants.Action;
 import latipe.rating.constants.Star;
 import latipe.rating.dtos.PagedResultDto;

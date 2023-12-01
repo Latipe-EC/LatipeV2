@@ -11,9 +11,9 @@ import feign.gson.GsonDecoder;
 import feign.gson.GsonEncoder;
 import feign.okhttp.OkHttpClient;
 import java.util.concurrent.CompletableFuture;
-import latipe.payment.Entity.Payment;
-import latipe.payment.Entity.enumeration.EPaymentMethod;
-import latipe.payment.Entity.enumeration.EPaymentStatus;
+import latipe.payment.entity.Payment;
+import latipe.payment.entity.enumeration.EPaymentMethod;
+import latipe.payment.entity.enumeration.EPaymentStatus;
 import latipe.payment.configs.SecureInternalProperties;
 import latipe.payment.exceptions.BadRequestException;
 import latipe.payment.exceptions.NotFoundException;
@@ -24,6 +24,7 @@ import latipe.payment.request.CapturedPaymentRequest;
 import latipe.payment.request.CheckBalanceRequest;
 import latipe.payment.request.PayOrderRequest;
 import latipe.payment.response.CapturedPaymentResponse;
+import latipe.payment.response.CheckPaymentOrderResponse;
 import latipe.payment.viewmodel.OrderMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -92,6 +93,20 @@ public class PaymentService {
           payment.setPaymentStatus(EPaymentStatus.COMPLETED);
           paymentRepository.save(payment);
           return null;
+        }
+    );
+  }
+
+
+  @Async
+  public CompletableFuture<CheckPaymentOrderResponse> getPaymentOrder(
+      String orderId) {
+    return CompletableFuture.supplyAsync(
+        () -> {
+          var payment = paymentRepository.findByOrderId(orderId).orElseThrow(
+              () -> new NotFoundException("Cannot find order")
+          );
+          return CheckPaymentOrderResponse.fromModel(payment);
         }
     );
   }

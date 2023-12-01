@@ -1,7 +1,7 @@
 package latipe.payment.repositories;
 
 
-import latipe.payment.Entity.PaymentProvider;
+import latipe.payment.entity.PaymentProvider;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,4 +1,4 @@
-package latipe.payment.Entity.enumeration;
+package latipe.payment.entity.enumeration;
 
 public enum EPaymentStatus {
   PENDING,

@@ -2,7 +2,7 @@ package latipe.rating.listener;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Date;
-import latipe.rating.Entity.AbstractAuditEntity;
+import latipe.rating.entity.AbstractAuditEntity;
 import latipe.rating.response.UserCredentialResponse;
 import org.springframework.data.mongodb.core.mapping.event.AbstractMongoEventListener;
 import org.springframework.data.mongodb.core.mapping.event.BeforeConvertEvent;

@@ -1,8 +1,8 @@
-package latipe.payment.Entity;
+package latipe.payment.entity;
 
 import java.math.BigDecimal;
-import latipe.payment.Entity.enumeration.EPaymentMethod;
-import latipe.payment.Entity.enumeration.EPaymentStatus;
+import latipe.payment.entity.enumeration.EPaymentMethod;
+import latipe.payment.entity.enumeration.EPaymentStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

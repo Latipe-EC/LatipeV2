@@ -1,4 +1,4 @@
-package latipe.payment.Entity;
+package latipe.payment.entity;
 
 import java.util.Date;
 import lombok.Getter;

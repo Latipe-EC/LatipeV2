@@ -1,4 +1,4 @@
-package latipe.rating.Entity;
+package latipe.rating.entity;
 
 
 import lombok.Data;

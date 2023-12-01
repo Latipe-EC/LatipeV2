@@ -106,7 +106,6 @@ public class ProductController {
   @ResponseStatus(HttpStatus.OK)
   @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<Void> delete(@PathVariable("id") String prodId) {
-
     HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
     UserCredentialResponse userCredential = (UserCredentialResponse) (request.getAttribute("user"));
     return productService.remove(userCredential.id(), prodId, request);

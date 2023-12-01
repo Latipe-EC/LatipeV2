@@ -2,7 +2,7 @@ package latipe.payment.services;
 
 
 import java.util.concurrent.CompletableFuture;
-import latipe.payment.Entity.PaymentProvider;
+import latipe.payment.entity.PaymentProvider;
 import latipe.payment.exceptions.NotFoundException;
 import latipe.payment.repositories.PaymentProviderRepository;
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,4 @@
-package latipe.payment.Entity;
+package latipe.payment.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

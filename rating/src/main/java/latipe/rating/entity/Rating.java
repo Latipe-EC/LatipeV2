@@ -1,4 +1,4 @@
-package latipe.rating.Entity;
+package latipe.rating.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,8 +24,6 @@ public class Rating extends AbstractAuditEntity {
   private String storeId;
 
   private String userId;
-
-  private String detail;
 
   private String userName;
 

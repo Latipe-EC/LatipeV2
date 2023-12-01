@@ -2,7 +2,7 @@ package latipe.payment.listener;
 
 
 import java.util.Date;
-import latipe.payment.Entity.AbstractAuditEntity;
+import latipe.payment.entity.AbstractAuditEntity;
 import latipe.payment.response.UserCredentialResponse;
 import org.springframework.data.mongodb.core.mapping.event.AbstractMongoEventListener;
 import org.springframework.data.mongodb.core.mapping.event.BeforeConvertEvent;
