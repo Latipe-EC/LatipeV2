@@ -347,7 +347,13 @@ public class ProductService implements IProductService {
       return documents.stream().map(doc -> {
         var productClassificationsDoc = doc.get("productClassifications", Document.class);
         var productSample = gson.fromJson(doc.toJson(), ProductSample.class);
-        String image = productSample.productVariants().get(0).options().get(0).getImage();
+
+        String image;
+        if (productSample.productVariants().isEmpty()) {
+          image = doc.getList("images", String.class).get(0);
+        } else {
+          image = productSample.productVariants().get(0).options().get(0).getImage();
+        }
 //        if (productSample.productVariants().isEmpty()) {
 //          image = doc.getString("image");
 //        } else {
@@ -385,6 +391,9 @@ public class ProductService implements IProductService {
         }
 
         boolean isFound = false;
+        if (product.getProductVariants().isEmpty()) {
+          product.setQuantity(req.quantity());
+        }
         for (ProductClassification productClassification : product.getProductClassifications()) {
           if (productClassification.getId().equals(req.optionId())) {
             if (productClassification.getQuantity() < req.quantity()) {
@@ -407,10 +416,10 @@ public class ProductService implements IProductService {
       }
 
       products = productRepository.saveAll(products);
-      for (Product prod : products) {
+      for (var prod : products) {
         String message;
         try {
-          message = ParseObjectToString.parse(new ProductMessageVm(prod.getId(), Action.CREATE));
+          message = ParseObjectToString.parse(new ProductMessageVm(prod.getId(), Action.UPDATE));
         } catch (JsonProcessingException e) {
           throw new RuntimeException(e);
         }
