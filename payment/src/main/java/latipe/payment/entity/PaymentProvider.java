@@ -16,12 +16,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Builder
 public class PaymentProvider {
 
-  @Id
   private String id;
   private boolean isEnabled;
   private String name;
   private String configureUrl;
   private String landingViewComponentName;
   private String additionalSettings;
-
+  private String mode;
 }

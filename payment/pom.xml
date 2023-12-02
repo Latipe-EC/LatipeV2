@@ -104,7 +104,17 @@
       <groupId>io.github.openfeign</groupId>
       <version>10.11</version>
     </dependency>
-
+    <dependency>
+      <artifactId>checkout-sdk</artifactId>
+      <groupId>com.paypal.sdk</groupId>
+      <version>2.0.0</version>
+    </dependency>
+    <dependency>
+      <artifactId>nimbus-jose-jwt</artifactId>
+      <groupId>com.nimbusds</groupId>
+      <scope>compile</scope>
+      <version>9.31</version>
+    </dependency>
   </dependencies>
   <dependencyManagement>
     <dependencies>

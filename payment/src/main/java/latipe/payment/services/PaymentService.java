@@ -5,26 +5,32 @@ import static latipe.payment.constants.CONSTANTS.URL;
 import static latipe.payment.utils.GenTokenInternal.generateHash;
 import static latipe.payment.utils.GenTokenInternal.getPrivateKey;
 
+import com.paypal.core.PayPalHttpClient;
+import com.paypal.orders.OrdersGetRequest;
 import feign.Feign;
 import feign.Logger;
 import feign.gson.GsonDecoder;
 import feign.gson.GsonEncoder;
 import feign.okhttp.OkHttpClient;
+import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
+import latipe.payment.configs.SecureInternalProperties;
 import latipe.payment.entity.Payment;
 import latipe.payment.entity.enumeration.EPaymentMethod;
 import latipe.payment.entity.enumeration.EPaymentStatus;
-import latipe.payment.configs.SecureInternalProperties;
 import latipe.payment.exceptions.BadRequestException;
+import latipe.payment.exceptions.ForbiddenException;
 import latipe.payment.exceptions.NotFoundException;
 import latipe.payment.feign.UserClient;
 import latipe.payment.repositories.PaymentRepository;
 import latipe.payment.request.CancelOrderRequest;
 import latipe.payment.request.CapturedPaymentRequest;
 import latipe.payment.request.CheckBalanceRequest;
+import latipe.payment.request.PayByPaypalRequest;
 import latipe.payment.request.PayOrderRequest;
 import latipe.payment.response.CapturedPaymentResponse;
 import latipe.payment.response.CheckPaymentOrderResponse;
+import latipe.payment.response.UserCredentialResponse;
 import latipe.payment.viewmodel.OrderMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,13 +44,14 @@ public class PaymentService {
 
   private final PaymentRepository paymentRepository;
   private final SecureInternalProperties secureInternalProperties;
+  private final PayPalHttpClient payPalHttpClient;
 
   @Async
   public CompletableFuture<CapturedPaymentResponse> capturePayment(
       CapturedPaymentRequest completedPayment) {
     return CompletableFuture.supplyAsync(
         () -> {
-          Payment payment = Payment.builder()
+          var payment = Payment.builder()
               .checkoutId(completedPayment.checkoutId())
               .orderId(completedPayment.orderId())
               .paymentStatus(completedPayment.paymentStatus())
@@ -106,6 +113,73 @@ public class PaymentService {
           var payment = paymentRepository.findByOrderId(orderId).orElseThrow(
               () -> new NotFoundException("Cannot find order")
           );
+          return CheckPaymentOrderResponse.fromModel(payment);
+        }
+    );
+  }
+
+  @Async
+  public CompletableFuture<Void> payByPaypal(
+      PayByPaypalRequest request, UserCredentialResponse userCredential) {
+    return CompletableFuture.supplyAsync(
+        () -> {
+          var payment = paymentRepository.findByOrderId(request.orderId()).orElseThrow(
+              () -> new NotFoundException("Cannot find order")
+          );
+
+          if (payment.getPaymentStatus().equals(EPaymentStatus.COMPLETED)) {
+            throw new BadRequestException("Cannot pay for this");
+          }
+
+          if (!payment.getUserId().equals(userCredential.id())) {
+            throw new ForbiddenException("you dont have permission to do this");
+          }
+
+          payment.setCheckoutId(request.id());
+          if (request.status().equals("COMPLETED")) {
+            payment.setPaymentStatus(EPaymentStatus.COMPLETED);
+          }
+          paymentRepository.save(payment);
+          return null;
+        }
+    );
+  }
+
+
+  @Async
+  public CompletableFuture<CheckPaymentOrderResponse> checkOrderPaypal(String orderId,
+      UserCredentialResponse userCredential) {
+    return CompletableFuture.supplyAsync(
+        () -> {
+          var payment = paymentRepository.findByOrderId(orderId).orElseThrow(
+              () -> new NotFoundException("Cannot find order")
+          );
+
+          if (!payment.getUserId().equals(userCredential.id())) {
+            throw new ForbiddenException("you dont have permission to do this");
+          }
+          OrdersGetRequest request = new OrdersGetRequest(payment.getCheckoutId());
+          try {
+            var response = payPalHttpClient.execute(request);
+            if (response.statusCode() != 200) {
+              throw new BadRequestException("Cannot get order");
+            }
+
+            var order = response.result();
+            if (order.status().equals("COMPLETED")) {
+              payment.setPaymentStatus(EPaymentStatus.COMPLETED);
+            } else if (order.status().equals("APPROVED")) {
+              payment.setPaymentStatus(EPaymentStatus.PENDING);
+            } else {
+              payment.setPaymentStatus(EPaymentStatus.CANCELLED);
+            }
+            paymentRepository.save(payment);
+
+          } catch (IOException e) {
+            throw new RuntimeException(e);
+          }
+
+          paymentRepository.save(payment);
           return CheckPaymentOrderResponse.fromModel(payment);
         }
     );
