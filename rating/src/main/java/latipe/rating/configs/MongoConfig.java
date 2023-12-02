@@ -33,7 +33,7 @@ public class MongoConfig extends AbstractMongoClientConfiguration {
 
   @Override
   protected String getDatabaseName() {
-    return "Latipe-Store-DB";
+    return "Latipe-Rating-DB";
   }
 
   @Override

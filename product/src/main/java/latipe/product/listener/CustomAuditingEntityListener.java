@@ -11,7 +11,6 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 @Component
 public class CustomAuditingEntityListener extends AbstractMongoEventListener<Object> {
-
   @Override
   public void onBeforeConvert(BeforeConvertEvent<Object> event) {
     Object entity = event.getSource();

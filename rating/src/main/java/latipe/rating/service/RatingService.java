@@ -41,11 +41,12 @@ public class RatingService implements IRatingService {
 
   @Override
   @Async
-  public CompletableFuture<RatingResponse> create(CreateRatingRequest request) {
+  public CompletableFuture<RatingResponse> create(CreateRatingRequest request, String userId) {
     return CompletableFuture.supplyAsync(() -> {
       // CAll api check rating order
 
-      var rating = ratingMapper.mapToRatingBeforeCreate(request);
+
+      var rating = ratingMapper.mapToRatingBeforeCreate(request, userId);
       rating = ratingRepository.save(rating);
 
       String message = gson.toJson(

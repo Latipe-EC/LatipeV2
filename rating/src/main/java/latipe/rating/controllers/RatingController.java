@@ -38,7 +38,10 @@ public class RatingController {
   @ResponseStatus(HttpStatus.CREATED)
   @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<RatingResponse> create(@Valid @RequestBody CreateRatingRequest request) {
-    return ratingService.create(request);
+
+    HttpServletRequest req = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+    UserCredentialResponse userCredential = (UserCredentialResponse) (req.getAttribute("user"));
+    return ratingService.create(request, userCredential.id());
   }
 
   @Authenticate
@@ -46,9 +49,9 @@ public class RatingController {
   @PutMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<RatingResponse> update(@PathVariable("id") String id,
       @Valid @RequestBody UpdateRatingRequest input) {
+
     HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
     UserCredentialResponse userCredential = (UserCredentialResponse) (request.getAttribute("user"));
-
     return ratingService.update(id, input, userCredential);
   }
 

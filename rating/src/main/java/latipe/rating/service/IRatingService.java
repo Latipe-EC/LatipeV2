@@ -11,7 +11,7 @@ import latipe.rating.response.UserCredentialResponse;
 
 public interface IRatingService {
 
-  CompletableFuture<RatingResponse> create(CreateRatingRequest request);
+  CompletableFuture<RatingResponse> create(CreateRatingRequest request, String userId);
 
   CompletableFuture<RatingResponse> update(String id, UpdateRatingRequest request,
       UserCredentialResponse userCredential);

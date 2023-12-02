@@ -14,7 +14,7 @@ public abstract class RatingMapper {
 
   public abstract RatingResponse mapToRatingResponse(Rating rating);
 
-  public abstract Rating mapToRatingBeforeCreate(CreateRatingRequest rating);
+  public abstract Rating mapToRatingBeforeCreate(CreateRatingRequest rating, String userId);
 
 
   public abstract void mapToRatingBeforeUpdate(@MappingTarget Rating rating,
