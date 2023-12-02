@@ -7,7 +7,7 @@ import feign.gson.GsonDecoder;
 import feign.gson.GsonEncoder;
 import feign.okhttp.OkHttpClient;
 import jakarta.servlet.http.HttpServletRequest;
-import latipe.product.FeignClient.AuthClient;
+import latipe.product.feign.AuthClient;
 import latipe.product.exceptions.UnauthorizedException;
 import latipe.product.request.TokenRequest;
 import latipe.product.response.UserCredentialResponse;

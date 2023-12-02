@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 @Document("payment_provider")
 @Getter
@@ -21,6 +22,8 @@ public class PaymentProvider {
   private String name;
   private String configureUrl;
   private String landingViewComponentName;
+
+  @Field("additional_settings")
   private String additionalSettings;
   private String mode;
 }

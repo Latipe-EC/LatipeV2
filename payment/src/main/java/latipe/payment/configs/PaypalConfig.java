@@ -10,7 +10,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.context.annotation.RequestScope;
 
 @Configuration
 @AllArgsConstructor
@@ -18,8 +17,8 @@ import org.springframework.web.context.annotation.RequestScope;
 public class PaypalConfig {
 
   private final PaymentProviderRepository paymentProviderRepository;
+
   @Bean
-  @RequestScope
   public PayPalHttpClient getPaypalClient() {
     var paymentProvider = paymentProviderRepository.findById("PaypalPayment")
         .orElseThrow(()
@@ -33,9 +32,6 @@ public class PaypalConfig {
     String clientSecret = settingsJson.get("clientSecret").getAsString();
     String mode = settingsJson.get("mode").getAsString();
     // Create PayPalHttpClient with the retrieved clientId and clientSecret
-    if (paymentProvider.getMode().equals("sandbox")) {
-      return new PayPalHttpClient(new PayPalEnvironment.Sandbox(clientId, clientSecret));
-    }
-    return new PayPalHttpClient(new PayPalEnvironment.Live(clientId, clientSecret));
+    return new PayPalHttpClient(new PayPalEnvironment.Sandbox(clientId, clientSecret));
   }
 }

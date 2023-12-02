@@ -17,7 +17,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import latipe.product.FeignClient.StoreClient;
+import latipe.product.feign.StoreClient;
 import latipe.product.configs.CustomAggregationOperation;
 import latipe.product.configs.SecureInternalProperties;
 import latipe.product.constants.Action;

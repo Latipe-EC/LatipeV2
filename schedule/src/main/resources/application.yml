@@ -1,0 +1,60 @@
+server:
+  port: 8767
+  error:
+    include-message: always
+    include-binding-errors: always
+
+spring:
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL5Dialect
+        jdbc:
+          lob:
+            non_contextual_creation: 'true'
+    hibernate:
+      ddl-auto: create
+  application:
+    name: schedule-service
+  datasource:
+    username: root
+    url: jdbc:mysql://localhost:3306/Latipe_Schedule_DB
+    password: 123123@Dat
+  main:
+    allow-bean-definition-overriding: true
+  quartz:
+    properties:
+      org:
+        quartz:
+          jobStore:
+            useProperties: 'true'
+            driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
+            tablePrefix: QRTZ_
+            isClustered: 'true'
+            clusterCheckinInterval: '20000'
+            class:  org.quartz.impl.jdbcjobstore.JobStoreTX
+            dataSource: myDataSource
+          scheduler:
+            instanceId: AUTO
+            instanceName: quartz-cluster
+          instanceName: quartzScheduler
+          threadPool:
+            threadNamePrefix: MyQuartzThread
+            threadCount: '10'
+            threadPriority: '5'
+          instanceId: AUTO
+          dataSource:
+            myDataSource:
+              URL: jdbc:mysql://localhost:3306/Latipe_Schedule_DB
+              user: root
+              driver: com.mysql.cj.jdbc.Driver
+              password: 123123@Dat
+
+
+rabbitmq:
+  routing:
+    key: schedule_routing_key
+  exchange:
+    name: schedule_exchange
+  queue:
+    name: schedule_queue

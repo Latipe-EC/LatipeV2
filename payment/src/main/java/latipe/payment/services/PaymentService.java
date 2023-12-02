@@ -13,6 +13,7 @@ import feign.gson.GsonDecoder;
 import feign.gson.GsonEncoder;
 import feign.okhttp.OkHttpClient;
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.concurrent.CompletableFuture;
 import latipe.payment.configs.SecureInternalProperties;
 import latipe.payment.entity.Payment;
@@ -158,6 +159,7 @@ public class PaymentService {
           if (!payment.getUserId().equals(userCredential.id())) {
             throw new ForbiddenException("you dont have permission to do this");
           }
+
           OrdersGetRequest request = new OrdersGetRequest(payment.getCheckoutId());
           try {
             var response = payPalHttpClient.execute(request);
@@ -184,6 +186,58 @@ public class PaymentService {
         }
     );
   }
+
+  @Async
+  public CompletableFuture<CheckPaymentOrderResponse> checkPaymentInternal(String orderId) {
+    return CompletableFuture.supplyAsync(
+        () -> {
+          var payment = paymentRepository.findByOrderId(orderId).orElseThrow(
+              () -> new NotFoundException("Cannot find order")
+          );
+
+          if (payment.getPaymentMethod().equals(EPaymentMethod.PAYPAL)
+              && payment.getCheckoutId() != null) {
+            OrdersGetRequest request = new OrdersGetRequest(payment.getCheckoutId());
+            try {
+              var response = payPalHttpClient.execute(request);
+              if (response.statusCode() != 200) {
+                throw new BadRequestException("Cannot get order");
+              }
+
+              var order = response.result();
+              if (order.status().equals("COMPLETED")) {
+                payment.setPaymentStatus(EPaymentStatus.COMPLETED);
+              } else if (order.status().equals("APPROVED")) {
+                payment.setPaymentStatus(EPaymentStatus.PENDING);
+              } else {
+                payment.setPaymentStatus(EPaymentStatus.CANCELLED);
+              }
+
+
+            } catch (IOException e) {
+              throw new RuntimeException(e);
+            }
+          }
+
+          // check time is over 2 days
+          var cal = Calendar.getInstance();
+          cal.setTime(payment.getCreatedDate());
+          cal.add(Calendar.DATE, 2);
+          cal.set(Calendar.HOUR_OF_DAY, 0);
+          cal.set(Calendar.MINUTE, 0);
+          cal.set(Calendar.SECOND, 0);
+          cal.set(Calendar.MILLISECOND, 0);
+          var twoDaysFromNow = cal.getTime();
+
+          if (payment.getCreatedDate().after(twoDaysFromNow)) {
+            payment.setPaymentStatus(EPaymentStatus.CANCELLED);
+          }
+          payment = paymentRepository.save(payment);
+          return CheckPaymentOrderResponse.fromModel(payment);
+        }
+    );
+  }
+
 
   public void handleOrderCreate(
       OrderMessage message) {

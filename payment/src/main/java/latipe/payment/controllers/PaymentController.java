@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import java.util.concurrent.CompletableFuture;
 import latipe.payment.annotations.ApiPrefixController;
 import latipe.payment.annotations.Authenticate;
+import latipe.payment.annotations.SecureInternalPhase;
 import latipe.payment.request.CapturedPaymentRequest;
 import latipe.payment.request.PayByPaypalRequest;
 import latipe.payment.request.PayOrderRequest;
@@ -65,5 +66,11 @@ public class PaymentController {
     HttpServletRequest req = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
     UserCredentialResponse userCredential = (UserCredentialResponse) (req.getAttribute("user"));
     return paymentService.checkOrderPaypal(orderId, userCredential);
+  }
+
+  @SecureInternalPhase
+  @GetMapping("/check-order-internal/{orderId}")
+  public CompletableFuture<CheckPaymentOrderResponse> checkPaymentInternal( @PathVariable String orderId){
+    return paymentService.checkPaymentInternal(orderId);
   }
 }
