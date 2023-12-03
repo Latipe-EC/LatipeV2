@@ -34,7 +34,7 @@ public class DataConsumer {
           var payment = paymentService.handleFinishShipping(message);
           LOGGER.info("User finish shipping order: %s with money %s".formatted(payment.getOrderId(),
               payment.getAmount()));
-        } else if (message.status().equals(-1)) {
+        } else if (message.status().equals(7)) {
           paymentService.handleUserCancelOrder(message);
           LOGGER.info("User cancel order: {}", message.orderUuid());
         }

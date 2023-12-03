@@ -59,7 +59,6 @@ public class DataConsumer {
               LOGGER.info("Order created: {}", message.orderId());
             }
             case "ORDER_PAYMENT","ORDER_CANCEL"-> {
-
               var message = gson.fromJson(baseMessage.message(),
                   OrderCanceledEvent.class);
 
@@ -78,7 +77,6 @@ public class DataConsumer {
               }
 
             }
-
             default -> LOGGER.warn("Unknown action received");
           }
         }

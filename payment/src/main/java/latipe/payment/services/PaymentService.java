@@ -277,6 +277,7 @@ public class PaymentService {
       userClient.cancelOrder(hash,
           new CancelOrderRequest(payment.getUserId(), payment.getAmount()));
       payment.setPaymentStatus(EPaymentStatus.CANCELLED);
+      paymentRepository.save(payment);
     }
   }
 

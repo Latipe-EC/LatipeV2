@@ -1,7 +1,15 @@
 package latipe.rating.service;
 
 
+import static latipe.rating.constants.CONSTANTS.URL;
+import static latipe.rating.constants.CONSTANTS.X_API_KEY_ORDER;
+
 import com.google.gson.Gson;
+import feign.Feign;
+import feign.Logger;
+import feign.gson.GsonDecoder;
+import feign.gson.GsonEncoder;
+import feign.okhttp.OkHttpClient;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import latipe.rating.entity.Rating;
@@ -11,6 +19,7 @@ import latipe.rating.dtos.PagedResultDto;
 import latipe.rating.dtos.Pagination;
 import latipe.rating.exceptions.BadRequestException;
 import latipe.rating.exceptions.NotFoundException;
+import latipe.rating.feign.OrderClient;
 import latipe.rating.mapper.RatingMapper;
 import latipe.rating.producer.RabbitMQProducer;
 import latipe.rating.repositories.IRatingRepository;
@@ -44,7 +53,16 @@ public class RatingService implements IRatingService {
   public CompletableFuture<RatingResponse> create(CreateRatingRequest request, String userId) {
     return CompletableFuture.supplyAsync(() -> {
       // CAll api check rating order
+      var orderClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
+          .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL).target(OrderClient.class, URL);
 
+      // TODO : REMEMBER CHANGE TO REAL TOKEN
+      var response = orderClient.getRating(X_API_KEY_ORDER, request.orderItemId());
+      if (response.getData().getRating_id()
+          != null && !response.getData().getRating_id()
+          .isBlank()) {
+        throw new BadRequestException("rating already exist");
+      }
 
       var rating = ratingMapper.mapToRatingBeforeCreate(request, userId);
       rating = ratingRepository.save(rating);
