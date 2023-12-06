@@ -14,6 +14,7 @@ import latipe.user.request.CreateUserAddressRequest;
 import latipe.user.request.CreateUserRequest;
 import latipe.user.request.RegisterRequest;
 import latipe.user.request.UpdateUserAddressRequest;
+import latipe.user.request.UpdateUserNameRequest;
 import latipe.user.request.UpdateUserRequest;
 import latipe.user.response.UserCredentialResponse;
 import latipe.user.response.UserResponse;
@@ -167,5 +168,16 @@ public class UserController {
       @RequestBody CancelOrderRequest request
   ) {
     return userService.cancelOrder(request);
+  }
+
+  @Authenticate
+  @ResponseStatus(HttpStatus.CREATED)
+  @PutMapping(value = "/profile/username", produces = MediaType.APPLICATION_JSON_VALUE)
+  public CompletableFuture<Void> updateUserName(
+      @Valid @RequestBody UpdateUserNameRequest request
+  ) {
+    UserCredentialResponse userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
+        .getAttribute("user")));
+    return userService.updateUserName(request, userCredential.id());
   }
 }

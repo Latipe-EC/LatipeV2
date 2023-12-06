@@ -42,7 +42,11 @@ public class User extends AbstractAuditEntity implements UserDetails {
   private String storeId;
   private String tokenResetPassword;
   private Boolean isDeleted = false;
+  private String username;
+  private Boolean isChangeUsername = false;
   private List<UserAddress> addresses = new ArrayList<>();
+  private Gender gender = Gender.OTHER;
+  private ZonedDateTime birthday;
   @Transient
   private Role role;
   @Field(targetType = FieldType.OBJECT_ID)
@@ -57,6 +61,10 @@ public class User extends AbstractAuditEntity implements UserDetails {
   @Override
   public String getPassword() {
     return this.hashedPassword;
+  }
+
+  public String getUsernameReal() {
+    return this.username;
   }
 
   @Override

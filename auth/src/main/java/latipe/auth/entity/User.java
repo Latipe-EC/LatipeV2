@@ -1,5 +1,6 @@
 package latipe.auth.entity;
 
+import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -47,6 +48,10 @@ public class User extends AbstractAuditEntity implements UserDetails {
   @Field(targetType = FieldType.OBJECT_ID)
   private String roleId;
   private String phoneNumber;
+  private String username;
+  private Boolean isChangeUsername = false;
+  private Gender gender;
+  private ZonedDateTime birthday;
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -3,6 +3,8 @@ package latipe.user.request;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
+import java.time.ZonedDateTime;
+import latipe.user.entity.Gender;
 
 public record CreateUserRequest(
     @NotBlank(
@@ -19,7 +21,9 @@ public record CreateUserRequest(
     String email,
 
     String avatar,
-    String role
+    String role,
+    ZonedDateTime birthday,
+    Gender gender
 ) {
 
 

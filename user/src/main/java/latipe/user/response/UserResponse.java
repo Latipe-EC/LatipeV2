@@ -1,5 +1,6 @@
 package latipe.user.response;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import latipe.user.entity.User;
 import latipe.user.entity.UserAddress;
@@ -15,7 +16,11 @@ public record UserResponse(
     String role,
     Double eWallet,
     Integer point,
-    List<UserAddress> addresses
+    String username,
+    Boolean isChangeUsername,
+    List<UserAddress> addresses,
+    String gender,
+    ZonedDateTime birthday
 
 ) {
 
@@ -31,7 +36,11 @@ public record UserResponse(
         user.getRole().getName(),
         user.getEWallet(),
         user.getPoint(),
-        user.getAddresses()
+        user.getUsernameReal(),
+        user.getIsChangeUsername(),
+        user.getAddresses(),
+        user.getGender().name(),
+        user.getBirthday()
     );
   }
 

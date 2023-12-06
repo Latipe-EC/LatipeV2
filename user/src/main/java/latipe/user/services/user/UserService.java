@@ -24,9 +24,11 @@ import latipe.user.request.CreateUserAddressRequest;
 import latipe.user.request.CreateUserRequest;
 import latipe.user.request.RegisterRequest;
 import latipe.user.request.UpdateUserAddressRequest;
+import latipe.user.request.UpdateUserNameRequest;
 import latipe.user.request.UpdateUserRequest;
 import latipe.user.response.UserResponse;
 import latipe.user.utils.Constants;
+import latipe.user.utils.GenerateUtils;
 import latipe.user.utils.TokenUtils;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
@@ -177,9 +179,15 @@ public class UserService implements IUserService {
         throw new BadRequestException("Phone number already exists");
       }
 
+      var username = GenerateUtils.generateRandomUsername();
+      while (userRepository.existsByUsername(username)) {
+        username = GenerateUtils.generateRandomUsername();
+      }
+
       var user = userMapper.mapBeforeCreate(input,
           input.firstName() + " " + input.lastName(),
-          passwordEncoder.encode(DEFAULT_PASSWORD), role.getId());
+          passwordEncoder.encode(DEFAULT_PASSWORD), role.getId(), username);
+
       var savedUser = userRepository.save(user);
       savedUser.setRole(role);
 
@@ -214,9 +222,14 @@ public class UserService implements IUserService {
         throw new BadRequestException("Phone number already exists");
       }
 
+      var username = GenerateUtils.generateRandomUsername();
+      while (userRepository.existsByUsername(username)) {
+        username = GenerateUtils.generateRandomUsername();
+      }
+
       var user = userMapper.mapBeforeCreate(input, role.getId(),
           input.firstName() + " " + input.lastName(),
-          passwordEncoder.encode(input.hashedPassword()));
+          passwordEncoder.encode(input.hashedPassword()), username);
       var savedUser = userRepository.save(user);
       savedUser.setRole(role);
 
@@ -288,6 +301,29 @@ public class UserService implements IUserService {
       double money = Double.parseDouble(request.money().toString());
       user.setEWallet(user.getEWallet() + money);
       user.setPoint(user.getPoint() - Integer.parseInt(request.money().toString()) / 1000000);
+      userRepository.save(user);
+      return null;
+    });
+  }
+
+
+  @Async
+  @Override
+  public CompletableFuture<Void> updateUserName(UpdateUserNameRequest request, String userId) {
+    return CompletableFuture.supplyAsync(() -> {
+      var user = userRepository.findById(userId)
+          .orElseThrow(() -> new NotFoundException("User not found"));
+
+      if (user.getIsChangeUsername()){
+        throw new BadRequestException("You can only change username once");
+      }
+
+      if (userRepository.existsByUsername(request.username())) {
+        throw new BadRequestException("Username already exists");
+      }
+
+      user.setUsername(request.username());
+      user.setIsChangeUsername(true);
       userRepository.save(user);
       return null;
     });

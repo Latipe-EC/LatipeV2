@@ -26,33 +26,28 @@ public abstract class UserMapper {
 
   public abstract void mapBeforeUpdateUser(@MappingTarget User user, UpdateUserRequest input);
 
-  @Mappings({
-      @Mapping(target = "role", ignore = true),
+  @Mappings({@Mapping(target = "role", ignore = true),
       @Mapping(target = "roleId", source = "roleId"),
       @Mapping(target = "hashedPassword", source = "password"),
-      @Mapping(target = "displayName", source = "displayName"),
-  })
-  public abstract User mapBeforeCreate(CreateUserRequest input, String displayName,
-      String password, String roleId);
+      @Mapping(target = "displayName", source = "displayName"),})
+  public abstract User mapBeforeCreate(CreateUserRequest input, String displayName, String password,
+      String roleId, String username);
 
   @Mappings({@Mapping(target = "roleId", source = "roleId"),
       @Mapping(target = "displayName", source = "displayName"),
       @Mapping(target = "hashedPassword", source = "password"),})
   public abstract User mapBeforeCreate(RegisterRequest input, String roleId, String displayName,
-      String password);
+      String password, String username);
 
-  @Mappings({@Mapping(target = "role", source = "user.role.name")})
+  @Mappings({@Mapping(target = "role", source = "user.role.name"),
+      @Mapping(target = "username", expression = "java(user.getUsernameReal())")}
+  )
   public abstract UserResponse mapToResponse(User user);
 
   public abstract UserAddress mapToUserAddress(String id, CreateUserAddressRequest address);
 
-  public abstract RegisterMessage mapToMessage(
-      String userId,
-      String type,
-      String name,
-      String email,
-      String password,
-      String token);
+  public abstract RegisterMessage mapToMessage(String userId, String type, String name,
+      String email, String password, String token);
 
 
   public abstract Token mapToToken(String userId, KeyType type, ZonedDateTime expiredAt);
