@@ -41,7 +41,8 @@ public class ProductService {
     this.elasticsearchOperations = elasticsearchOperations;
   }
 
-  public CompletableFuture<ProductListGetVm> findProductAdvance(String keyword,
+  public CompletableFuture<ProductListGetVm> findProductAdvance(
+      String keyword,
       Integer page,
       Integer size,
       String category,

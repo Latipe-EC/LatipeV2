@@ -1,7 +1,7 @@
 package latipe.store.mapper;
 
 
-import latipe.store.Entity.Commission;
+import latipe.store.entity.Commission;
 import latipe.store.request.CreateCommissionRequest;
 import latipe.store.request.UpdateCommissionRequest;
 import latipe.store.response.CommissionResponse;

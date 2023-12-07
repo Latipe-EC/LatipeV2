@@ -132,11 +132,10 @@ public class ProductController {
     return productService.getProductESDetailById(id);
   }
 
-
   @SecureInternalPhase
   @ResponseStatus(HttpStatus.OK)
   @GetMapping(value = "/store/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<PagedResultDto<ProductStoreResponse>> getProductStore(
+  public CompletableFuture<PagedResultDto<ProductStoreResponse>> getProductStoreInternal(
       @PathVariable String id, @RequestParam String name, @RequestParam long skip,
       @RequestParam int size, @RequestParam String orderBy) {
     return productService.getMyProductStore(skip, size, name, orderBy, id);

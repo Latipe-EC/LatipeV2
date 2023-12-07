@@ -17,7 +17,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import latipe.product.feign.StoreClient;
 import latipe.product.configs.CustomAggregationOperation;
 import latipe.product.configs.SecureInternalProperties;
 import latipe.product.constants.Action;
@@ -28,6 +27,7 @@ import latipe.product.entity.Product;
 import latipe.product.entity.product.ProductClassification;
 import latipe.product.exceptions.BadRequestException;
 import latipe.product.exceptions.NotFoundException;
+import latipe.product.feign.StoreClient;
 import latipe.product.mapper.CategoryMapper;
 import latipe.product.mapper.ProductMapper;
 import latipe.product.producer.RabbitMQProducer;
@@ -214,12 +214,14 @@ public class ProductService implements IProductService {
       List<String> storeIds = new ArrayList<>();
 
       var orders = documents.stream().map(doc -> {
+
         Document productClassificationsDoc = doc.get("productClassifications", Document.class);
 
         OrderProductCheckRequest prodOrder = orderProductSet.stream().filter(
                 x -> x.productId().equals(doc.getObjectId("_id").toString()) && x.optionId()
                     .equals(productClassificationsDoc.getObjectId("_id").toString())).findFirst()
             .orElseThrow(() -> new BadRequestException("Product not found"));
+
         if (productClassificationsDoc.getInteger("quantity") < prodOrder.quantity()) {
           throw new BadRequestException("Product out of stock");
         }
@@ -630,11 +632,22 @@ public class ProductService implements IProductService {
     var results = mongoTemplate.aggregate(aggregate, Product.class, Document.class);
     var documents = results.getMappedResults();
     var list = documents.stream().map(doc -> {
-      int countProductVariants = ((List<?>) doc.get("productVariants")).size();
+
+      var prod = gson.fromJson(doc.toJson(), Product.class);
+
+      var price =
+          prod.getProductClassifications().get(0).getPromotionalPrice() != null
+              && prod.getProductClassifications().get(0).getPromotionalPrice() > 0
+              ? prod.getProductClassifications().get(0).getPromotionalPrice()
+              : prod.getProductClassifications().get(0).getPrice();
+
       return ProductStoreResponse.builder().id(doc.getObjectId("_id").toString())
-          .name(doc.getString("name")).image(doc.getList("images", String.class).get(0))
-          .countProductVariants(countProductVariants).countSale(doc.getInteger("countSale"))
-          .reasonBan(doc.getString("reasonBan")).build();
+          .name(prod.getName()).image(prod.getImages().get(0))
+          .countProductVariants(prod.getProductVariants().size())
+          .countSale(doc.getInteger("countSale"))
+          .reasonBan(doc.getString("reasonBan")).price(price)
+          .rating(calculateRatingAverage(prod.getRatings())).build();
+
     }).toList();
     return PagedResultDto.create(Pagination.create(total, skip, limit), list);
   }

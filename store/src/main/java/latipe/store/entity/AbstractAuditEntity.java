@@ -1,4 +1,4 @@
-package latipe.store.Entity;
+package latipe.store.entity;
 
 import java.util.Date;
 import lombok.Getter;

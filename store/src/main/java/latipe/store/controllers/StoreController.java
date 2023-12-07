@@ -95,6 +95,18 @@ public class StoreController {
 
   }
 
+  @ResponseStatus(HttpStatus.OK)
+  @GetMapping(value = "/{storeId}/products", produces = MediaType.APPLICATION_JSON_VALUE)
+  public CompletableFuture<PagedResultDto<ProductStoreResponse>> getProductStore(
+      @PathVariable String storeId,
+      @RequestParam(value = "skip", defaultValue = "0") long skip,
+      @RequestParam(value = "limit", defaultValue = "10") int limit,
+      @RequestParam(value = "name", defaultValue = "") String name,
+      @RequestParam(value = "orderBy", defaultValue = "createdDate") String orderBy) {
+    return storeService.getProductStore(skip, limit, name, orderBy, storeId);
+
+  }
+
   @Authenticate
   @ResponseStatus(HttpStatus.OK)
   @GetMapping(value = "/my-products/ban", produces = MediaType.APPLICATION_JSON_VALUE)

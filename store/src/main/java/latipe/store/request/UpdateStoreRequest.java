@@ -1,6 +1,6 @@
 package latipe.store.request;
 
-import latipe.store.Entity.StoreAddress;
+import latipe.store.entity.StoreAddress;
 
 public record UpdateStoreRequest(
     String name,

@@ -14,6 +14,8 @@ public record ProductStoreResponse(
     String image,
     int countProductVariants,
     int countSale,
+    Double price,
+    Double rating,
     String reasonBan
 ) {
 

@@ -30,6 +30,9 @@ public interface IStoreService {
   CompletableFuture<PagedResultDto<ProductStoreResponse>> getMyProductStore(long skip, int limit,
       String name, String orderBy, String userId);
 
+  CompletableFuture<PagedResultDto<ProductStoreResponse>> getProductStore(long skip, int limit,
+      String name, String orderBy, String storeId);
+
   CompletableFuture<PagedResultDto<ProductStoreResponse>> getBanProductStore(long skip, int limit,
       String name, String orderBy, String userId);
 

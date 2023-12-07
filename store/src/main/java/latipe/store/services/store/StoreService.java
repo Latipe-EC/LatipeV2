@@ -14,13 +14,14 @@ import feign.okhttp.OkHttpClient;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import latipe.store.feign.ProductClient;
-import latipe.store.feign.UserClient;
+import latipe.store.entity.Store;
 import latipe.store.configs.SecureInternalProperties;
 import latipe.store.constants.Action;
 import latipe.store.dtos.PagedResultDto;
 import latipe.store.exceptions.BadRequestException;
 import latipe.store.exceptions.NotFoundException;
+import latipe.store.feign.ProductClient;
+import latipe.store.feign.UserClient;
 import latipe.store.mapper.StoreMapper;
 import latipe.store.producer.RabbitMQProducer;
 import latipe.store.repositories.IStoreRepository;
@@ -35,6 +36,7 @@ import latipe.store.response.product.ProductStoreResponse;
 import latipe.store.services.commission.ICommissionService;
 import latipe.store.viewmodel.StoreMessage;
 import lombok.AllArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -58,7 +60,8 @@ public class StoreService implements IStoreService {
 
     return CompletableFuture.supplyAsync(() -> {
 
-      var store = storeRepository.findByOwnerId(userId);
+      var store = storeRepository.findByOwnerId(userId).orElse(null);
+
       if (store != null) {
         throw new BadRequestException("One User can only have one store");
       }
@@ -85,10 +88,9 @@ public class StoreService implements IStoreService {
   public CompletableFuture<StoreResponse> update(String userId, UpdateStoreRequest input) {
     return CompletableFuture.supplyAsync(() -> {
 
-      var store = storeRepository.findByOwnerId(userId);
-      if (store == null) {
-        throw new NotFoundException("Store not found");
-      }
+      var store = storeRepository.findByOwnerId(userId).orElseThrow(
+          () -> new NotFoundException("Store not found")
+      );
 
       if (store.getAddress() == null) {
         throw new BadRequestException("Store address is not set");
@@ -111,7 +113,10 @@ public class StoreService implements IStoreService {
   @Async
   public CompletableFuture<String> getStoreByUserId(String userId) {
     return CompletableFuture.supplyAsync(() -> {
-      var store = storeRepository.findByOwnerId(userId);
+      var store = storeRepository.findByOwnerId(userId).orElseThrow(
+          () -> new NotFoundException("Store not found")
+      );
+      ;
 
       if (store == null) {
         throw new NotFoundException("Not found store");
@@ -135,7 +140,8 @@ public class StoreService implements IStoreService {
     return CompletableFuture.supplyAsync(() -> {
       var store = storeRepository.findById(storeId)
           .orElseThrow(() -> new NotFoundException("Store not found"));
-      return storeMapper.mapToStoreResponse(store, commissionService.calcPercentStore(store.getPoint()));
+      return storeMapper.mapToStoreResponse(store,
+          commissionService.calcPercentStore(store.getPoint()));
     });
   }
 
@@ -158,13 +164,35 @@ public class StoreService implements IStoreService {
   public CompletableFuture<PagedResultDto<ProductStoreResponse>> getMyProductStore(long skip,
       int limit, String name, String orderBy, String userId) {
     return CompletableFuture.supplyAsync(() -> {
-      var store = storeRepository.findByOwnerId(userId);
-      if (store.getIsBan()) {
-        throw new BadRequestException("Store is banned");
+
+      var store = getStore(userId);
+
+      String hash;
+      try {
+        hash = generateHash("product-service",
+            getPrivateKey(secureInternalProperties.getPrivateKey()));
+      } catch (Exception e) {
+        throw new RuntimeException(e);
       }
-      if (store.getIsDeleted()) {
-        throw new BadRequestException("Store is deleted");
-      }
+
+      var productClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
+          .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL).target(ProductClient.class, URL);
+
+      return productClient.getProductStore(hash, name, skip, limit, orderBy, store.getId());
+    });
+  }
+
+
+  @Override
+  @Async
+  public CompletableFuture<PagedResultDto<ProductStoreResponse>> getProductStore(long skip,
+      int limit, String name, String orderBy, String storeId) {
+    return CompletableFuture.supplyAsync(() -> {
+
+      var store = storeRepository.findById(storeId).orElseThrow(
+          () -> new NotFoundException("Store not found")
+      );
+
       String hash;
       try {
         hash = generateHash("product-service",
@@ -186,15 +214,7 @@ public class StoreService implements IStoreService {
       int limit, String name, String orderBy, String userId) {
     return CompletableFuture.supplyAsync(() -> {
 
-      var store = storeRepository.findByOwnerId(userId);
-
-      if (store.getIsBan()) {
-        throw new BadRequestException("Store is banned");
-      }
-      if (store.getIsDeleted()) {
-        throw new BadRequestException("Store is deleted");
-      }
-
+      var store = getStore(userId);
       String hash;
       try {
         hash = generateHash("product-service",
@@ -222,5 +242,21 @@ public class StoreService implements IStoreService {
       }
       return stores.stream().map(storeMapper::mapToStoreSimplifyResponse).toList();
     });
+  }
+
+  @NotNull
+  private Store getStore(String userId) {
+    var store = storeRepository.findByOwnerId(userId).orElseThrow(
+        () -> new NotFoundException("Store not found")
+    );
+
+    if (store.getIsBan() != null && store.getIsBan()) {
+      throw new BadRequestException("Store is banned");
+    }
+
+    if (store.getIsDeleted()) {
+      throw new BadRequestException("Store is deleted");
+    }
+    return store;
   }
 }

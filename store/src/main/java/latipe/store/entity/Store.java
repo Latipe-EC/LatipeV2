@@ -1,4 +1,4 @@
-package latipe.store.Entity;
+package latipe.store.entity;
 
 
 import lombok.Data;
@@ -16,7 +16,7 @@ public class Store {
   String logo;
   String ownerId;
   String cover;
-  private int rating = 0;
+  private Double rating = 0.0;
   private int point = 0;
   private Double eWallet = 0D;
   private Boolean isActive = true;

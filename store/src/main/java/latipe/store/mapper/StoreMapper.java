@@ -1,7 +1,7 @@
 package latipe.store.mapper;
 
 
-import latipe.store.Entity.Store;
+import latipe.store.entity.Store;
 import latipe.store.request.CreateStoreRequest;
 import latipe.store.request.UpdateStoreRequest;
 import latipe.store.response.StoreResponse;
