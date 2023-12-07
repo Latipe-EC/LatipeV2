@@ -1,4 +1,4 @@
-package latipe.store.FeignClient;
+package latipe.store.feign;
 
 import feign.Headers;
 import feign.RequestLine;

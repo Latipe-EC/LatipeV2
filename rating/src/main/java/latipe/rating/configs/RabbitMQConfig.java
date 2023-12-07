@@ -2,6 +2,7 @@ package latipe.rating.configs;
 
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
+import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.TopicExchange;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,8 +29,8 @@ public class RabbitMQConfig {
 
   // spring bean for rabbitmq exchange
   @Bean
-  public TopicExchange exchange() {
-    return new TopicExchange(exchange);
+  public DirectExchange exchange() {
+    return new DirectExchange(exchange);
   }
 
   // binding between queue and exchange using routing key

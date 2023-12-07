@@ -12,11 +12,11 @@ import feign.gson.GsonEncoder;
 import feign.okhttp.OkHttpClient;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import latipe.rating.entity.Rating;
 import latipe.rating.constants.Action;
 import latipe.rating.constants.Star;
 import latipe.rating.dtos.PagedResultDto;
 import latipe.rating.dtos.Pagination;
+import latipe.rating.entity.Rating;
 import latipe.rating.exceptions.BadRequestException;
 import latipe.rating.exceptions.NotFoundException;
 import latipe.rating.feign.OrderClient;
@@ -84,6 +84,7 @@ public class RatingService implements IRatingService {
       var rating = ratingRepository.findById(id)
           .orElseThrow(() -> new NotFoundException("Rating not found"));
 
+      var oldRating = rating.getRating();
       if (rating.getIsChange()) {
         throw new BadRequestException("You are not allowed to update this rating");
       }
@@ -100,6 +101,7 @@ public class RatingService implements IRatingService {
       String message = gson.toJson(
           RatingMessage.builder().orderItemId(rating.getOrderItemId()).ratingId(rating.getId())
               .rating(rating.getRating()).productId(rating.getProductId()).op(Action.UPDATE)
+              .oldRating(oldRating)
               .build());
       rabbitMQProducer.sendMessage(message);
 
@@ -166,7 +168,7 @@ public class RatingService implements IRatingService {
   @Async
   public CompletableFuture<RatingResponse> getDetailRating(String id) {
     return CompletableFuture.supplyAsync(() -> ratingRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Rating not found")))
+            .orElseThrow(() -> new NotFoundException("Rating not found")))
         .thenApplyAsync(ratingMapper::mapToRatingResponse);
   }
 
@@ -196,6 +198,7 @@ public class RatingService implements IRatingService {
             .content(doc.getString("content")).rating(doc.getInteger("rating"))
             .userId(doc.getString("userId")).userName(doc.getString("userName"))
             .productId(doc.getString("productId")).storeId(doc.getString("storeId"))
+            .createdDate(doc.getDate("created_date")).isChange(doc.getBoolean("isChange"))
             .detail(doc.getString("detail")).build()).toList();
   }
 
