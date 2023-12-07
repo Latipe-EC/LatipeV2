@@ -17,7 +17,8 @@ rabbitmq:
   exchange:
     name: rating_exchange
   queue:
-    name: internal.rating
+    name_order: internal.rating
+    name_product: internal.rating.product
 
 management:
   endpoints:

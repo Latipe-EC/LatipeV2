@@ -125,7 +125,7 @@ public class RatingService implements IRatingService {
       ratingRepository.deleteById(id);
 
       String message = gson.toJson(
-          RatingMessage.builder().orderItemId(rating.getOrderItemId()).ratingId(rating.getId())
+          RatingMessage.builder().orderItemId(rating.getOrderItemId()).ratingId(null)
               .rating(rating.getRating()).productId(rating.getProductId()).op(Action.DELETE)
               .build());
       rabbitMQProducer.sendMessage(message);

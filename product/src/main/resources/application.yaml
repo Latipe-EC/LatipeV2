@@ -21,7 +21,7 @@ rabbitmq:
     exchange:
       name: rating_exchange
     queue:
-      name: internal.rating
+      name: internal.rating.product
 
 secure-internal:
   public-key: "MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAKl5SroD9NuxQ955qCcCMERMAMJz2/CZfx3WTHkQa8cvf13FBkRFvRkLD7U1MRCNylxe+oebmy/OF4GzuSxcDl8CAwEAAQ=="
