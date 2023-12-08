@@ -15,6 +15,7 @@ import latipe.store.request.GetProvinceCodesRequest;
 import latipe.store.request.MultipleStoreRequest;
 import latipe.store.request.UpdateStoreRequest;
 import latipe.store.response.ProvinceCodesResponse;
+import latipe.store.response.StoreDetailResponse;
 import latipe.store.response.StoreResponse;
 import latipe.store.response.StoreSimplifyResponse;
 import latipe.store.response.UserCredentialResponse;
@@ -72,8 +73,17 @@ public class StoreController {
 
   @RequiresAuthorization("VENDOR")
   @ResponseStatus(HttpStatus.OK)
-  @PutMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<StoreResponse> createStore(@RequestBody UpdateStoreRequest input)
+  @GetMapping(value = "/my", produces = MediaType.APPLICATION_JSON_VALUE)
+  public CompletableFuture<StoreDetailResponse> getMyStore() {
+    HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+    UserCredentialResponse userCredential = (UserCredentialResponse) (request.getAttribute("user"));
+    return storeService.getMyStore(userCredential.id());
+  }
+
+  @RequiresAuthorization("VENDOR")
+  @ResponseStatus(HttpStatus.OK)
+  @PutMapping(value = "/my", produces = MediaType.APPLICATION_JSON_VALUE)
+  public CompletableFuture<StoreResponse>updateStore(@RequestBody UpdateStoreRequest input)
       throws InvocationTargetException, IllegalAccessException {
     HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
     UserCredentialResponse userCredential = (UserCredentialResponse) (request.getAttribute("user"));

@@ -14,10 +14,10 @@ import feign.okhttp.OkHttpClient;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import latipe.store.entity.Store;
 import latipe.store.configs.SecureInternalProperties;
 import latipe.store.constants.Action;
 import latipe.store.dtos.PagedResultDto;
+import latipe.store.entity.Store;
 import latipe.store.exceptions.BadRequestException;
 import latipe.store.exceptions.NotFoundException;
 import latipe.store.feign.ProductClient;
@@ -30,6 +30,7 @@ import latipe.store.request.GetProvinceCodesRequest;
 import latipe.store.request.MultipleStoreRequest;
 import latipe.store.request.UpdateStoreRequest;
 import latipe.store.response.ProvinceCodesResponse;
+import latipe.store.response.StoreDetailResponse;
 import latipe.store.response.StoreResponse;
 import latipe.store.response.StoreSimplifyResponse;
 import latipe.store.response.product.ProductStoreResponse;
@@ -142,6 +143,17 @@ public class StoreService implements IStoreService {
           .orElseThrow(() -> new NotFoundException("Store not found"));
       return storeMapper.mapToStoreResponse(store,
           commissionService.calcPercentStore(store.getPoint()));
+    });
+  }
+
+  @Override
+  public CompletableFuture<StoreDetailResponse> getMyStore(String userId) {
+    return CompletableFuture.supplyAsync(() -> {
+      var store = storeRepository.findByOwnerId(userId).orElseThrow(
+          () -> new NotFoundException("Store not found")
+      );
+      return storeMapper.mapToStoreDetailResponse(store,
+          commissionService.calcPercentStore(store.getPoint()), store.getEWallet());
     });
   }
 

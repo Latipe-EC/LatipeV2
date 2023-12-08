@@ -401,8 +401,9 @@ public class ProductService implements IProductService {
             if (productClassification.getQuantity() < req.quantity()) {
               throw new BadRequestException("Product out of stock");
             }
-            productClassification.setQuantity(productClassification.getQuantity() - req.quantity());
-            product.setCountSale(product.getCountSale() + req.quantity());
+            productClassification.setQuantity(
+                Math.max(productClassification.getQuantity() - req.quantity(), 0));
+            product.setCountSale(Math.max(product.getCountSale() + req.quantity(), 0));
             isFound = true;
             break;
           }
