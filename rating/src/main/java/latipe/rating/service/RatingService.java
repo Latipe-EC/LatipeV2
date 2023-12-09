@@ -3,6 +3,8 @@ package latipe.rating.service;
 
 import static latipe.rating.constants.CONSTANTS.URL;
 import static latipe.rating.constants.CONSTANTS.X_API_KEY_ORDER;
+import static latipe.rating.utils.GenTokenInternal.generateHash;
+import static latipe.rating.utils.GenTokenInternal.getPrivateKey;
 
 import com.google.gson.Gson;
 import feign.Feign;
@@ -12,6 +14,7 @@ import feign.gson.GsonEncoder;
 import feign.okhttp.OkHttpClient;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import latipe.rating.configs.SecureInternalProperties;
 import latipe.rating.constants.Action;
 import latipe.rating.constants.Star;
 import latipe.rating.dtos.PagedResultDto;
@@ -20,6 +23,7 @@ import latipe.rating.entity.Rating;
 import latipe.rating.exceptions.BadRequestException;
 import latipe.rating.exceptions.NotFoundException;
 import latipe.rating.feign.OrderClient;
+import latipe.rating.feign.UserClient;
 import latipe.rating.mapper.RatingMapper;
 import latipe.rating.producer.RabbitMQProducer;
 import latipe.rating.repositories.IRatingRepository;
@@ -46,6 +50,7 @@ public class RatingService implements IRatingService {
   private final IRatingRepository ratingRepository;
   private final MongoTemplate mongoTemplate;
   private final RabbitMQProducer rabbitMQProducer;
+  private final SecureInternalProperties secureInternalProperties;
   private final Gson gson;
 
   @Override
@@ -64,7 +69,20 @@ public class RatingService implements IRatingService {
         throw new BadRequestException("rating already exist");
       }
 
-      var rating = ratingMapper.mapToRatingBeforeCreate(request, userId);
+      // get info user
+      var userClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
+          .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL).target(UserClient.class, URL);
+
+      String hash;
+      try {
+        hash = generateHash("user-service",
+            getPrivateKey(secureInternalProperties.getPrivateKey()));
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+      var userDetail = userClient.getInfoForRating(hash, userId);
+
+      var rating = ratingMapper.mapToRatingBeforeCreate(request, userId, userDetail.username(), userDetail.avatar());
       rating = ratingRepository.save(rating);
 
       String message = gson.toJson(

@@ -26,6 +26,7 @@ import latipe.user.request.RegisterRequest;
 import latipe.user.request.UpdateUserAddressRequest;
 import latipe.user.request.UpdateUserNameRequest;
 import latipe.user.request.UpdateUserRequest;
+import latipe.user.response.InfoRatingResponse;
 import latipe.user.response.UserResponse;
 import latipe.user.utils.Constants;
 import latipe.user.utils.GenerateUtils;
@@ -306,7 +307,6 @@ public class UserService implements IUserService {
     });
   }
 
-
   @Async
   @Override
   public CompletableFuture<Void> updateUserName(UpdateUserNameRequest request, String userId) {
@@ -326,6 +326,21 @@ public class UserService implements IUserService {
       user.setIsChangeUsername(true);
       userRepository.save(user);
       return null;
+    });
+  }
+
+  @Async
+  @Override
+  public CompletableFuture<InfoRatingResponse> getInfoForRating(String userId) {
+    return CompletableFuture.supplyAsync(() -> {
+      var user = userRepository.findById(userId)
+          .orElse(null);
+
+     if (user == null || user.getIsDeleted()|| user.getVerifiedAt() == null ){
+       return new InfoRatingResponse("user deleted", null);
+     }
+      return new InfoRatingResponse(user.getUsernameReal(), user.getAvatar());
+
     });
   }
 }

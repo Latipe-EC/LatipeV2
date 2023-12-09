@@ -11,6 +11,7 @@ import latipe.user.request.RegisterRequest;
 import latipe.user.request.UpdateUserAddressRequest;
 import latipe.user.request.UpdateUserNameRequest;
 import latipe.user.request.UpdateUserRequest;
+import latipe.user.response.InfoRatingResponse;
 import latipe.user.response.UserResponse;
 
 public interface IUserService {
@@ -44,4 +45,7 @@ public interface IUserService {
   CompletableFuture<Void> cancelOrder(CancelOrderRequest request);
 
   CompletableFuture<Void> updateUserName(UpdateUserNameRequest request, String userId);
+
+  CompletableFuture<InfoRatingResponse> getInfoForRating(String userId);
+
 }

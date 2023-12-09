@@ -5,9 +5,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import latipe.store.dtos.PagedResultDto;
+import latipe.store.request.CheckBalanceRequest;
 import latipe.store.request.CreateStoreRequest;
 import latipe.store.request.GetProvinceCodesRequest;
 import latipe.store.request.MultipleStoreRequest;
+import latipe.store.request.UpdateBalanceRequest;
 import latipe.store.request.UpdateStoreRequest;
 import latipe.store.response.ProvinceCodesResponse;
 import latipe.store.response.StoreDetailResponse;
@@ -40,4 +42,9 @@ public interface IStoreService {
       String name, String orderBy, String userId);
 
   CompletableFuture<List<StoreSimplifyResponse>> getMultipleStore(MultipleStoreRequest input);
+
+  CompletableFuture<Void> checkBalance(CheckBalanceRequest input);
+
+  CompletableFuture<Void> UpdateBalance(UpdateBalanceRequest input);
+
 }

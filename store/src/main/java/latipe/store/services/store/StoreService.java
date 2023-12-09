@@ -25,9 +25,11 @@ import latipe.store.feign.UserClient;
 import latipe.store.mapper.StoreMapper;
 import latipe.store.producer.RabbitMQProducer;
 import latipe.store.repositories.IStoreRepository;
+import latipe.store.request.CheckBalanceRequest;
 import latipe.store.request.CreateStoreRequest;
 import latipe.store.request.GetProvinceCodesRequest;
 import latipe.store.request.MultipleStoreRequest;
+import latipe.store.request.UpdateBalanceRequest;
 import latipe.store.request.UpdateStoreRequest;
 import latipe.store.response.ProvinceCodesResponse;
 import latipe.store.response.StoreDetailResponse;
@@ -89,9 +91,8 @@ public class StoreService implements IStoreService {
   public CompletableFuture<StoreResponse> update(String userId, UpdateStoreRequest input) {
     return CompletableFuture.supplyAsync(() -> {
 
-      var store = storeRepository.findByOwnerId(userId).orElseThrow(
-          () -> new NotFoundException("Store not found")
-      );
+      var store = storeRepository.findByOwnerId(userId)
+          .orElseThrow(() -> new NotFoundException("Store not found"));
 
       if (store.getAddress() == null) {
         throw new BadRequestException("Store address is not set");
@@ -114,10 +115,8 @@ public class StoreService implements IStoreService {
   @Async
   public CompletableFuture<String> getStoreByUserId(String userId) {
     return CompletableFuture.supplyAsync(() -> {
-      var store = storeRepository.findByOwnerId(userId).orElseThrow(
-          () -> new NotFoundException("Store not found")
-      );
-      ;
+      var store = storeRepository.findByOwnerId(userId)
+          .orElseThrow(() -> new NotFoundException("Store not found"));
 
       if (store == null) {
         throw new NotFoundException("Not found store");
@@ -149,9 +148,8 @@ public class StoreService implements IStoreService {
   @Override
   public CompletableFuture<StoreDetailResponse> getMyStore(String userId) {
     return CompletableFuture.supplyAsync(() -> {
-      var store = storeRepository.findByOwnerId(userId).orElseThrow(
-          () -> new NotFoundException("Store not found")
-      );
+      var store = storeRepository.findByOwnerId(userId)
+          .orElseThrow(() -> new NotFoundException("Store not found"));
       return storeMapper.mapToStoreDetailResponse(store,
           commissionService.calcPercentStore(store.getPoint()), store.getEWallet());
     });
@@ -201,9 +199,8 @@ public class StoreService implements IStoreService {
       int limit, String name, String orderBy, String storeId) {
     return CompletableFuture.supplyAsync(() -> {
 
-      var store = storeRepository.findById(storeId).orElseThrow(
-          () -> new NotFoundException("Store not found")
-      );
+      var store = storeRepository.findById(storeId)
+          .orElseThrow(() -> new NotFoundException("Store not found"));
 
       String hash;
       try {
@@ -256,11 +253,49 @@ public class StoreService implements IStoreService {
     });
   }
 
+  @Override
+  @Async
+  public CompletableFuture<Void> checkBalance(CheckBalanceRequest input) {
+    return CompletableFuture.supplyAsync(() -> {
+      var store = storeRepository.findByOwnerId(input.userId())
+          .orElseThrow(() -> new NotFoundException("Store not found"));
+
+      if (!store.getIsActive() || store.getIsBan()) {
+        throw new BadRequestException("Store is not active or banned");
+      }
+
+      if (store.getEWallet() < Double.parseDouble(input.amount().toString())) {
+        throw new BadRequestException("Insufficient balance");
+      }
+      return null;
+    });
+  }
+
+  @Override
+  @Async
+  public CompletableFuture<Void> UpdateBalance(UpdateBalanceRequest input) {
+    return CompletableFuture.supplyAsync(() -> {
+      var store = storeRepository.findByOwnerId(input.userId())
+          .orElseThrow(() -> new NotFoundException("Store not found"));
+
+      if (!store.getIsActive() || store.getIsBan()) {
+        throw new BadRequestException("Store is not active or banned");
+      }
+
+      if (store.getEWallet() < Double.parseDouble(input.amount().toString())) {
+        throw new BadRequestException("Insufficient balance");
+      }
+
+      store.setEWallet(store.getEWallet() - Double.parseDouble(input.amount().toString()));
+      storeRepository.save(store);
+      return null;
+    });
+  }
+
   @NotNull
   private Store getStore(String userId) {
-    var store = storeRepository.findByOwnerId(userId).orElseThrow(
-        () -> new NotFoundException("Store not found")
-    );
+    var store = storeRepository.findByOwnerId(userId)
+        .orElseThrow(() -> new NotFoundException("Store not found"));
 
     if (store.getIsBan() != null && store.getIsBan()) {
       throw new BadRequestException("Store is banned");

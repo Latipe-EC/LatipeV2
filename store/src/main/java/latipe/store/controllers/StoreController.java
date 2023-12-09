@@ -10,9 +10,11 @@ import latipe.store.annotations.Authenticate;
 import latipe.store.annotations.RequiresAuthorization;
 import latipe.store.annotations.SecureInternalPhase;
 import latipe.store.dtos.PagedResultDto;
+import latipe.store.request.CheckBalanceRequest;
 import latipe.store.request.CreateStoreRequest;
 import latipe.store.request.GetProvinceCodesRequest;
 import latipe.store.request.MultipleStoreRequest;
+import latipe.store.request.UpdateBalanceRequest;
 import latipe.store.request.UpdateStoreRequest;
 import latipe.store.response.ProvinceCodesResponse;
 import latipe.store.response.StoreDetailResponse;
@@ -25,6 +27,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -144,6 +147,26 @@ public class StoreController {
   public CompletableFuture<List<StoreSimplifyResponse>> getMultipleStore(
       @Valid @RequestBody MultipleStoreRequest input) {
     return storeService.getMultipleStore(input);
+
+  }
+
+  @SecureInternalPhase
+  @ResponseStatus(HttpStatus.OK)
+  @PostMapping(value = "/check-balance", produces = MediaType.APPLICATION_JSON_VALUE)
+  public CompletableFuture<Void> checkBalance(
+      @Valid @RequestBody CheckBalanceRequest input
+  ) {
+    return storeService.checkBalance(input);
+
+  }
+
+  @SecureInternalPhase
+  @ResponseStatus(HttpStatus.OK)
+  @PatchMapping(value = "/balance", produces = MediaType.APPLICATION_JSON_VALUE)
+  public CompletableFuture<Void> updateBalance(
+      @Valid @RequestBody UpdateBalanceRequest input
+  ) {
+    return storeService.UpdateBalance(input);
 
   }
 }

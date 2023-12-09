@@ -2,6 +2,7 @@ package latipe.store.response;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.List;
 import latipe.store.entity.StoreAddress;
 
 public record StoreResponse(String id, String name,
@@ -9,7 +10,7 @@ public record StoreResponse(String id, String name,
                             StoreAddress address,
                             @JsonProperty(value = "isDeleted") Boolean isDeleted,
                             Double feePerOrder,
-                            Double rating) {
+                            List<Integer> ratings) {
 
 
 }

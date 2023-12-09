@@ -32,8 +32,9 @@ public class DataConsumer {
           paymentService.handleOrderCreate(message);
         } else if (message.status().equals(4)) {
           var payment = paymentService.handleFinishShipping(message);
-          LOGGER.info("User finish shipping order: %s with money %s".formatted(payment.getOrderId(),
-              payment.getAmount()));
+          LOGGER.info(
+              "User finish shipping order: %s with amount %s".formatted(payment.getOrderId(),
+                  payment.getAmount()));
         } else if (message.status().equals(7)) {
           paymentService.handleUserCancelOrder(message);
           LOGGER.info("User cancel order: {}", message.orderUuid());

@@ -1,6 +1,7 @@
 package latipe.store.entity;
 
 
+import java.util.List;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -16,7 +17,7 @@ public class Store {
   String logo;
   String ownerId;
   String cover;
-  private Double rating = 0.0;
+  private List<Integer> ratings = List.of(0, 0, 0, 0, 0);
   private int point = 0;
   private Double eWallet = 0.0;
   private Boolean isActive = true;

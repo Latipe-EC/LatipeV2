@@ -5,10 +5,13 @@ import jakarta.validation.Valid;
 import java.util.concurrent.CompletableFuture;
 import latipe.payment.annotations.ApiPrefixController;
 import latipe.payment.annotations.Authenticate;
+import latipe.payment.annotations.RequiresAuthorization;
 import latipe.payment.annotations.SecureInternalPhase;
 import latipe.payment.request.CapturedPaymentRequest;
 import latipe.payment.request.PayByPaypalRequest;
 import latipe.payment.request.PayOrderRequest;
+import latipe.payment.request.ValidWithdrawPaypalRequest;
+import latipe.payment.request.WithdrawPaypalRequest;
 import latipe.payment.response.CapturedPaymentResponse;
 import latipe.payment.response.CheckPaymentOrderResponse;
 import latipe.payment.response.UserCredentialResponse;
@@ -72,5 +75,25 @@ public class PaymentController {
   public CompletableFuture<CheckPaymentOrderResponse> checkPaymentInternal(
       @PathVariable String orderId) {
     return paymentService.checkPaymentInternal(orderId);
+  }
+
+  @RequiresAuthorization("VENDOR")
+  @PostMapping("/withdraw-paypal")
+  public CompletableFuture<Void> withdrawPaypal(
+      @Valid @RequestBody
+      WithdrawPaypalRequest request) {
+    HttpServletRequest req = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+    UserCredentialResponse userCredential = (UserCredentialResponse) (req.getAttribute("user"));
+    return paymentService.withdrawPaypal(request, userCredential);
+  }
+
+  @RequiresAuthorization("VENDOR")
+  @PostMapping("/valid-withdraw-paypal")
+  public CompletableFuture<Void> validWithdrawPaypal(
+      @Valid @RequestBody
+      ValidWithdrawPaypalRequest request) {
+    HttpServletRequest req = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+    UserCredentialResponse userCredential = (UserCredentialResponse) (req.getAttribute("user"));
+    return paymentService.validWithdrawPaypal(request, userCredential);
   }
 }

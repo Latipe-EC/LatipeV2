@@ -16,6 +16,7 @@ import latipe.user.request.RegisterRequest;
 import latipe.user.request.UpdateUserAddressRequest;
 import latipe.user.request.UpdateUserNameRequest;
 import latipe.user.request.UpdateUserRequest;
+import latipe.user.response.InfoRatingResponse;
 import latipe.user.response.UserCredentialResponse;
 import latipe.user.response.UserResponse;
 import latipe.user.services.user.IUserService;
@@ -180,4 +181,13 @@ public class UserController {
         .getAttribute("user")));
     return userService.updateUserName(request, userCredential.id());
   }
+
+  @SecureInternalPhase
+  @PostMapping(value = "/{userId}/internal/info-rating", produces = MediaType.APPLICATION_JSON_VALUE)
+  public CompletableFuture<InfoRatingResponse> getInfoForRating(
+      @PathVariable String userId
+  ) {
+    return userService.getInfoForRating(userId);
+  }
+
 }

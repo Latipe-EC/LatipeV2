@@ -1,6 +1,7 @@
 package latipe.store.response;
 
 
+import java.util.List;
 import latipe.store.entity.StoreAddress;
 
 public record StoreDetailResponse(String id, String name,
@@ -9,7 +10,7 @@ public record StoreDetailResponse(String id, String name,
                                   Boolean isDeleted,
                                   Double feePerOrder,
                                   Double eWallet,
-                                  Double rating) {
+                                  List<Integer> ratings) {
 
 
 }
