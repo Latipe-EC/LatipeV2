@@ -83,7 +83,7 @@ public class StoreController {
   @RequiresAuthorization("VENDOR")
   @ResponseStatus(HttpStatus.OK)
   @PutMapping(value = "/my", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<StoreResponse>updateStore(@RequestBody UpdateStoreRequest input)
+  public CompletableFuture<StoreResponse> updateStore(@RequestBody UpdateStoreRequest input)
       throws InvocationTargetException, IllegalAccessException {
     HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
     UserCredentialResponse userCredential = (UserCredentialResponse) (request.getAttribute("user"));

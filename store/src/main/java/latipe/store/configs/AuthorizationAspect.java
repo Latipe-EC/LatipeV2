@@ -24,6 +24,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @Aspect
 @Component
 public class AuthorizationAspect {
+
   @Before("@annotation(requiresAuthorization)")
   public void checkAuthorization(JoinPoint joinPoint, RequiresAuthorization requiresAuthorization)
       throws UnauthorizedException {

@@ -13,7 +13,6 @@ import latipe.payment.response.CapturedPaymentResponse;
 import latipe.payment.response.CheckPaymentOrderResponse;
 import latipe.payment.response.UserCredentialResponse;
 import latipe.payment.services.PaymentService;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -70,7 +69,8 @@ public class PaymentController {
 
   @SecureInternalPhase
   @GetMapping("/check-order-internal/{orderId}")
-  public CompletableFuture<CheckPaymentOrderResponse> checkPaymentInternal( @PathVariable String orderId){
+  public CompletableFuture<CheckPaymentOrderResponse> checkPaymentInternal(
+      @PathVariable String orderId) {
     return paymentService.checkPaymentInternal(orderId);
   }
 }

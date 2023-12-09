@@ -5,6 +5,7 @@ public class BuildKeyQuartz {
   public static final String CANCEL_ORDER = "cancel-order-%s";
   private static final String TRIGGER = "trigger-%s-%s";
   private static final String JOB = "job-%s-%s";
+
   public static String buildJobKey(String type, String id) {
     return JOB.formatted(type, id);
   }

@@ -314,7 +314,7 @@ public class UserService implements IUserService {
       var user = userRepository.findById(userId)
           .orElseThrow(() -> new NotFoundException("User not found"));
 
-      if (user.getIsChangeUsername()){
+      if (user.getIsChangeUsername()) {
         throw new BadRequestException("You can only change username once");
       }
 

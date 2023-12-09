@@ -15,10 +15,9 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class CreateOrderJob implements Job {
 
+  private static final Logger log = LoggerFactory.getLogger(CreateOrderJob.class);
   private final RabbitMQProducer publish;
   private final Gson gson;
-
-  private static final Logger log = LoggerFactory.getLogger(CreateOrderJob.class);
 
   @Override
   public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {

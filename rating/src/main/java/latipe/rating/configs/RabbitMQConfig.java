@@ -27,12 +27,12 @@ public class RabbitMQConfig {
   // spring bean for rabbitmq queue
   @Bean
   public Queue queueOrder() {
-    return QueueBuilder.nonDurable(queueOrder).autoDelete().build();
+    return QueueBuilder.durable(queueOrder).build();
   }
 
   @Bean
   public Queue queueProduct() {
-    return QueueBuilder.nonDurable(queueProduct).autoDelete().build();
+    return QueueBuilder.durable(queueProduct).build();
   }
 
   // spring bean for rabbitmq exchange

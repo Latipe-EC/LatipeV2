@@ -11,9 +11,11 @@ public class OrderItemRatingResponse {
   String message;
   String error_code;
   DataOrderItemRating data;
+
   @Getter
   @Setter
   public static class DataOrderItemRating {
+
     String rating_id;
   }
 }

@@ -1,6 +1,5 @@
 package latipe.rating.listener;
 
-import jakarta.servlet.http.HttpServletRequest;
 import java.util.Date;
 import latipe.rating.entity.AbstractAuditEntity;
 import latipe.rating.response.UserCredentialResponse;
@@ -12,6 +11,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 @Component
 public class CustomAuditingEntityListener extends AbstractMongoEventListener<Object> {
+
   @Override
   public void onBeforeConvert(BeforeConvertEvent<Object> event) {
     Object entity = event.getSource();

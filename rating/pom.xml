@@ -88,10 +88,7 @@
       <artifactId>spring-boot-starter-web</artifactId>
       <groupId>org.springframework.boot</groupId>
     </dependency>
-    <dependency>
-      <artifactId>zipkin-reporter-brave</artifactId>
-      <groupId>io.zipkin.reporter2</groupId>
-    </dependency>
+
     <dependency>
       <artifactId>micrometer-registry-prometheus</artifactId>
       <groupId>io.micrometer</groupId>

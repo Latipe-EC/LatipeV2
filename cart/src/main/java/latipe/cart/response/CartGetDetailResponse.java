@@ -17,7 +17,8 @@ public record CartGetDetailResponse(
   public static CartGetDetailResponse fromModel(Cart cart, ProductThumbnailResponse product) {
     return new CartGetDetailResponse(cart.getId(), cart.getUserId(), cart.getProductId(),
         cart.getProductOptionId(), cart.getQuantity(), product.name(), product.storeId(),
-        product.storeName(), product.thumbnailUrl(), product.nameOption(), product.price(), product.cityOrProvinceId());
+        product.storeName(), product.thumbnailUrl(), product.nameOption(), product.price(),
+        product.cityOrProvinceId());
   }
 
 

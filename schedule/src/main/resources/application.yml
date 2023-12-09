@@ -32,7 +32,7 @@ spring:
             tablePrefix: QRTZ_
             isClustered: 'true'
             clusterCheckinInterval: '20000'
-            class:  org.quartz.impl.jdbcjobstore.JobStoreTX
+            class: org.quartz.impl.jdbcjobstore.JobStoreTX
             dataSource: myDataSource
           scheduler:
             instanceId: AUTO

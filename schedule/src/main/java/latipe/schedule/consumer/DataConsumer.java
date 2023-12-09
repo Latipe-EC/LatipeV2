@@ -58,7 +58,7 @@ public class DataConsumer {
               scheduler.scheduleJob(job, trigger);
               LOGGER.info("Order created: {}", message.orderId());
             }
-            case "ORDER_PAYMENT","ORDER_CANCEL"-> {
+            case "ORDER_PAYMENT", "ORDER_CANCEL" -> {
               var message = gson.fromJson(baseMessage.message(),
                   OrderCanceledEvent.class);
 

@@ -1,6 +1,6 @@
 package latipe.store.viewmodel;
 
-public record   StoreBillMessage(
+public record StoreBillMessage(
     String storeId,
     String orderUuid,
     Integer amountReceived,
