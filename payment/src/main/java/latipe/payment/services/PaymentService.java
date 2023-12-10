@@ -366,7 +366,6 @@ public class PaymentService {
         .header("Accept-Language", "en_US")
         .header("Authorization", credentials)
         .build();
-
     try (Response response = client.newCall(request).execute()) {
       if (!response.isSuccessful() || response.body() == null) {
         throw new BadRequestException("Cannot get access token");
@@ -375,6 +374,7 @@ public class PaymentService {
       String responseBody = response.body().string();
       JsonObject responseJson = JsonParser.parseString(responseBody)
           .getAsJsonObject();
+      response.close();
       return responseJson.get("access_token").getAsString();
     }
   }

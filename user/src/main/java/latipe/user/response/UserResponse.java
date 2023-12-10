@@ -1,7 +1,8 @@
 package latipe.user.response;
 
-import java.time.ZonedDateTime;
+import java.text.SimpleDateFormat;
 import java.util.List;
+import latipe.user.entity.Gender;
 import latipe.user.entity.User;
 import latipe.user.entity.UserAddress;
 
@@ -20,7 +21,7 @@ public record UserResponse(
     Boolean isChangeUsername,
     List<UserAddress> addresses,
     String gender,
-    ZonedDateTime birthday
+    String birthday
 
 ) {
 
@@ -39,8 +40,8 @@ public record UserResponse(
         user.getUsernameReal(),
         user.getIsChangeUsername(),
         user.getAddresses(),
-        user.getGender().name(),
-        user.getBirthday()
+        user.getGender() != null ? user.getGender().name() : Gender.OTHER.name(),
+        new SimpleDateFormat("yyyy-MM-dd").format(user.getBirthday())
     );
   }
 

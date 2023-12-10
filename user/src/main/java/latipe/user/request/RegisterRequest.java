@@ -1,6 +1,6 @@
 package latipe.user.request;
 
-import java.time.ZonedDateTime;
+import java.util.Date;
 import latipe.user.entity.Gender;
 
 public record RegisterRequest(
@@ -16,7 +16,7 @@ public record RegisterRequest(
     String hashedPassword,
 
     String avatar,
-    ZonedDateTime birthday,
+    Date birthday,
     Gender gender) {
 
 }

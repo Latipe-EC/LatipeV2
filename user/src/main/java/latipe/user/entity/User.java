@@ -3,6 +3,7 @@ package latipe.user.entity;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -46,7 +47,7 @@ public class User extends AbstractAuditEntity implements UserDetails {
   private Boolean isChangeUsername = false;
   private List<UserAddress> addresses = new ArrayList<>();
   private Gender gender = Gender.OTHER;
-  private ZonedDateTime birthday;
+  private Date birthday;
   @Transient
   private Role role;
   @Field(targetType = FieldType.OBJECT_ID)

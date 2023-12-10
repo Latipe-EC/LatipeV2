@@ -1,6 +1,7 @@
 package latipe.auth.response;
 
 import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.List;
 import latipe.auth.viewmodel.UserAddress;
 
@@ -19,7 +20,7 @@ public record UserResponse(
     String username,
     Boolean isChangeUsername,
     String gender,
-    ZonedDateTime birthday
+    String birthday
 ) {
 
 

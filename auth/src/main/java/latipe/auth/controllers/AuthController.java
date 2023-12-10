@@ -7,6 +7,7 @@ import static latipe.auth.utils.GenTokenInternal.getPrivateKey;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import feign.Feign;
 import feign.Logger;
 import feign.gson.GsonDecoder;
@@ -64,6 +65,7 @@ public class AuthController {
   private final MongoTemplate mongoTemplate;
   private final SecureInternalProperties secureInternalProperties;
   private final ObjectMapper objectMapper;
+  private final Gson gson;
 
   @PostMapping("/login")
   @ResponseStatus(HttpStatus.OK)
@@ -212,7 +214,8 @@ public class AuthController {
 
   @PostMapping("/register")
   public UserResponse verifyAccount(@Valid @RequestBody RegisterRequest request) {
-    var userClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
+    var userClient = Feign.builder().client(new OkHttpClient())
+        .encoder(new GsonEncoder())
         .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL)
         .target(UserClient.class, "http://localhost:8181/api/v1");
     String hash;

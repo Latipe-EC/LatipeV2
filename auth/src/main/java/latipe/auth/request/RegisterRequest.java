@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
-import java.time.ZonedDateTime;
 import latipe.auth.entity.Gender;
 
 public record RegisterRequest(
@@ -33,7 +32,7 @@ public record RegisterRequest(
     String avatar,
 
     Gender gender,
-    ZonedDateTime birthday
+    String birthday
 ) {
 
 }

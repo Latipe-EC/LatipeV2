@@ -10,7 +10,7 @@ public record LoginRequest(
     String username,
 
     @NotEmpty(message = "is required")
-    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[-+_!@#$%^&*.,?]).{6,16}$", message = "must be 6-16 characters long, with at least one special character, one lowercase letter, one uppercase letter, and one number")
+//    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[-+_!@#$%^&*.,?]).{6,16}$", message = "must be 6-16 characters long, with at least one special character, one lowercase letter, one uppercase letter, and one number")
     String password
 ) {
 

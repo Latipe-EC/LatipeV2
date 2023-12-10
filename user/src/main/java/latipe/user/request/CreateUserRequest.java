@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import java.time.ZonedDateTime;
+import java.util.Date;
 import latipe.user.entity.Gender;
 
 public record CreateUserRequest(
@@ -22,7 +23,7 @@ public record CreateUserRequest(
 
     String avatar,
     String role,
-    ZonedDateTime birthday,
+    Date birthday,
     Gender gender
 ) {
 
