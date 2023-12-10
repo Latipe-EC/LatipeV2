@@ -15,4 +15,7 @@ public interface IStoreRepository extends MongoRepository<Store, String> {
   List<Store> findByIdIn(List<String> ids);
 
   Boolean existsByName(String name);
+
+  @Query(value = "{ 'isBan': { $in: ?0 }, 'name': { $regex: ?1, $options: 'i' }}", count = true)
+  long countStoreAdmin(List<Boolean> isBanned, String keyword);
 }

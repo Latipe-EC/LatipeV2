@@ -8,7 +8,7 @@ import latipe.product.entity.attribute.Attribute;
 public record UpdateCategoryRequest(
     @NotNull(message = "Name cannot be null")
     String name,
-    @IsObjectId
+    @IsObjectId(allowNull = true)
     String parentCategoryId,
     String image,
     String idAttributeCategory,

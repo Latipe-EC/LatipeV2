@@ -16,7 +16,9 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import latipe.store.configs.SecureInternalProperties;
 import latipe.store.constants.Action;
+import latipe.store.constants.EStatusBan;
 import latipe.store.dtos.PagedResultDto;
+import latipe.store.dtos.Pagination;
 import latipe.store.entity.Store;
 import latipe.store.exceptions.BadRequestException;
 import latipe.store.exceptions.NotFoundException;
@@ -25,6 +27,7 @@ import latipe.store.feign.UserClient;
 import latipe.store.mapper.StoreMapper;
 import latipe.store.producer.RabbitMQProducer;
 import latipe.store.repositories.IStoreRepository;
+import latipe.store.request.BanStoreRequest;
 import latipe.store.request.CheckBalanceRequest;
 import latipe.store.request.CreateStoreRequest;
 import latipe.store.request.GetProvinceCodesRequest;
@@ -32,6 +35,7 @@ import latipe.store.request.MultipleStoreRequest;
 import latipe.store.request.UpdateBalanceRequest;
 import latipe.store.request.UpdateStoreRequest;
 import latipe.store.response.ProvinceCodesResponse;
+import latipe.store.response.StoreAdminResponse;
 import latipe.store.response.StoreDetailResponse;
 import latipe.store.response.StoreResponse;
 import latipe.store.response.StoreSimplifyResponse;
@@ -39,7 +43,13 @@ import latipe.store.response.product.ProductStoreResponse;
 import latipe.store.services.commission.ICommissionService;
 import latipe.store.viewmodel.StoreMessage;
 import lombok.AllArgsConstructor;
+import org.bson.Document;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -47,12 +57,15 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class StoreService implements IStoreService {
 
+  private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(StoreService.class);
+
   private final IStoreRepository storeRepository;
   private final StoreMapper storeMapper;
   private final SecureInternalProperties secureInternalProperties;
   private final RabbitMQProducer rabbitMQProducer;
   private final Gson gson;
   private final ICommissionService commissionService;
+  private final MongoTemplate mongoTemplate;
 
   @Override
   @Async
@@ -287,6 +300,83 @@ public class StoreService implements IStoreService {
       }
 
       store.setEWallet(store.getEWallet() - Double.parseDouble(input.amount().toString()));
+      storeRepository.save(store);
+      return null;
+    });
+  }
+
+  @Async
+  @Override
+  public CompletableFuture<PagedResultDto<StoreAdminResponse>> getStoreAdmin(String keyword,
+      Long skip,
+      Integer size,
+      String orderBy,
+      EStatusBan ban) {
+    return CompletableFuture.supplyAsync(() -> {
+      Direction direction = orderBy.charAt(0) == '-' ? Direction.DESC : Direction.ASC;
+      String orderByField = orderBy.charAt(0) == '-' ? orderBy.substring(1) : orderBy;
+
+      List<Boolean> banCriteria;
+      if (ban == EStatusBan.ALL) {
+        banCriteria = List.of(true, false);
+      } else if (ban == EStatusBan.TRUE) {
+        banCriteria = List.of(true);
+      } else {
+        banCriteria = List.of(false);
+      }
+
+      var aggregate = Aggregation.newAggregation(StoreAdminResponse.class,
+          Aggregation.match(
+              Criteria.where("isBan").in(banCriteria)
+                  .and("name").regex(keyword, "i")),
+          Aggregation.skip(skip), Aggregation.limit(size),
+          Aggregation.sort(direction, orderByField));
+
+      var results = mongoTemplate.aggregate(aggregate, Store.class, Document.class);
+      var documents = results.getMappedResults();
+      var list = documents.stream()
+          .map(doc -> {
+            var store = gson.fromJson(doc.toJson(), StoreAdminResponse.class);
+            store = StoreAdminResponse.setId(store, doc.get("_id").toString());
+            return store;
+          })
+          .toList();
+
+      return PagedResultDto.create(
+          new Pagination(storeRepository.countStoreAdmin(banCriteria, keyword), skip, size),
+          list);
+    });
+  }
+
+  @Async
+  @Override
+  public CompletableFuture<StoreDetailResponse> getDetailStoreByAdmin(String userId) {
+    return CompletableFuture.supplyAsync(() -> {
+      var store = storeRepository.findById(userId)
+          .orElseThrow(() -> new NotFoundException("Store not found"));
+      return storeMapper.mapToStoreDetailResponse(store,
+          commissionService.calcPercentStore(store.getPoint()), store.getEWallet());
+    });
+  }
+
+  @Async
+  @Override
+  public CompletableFuture<Void> banStore(String userId, BanStoreRequest request) {
+    return CompletableFuture.supplyAsync(() -> {
+      var store = storeRepository.findById(userId)
+          .orElseThrow(
+              () -> new NotFoundException("Store not found"));
+      if (store.getIsBan().equals(request.isBan())) {
+        throw new BadRequestException("Store already banned");
+      }
+      store.setIsBan(request.isBan());
+      if (request.isBan()) {
+        LOGGER.info("Store {} is banned with reason {}", userId, request.reason());
+        store.setReasonBan(request.reason());
+      } else {
+        LOGGER.info("Store {} is unbanned", userId);
+        store.setReasonBan(null);
+      }
       storeRepository.save(store);
       return null;
     });

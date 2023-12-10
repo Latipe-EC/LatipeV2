@@ -23,7 +23,7 @@ public class ProductSyncDataConsumer {
     try {
       if (consumerRecord != null) {
         Gson gson = new Gson();
-        ProductMessageVm productMessage = gson.fromJson(new String(consumerRecord.getBody()),
+        var productMessage = gson.fromJson(new String(consumerRecord.getBody()),
             ProductMessageVm.class);
         String id = productMessage.id();
         if (id != null) {
@@ -34,7 +34,7 @@ public class ProductSyncDataConsumer {
               case Action.CREATE -> productSyncDataService.createProduct(id);
               case Action.UPDATE -> productSyncDataService.updateProduct(id);
               case Action.DELETE -> productSyncDataService.deleteProduct(id);
-              case Action.BAN -> productSyncDataService.banProduct(id);
+              case Action.BAN -> productSyncDataService.banProduct(id, productMessage.isBanned());
               default -> LOGGER.warn("Unknown action received");
             }
           }

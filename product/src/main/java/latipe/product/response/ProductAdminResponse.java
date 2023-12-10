@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotEmpty;
 import lombok.Builder;
 
 @Builder
-public record ProductStoreResponse(
+public record ProductAdminResponse(
     @JsonProperty(value = "id", required = true)
     String id,
     @NotEmpty(message = "Product Name  is required")
@@ -17,7 +17,8 @@ public record ProductStoreResponse(
     Double price,
     Double rating,
     Boolean isBanned,
-    String reasonBan
+    String reasonBan,
+    Boolean isDeleted
 ) {
 
 }

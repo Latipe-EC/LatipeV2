@@ -4,6 +4,7 @@ package latipe.product.services.product;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import latipe.product.constants.EStatusBan;
 import latipe.product.dtos.PagedResultDto;
 import latipe.product.request.BanProductRequest;
 import latipe.product.request.CreateProductRequest;
@@ -12,6 +13,7 @@ import latipe.product.request.ProductFeatureRequest;
 import latipe.product.request.UpdateProductQuantityRequest;
 import latipe.product.request.UpdateProductRequest;
 import latipe.product.response.OrderProductResponse;
+import latipe.product.response.ProductAdminResponse;
 import latipe.product.response.ProductDetailResponse;
 import latipe.product.response.ProductResponse;
 import latipe.product.response.ProductStoreResponse;
@@ -51,6 +53,9 @@ public interface IProductService {
 
   CompletableFuture<PagedResultDto<ProductStoreResponse>> getBanProductStore(long skip, int limit,
       String name, String orderBy, String storeId);
+
+  CompletableFuture<PagedResultDto<ProductAdminResponse>> getAdminProduct(long skip, int limit,
+      String name, String orderBy, EStatusBan statusBan);
 
   CompletableFuture<ProductDetailResponse> getProductDetail(String productId);
 }

@@ -9,7 +9,9 @@ import latipe.store.annotations.ApiPrefixController;
 import latipe.store.annotations.Authenticate;
 import latipe.store.annotations.RequiresAuthorization;
 import latipe.store.annotations.SecureInternalPhase;
+import latipe.store.constants.EStatusBan;
 import latipe.store.dtos.PagedResultDto;
+import latipe.store.request.BanStoreRequest;
 import latipe.store.request.CheckBalanceRequest;
 import latipe.store.request.CreateStoreRequest;
 import latipe.store.request.GetProvinceCodesRequest;
@@ -17,6 +19,7 @@ import latipe.store.request.MultipleStoreRequest;
 import latipe.store.request.UpdateBalanceRequest;
 import latipe.store.request.UpdateStoreRequest;
 import latipe.store.response.ProvinceCodesResponse;
+import latipe.store.response.StoreAdminResponse;
 import latipe.store.response.StoreDetailResponse;
 import latipe.store.response.StoreResponse;
 import latipe.store.response.StoreSimplifyResponse;
@@ -54,6 +57,14 @@ public class StoreController {
   @GetMapping(value = "/validate-store/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<String> validateStore(@PathVariable String userId) {
     return storeService.getStoreByUserId(userId);
+  }
+
+  @RequiresAuthorization("ADMIN")
+  @ResponseStatus(HttpStatus.OK)
+  @GetMapping(value = "/{storeId}/admin", produces = MediaType.APPLICATION_JSON_VALUE)
+  public CompletableFuture<StoreDetailResponse> getDetailStoreByAdmin(
+      @PathVariable String storeId) {
+    return storeService.getDetailStoreByAdmin(storeId);
   }
 
   @ResponseStatus(HttpStatus.OK)
@@ -168,5 +179,24 @@ public class StoreController {
   ) {
     return storeService.UpdateBalance(input);
 
+  }
+
+  @RequiresAuthorization("ADMIN")
+  @GetMapping(value = "/admin", produces = MediaType.APPLICATION_JSON_VALUE)
+  public CompletableFuture<PagedResultDto<StoreAdminResponse>> getUserAdmin(
+      @RequestParam(defaultValue = "") String keyword,
+      @RequestParam(defaultValue = "0") Long skip,
+      @RequestParam(defaultValue = "12") Integer size,
+      @RequestParam(defaultValue = "createdDate") String orderBy,
+      @RequestParam(defaultValue = "ALL") EStatusBan isBan) {
+    return storeService.getStoreAdmin(keyword, skip, size, orderBy, isBan);
+  }
+
+  @RequiresAuthorization("ADMIN")
+  @PatchMapping(value = "/{userId}/status-ban", produces = MediaType.APPLICATION_JSON_VALUE)
+  public CompletableFuture<Void> banStore(
+      @PathVariable String userId,
+      @Valid @RequestBody BanStoreRequest request) {
+    return storeService.banStore(userId, request);
   }
 }

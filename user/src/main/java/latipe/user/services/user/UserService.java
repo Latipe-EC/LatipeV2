@@ -4,8 +4,10 @@ import static latipe.user.constants.CONSTANTS.DEFAULT_PASSWORD;
 
 import com.google.gson.Gson;
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import latipe.user.constants.CONSTANTS;
+import latipe.user.constants.EStatusBan;
 import latipe.user.constants.KeyType;
 import latipe.user.dtos.PagedResultDto;
 import latipe.user.dtos.Pagination;
@@ -18,6 +20,7 @@ import latipe.user.producer.RabbitMQProducer;
 import latipe.user.repositories.IRoleRepository;
 import latipe.user.repositories.ITokenRepository;
 import latipe.user.repositories.IUserRepository;
+import latipe.user.request.BanUserRequest;
 import latipe.user.request.CancelOrderRequest;
 import latipe.user.request.CheckBalanceRequest;
 import latipe.user.request.CreateUserAddressRequest;
@@ -27,13 +30,21 @@ import latipe.user.request.UpdateUserAddressRequest;
 import latipe.user.request.UpdateUserNameRequest;
 import latipe.user.request.UpdateUserRequest;
 import latipe.user.response.InfoRatingResponse;
+import latipe.user.response.UserAdminResponse;
 import latipe.user.response.UserResponse;
 import latipe.user.utils.Constants;
 import latipe.user.utils.GenerateUtils;
 import latipe.user.utils.TokenUtils;
 import lombok.RequiredArgsConstructor;
+import org.bson.Document;
 import org.bson.types.ObjectId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -42,12 +53,15 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserService implements IUserService {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
+
   private final IUserRepository userRepository;
   private final IRoleRepository roleRepository;
   private final PasswordEncoder passwordEncoder;
   private final UserMapper userMapper;
   private final ITokenRepository tokenRepository;
   private final RabbitMQProducer rabbitMQProducer;
+  private final MongoTemplate mongoTemplate;
   private final Gson gson;
 
   @Value("${rabbitmq.email.exchange.name}")
@@ -96,7 +110,7 @@ public class UserService implements IUserService {
         return null;
       }
       return PagedResultDto.create(
-          new Pagination(user.getAddresses().size(), (page - 1) * size, size),
+          new Pagination(user.getAddresses().size(), (long) (page - 1) * size, size),
           user.getAddresses().subList(startIndex, endIndex));
     });
   }
@@ -336,11 +350,82 @@ public class UserService implements IUserService {
       var user = userRepository.findById(userId)
           .orElse(null);
 
-     if (user == null || user.getIsDeleted()|| user.getVerifiedAt() == null ){
-       return new InfoRatingResponse("user deleted", null);
-     }
+      if (user == null || user.getIsDeleted() || user.getVerifiedAt() == null) {
+        return new InfoRatingResponse("user deleted", null);
+      }
       return new InfoRatingResponse(user.getUsernameReal(), user.getAvatar());
 
     });
   }
+
+  @Async
+  @Override
+  public CompletableFuture<PagedResultDto<UserAdminResponse>> getUserAdmin(String keyword,
+      Long skip,
+      Integer size,
+      String orderBy,
+      EStatusBan ban) {
+    return CompletableFuture.supplyAsync(() -> {
+
+      Direction direction = orderBy.charAt(0) == '-' ? Direction.DESC : Direction.ASC;
+      String orderByField = orderBy.charAt(0) == '-' ? orderBy.substring(1) : orderBy;
+
+      List<Boolean> banCriteria;
+      if (ban == EStatusBan.ALL) {
+        banCriteria = List.of(true, false);
+      } else if (ban == EStatusBan.TRUE) {
+        banCriteria = List.of(true);
+      } else {
+        banCriteria = List.of(false);
+      }
+
+      var criteriaSearch = new Criteria();
+      criteriaSearch.orOperator(
+          Criteria.where("email").regex(keyword, "i"),
+          Criteria.where("phoneNumber").regex(keyword, "i"),
+          Criteria.where("username").regex(keyword, "i")
+      );
+
+      var aggregate = Aggregation.newAggregation(UserAdminResponse.class,
+          Aggregation.match(
+              Criteria.where("isBanned").in(banCriteria)
+                  .andOperator(criteriaSearch)),
+          Aggregation.skip(skip), Aggregation.limit(size),
+          Aggregation.sort(direction, orderByField));
+
+      var results = mongoTemplate.aggregate(aggregate, User.class, Document.class);
+      var documents = results.getMappedResults();
+      var list = documents.stream().map(doc -> gson.fromJson(doc.toJson(), UserAdminResponse.class))
+          .toList();
+
+      return PagedResultDto.create(
+          new Pagination(userRepository.countUserAdmin(banCriteria, keyword), skip, size),
+          list);
+    });
+  }
+
+  @Async
+  @Override
+  public CompletableFuture<Void> banUser(String userId, BanUserRequest request) {
+    return CompletableFuture.supplyAsync(() -> {
+      var user = userRepository.findById(userId)
+          .orElseThrow(
+              () -> new NotFoundException("User not found"));
+      if (user.getIsBanned().equals(request.isBan())) {
+        throw new BadRequestException("User already banned");
+      }
+      user.setIsBanned(request.isBan());
+      if (request.isBan()) {
+        LOGGER.info("User {} is banned with reason {}", userId, request.reason());
+        user.setReasonBan(request.reason());
+      } else {
+        LOGGER.info("User {} is unbanned", userId);
+        user.setReasonBan(null);
+      }
+      userRepository.save(user);
+      return null;
+
+    });
+  }
+
 }

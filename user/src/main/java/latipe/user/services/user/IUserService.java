@@ -1,8 +1,10 @@
 package latipe.user.services.user;
 
 import java.util.concurrent.CompletableFuture;
+import latipe.user.constants.EStatusBan;
 import latipe.user.dtos.PagedResultDto;
 import latipe.user.entity.UserAddress;
+import latipe.user.request.BanUserRequest;
 import latipe.user.request.CancelOrderRequest;
 import latipe.user.request.CheckBalanceRequest;
 import latipe.user.request.CreateUserAddressRequest;
@@ -12,6 +14,7 @@ import latipe.user.request.UpdateUserAddressRequest;
 import latipe.user.request.UpdateUserNameRequest;
 import latipe.user.request.UpdateUserRequest;
 import latipe.user.response.InfoRatingResponse;
+import latipe.user.response.UserAdminResponse;
 import latipe.user.response.UserResponse;
 
 public interface IUserService {
@@ -47,5 +50,13 @@ public interface IUserService {
   CompletableFuture<Void> updateUserName(UpdateUserNameRequest request, String userId);
 
   CompletableFuture<InfoRatingResponse> getInfoForRating(String userId);
+
+  CompletableFuture<PagedResultDto<UserAdminResponse>> getUserAdmin(String keyword,
+      Long skip,
+      Integer size,
+      String orderBy,
+      EStatusBan isBan);
+
+  CompletableFuture<Void> banUser(String userId, BanUserRequest request);
 
 }

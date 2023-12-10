@@ -3,7 +3,6 @@ package latipe.user.request;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
-import java.time.ZonedDateTime;
 import java.util.Date;
 import latipe.user.entity.Gender;
 

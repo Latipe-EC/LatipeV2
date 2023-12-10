@@ -16,6 +16,9 @@ public interface IUserRepository extends MongoRepository<User, String> {
 
   Boolean existsByUsername(String username);
 
+  @Query(value = "{ 'isBanned': { $in: ?0 }, $or: [ { 'email': { $regex: ?1, $options: 'i' } }, { 'phoneNumber': { $regex: ?1, $options: 'i' } }, { 'username': { $regex: ?1, $options: 'i' } } ] }", count = true)
+  long countUserAdmin(List<Boolean> isBanned, String keyword);
+
 //    @Query("{'id': ?0}")
 //    Optional<User> findById(String id);
 }

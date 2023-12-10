@@ -70,10 +70,10 @@ public class ProductSyncDataService {
     productRepository.deleteById(id);
   }
 
-  public void banProduct(String id) {
+  public void banProduct(String id,Boolean isBanned) {
     var productExisted = productRepository.findById(id)
         .orElseThrow(() -> new NotFoundException(MessageCode.PRODUCT_NOT_FOUND, id));
-    productExisted.setBanned(true);
+    productExisted.setBanned(isBanned);
     productRepository.save(productExisted);
   }
 

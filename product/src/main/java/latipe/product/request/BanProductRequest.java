@@ -1,8 +1,11 @@
 package latipe.product.request;
 
-import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
 
-public record BanProductRequest(@Min(5)
-                                String reason) {
+public record BanProductRequest(
+    Boolean isBanned,
+
+    @Size(min = 5)
+    String reason) {
 
 }

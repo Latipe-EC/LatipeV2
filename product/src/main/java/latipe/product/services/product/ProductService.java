@@ -20,6 +20,7 @@ import java.util.concurrent.CompletableFuture;
 import latipe.product.configs.CustomAggregationOperation;
 import latipe.product.configs.SecureInternalProperties;
 import latipe.product.constants.Action;
+import latipe.product.constants.EStatusBan;
 import latipe.product.dtos.PagedResultDto;
 import latipe.product.dtos.Pagination;
 import latipe.product.entity.Category;
@@ -42,6 +43,7 @@ import latipe.product.request.ProductFeatureRequest;
 import latipe.product.request.UpdateProductQuantityRequest;
 import latipe.product.request.UpdateProductRequest;
 import latipe.product.response.OrderProductResponse;
+import latipe.product.response.ProductAdminResponse;
 import latipe.product.response.ProductDetailResponse;
 import latipe.product.response.ProductResponse;
 import latipe.product.response.ProductStoreResponse;
@@ -57,6 +59,7 @@ import latipe.product.viewmodel.ProductVariantVm;
 import lombok.RequiredArgsConstructor;
 import org.bson.Document;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
@@ -70,6 +73,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ProductService implements IProductService {
 
+  private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(ProductService.class);
   private final IProductRepository productRepository;
   private final ICategoryRepository categoryRepository;
   private final ProductMapper productMapper;
@@ -78,6 +82,58 @@ public class ProductService implements IProductService {
   private final CategoryMapper categoryMapper;
   private final SecureInternalProperties secureInternalProperties;
   private final Gson gson;
+
+
+  @Async
+  @Override
+  public CompletableFuture<PagedResultDto<ProductAdminResponse>> getAdminProduct(long skip,
+      int limit, String name, String orderBy, EStatusBan ban) {
+    return CompletableFuture.supplyAsync(() -> {
+      List<Boolean> banCriteria;
+      if (ban == EStatusBan.ALL) {
+        banCriteria = List.of(true, false);
+      } else if (ban == EStatusBan.TRUE) {
+        banCriteria = List.of(true);
+      } else {
+        banCriteria = List.of(false);
+      }
+      var criteriaSearch = new Criteria();
+      criteriaSearch.orOperator(
+          Criteria.where("_id").in(name),
+          Criteria.where("name").regex(name, "i")
+      );
+
+      Direction direction = orderBy.charAt(0) == '-' ? Direction.DESC : Direction.ASC;
+      String orderByField = orderBy.charAt(0) == '-' ? orderBy.substring(1) : orderBy;
+      var aggregate = Aggregation.newAggregation(ProductStoreResponse.class, Aggregation.match(
+              Criteria
+                  .where("isBanned").in(banCriteria)
+                  .andOperator(criteriaSearch)), Aggregation.skip(skip), Aggregation.limit(limit),
+          Aggregation.sort(direction, orderByField));
+
+      var total = productRepository.countAdminProduct(banCriteria, name);
+      var results = mongoTemplate.aggregate(aggregate, Product.class, Document.class);
+      var documents = results.getMappedResults();
+      var list = documents.stream().map(doc -> {
+        var prod = gson.fromJson(doc.toJson(), Product.class);
+        var price =
+            prod.getProductClassifications().get(0).getPromotionalPrice() != null
+                && prod.getProductClassifications().get(0).getPromotionalPrice() > 0
+                ? prod.getProductClassifications().get(0).getPromotionalPrice()
+                : prod.getProductClassifications().get(0).getPrice();
+
+        return ProductAdminResponse.builder().id(doc.getObjectId("_id").toString())
+            .name(prod.getName()).image(prod.getImages().get(0))
+            .countProductVariants(prod.getProductVariants().size())
+            .countSale(doc.getInteger("countSale"))
+            .isBanned(doc.getBoolean("isBanned"))
+            .reasonBan(doc.getString("reasonBan")).price(price)
+            .rating(calculateRatingAverage(prod.getRatings()))
+            .isDeleted(doc.getBoolean("isDeleted")).build();
+      });
+      return PagedResultDto.create(Pagination.create(total, skip, limit), list.toList());
+    });
+  }
 
   @Async
   @Override
@@ -152,7 +208,8 @@ public class ProductService implements IProductService {
       // send message create message
       String message;
       try {
-        message = ParseObjectToString.parse(new ProductMessageVm(savedProd.getId(), Action.CREATE));
+        message = ParseObjectToString.parse(
+            new ProductMessageVm(savedProd.getId(), Action.CREATE, null));
       } catch (JsonProcessingException e) {
         throw new RuntimeException(e);
       }
@@ -422,7 +479,8 @@ public class ProductService implements IProductService {
       for (var prod : products) {
         String message;
         try {
-          message = ParseObjectToString.parse(new ProductMessageVm(prod.getId(), Action.UPDATE));
+          message = ParseObjectToString.parse(
+              new ProductMessageVm(prod.getId(), Action.UPDATE, null));
         } catch (JsonProcessingException e) {
           throw new RuntimeException(e);
         }
@@ -471,7 +529,8 @@ public class ProductService implements IProductService {
     // send message create message
     String message;
     try {
-      message = ParseObjectToString.parse(new ProductMessageVm(savedProd.getId(), Action.UPDATE));
+      message = ParseObjectToString.parse(
+          new ProductMessageVm(savedProd.getId(), Action.UPDATE, null));
     } catch (JsonProcessingException e) {
       throw new RuntimeException(e);
     }
@@ -563,7 +622,7 @@ public class ProductService implements IProductService {
       String message;
       try {
         message = ParseObjectToString.parse(
-            new ProductMessageVm(savedProduct.getId(), Action.UPDATE));
+            new ProductMessageVm(savedProduct.getId(), Action.UPDATE, null));
       } catch (JsonProcessingException e) {
         throw new RuntimeException(e);
       }
@@ -575,24 +634,33 @@ public class ProductService implements IProductService {
 
   @Override
   @Async
-  public CompletableFuture<Void> ban(String id, BanProductRequest input) {
+  public CompletableFuture<Void> ban(String id, BanProductRequest request) {
     return CompletableFuture.supplyAsync(() -> {
-      Product product = productRepository.findById(id)
-          .orElseThrow(() -> new BadRequestException("Product not found"));
-      // check permission to change product (store service)
-      product.setReasonBan(input.reason());
-      product.setIsBanned(true);
-      var savedProduct = productRepository.save(product);
+
+      var product = productRepository.findById(id)
+          .orElseThrow(
+              () -> new NotFoundException("Product not found"));
+      if (product.getIsBanned().equals(request.isBanned())) {
+        throw new BadRequestException("Product already banned");
+      }
+      product.setIsBanned(request.isBanned());
+      if (request.isBanned()) {
+        LOGGER.info("Product {} is banned with reason {}", id, request.reason());
+        product.setReasonBan(request.reason());
+      } else {
+        LOGGER.info("Product {} is unbanned", id);
+        product.setReasonBan(null);
+      }
+      productRepository.save(product);
 
       // send message create message
-      String message;
       try {
-        message = ParseObjectToString.parse(new ProductMessageVm(savedProduct.getId(), Action.BAN));
+        String message = ParseObjectToString.parse(
+            new ProductMessageVm(id, Action.BAN, request.isBanned()));
+        rabbitMQProducer.sendMessage(message);
       } catch (JsonProcessingException e) {
         throw new RuntimeException(e);
       }
-
-      rabbitMQProducer.sendMessage(message);
 
       return null;
     });

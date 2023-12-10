@@ -7,7 +7,6 @@ import static latipe.auth.utils.GenTokenInternal.getPrivateKey;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
 import feign.Feign;
 import feign.Logger;
 import feign.gson.GsonDecoder;
@@ -65,7 +64,6 @@ public class AuthController {
   private final MongoTemplate mongoTemplate;
   private final SecureInternalProperties secureInternalProperties;
   private final ObjectMapper objectMapper;
-  private final Gson gson;
 
   @PostMapping("/login")
   @ResponseStatus(HttpStatus.OK)
@@ -139,6 +137,14 @@ public class AuthController {
 
       if (user.getIsDeleted()) {
         throw new UnauthorizedException("Your account has been deleted");
+      }
+
+      if (user.getVerifiedAt() == null) {
+        throw new UnauthorizedException("Your account has not been verified");
+      }
+
+      if (user.getIsBan()) {
+        throw new UnauthorizedException("Your account has been banned");
       }
 
       try {

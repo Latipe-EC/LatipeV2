@@ -8,6 +8,7 @@ import java.util.concurrent.CompletableFuture;
 import latipe.product.annotations.ApiPrefixController;
 import latipe.product.annotations.RequiresAuthorization;
 import latipe.product.annotations.SecureInternalPhase;
+import latipe.product.constants.EStatusBan;
 import latipe.product.dtos.PagedResultDto;
 import latipe.product.request.BanProductRequest;
 import latipe.product.request.CreateProductRequest;
@@ -16,6 +17,7 @@ import latipe.product.request.ProductFeatureRequest;
 import latipe.product.request.UpdateProductQuantityRequest;
 import latipe.product.request.UpdateProductRequest;
 import latipe.product.response.OrderProductResponse;
+import latipe.product.response.ProductAdminResponse;
 import latipe.product.response.ProductDetailResponse;
 import latipe.product.response.ProductResponse;
 import latipe.product.response.ProductStoreResponse;
@@ -113,7 +115,7 @@ public class ProductController {
 
   @RequiresAuthorization("ADMIN")
   @ResponseStatus(HttpStatus.OK)
-  @PatchMapping(value = "/ban/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+  @PatchMapping(value = "/{id}/ban", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<Void> ban(@PathVariable("id") String prodId,
       @Valid @RequestBody BanProductRequest input) {
     return productService.ban(prodId, input);
@@ -132,6 +134,17 @@ public class ProductController {
     return productService.getProductESDetailById(id);
   }
 
+  @RequiresAuthorization("ADMIN")
+  @ResponseStatus(HttpStatus.OK)
+  @GetMapping(value = "/admin", produces = MediaType.APPLICATION_JSON_VALUE)
+  public CompletableFuture<PagedResultDto<ProductAdminResponse>> getAdminProduct(
+      @Size(max = 100)
+      @RequestParam String name, @RequestParam long skip,
+      @RequestParam int size, @RequestParam(defaultValue = "createdDate") String orderBy,
+      @RequestParam(defaultValue = "ALL") EStatusBan statusBan) {
+    return productService.getAdminProduct(skip, size, name, orderBy, statusBan);
+  }
+
   @SecureInternalPhase
   @ResponseStatus(HttpStatus.OK)
   @GetMapping(value = "/store/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -144,8 +157,9 @@ public class ProductController {
   @SecureInternalPhase
   @ResponseStatus(HttpStatus.OK)
   @GetMapping(value = "/store/{id}/ban", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<PagedResultDto<ProductStoreResponse>> getBanProductStore(
-      @PathVariable String id, @RequestParam String name, @RequestParam long skip,
+  public CompletableFuture<PagedResultDto<ProductStoreResponse>> getBanProductStoreInternal(
+      @PathVariable String id, @RequestParam String
+      name, @RequestParam long skip,
       @RequestParam int size, @RequestParam String orderBy) {
     return productService.getBanProductStore(skip, size, name, orderBy, id);
   }

@@ -1,5 +1,5 @@
 package latipe.product.viewmodel;
 
-public record ProductMessageVm(String id, String op) {
+public record ProductMessageVm(String id, String op, Boolean isBanned) {
 
 }

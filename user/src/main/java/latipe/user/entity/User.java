@@ -48,6 +48,9 @@ public class User extends AbstractAuditEntity implements UserDetails {
   private List<UserAddress> addresses = new ArrayList<>();
   private Gender gender = Gender.OTHER;
   private Date birthday;
+  private Boolean isBanned = false;
+  private String reasonBan;
+
   @Transient
   private Role role;
   @Field(targetType = FieldType.OBJECT_ID)

@@ -4,7 +4,9 @@ package latipe.store.services.store;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import latipe.store.constants.EStatusBan;
 import latipe.store.dtos.PagedResultDto;
+import latipe.store.request.BanStoreRequest;
 import latipe.store.request.CheckBalanceRequest;
 import latipe.store.request.CreateStoreRequest;
 import latipe.store.request.GetProvinceCodesRequest;
@@ -12,6 +14,7 @@ import latipe.store.request.MultipleStoreRequest;
 import latipe.store.request.UpdateBalanceRequest;
 import latipe.store.request.UpdateStoreRequest;
 import latipe.store.response.ProvinceCodesResponse;
+import latipe.store.response.StoreAdminResponse;
 import latipe.store.response.StoreDetailResponse;
 import latipe.store.response.StoreResponse;
 import latipe.store.response.StoreSimplifyResponse;
@@ -47,4 +50,13 @@ public interface IStoreService {
 
   CompletableFuture<Void> UpdateBalance(UpdateBalanceRequest input);
 
+  CompletableFuture<PagedResultDto<StoreAdminResponse>> getStoreAdmin(String keyword,
+      Long skip,
+      Integer size,
+      String orderBy,
+      EStatusBan isBan);
+
+  CompletableFuture<Void> banStore(String userId, BanStoreRequest request);
+
+  CompletableFuture<StoreDetailResponse> getDetailStoreByAdmin(String userId);
 }

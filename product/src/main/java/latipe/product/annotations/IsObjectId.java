@@ -19,4 +19,6 @@ public @interface IsObjectId {
 
   Class<? extends Payload>[] payload() default {};
 
+  boolean allowNull() default false;
+
 }

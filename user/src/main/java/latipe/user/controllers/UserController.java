@@ -6,8 +6,10 @@ import latipe.user.annotations.ApiPrefixController;
 import latipe.user.annotations.Authenticate;
 import latipe.user.annotations.RequiresAuthorization;
 import latipe.user.annotations.SecureInternalPhase;
+import latipe.user.constants.EStatusBan;
 import latipe.user.dtos.PagedResultDto;
 import latipe.user.entity.UserAddress;
+import latipe.user.request.BanUserRequest;
 import latipe.user.request.CancelOrderRequest;
 import latipe.user.request.CheckBalanceRequest;
 import latipe.user.request.CreateUserAddressRequest;
@@ -17,6 +19,7 @@ import latipe.user.request.UpdateUserAddressRequest;
 import latipe.user.request.UpdateUserNameRequest;
 import latipe.user.request.UpdateUserRequest;
 import latipe.user.response.InfoRatingResponse;
+import latipe.user.response.UserAdminResponse;
 import latipe.user.response.UserCredentialResponse;
 import latipe.user.response.UserResponse;
 import latipe.user.services.user.IUserService;
@@ -25,6 +28,7 @@ import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -136,6 +140,32 @@ public class UserController {
   @PostMapping(value = "/create-user", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<UserResponse> createUser(@Valid @RequestBody CreateUserRequest input) {
     return userService.create(input);
+  }
+
+  @RequiresAuthorization("ADMIN")
+  @GetMapping(value = "/admin", produces = MediaType.APPLICATION_JSON_VALUE)
+  public CompletableFuture<PagedResultDto<UserAdminResponse>> getUserAdmin(
+      @RequestParam(defaultValue = "") String keyword,
+      @RequestParam(defaultValue = "0") Long skip,
+      @RequestParam(defaultValue = "12") Integer size,
+      @RequestParam(defaultValue = "createdDate") String orderBy,
+      @RequestParam(defaultValue = "ALL") EStatusBan isBan) {
+    return userService.getUserAdmin(keyword, skip, size, orderBy, isBan);
+  }
+
+  @RequiresAuthorization("ADMIN")
+  @PatchMapping(value = "/{userId}/status-ban", produces = MediaType.APPLICATION_JSON_VALUE)
+  public CompletableFuture<Void> banUser(
+      @PathVariable String userId,
+      @Valid @RequestBody BanUserRequest request) {
+    return userService.banUser(userId, request);
+  }
+
+  @RequiresAuthorization("ADMIN")
+  @GetMapping(value = "/{userId}/admin", produces = MediaType.APPLICATION_JSON_VALUE)
+  public CompletableFuture<UserResponse> getDetailUserByAdmin(
+      @PathVariable String userId) {
+    return userService.getProfile(userId);
   }
 
   @SecureInternalPhase

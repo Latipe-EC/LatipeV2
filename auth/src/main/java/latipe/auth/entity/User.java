@@ -52,6 +52,8 @@ public class User extends AbstractAuditEntity implements UserDetails {
   private Boolean isChangeUsername = false;
   private Gender gender;
   private ZonedDateTime birthday;
+  private Boolean isBan = false;
+  private String reasonBan;
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
