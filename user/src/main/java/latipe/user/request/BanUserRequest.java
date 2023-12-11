@@ -6,7 +6,7 @@ import lombok.Builder;
 
 @Builder
 public record BanUserRequest(
-    Boolean isBan,
+    Boolean isBanned,
     @Size(min = 5)
     String reason
 ) {

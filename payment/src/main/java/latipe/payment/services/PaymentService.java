@@ -20,12 +20,16 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.ZonedDateTime;
 import java.util.Calendar;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import latipe.payment.configs.SecureInternalProperties;
+import latipe.payment.dtos.PagedResultDto;
+import latipe.payment.dtos.Pagination;
 import latipe.payment.entity.Payment;
 import latipe.payment.entity.Withdraw;
 import latipe.payment.entity.enumeration.EPaymentMethod;
 import latipe.payment.entity.enumeration.EPaymentStatus;
+import latipe.payment.entity.enumeration.EStatusFilter;
 import latipe.payment.entity.enumeration.EWithdrawStatus;
 import latipe.payment.entity.enumeration.EWithdrawType;
 import latipe.payment.exceptions.BadRequestException;
@@ -48,6 +52,7 @@ import latipe.payment.request.ValidWithdrawPaypalRequest;
 import latipe.payment.request.WithdrawPaypalRequest;
 import latipe.payment.response.CapturedPaymentResponse;
 import latipe.payment.response.CheckPaymentOrderResponse;
+import latipe.payment.response.PaymentResponse;
 import latipe.payment.response.UserCredentialResponse;
 import latipe.payment.utils.TokenUtils;
 import latipe.payment.viewmodel.OrderMessage;
@@ -309,7 +314,7 @@ public class PaymentService {
                   + "\",\n      \"note\": \"Complete withdraw!\",\n      \"sender_item_id\": \"item1\"\n    }\n  ]\n}",
               mediaType);
 
-          Request req = null;
+          Request req;
           try {
             req = new Request.Builder()
                 .url("https://api.sandbox.paypal.com/v1/payments/payouts")
@@ -339,44 +344,6 @@ public class PaymentService {
           return null;
         }
     );
-  }
-
-  private String getAccessToken() throws IOException {
-
-    var paymentProvider = paymentProviderRepository.findById("PaypalPayment")
-        .orElseThrow(()
-            -> new NotFoundException("PAYMENT_PROVIDER_NOT_FOUND", "PaypalPayment"));
-
-    JsonObject settingsJson = JsonParser.parseString(paymentProvider.getAdditionalSettings())
-        .getAsJsonObject();
-    String clientId = settingsJson.get("clientId").getAsString();
-    String clientSecret = settingsJson.get("clientSecret").getAsString();
-    okhttp3.OkHttpClient client = new okhttp3.OkHttpClient();
-
-    String credentials = Credentials.basic(clientId, clientSecret);
-
-    RequestBody body = new FormBody.Builder()
-        .add("grant_type", "client_credentials")
-        .build();
-
-    Request request = new Request.Builder()
-        .url("https://api.sandbox.paypal.com/v1/oauth2/token")
-        .post(body)
-        .header("Accept", "application/json")
-        .header("Accept-Language", "en_US")
-        .header("Authorization", credentials)
-        .build();
-    try (Response response = client.newCall(request).execute()) {
-      if (!response.isSuccessful() || response.body() == null) {
-        throw new BadRequestException("Cannot get access token");
-      }
-      // Get response body
-      String responseBody = response.body().string();
-      JsonObject responseJson = JsonParser.parseString(responseBody)
-          .getAsJsonObject();
-      response.close();
-      return responseJson.get("access_token").getAsString();
-    }
   }
 
   @Async
@@ -470,6 +437,71 @@ public class PaymentService {
     );
   }
 
+  @Async
+  public CompletableFuture<PagedResultDto<PaymentResponse>> getPaginate(
+      String keyword,
+      Long skip,
+      Integer size,
+      EStatusFilter statusFilter) {
+    return CompletableFuture.supplyAsync(
+        () -> {
+          List<EPaymentStatus> statuses;
+          if (statusFilter.equals(EStatusFilter.ALL)) {
+            statuses = List.of(EPaymentStatus.values());
+          } else if (statusFilter.equals(EStatusFilter.PENDING)) {
+            statuses = List.of(EPaymentStatus.PENDING);
+          } else if (statusFilter.equals(EStatusFilter.COMPLETED)) {
+            statuses = List.of(EPaymentStatus.COMPLETED);
+          } else {
+            statuses = List.of(EPaymentStatus.CANCELLED);
+          }
+          var payments = paymentRepository.findPaginate(keyword, skip, size, statuses);
+          var total = paymentRepository.countPayment(keyword, statuses);
+          return new PagedResultDto<>(
+              new Pagination(total, skip, size),
+              payments.stream().map(PaymentResponse::fromModel).toList()
+          );
+        }
+    );
+  }
+
+  private String getAccessToken() throws IOException {
+
+    var paymentProvider = paymentProviderRepository.findById("PaypalPayment")
+        .orElseThrow(()
+            -> new NotFoundException("PAYMENT_PROVIDER_NOT_FOUND", "PaypalPayment"));
+
+    JsonObject settingsJson = JsonParser.parseString(paymentProvider.getAdditionalSettings())
+        .getAsJsonObject();
+    String clientId = settingsJson.get("clientId").getAsString();
+    String clientSecret = settingsJson.get("clientSecret").getAsString();
+    okhttp3.OkHttpClient client = new okhttp3.OkHttpClient();
+
+    String credentials = Credentials.basic(clientId, clientSecret);
+
+    RequestBody body = new FormBody.Builder()
+        .add("grant_type", "client_credentials")
+        .build();
+
+    Request request = new Request.Builder()
+        .url("https://api.sandbox.paypal.com/v1/oauth2/token")
+        .post(body)
+        .header("Accept", "application/json")
+        .header("Accept-Language", "en_US")
+        .header("Authorization", credentials)
+        .build();
+    try (Response response = client.newCall(request).execute()) {
+      if (!response.isSuccessful() || response.body() == null) {
+        throw new BadRequestException("Cannot get access token");
+      }
+      // Get response body
+      String responseBody = response.body().string();
+      JsonObject responseJson = JsonParser.parseString(responseBody)
+          .getAsJsonObject();
+      response.close();
+      return responseJson.get("access_token").getAsString();
+    }
+  }
 
   public void handleOrderCreate(
       OrderMessage message) {

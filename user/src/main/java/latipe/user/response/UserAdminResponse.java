@@ -1,5 +1,9 @@
 package latipe.user.response;
 
+import java.util.Date;
+import lombok.Builder;
+
+@Builder
 public record UserAdminResponse(
     String id,
     String displayName,
@@ -10,7 +14,11 @@ public record UserAdminResponse(
     Double eWallet,
     Integer point,
     String username,
-    Boolean isBan
+    Boolean isBanned,
+    Boolean isDeleted,
+    String reasonBan,
+    String gender,
+    Date birthday
 ) {
 
 }

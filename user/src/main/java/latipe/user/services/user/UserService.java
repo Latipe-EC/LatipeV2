@@ -202,7 +202,7 @@ public class UserService implements IUserService {
       var user = userMapper.mapBeforeCreate(input,
           input.firstName() + " " + input.lastName(),
           passwordEncoder.encode(DEFAULT_PASSWORD), role.getId(), username);
-
+      user.setIsBanned(false);
       var savedUser = userRepository.save(user);
       savedUser.setRole(role);
 
@@ -245,6 +245,7 @@ public class UserService implements IUserService {
       var user = userMapper.mapBeforeCreate(input, role.getId(),
           input.firstName() + " " + input.lastName(),
           passwordEncoder.encode(input.hashedPassword()), username);
+      user.setIsBanned(false);
       var savedUser = userRepository.save(user);
       savedUser.setRole(role);
 
@@ -389,13 +390,31 @@ public class UserService implements IUserService {
       var aggregate = Aggregation.newAggregation(UserAdminResponse.class,
           Aggregation.match(
               Criteria.where("isBanned").in(banCriteria)
-                  .andOperator(criteriaSearch)),
+                  .andOperator(criteriaSearch)
+          ),
+          Aggregation.lookup("Roles", "roleId", "_id", "role"),
           Aggregation.skip(skip), Aggregation.limit(size),
           Aggregation.sort(direction, orderByField));
 
       var results = mongoTemplate.aggregate(aggregate, User.class, Document.class);
       var documents = results.getMappedResults();
-      var list = documents.stream().map(doc -> gson.fromJson(doc.toJson(), UserAdminResponse.class))
+
+      var list = documents.stream().map(doc -> UserAdminResponse.builder()
+              .avatar(doc.getString("avatar"))
+              .displayName(doc.getString("displayName"))
+              .email(doc.getString("email"))
+              .eWallet(doc.getDouble("eWallet"))
+              .id(doc.get("_id").toString())
+              .isBanned(doc.getBoolean("isBanned"))
+              .isDeleted(doc.getBoolean("isDeleted"))
+              .phoneNumber(doc.getString("phoneNumber"))
+              .point(doc.getInteger("point"))
+              .username(doc.getString("username"))
+              .role(doc.getList("role", Document.class).get(0).getString("name"))
+              .reasonBan(doc.getString("reasonBan"))
+              .gender(doc.getString("gender"))
+              .birthday(doc.getDate("birthday"))
+              .build())
           .toList();
 
       return PagedResultDto.create(
@@ -411,11 +430,11 @@ public class UserService implements IUserService {
       var user = userRepository.findById(userId)
           .orElseThrow(
               () -> new NotFoundException("User not found"));
-      if (user.getIsBanned().equals(request.isBan())) {
+      if (user.getIsBanned().equals(request.isBanned())) {
         throw new BadRequestException("User already banned");
       }
-      user.setIsBanned(request.isBan());
-      if (request.isBan()) {
+      user.setIsBanned(request.isBanned());
+      if (request.isBanned()) {
         LOGGER.info("User {} is banned with reason {}", userId, request.reason());
         user.setReasonBan(request.reason());
       } else {

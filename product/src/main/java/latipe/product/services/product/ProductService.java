@@ -1,13 +1,11 @@
 package latipe.product.services.product;
 
-import static latipe.product.constants.CONSTANTS.URL;
 import static latipe.product.utils.GenTokenInternal.generateHash;
 import static latipe.product.utils.GenTokenInternal.getPrivateKey;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.Gson;
 import feign.Feign;
-import feign.Logger;
 import feign.gson.GsonDecoder;
 import feign.gson.GsonEncoder;
 import feign.okhttp.OkHttpClient;
@@ -56,7 +54,6 @@ import latipe.product.viewmodel.ProductPriceVm;
 import latipe.product.viewmodel.ProductSample;
 import latipe.product.viewmodel.ProductThumbnailVm;
 import latipe.product.viewmodel.ProductVariantVm;
-import lombok.RequiredArgsConstructor;
 import org.bson.Document;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.LoggerFactory;
@@ -70,7 +67,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor
 public class ProductService implements IProductService {
 
   private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(ProductService.class);
@@ -82,7 +78,24 @@ public class ProductService implements IProductService {
   private final CategoryMapper categoryMapper;
   private final SecureInternalProperties secureInternalProperties;
   private final Gson gson;
+  private final StoreClient storeClient;
 
+  public ProductService(IProductRepository productRepository,
+      ICategoryRepository categoryRepository, ProductMapper productMapper,
+      MongoTemplate mongoTemplate,
+      RabbitMQProducer rabbitMQProducer, CategoryMapper categoryMapper,
+      SecureInternalProperties secureInternalProperties, Gson gson) {
+    this.productRepository = productRepository;
+    this.categoryRepository = categoryRepository;
+    this.productMapper = productMapper;
+    this.mongoTemplate = mongoTemplate;
+    this.rabbitMQProducer = rabbitMQProducer;
+    this.categoryMapper = categoryMapper;
+    this.secureInternalProperties = secureInternalProperties;
+    this.gson = gson;
+    this.storeClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
+        .decoder(new GsonDecoder()).target(StoreClient.class, "http://localhost:8181/api/v1");
+  }
 
   @Async
   @Override
@@ -164,9 +177,6 @@ public class ProductService implements IProductService {
     return CompletableFuture.supplyAsync(() -> {
       var prod = productRepository.findById(prodId)
           .orElseThrow(() -> new BadRequestException("Product not found"));
-      var storeClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
-          .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL)
-          .target(StoreClient.class, "http://localhost:8181/api/v1");
       // get store id from store service
       var storeId = storeClient.getStoreId(request.getHeader("Authorization"), userId);
 
@@ -196,9 +206,6 @@ public class ProductService implements IProductService {
       } else {
         CheckProductHaveOption(input.productVariants(), input.productClassifications());
       }
-      var storeClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
-          .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL)
-          .target(StoreClient.class, "http://localhost:8181/api/v1");
       // get store id from store service
       var storeId = storeClient.getStoreId(request.getHeader("Authorization"), userId);
 
@@ -305,9 +312,6 @@ public class ProductService implements IProductService {
       if (orders.size() != orderProductSet.size()) {
         throw new NotFoundException("Product not found");
       }
-      var storeClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
-          .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL).target(StoreClient.class, URL);
-
       String hash;
       try {
         hash = generateHash("store-service",
@@ -354,9 +358,6 @@ public class ProductService implements IProductService {
 
       List<Category> categories = categoryRepository.findAllById(product.getCategories());
 
-      var storeClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
-          .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL).target(StoreClient.class, URL);
-
       var store = storeClient.getDetailStore(product.getStoreId());
 
       return new ProductDetailResponse(product.getId(), product.getName(), product.getSlug(),
@@ -387,8 +388,6 @@ public class ProductService implements IProductService {
       if (documents.isEmpty()) {
         throw new NotFoundException("Product not found");
       }
-      var storeClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
-          .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL).target(StoreClient.class, URL);
 
       String hash;
       try {
@@ -493,15 +492,12 @@ public class ProductService implements IProductService {
 
   @Override
   @Async
-
   public CompletableFuture<ProductResponse> update(String userId, String id,
       UpdateProductRequest input, HttpServletRequest request) {
     var product = productRepository.findById(id)
         .orElseThrow(() -> new BadRequestException("Product not found"));
 
     // check permission to change product (store service)
-    var storeClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
-        .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL).target(StoreClient.class, URL);
     var store = storeClient.getStoreId(request.getHeader("Authorization"), userId);
 
     if (!store.equals(product.getStoreId())) {
@@ -608,9 +604,7 @@ public class ProductService implements IProductService {
       Product product = productRepository.findById(id)
           .orElseThrow(() -> new BadRequestException("Product not found"));
       // check permission to change product (store service)
-      StoreClient storeClient = Feign.builder().client(new OkHttpClient())
-          .encoder(new GsonEncoder()).decoder(new GsonDecoder()).logLevel(Logger.Level.FULL)
-          .target(StoreClient.class, "http://localhost:8181/api/v1");
+
       var store = storeClient.getStoreId(request.getHeader("Authorization"), userId);
       if (!store.equals(product.getStoreId())) {
         throw new BadRequestException("You don't have permission to change this product");

@@ -154,7 +154,7 @@ public class UserController {
   }
 
   @RequiresAuthorization("ADMIN")
-  @PatchMapping(value = "/{userId}/status-ban", produces = MediaType.APPLICATION_JSON_VALUE)
+  @PatchMapping(value = "/{userId}/ban", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<Void> banUser(
       @PathVariable String userId,
       @Valid @RequestBody BanUserRequest request) {

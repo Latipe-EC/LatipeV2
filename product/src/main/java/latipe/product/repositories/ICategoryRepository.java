@@ -20,8 +20,6 @@ public interface ICategoryRepository extends MongoRepository<Category, String> {
   @Query("{ parentCategoryId : ?0 }")
   List<Category> findChildrenCate(String id);
 
-  Boolean existsByName(String name);
-
   @Aggregation(pipeline = {
       "{  $match: { isDeleted: false, name: { $regex: ?2, $options: 'i'  }  } }",
       "{ $sort: { createAt: -1 } }", "{ $skip: ?0 }", "{ $limit: ?1 }"})
@@ -32,13 +30,5 @@ public interface ICategoryRepository extends MongoRepository<Category, String> {
 
   @Aggregation(pipeline = {"{ 'isDeleted' : false }", "{ $skip: 0}", "{ $limit: 1 }"})
   List<Category> findFirst();
-
-//    @Aggregation(pipeline = {
-//            "{ $match: { isDeleted: false, name: { $regex: ?0, $options: 'i'  }  } }",
-//            "{ $group: { _id: null, count: { $sum: 1 } } }",
-//            "{ $project: { _id: 0 } }"
-//    })
-//    Optional<Long> countByName(String name);
-
 
 }

@@ -4,21 +4,26 @@ import jakarta.annotation.PostConstruct;
 import latipe.user.constants.CONSTANTS;
 import latipe.user.entity.Role;
 import latipe.user.repositories.IRoleRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 
 @Component
+@RequiredArgsConstructor
 public class CommandHandler {
 
   private final IRoleRepository roleRepository;
 
-  public CommandHandler(IRoleRepository roleRepository) {
-    this.roleRepository = roleRepository;
-  }
-
   @PostConstruct
   public void init() {
+//    var users = userRepository.findAll();
+//    for (var user : users) {
+//      user.setIsBanned(false);
+//    }
+//    userRepository.saveAll(users);
+
     // Check if role exists and create role if it does not exist
+
     if (!roleRepository.existsByName(CONSTANTS.USER)) {
       Role role = new Role(CONSTANTS.USER);
       roleRepository.save(role);

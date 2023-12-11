@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import java.util.concurrent.CompletableFuture;
 import latipe.store.annotations.ApiPrefixController;
 import latipe.store.annotations.RequiresAuthorization;
+import latipe.store.dtos.PagedResultDto;
 import latipe.store.request.CreateCommissionRequest;
 import latipe.store.request.UpdateCommissionRequest;
 import latipe.store.response.CommissionResponse;
@@ -13,10 +14,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -29,9 +32,9 @@ public class CommissionController {
   private final ICommissionService commissionService;
 
   @RequiresAuthorization("ADMIN")
-  @ResponseStatus(HttpStatus.OK)
+  @ResponseStatus(HttpStatus.CREATED)
   @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<CommissionResponse> create(
+  public CompletableFuture<CommissionResponse> createCommission(
       @RequestBody @Valid
       CreateCommissionRequest request
   ) {
@@ -41,7 +44,7 @@ public class CommissionController {
   @RequiresAuthorization("ADMIN")
   @ResponseStatus(HttpStatus.OK)
   @PutMapping(value = "{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<CommissionResponse> update(
+  public CompletableFuture<CommissionResponse> updateCommission(
       @PathVariable String id,
       @RequestBody @Valid
       UpdateCommissionRequest request
@@ -52,18 +55,20 @@ public class CommissionController {
   @RequiresAuthorization("ADMIN")
   @ResponseStatus(HttpStatus.OK)
   @DeleteMapping(value = "{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<Void> delete(
+  public CompletableFuture<Void> deleteCommission(
       @PathVariable String id
   ) {
     return commissionService.delete(id);
   }
 
-//  @ResponseStatus(HttpStatus.OK)
-//  @GetMapping(value = "/calc-commission-store/{storeId}",
-//      produces = MediaType.APPLICATION_JSON_VALUE)
-//  public CompletableFuture<CalcPercentResponse> calc(
-//      @PathVariable String storeId
-//  ) {
-//    return commissionService.calcPercentStore(storeId);
-//  }
+  @RequiresAuthorization("ADMIN")
+  @ResponseStatus(HttpStatus.OK)
+  @GetMapping(value = "/paginate", produces = MediaType.APPLICATION_JSON_VALUE)
+  public CompletableFuture<PagedResultDto<CommissionResponse>> getPaginate(
+      @RequestParam(defaultValue = "") String keyword,
+      @RequestParam(defaultValue = "0") Long skip,
+      @RequestParam(defaultValue = "12") Integer size
+  ) {
+    return commissionService.getPaginate(keyword, skip, size);
+  }
 }

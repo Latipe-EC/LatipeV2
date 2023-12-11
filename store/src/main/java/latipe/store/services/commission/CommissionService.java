@@ -2,6 +2,8 @@ package latipe.store.services.commission;
 
 
 import java.util.concurrent.CompletableFuture;
+import latipe.store.dtos.PagedResultDto;
+import latipe.store.dtos.Pagination;
 import latipe.store.exceptions.BadRequestException;
 import latipe.store.exceptions.NotFoundException;
 import latipe.store.mapper.CommissionMapper;
@@ -76,5 +78,21 @@ public class CommissionService implements ICommissionService {
     }
     return listCommission.get(0).getFeeOrder();
 
+  }
+
+  @Override
+  @Async
+  public CompletableFuture<PagedResultDto<CommissionResponse>> getPaginate(
+      String keyword,
+      Long skip,
+      Integer size
+  ) {
+    return CompletableFuture.supplyAsync(() -> {
+      var res = commissionRepository.findPaginate(keyword, skip, size);
+      var total = commissionRepository.countCommission(keyword);
+      return new PagedResultDto<>(
+          new Pagination(total, skip, size),
+          res.stream().map(commissionMapper::mapToResponse).toList());
+    });
   }
 }
