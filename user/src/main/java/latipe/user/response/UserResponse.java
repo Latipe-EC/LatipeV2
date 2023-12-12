@@ -41,7 +41,8 @@ public record UserResponse(
         user.getIsChangeUsername(),
         user.getAddresses(),
         user.getGender() != null ? user.getGender().name() : Gender.OTHER.name(),
-        new SimpleDateFormat("yyyy-MM-dd").format(user.getBirthday())
+        new SimpleDateFormat("yyyy-MM-dd").format(
+            user.getBirthday() != null ? user.getBirthday() : new java.util.Date())
     );
   }
 

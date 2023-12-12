@@ -47,7 +47,7 @@ public class User extends AbstractAuditEntity implements UserDetails {
   private Boolean isChangeUsername = false;
   private List<UserAddress> addresses = new ArrayList<>();
   private Gender gender = Gender.OTHER;
-  private Date birthday;
+  private Date birthday = new Date();
   private Boolean isBanned = false;
   private String reasonBan;
 
