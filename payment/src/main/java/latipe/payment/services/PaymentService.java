@@ -241,7 +241,7 @@ public class PaymentService {
           var message = gson.toJson(new WithdrawMessage(
               userCredential.email(),
               newWithdraw.getAmount(),
-              newWithdraw.getId(),
+              token,
               newWithdraw.getEmailRecipient(),
               newWithdraw.getType().name(),
               withdrawExps
