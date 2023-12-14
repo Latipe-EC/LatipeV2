@@ -226,6 +226,11 @@ public class ProductService implements IProductService {
     });
 
   }
+  @Override
+  @Async
+  public CompletableFuture<Long> countAllProduct(){
+    return CompletableFuture.supplyAsync(productRepository::count);
+  }
 
   @Override
   @Async

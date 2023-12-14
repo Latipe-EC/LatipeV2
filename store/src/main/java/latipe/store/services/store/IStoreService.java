@@ -59,4 +59,6 @@ public interface IStoreService {
   CompletableFuture<Void> banStore(String userId, BanStoreRequest request);
 
   CompletableFuture<StoreDetailResponse> getDetailStoreByAdmin(String userId);
+
+  CompletableFuture<Long> countAllStore();
 }

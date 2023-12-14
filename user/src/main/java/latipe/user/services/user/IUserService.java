@@ -38,7 +38,7 @@ public interface IUserService {
   CompletableFuture<UserResponse> updateProfile(String id, UpdateUserRequest input);
 
   CompletableFuture<UserResponse> getProfile(String id);
-
+  CompletableFuture<Long> countAllUser();
   CompletableFuture<Void> upgradeVendor(String userId);
 
   CompletableFuture<Integer> countMyAddress(String userId);

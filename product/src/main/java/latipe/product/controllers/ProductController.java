@@ -69,6 +69,12 @@ public class ProductController {
     return productService.getPrice(prodId, code);
   }
 
+  @RequiresAuthorization("ADMIN")
+  @GetMapping(value = "/count", produces = MediaType.APPLICATION_JSON_VALUE)
+  public CompletableFuture<Long> countAllProduct() {
+    return productService.countAllProduct();
+  }
+
   @ResponseStatus(HttpStatus.OK)
   @PostMapping(value = "/check-in-stock", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<OrderProductResponse> checkProductInStock(

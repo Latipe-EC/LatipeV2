@@ -2,15 +2,36 @@ package latipe.product.utils;
 
 import static java.lang.System.out;
 
-import java.security.SecureRandom;
-import org.apache.commons.codec.binary.Base32;
-
 public class test {
 
   public static void main(String[] args) {
     byte[] buffer = new byte[32];
-    new SecureRandom().nextBytes(buffer);
-    out.println(new String(new Base32().encode(buffer)));
+   out.println(convert("PAYPALISHIRING", 3));
+    out.println(convert("PAYPALISHIRING", 4));
+    out.println(convert("A", 1));
   }
 
+  public static String convert(String s, int numRows) {
+    int len = s.length();
+    String res = "";
+    for (int i = 0; i < numRows; i++) {
+      int run = i;
+      if (i == 0 || i == numRows - 1)
+        while (run < len) {
+          res += s.charAt(run);
+          run += 2 * numRows - 2;
+        }else{
+        while (run < len) {
+          res += s.charAt(run);
+          if (len > run + 2 * numRows - 2 - 2 * i) {
+            res += s.charAt(run + 2 * numRows - 2 - 2 * i);
+          }
+          if ( 2 * numRows - 2 ==0)
+            break;
+          run += 2 * numRows - 2;
+        }
+      }
+    }
+    return res;
+  }
 }

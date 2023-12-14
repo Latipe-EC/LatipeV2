@@ -29,6 +29,8 @@ public interface IProductService {
 
   CompletableFuture<ProductPriceVm> getPrice(String prodId, String code);
 
+  CompletableFuture<Long> countAllProduct();
+
   CompletableFuture<ProductResponse> update(String userId, String id, UpdateProductRequest input,
       HttpServletRequest request);
 

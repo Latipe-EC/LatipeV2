@@ -168,6 +168,12 @@ public class UserController {
     return userService.getProfile(userId);
   }
 
+  @RequiresAuthorization("ADMIN")
+  @GetMapping(value = "/count", produces = MediaType.APPLICATION_JSON_VALUE)
+  public CompletableFuture<Long> countAllUser() {
+    return userService.countAllUser();
+  }
+
   @SecureInternalPhase
   @ResponseStatus(HttpStatus.CREATED)
   @PostMapping(value = "/register", produces = MediaType.APPLICATION_JSON_VALUE)

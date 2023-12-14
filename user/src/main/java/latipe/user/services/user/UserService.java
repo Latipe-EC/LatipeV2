@@ -84,7 +84,11 @@ public class UserService implements IUserService {
       return userMapper.mapToResponse(user);
     });
   }
-
+  @Async
+  @Override
+  public  CompletableFuture<Long> countAllUser(){
+    return CompletableFuture.supplyAsync(userRepository::count);
+  }
   @Async
   @Override
   public CompletableFuture<UserResponse> updateProfile(String id, UpdateUserRequest input) {

@@ -67,6 +67,12 @@ public class StoreController {
     return storeService.getDetailStoreByAdmin(storeId);
   }
 
+  @RequiresAuthorization("ADMIN")
+  @GetMapping(value = "/count", produces = MediaType.APPLICATION_JSON_VALUE)
+  public CompletableFuture<Long> countAllStore() {
+    return storeService.countAllStore();
+  }
+
   @ResponseStatus(HttpStatus.OK)
   @GetMapping(value = "/{storeId}", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<StoreResponse> getDetailStore(@PathVariable String storeId) {

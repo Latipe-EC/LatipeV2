@@ -3,6 +3,7 @@ package latipe.search.constants;
 public class ProductField {
 
   public static final String NAME = "name";
+  public static final String BAN = "isBanned";
   public static final String PRICE = "price";
   public static final String CATEGORIES = "categories";
   public static final String CLASSIFICATIONS = "classifications";

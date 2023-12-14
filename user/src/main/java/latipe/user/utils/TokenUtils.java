@@ -1,5 +1,6 @@
 package latipe.user.utils;
 
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Base64;
@@ -19,7 +20,7 @@ public class TokenUtils {
       byte[] encryptedBytes = encryptAES(id.getBytes(StandardCharsets.UTF_8), ENCRYPTION_KEY);
       var encodedToken = Base64.getEncoder().encodeToString(encryptedBytes);
       LOGGER.info("encryptedBytes: " + encodedToken);
-      return UriComponentsBuilder.fromHttpUrl(encodedToken).build().encode().toUriString();
+      return URLEncoder.encode(encodedToken, StandardCharsets.UTF_8);
     } catch (Exception e) {
       throw new BadRequestException("Error encoding token", e);
     }

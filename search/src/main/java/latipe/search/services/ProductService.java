@@ -79,6 +79,12 @@ public class ProductService {
             extractedStr(category, ProductField.CATEGORIES, b);
             extractedStr(classification, ProductField.CLASSIFICATIONS, b);
             extractedRange(minPrice, maxPrice, ProductField.PRICE, b);
+            b.must(m -> m
+                .term(t -> t
+                    .field(ProductField.BAN)
+                    .value(false)
+                )
+            );
             return b;
           })
       );

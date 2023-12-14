@@ -21,7 +21,6 @@ import org.springframework.data.elasticsearch.annotations.Setting;
 @AllArgsConstructor
 public class Product {
 
-  public boolean isBanned = false;
   @Id
   private String id;
   @Field(type = FieldType.Text, analyzer = "vietnamese_analyzer", searchAnalyzer = "autocomplete_search")
@@ -44,4 +43,6 @@ public class Product {
   private boolean isDeleted = false;
   private Date lastModifiedDate;
   private double ratings = 0.0;
+  public boolean isBanned = false;
+
 }

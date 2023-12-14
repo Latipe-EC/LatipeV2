@@ -358,7 +358,11 @@ public class StoreService implements IStoreService {
           commissionService.calcPercentStore(store.getPoint()), store.getEWallet());
     });
   }
-
+  @Async
+  @Override
+  public CompletableFuture<Long> countAllStore(){
+    return CompletableFuture.supplyAsync(storeRepository::count);
+  }
   @Async
   @Override
   public CompletableFuture<Void> banStore(String userId, BanStoreRequest request) {
