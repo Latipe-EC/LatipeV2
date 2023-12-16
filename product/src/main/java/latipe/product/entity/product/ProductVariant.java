@@ -17,6 +17,5 @@ public class ProductVariant {
   @Id
   String id = new ObjectId().toString();
   String name;
-  String image;
   List<Options> options;
 }

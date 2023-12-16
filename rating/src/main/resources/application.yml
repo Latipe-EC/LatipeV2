@@ -19,6 +19,7 @@ rabbitmq:
   queue:
     name_order: internal.rating
     name_product: internal.rating.product
+    name_store: internal.rating.store
 
 management:
   endpoints:

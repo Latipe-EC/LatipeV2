@@ -1,4 +1,4 @@
-package latipe.rating.viewmodel;
+package latipe.store.viewmodel;
 
 import lombok.Builder;
 
@@ -9,4 +9,3 @@ public record RatingMessage(String orderItemId, String productId, String ratingI
                             String op) {
 
 }
-

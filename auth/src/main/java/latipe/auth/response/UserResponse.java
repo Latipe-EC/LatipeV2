@@ -1,7 +1,5 @@
 package latipe.auth.response;
 
-import java.time.ZonedDateTime;
-import java.util.Date;
 import java.util.List;
 import latipe.auth.viewmodel.UserAddress;
 

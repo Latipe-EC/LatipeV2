@@ -18,6 +18,9 @@ public class RabbitMQConfig {
   @Value("${rabbitmq.queue.name_product}")
   private String queueProduct;
 
+  @Value("${rabbitmq.queue.name_store}")
+  private String queueStore;
+
   @Value("${rabbitmq.exchange.name}")
   private String exchange;
 
@@ -33,6 +36,11 @@ public class RabbitMQConfig {
   @Bean
   public Queue queueProduct() {
     return QueueBuilder.durable(queueProduct).build();
+  }
+
+  @Bean
+  public Queue queueStore() {
+    return QueueBuilder.durable(queueStore).build();
   }
 
   // spring bean for rabbitmq exchange
@@ -55,6 +63,14 @@ public class RabbitMQConfig {
   public Binding bindingProduct() {
     return BindingBuilder
         .bind(queueProduct())
+        .to(exchange())
+        .with(routingKey);
+  }
+
+  @Bean
+  public Binding bindingStore() {
+    return BindingBuilder
+        .bind(queueStore())
         .to(exchange())
         .with(routingKey);
   }

@@ -81,14 +81,17 @@ public class UserService implements IUserService {
     return CompletableFuture.supplyAsync(() -> {
       var user = userRepository.findById(id)
           .orElseThrow(() -> new NotFoundException("User not found"));
+      user.setRole(roleRepository.findById(user.getRoleId()).orElse(null));
       return userMapper.mapToResponse(user);
     });
   }
+
   @Async
   @Override
-  public  CompletableFuture<Long> countAllUser(){
+  public CompletableFuture<Long> countAllUser() {
     return CompletableFuture.supplyAsync(userRepository::count);
   }
+
   @Async
   @Override
   public CompletableFuture<UserResponse> updateProfile(String id, UpdateUserRequest input) {
@@ -250,19 +253,20 @@ public class UserService implements IUserService {
           input.firstName() + " " + input.lastName(),
           passwordEncoder.encode(input.hashedPassword()), username);
       user.setIsBanned(false);
+      user.setVerifiedAt(ZonedDateTime.now());
       var savedUser = userRepository.save(user);
       savedUser.setRole(role);
 
-      var token = userMapper.mapToToken(savedUser.getId(), KeyType.VERIFY_ACCOUNT,
-          ZonedDateTime.now().plusSeconds(expirationVerifyMs));
-      token = tokenRepository.save(token);
-      var tokenHash = TokenUtils.encodeToken(token.getId(), ENCRYPTION_KEY);
-
-      // send mail verify account
-      String message = gson.toJson(userMapper.mapToMessage(
-          token.getUserId(), CONSTANTS.USER, savedUser.getDisplayName(), savedUser.getEmail(),
-          null, tokenHash));
-      rabbitMQProducer.sendMessage(message, exchange, routingUserRegisterKey);
+//      var token = userMapper.mapToToken(savedUser.getId(), KeyType.VERIFY_ACCOUNT,
+//          ZonedDateTime.now().plusSeconds(expirationVerifyMs));
+//      token = tokenRepository.save(token);
+//      var tokenHash = TokenUtils.encodeToken(token.getId(), ENCRYPTION_KEY);
+//
+//      // send mail verify account
+//      String message = gson.toJson(userMapper.mapToMessage(
+//          token.getUserId(), CONSTANTS.USER, savedUser.getDisplayName(), savedUser.getEmail(),
+//          null, tokenHash));
+//      rabbitMQProducer.sendMessage(message, exchange, routingUserRegisterKey);
 
       return UserResponse.fromUser(savedUser);
     });

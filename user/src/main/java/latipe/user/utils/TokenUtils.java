@@ -9,7 +9,6 @@ import javax.crypto.spec.SecretKeySpec;
 import latipe.user.exceptions.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.util.UriComponentsBuilder;
 
 public class TokenUtils {
 

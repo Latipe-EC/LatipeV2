@@ -1,34 +1,20 @@
 {
-  "analysis": {
-    "filter": {
-      "autocomplete_filter": {
-        "type": "edge_ngram",
-        "min_gram": 1,
-        "max_gram": 50
-      }
-    },
-    "analyzer": {
-      "vietnamese_analyzer": {
-        "tokenizer": "icu_tokenizer",
-        "filter": [
-          "icu_folding"
-        ]
-      },
-      "autocomplete_search": {
-        "type": "custom",
-        "tokenizer": "standard",
-        "filter": [
-          "lowercase"
-        ]
-      },
-      "autocomplete_index": {
-        "type": "custom",
-        "tokenizer": "standard",
-        "filter": [
-          "lowercase",
-          "autocomplete_filter"
-        ]
+  "index": {
+    "number_of_shards": 1,
+    "number_of_replicas": 1,
+    "analysis": {
+      "analyzer": {
+        "my_analyzer": {
+          "tokenizer": "vi_tokenizer",
+          "char_filter": [
+            "html_strip"
+          ],
+          "filter": [
+            "icu_folding"
+          ]
+        }
       }
     }
   }
 }
+

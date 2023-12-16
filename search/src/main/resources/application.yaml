@@ -22,6 +22,8 @@ elasticsearch:
   password: vd8ChXIOvBm4Pno
 
 spring:
+  application:
+    name: search-service
   rabbitmq:
     port: '5672'
     host: localhost

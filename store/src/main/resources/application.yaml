@@ -14,10 +14,16 @@ secure-internal:
 
 rabbitmq:
   routing:
+    rating:
+      key: rating_routing_key
     key: store_routing_key
   exchange:
+    rating:
+      name: rating_exchange
     name: store_exchange
   queue:
+    rating:
+      name: internal.rating.store
     name: internal.store
 
 management:

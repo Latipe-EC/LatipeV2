@@ -82,11 +82,13 @@ public class RatingService implements IRatingService {
       }
       var userDetail = userClient.getInfoForRating(hash, userId);
 
-      var rating = ratingMapper.mapToRatingBeforeCreate(request, userId, userDetail.username(), userDetail.avatar());
+      var rating = ratingMapper.mapToRatingBeforeCreate(request, userId, userDetail.username(),
+          userDetail.avatar());
       rating = ratingRepository.save(rating);
 
       String message = gson.toJson(
           RatingMessage.builder().orderItemId(rating.getOrderItemId()).ratingId(rating.getId())
+              .storeId(rating.getStoreId())
               .rating(rating.getRating()).productId(rating.getProductId()).op(Action.CREATE)
               .build());
       rabbitMQProducer.sendMessage(message);
@@ -119,7 +121,7 @@ public class RatingService implements IRatingService {
       String message = gson.toJson(
           RatingMessage.builder().orderItemId(rating.getOrderItemId()).ratingId(rating.getId())
               .rating(rating.getRating()).productId(rating.getProductId()).op(Action.UPDATE)
-              .oldRating(oldRating)
+              .oldRating(oldRating).storeId(rating.getStoreId())
               .build());
       rabbitMQProducer.sendMessage(message);
 
@@ -145,6 +147,7 @@ public class RatingService implements IRatingService {
       String message = gson.toJson(
           RatingMessage.builder().orderItemId(rating.getOrderItemId()).ratingId(null)
               .rating(rating.getRating()).productId(rating.getProductId()).op(Action.DELETE)
+              .storeId(rating.getStoreId())
               .build());
       rabbitMQProducer.sendMessage(message);
 

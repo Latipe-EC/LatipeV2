@@ -6,6 +6,7 @@ import co.elastic.clients.elasticsearch._types.aggregations.StringTermsBucket;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.MatchAllQuery;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +24,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.elasticsearch.client.elc.ElasticsearchAggregation;
 import org.springframework.data.elasticsearch.client.elc.NativeQuery;
-import org.springframework.data.elasticsearch.client.elc.NativeQueryBuilder;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHitSupport;
@@ -51,7 +51,7 @@ public class ProductService {
       Double maxPrice,
       ESortType sortType) {
     return CompletableFuture.supplyAsync(() -> {
-      NativeQueryBuilder nativeQuery = NativeQuery.builder()
+      var nativeQuery = NativeQuery.builder()
           .withAggregation("categories", Aggregation.of(a -> a
               .terms(ta -> ta.field(ProductField.CATEGORIES))))
           .withQuery(q -> {
@@ -61,8 +61,7 @@ public class ProductService {
                           .multiMatch(m -> m
                               .fields(ProductField.NAME, ProductField.CLASSIFICATIONS)
                               .query(keyword)
-                              .fuzziness(Fuzziness.ONE.asString())
-                          )
+                              .fuzziness(Fuzziness.ONE.asString()).minimumShouldMatch("80%"))
                       )
                   );
                 } else {
@@ -74,9 +73,10 @@ public class ProductService {
               }
           )
           .withPageable(PageRequest.of(page, size));
+
       nativeQuery.withFilter(f -> f
           .bool(b -> {
-            extractedStr(category, ProductField.CATEGORIES, b);
+            extractedHardStr(category, "categories", b);
             extractedStr(classification, ProductField.CLASSIFICATIONS, b);
             extractedRange(minPrice, maxPrice, ProductField.PRICE, b);
             b.must(m -> m
@@ -138,6 +138,21 @@ public class ProductService {
     }
   }
 
+  private void extractedHardStr(String strField, String productField, BoolQuery.Builder b) {
+    if (strField != null && !strField.isBlank()) {
+      String[] strFields = strField.split(",");
+      for (String str : strFields) {
+        b.must(s -> s
+            .term(t -> t
+                .field(productField)
+                .value(str)
+                .caseInsensitive(true)
+            )
+        );
+      }
+    }
+  }
+
   private void extractedRange(Number min, Number max, String productField, BoolQuery.Builder b) {
     if (min != null || max != null) {
       b.must(m -> m
@@ -172,7 +187,7 @@ public class ProductService {
   }
 
   public ProductNameListVm autoCompleteProductName(final String keyword) {
-    NativeQuery matchQuery = NativeQuery.builder()
+    var matchQuery = NativeQuery.builder()
         .withQuery(
             q -> q.matchPhrasePrefix(
                 mPP -> mPP.field("name").query(keyword)
@@ -182,10 +197,17 @@ public class ProductService {
             new String[]{"name"},
             null)
         )
+        .withPageable(PageRequest.of(0, 5)) // Limit to top 5
         .build();
     SearchHits<Product> result = elasticsearchOperations.search(matchQuery, Product.class);
     List<Product> products = result.stream().map(SearchHit::getContent).toList();
-
+    products.forEach(product -> {
+      String name = product.getName();
+      String[] words = name.split(" ");
+      if (words.length > 10) {
+        product.setName(String.join(" ", Arrays.copyOfRange(words, 0, 10)));
+      }
+    });
     return new ProductNameListVm(products.stream().map(ProductNameGetVm::fromModel).toList());
   }
 }

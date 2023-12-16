@@ -9,7 +9,6 @@ import javax.crypto.spec.SecretKeySpec;
 import latipe.payment.exceptions.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.util.UriComponentsBuilder;
 
 public class TokenUtils {
 
@@ -20,7 +19,7 @@ public class TokenUtils {
       byte[] encryptedBytes = encryptAES(id.getBytes(StandardCharsets.UTF_8), ENCRYPTION_KEY);
       var encodedToken = Base64.getEncoder().encodeToString(encryptedBytes);
       LOGGER.info("encryptedBytes: " + encodedToken);
-      return  URLEncoder.encode(encodedToken, StandardCharsets.UTF_8);
+      return URLEncoder.encode(encodedToken, StandardCharsets.UTF_8);
     } catch (Exception e) {
       throw new BadRequestException("Error encoding token", e);
     }

@@ -67,6 +67,5 @@ public class DataConsumer {
     } catch (RuntimeException e) {
       LOGGER.error("error processing message: {}", e.getMessage());
     }
-
   }
 }

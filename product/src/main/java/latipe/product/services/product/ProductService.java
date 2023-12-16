@@ -197,7 +197,7 @@ public class ProductService implements IProductService {
         throw new BadRequestException("Product must have at least 1 image");
       }
       if (input.productVariants().isEmpty()) {
-        checkProductNoOption(input.price(), input.quantity());
+        checkProductNoOption(input.price());
 
         input.productClassifications().add(
             ProductClassificationVm.builder().name("Default").price(input.price())
@@ -226,9 +226,10 @@ public class ProductService implements IProductService {
     });
 
   }
+
   @Override
   @Async
-  public CompletableFuture<Long> countAllProduct(){
+  public CompletableFuture<Long> countAllProduct() {
     return CompletableFuture.supplyAsync(productRepository::count);
   }
 
@@ -329,7 +330,7 @@ public class ProductService implements IProductService {
           GetProvinceCodesRequest.builder().ids(storeIds).build());
 
       return OrderProductResponse.builder()
-          .totalPrice(orders.stream().mapToDouble(ProductOrderVm::totalPrice).sum())
+          .totalPrice(Math.ceil(orders.stream().mapToDouble(ProductOrderVm::totalPrice).sum()))
           .products(orders).storeProvinceCodes(storeProvinceCodes.codes()).build();
     });
   }
@@ -514,7 +515,7 @@ public class ProductService implements IProductService {
     }
     if (input.productVariants().isEmpty()) {
 
-      checkProductNoOption(input.price(), input.quantity());
+      checkProductNoOption(input.price());
 
       input.productClassifications().clear();
       input.productClassifications().add(
@@ -565,6 +566,10 @@ public class ProductService implements IProductService {
         throw new BadRequestException("Product classification must be filled");
       }
       for (int i = 0; i < productVariantVms.get(0).options().size(); i++) {
+        if (productVariantVms.get(0).options().get(i).getValue().isBlank()) {
+          throw new BadRequestException("Product classification must be filled");
+        }
+
         productClassificationVms.set(i,
             ProductClassificationVm.setCodeName(productClassificationVms.get(i), String.valueOf(i),
                 productVariantVms.get(0).options().get(i).getValue()));
@@ -580,12 +585,19 @@ public class ProductService implements IProductService {
       count = 0;
 
       for (int i = 0; i < productVariantVms.get(0).options().size(); i++) {
+        if (productVariantVms.get(0).options().get(i).getValue().isBlank()) {
+          throw new BadRequestException("Product classification must be filled");
+        }
         for (int j = 0; j < productVariantVms.get(1).options().size(); j++) {
+          if (productVariantVms.get(1).options().get(j).getValue().isBlank()) {
+            throw new BadRequestException("Product classification must be filled");
+          }
           productClassificationVms.set(i,
               ProductClassificationVm.setCodeName(productClassificationVms.get(i),
                   String.valueOf(i),
-                  productVariantVms.get(0).options().get(i) + " - " + productVariantVms.get(1)
-                      .options().get(j)));
+                  productVariantVms.get(0).options().get(i).getValue() + " - "
+                      + productVariantVms.get(1)
+                      .options().get(j).getValue()));
 
           count++;
         }
@@ -593,12 +605,9 @@ public class ProductService implements IProductService {
     }
   }
 
-  private void checkProductNoOption(Double price, int quantity) {
+  private void checkProductNoOption(Double price) {
     if (price == null || price <= 0) {
       throw new BadRequestException("Price must be greater than 0");
-    }
-    if (quantity <= 0) {
-      throw new BadRequestException("Quantity must be greater than 0");
     }
   }
 
