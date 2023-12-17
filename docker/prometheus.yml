@@ -6,48 +6,40 @@ scrape_configs:
   - job_name: "auth_service"
     metrics_path: "/actuator/prometheus"
     static_configs:
-      - targets: [ "172.17.0.1:8081" ]
+      - targets: [ "host.docker.internal:8081" ]
   - job_name: "user_service"
     metrics_path: "/actuator/prometheus"
     static_configs:
-      - targets: [ "172.17.0.1:8888" ]
+      - targets: [ "host.docker.internal:8888" ]
   - job_name: "cart_service"
     metrics_path: "/actuator/prometheus"
     static_configs:
-      - targets: [ "172.17.0.1:7650" ]
+      - targets: [ "host.docker.internal:7650" ]
   - job_name: "media_service"
     metrics_path: "/actuator/prometheus"
     static_configs:
-      - targets: [ "172.17.0.1:7657" ]
+      - targets: [ "host.docker.internal:7657" ]
   - job_name: "product_service"
     metrics_path: "/actuator/prometheus"
     static_configs:
-      - targets: [ "172.17.0.1:8645" ]
-  - job_name: "category_service"
-    metrics_path: "/actuator/prometheus"
-    static_configs:
-      - targets: [ "172.17.0.1:8645" ]
+      - targets: [ "host.docker.internal:8645" ]
   - job_name: "search_service"
     metrics_path: "/actuator/prometheus"
     static_configs:
-      - targets: [ "172.17.0.1:8092" ]
+      - targets: [ "host.docker.internal:8092" ]
   - job_name: "store_service"
     metrics_path: "/actuator/prometheus"
     static_configs:
-      - targets: [ "172.17.0.1:8118" ]
+      - targets: [ "host.docker.internal:8118" ]
   - job_name: "payment_service"
     metrics_path: "/actuator/prometheus"
     static_configs:
-      - targets: [ "172.17.0.1:8081" ]
-  - job_name: "paypal_service"
-    metrics_path: "/actuator/prometheus"
-    static_configs:
-      - targets: [ "172.17.0.1:8083" ]
-  - job_name: "discovery_server"
-    metrics_path: "/actuator/prometheus"
-    static_configs:
-      - targets: [ "eureka:8761" ]
-  - job_name: "discovery_server_static"
-    metrics_path: "/actuator/prometheus"
-    static_configs:
-      - targets: [ "eureka:8761" ]
+      - targets: [ "host.docker.internal:8081" ]
+#  - job_name: "discovery_server"
+#    metrics_path: "/actuator/prometheus"
+#    static_configs:
+#      - targets: [ "eureka:8761" ]
+#  - job_name: "discovery_server_static"
+#    metrics_path: "/actuator/prometheus"
+#    static_configs:
+#      - targets: [ "eureka:8761" ]

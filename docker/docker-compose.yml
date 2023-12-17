@@ -1,20 +1,5 @@
 version: '3.8'
 services:
-  elasticsearch:
-    image: elasticsearch:8.9.2
-    ports:
-      - "9200:9200"
-    environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=false
-      - ES_JAVA_OPTS=-Xms2g -Xmx8g
-  kibana:
-    image: kibana:8.9.2
-    ports:
-      - "5601:5601"
-    environment:
-      - ELASTICSEARCH_URL=http://elasticsearch:9200
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
   prometheus:
     image: prom/prometheus
     ports:
@@ -24,11 +9,14 @@ services:
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
   #    restart: always
-  zipkin:
-    image: openzipkin/zipkin
+
+  grafana:
+    image: grafana/grafana-enterprise
+    container_name: grafana
+    restart: unless-stopped
     ports:
-      - "9411:9411"
-  #    restart: always
+      - '4040:3000'
+
   mysql:
     image: mysql:8.0
     environment:
@@ -48,3 +36,20 @@ services:
     image: redis:latest
     ports:
       - "6379:6379"
+
+  elasticsearch:
+    image: elasticsearch:8.9.2
+    ports:
+      - "9200:9200"
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms2g -Xmx8g
+
+  kibana:
+    image: kibana:8.9.2
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
