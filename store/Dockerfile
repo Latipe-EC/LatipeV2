@@ -1,7 +1,6 @@
 FROM eclipse-temurin:17-jre-alpine
 MAINTAINER Latipe
 RUN apk add --no-cache bash
-RUN mvn clean package -DskipTests
 ARG JAR_FILE
 COPY target/store-1.0.0-SNAPSHOT.jar store-1.0.0.jar
 COPY wait-for-it.sh wait-for-it.sh
