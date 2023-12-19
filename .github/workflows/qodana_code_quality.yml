@@ -44,9 +44,10 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v2
-        with:
-          context: ./${{ matrix.directory }}
-          push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/${{ matrix.service }}:latest
+
+      - name: Build Docker image
+        run: docker build -t {{ secrets.DOCKER_HUB_USERNAME }}/${{ matrix.service }}:latest ./${{ matrix.directory }}
+
+      - name: Push Docker image to Docker Hub
+        run: docker push {{ secrets.DOCKER_HUB_USERNAME }}/${{ matrix.service }}:latest
+
