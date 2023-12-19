@@ -3,22 +3,22 @@ spring:
     name: media-service
   data:
     mongodb:
-      uri: mongodb://localhost:27017/Latipe-Media-DB
+      uri: ${SPRING_DATA_MONGODB_URI:mongodb://localhost:27017/Latipe-Media-DB}
   servlet:
     multipart:
       enabled: 'true'
       max-request-size: 125MB
       max-file-size: 125MB
 server:
-  port: '7657'
-#  servlet:
+    port: ${MEDIA_PORT:7657}
+  #  servlet:
 #    context-path: /api/v1
 
 # Cloudiary
 cloudinary:
-  api-key: 874849675994347
-  api-secret: ub3xaoO8-A7j1pnT5NPFBLHvpeg
-  cloud-name: dj5jx4llf
+  api-key: ${API_KEY:874849675994347}
+  api-secret: ${API_SECRET:ub3xaoO8-A7j1pnT5NPFBLHvpeg}
+  cloud-name: ${CLOUD_NAME:dj5jx4llf}
 
 management:
   endpoints:
@@ -34,7 +34,7 @@ logging:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://eureka:password@localhost:8761/eureka
+      defaultZone: http://eureka:password@localhost:${EUREKA_PORT:8761}/eureka
 springdoc:
   packagesToScan: latipe.media
 

@@ -17,16 +17,16 @@ management:
       probability: '1.0'
 elasticsearch:
   clustername: docker-cluster
-  url: 'localhost:9200'
-  username: elastic
-  password: vd8ChXIOvBm4Pno
+  url: ${URL_ELASTIC:localhost:9200}
+  username: ${USERNAME_ELASTIC:elastic}
+  password: ${PASSWORD_ELASTIC:vd8ChXIOvBm4Pno}
 
 spring:
   application:
     name: search-service
   rabbitmq:
-    port: '5672'
-    host: localhost
+    port: ${RABBIT_MQ_PORT:5672}
+    host: ${HOST_RABBIT_MQ_PORT:localhost}
 
 rabbitmq:
   routing:
@@ -39,12 +39,12 @@ rabbitmq:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://eureka:password@localhost:8761/eureka
+      defaultZone: http://eureka:password@localhost:${EUREKA_PORT:8761}/eureka
 springdoc:
   packagesToScan: latipe.search
 
 server:
-  port: '8092'
+  port: ${SEARCH_PORT:8092}
 logging:
   pattern:
     level: '%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]'

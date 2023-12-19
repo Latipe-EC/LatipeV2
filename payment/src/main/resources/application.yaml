@@ -3,10 +3,13 @@ spring:
     name: payment-service
   data:
     mongodb:
-      uri: mongodb://localhost:27017/Latipe-Payment-DB
+      uri: ${SPRING_DATA_MONGODB_URI:mongodb://localhost:27017/Latipe-Payment-DB}
+  rabbitmq:
+    port: ${RABBIT_MQ_PORT:5672}
+    host: ${HOST_RABBIT_MQ_PORT:localhost}
 
 server:
-  port: '8381'
+  port: ${PAYMENT_PORT:8381}
 #  servlet:
 #    context-path: /api/v1
 management:
@@ -23,7 +26,7 @@ logging:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://eureka:password@localhost:8761/eureka
+      defaultZone: http://eureka:password@localhost:${EUREKA_PORT:8761}/eureka
 springdoc:
   packagesToScan: latipe.payment
 

@@ -1,10 +1,6 @@
+version: '3'
 services:
-  prometheus:
-    image: prom/prometheus:v2.35.0
-    network_mode: host
-    container_name: prometheus
-    restart: unless-stopped
-    volumes:
-      - ./data/prometheus/config:/etc/prometheus/
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yaml'
+  latipe-rating-service:
+    image: 0353486363/latipe-rating-service:tagname
+    ports:
+      - "8080:8080"

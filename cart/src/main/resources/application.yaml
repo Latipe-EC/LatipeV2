@@ -3,7 +3,10 @@ spring:
     name: cart-service
   data:
     mongodb:
-      uri: mongodb://localhost:27017/Latipe-Cart-DB
+      uri: ${SPRING_DATA_MONGODB_URI:mongodb://localhost:27017}
+  rabbitmq:
+    port: ${RABBIT_MQ_PORT:5672}
+    host: ${HOST_RABBIT_MQ_PORT:localhost}
 
 rabbitmq:
   routing:
@@ -14,7 +17,7 @@ rabbitmq:
     name: cart_queue
 
 server:
-  port: '7650'
+  port: ${CART_PORT:7650}
 
 secure-internal:
   public-key: "MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAKl5SroD9NuxQ955qCcCMERMAMJz2/CZfx3WTHkQa8cvf13FBkRFvRkLD7U1MRCNylxe+oebmy/OF4GzuSxcDl8CAwEAAQ=="
@@ -36,7 +39,4 @@ logging:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://eureka:password@localhost:8761/eureka
-springdoc:
-  packagesToScan: latipe.cart
-
+      defaultZone: http://eureka:password@localhost:${EUREKA_PORT:8761}/eureka

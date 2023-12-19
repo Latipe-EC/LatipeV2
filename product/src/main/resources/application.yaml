@@ -3,10 +3,10 @@ spring:
     name: product-service
   data:
     mongodb:
-      uri: mongodb://localhost:27017/Latipe-Product-DB
+      uri: ${SPRING_DATA_MONGODB_URI:mongodb://localhost:27017/Latipe-Product-DB}
   rabbitmq:
-    port: '5672'
-    host: localhost
+    port: ${RABBIT_MQ_PORT:5672}
+    host: ${HOST_RABBIT_MQ_PORT:localhost}
 
 rabbitmq:
   routing:
@@ -28,7 +28,7 @@ secure-internal:
   private-key: "MIIBUwIBADANBgkqhkiG9w0BAQEFAASCAT0wggE5AgEAAkEAqXlKugP027FD3nmoJwIwREwAwnPb8Jl/HdZMeRBrxy9/XcUGREW9GQsPtTUxEI3KXF76h5ubL84XgbO5LFwOXwIDAQABAkB7y8dDZFp8FNwv6oxjmlyptx8i7EEwWuAZao5ILS+duqnmZLLdSVpTF/tc58bFoBsZyWFru6sxmommxDipxwMBAiEA5FhOxbJeo8zn4OyASEzBuzWNv2QpEX7hpn5H9wlTVoECIQC9/7iLKBzB7YiS6+tKHRROHQt9n4OMcDGau5gfxXG03wIgRmGRpg3cbdByiDldMOu3quRO1Hci0WmyU4cI13PgZAECIEMMNbxtqFBLGXH3bO2Xe23hVAe9vbdWdDrNTm6Px4NzAiBjaQjKKLaSlP24wdaYe0cQxWuC0UlwAu5vHk0twRzV/g=="
 
 server:
-  port: '8645'
+  port: ${PRODUCT_PORT:8645}
 #  servlet:
 #    context-path: /api/v1
 management:
@@ -45,7 +45,7 @@ logging:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://eureka:password@localhost:8761/eureka
+      defaultZone: http://eureka:password@localhost:${EUREKA_PORT:8761}/eureka
 springdoc:
   packagesToScan: latipe.product
 

@@ -257,16 +257,16 @@ public class UserService implements IUserService {
       var savedUser = userRepository.save(user);
       savedUser.setRole(role);
 
-//      var token = userMapper.mapToToken(savedUser.getId(), KeyType.VERIFY_ACCOUNT,
-//          ZonedDateTime.now().plusSeconds(expirationVerifyMs));
-//      token = tokenRepository.save(token);
-//      var tokenHash = TokenUtils.encodeToken(token.getId(), ENCRYPTION_KEY);
-//
-//      // send mail verify account
-//      String message = gson.toJson(userMapper.mapToMessage(
-//          token.getUserId(), CONSTANTS.USER, savedUser.getDisplayName(), savedUser.getEmail(),
-//          null, tokenHash));
-//      rabbitMQProducer.sendMessage(message, exchange, routingUserRegisterKey);
+      var token = userMapper.mapToToken(savedUser.getId(), KeyType.VERIFY_ACCOUNT,
+          ZonedDateTime.now().plusSeconds(expirationVerifyMs));
+      token = tokenRepository.save(token);
+      var tokenHash = TokenUtils.encodeToken(token.getId(), ENCRYPTION_KEY);
+
+      // send mail verify account
+      String message = gson.toJson(userMapper.mapToMessage(
+          token.getUserId(), CONSTANTS.USER, savedUser.getDisplayName(), savedUser.getEmail(),
+          null, tokenHash));
+      rabbitMQProducer.sendMessage(message, exchange, routingUserRegisterKey);
 
       return UserResponse.fromUser(savedUser);
     });
