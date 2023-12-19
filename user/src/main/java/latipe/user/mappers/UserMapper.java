@@ -40,7 +40,9 @@ public abstract class UserMapper {
       String password, String username);
 
   @Mappings({@Mapping(target = "role", source = "user.role.name"),
-      @Mapping(target = "username", expression = "java(user.getUsernameReal())")}
+      @Mapping(target = "username", expression = "java(user.getUsernameReal())"),
+      @Mapping(target = "birthday", source = "user.birthday", dateFormat = "yyyy-MM-dd")
+  }
   )
   public abstract UserResponse mapToResponse(User user);
 

@@ -12,7 +12,8 @@ public record UpdateProductRequest(@NotEmpty(message = "Product Name  is require
                                    List<String> images, int quantity,
                                    List<ProductVariantVm> productVariants,
                                    List<ProductClassificationVm> productClassifications,
-                                   List<AttributeValue> detailsProduct) {
+                                   List<AttributeValue> detailsProduct,
+                                   Boolean isPublished) {
 
 }
 

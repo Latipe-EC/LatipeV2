@@ -372,11 +372,12 @@ public class StoreService implements IStoreService {
       var store = storeRepository.findById(userId)
           .orElseThrow(
               () -> new NotFoundException("Store not found"));
-      if (store.getIsBan().equals(request.isBan())) {
+      if (store.getIsBan().equals(request.isBanned())) {
         throw new BadRequestException("Store already banned");
       }
-      store.setIsBan(request.isBan());
-      if (request.isBan()) {
+
+      store.setIsBan(request.isBanned());
+      if (request.isBanned()) {
         LOGGER.info("Store {} is banned with reason {}", userId, request.reason());
         store.setReasonBan(request.reason());
       } else {

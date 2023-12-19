@@ -10,7 +10,7 @@ spring:
       max-request-size: 125MB
       max-file-size: 125MB
 server:
-    port: ${MEDIA_PORT:7657}
+  port: ${MEDIA_PORT:7657}
   #  servlet:
 #    context-path: /api/v1
 

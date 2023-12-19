@@ -199,7 +199,7 @@ public class StoreController {
   }
 
   @RequiresAuthorization("ADMIN")
-  @PatchMapping(value = "/{userId}/status-ban", produces = MediaType.APPLICATION_JSON_VALUE)
+  @PatchMapping(value = "/{userId}/ban", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<Void> banStore(
       @PathVariable String userId,
       @Valid @RequestBody BanStoreRequest request) {

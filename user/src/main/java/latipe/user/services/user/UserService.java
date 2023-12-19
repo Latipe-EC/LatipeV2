@@ -82,6 +82,7 @@ public class UserService implements IUserService {
       var user = userRepository.findById(id)
           .orElseThrow(() -> new NotFoundException("User not found"));
       user.setRole(roleRepository.findById(user.getRoleId()).orElse(null));
+      var userResponse = userMapper.mapToResponse(user);
       return userMapper.mapToResponse(user);
     });
   }
@@ -395,7 +396,7 @@ public class UserService implements IUserService {
           Criteria.where("username").regex(keyword, "i")
       );
 
-      var aggregate = Aggregation.newAggregation(UserAdminResponse.class,
+      var aggregate = Aggregation.newAggregation(User.class,
           Aggregation.match(
               Criteria.where("isBanned").in(banCriteria)
                   .andOperator(criteriaSearch)
@@ -411,7 +412,7 @@ public class UserService implements IUserService {
               .avatar(doc.getString("avatar"))
               .displayName(doc.getString("displayName"))
               .email(doc.getString("email"))
-              .eWallet(doc.getDouble("eWallet"))
+              .eWallet(Double.parseDouble(doc.get("eWallet").toString()))
               .id(doc.get("_id").toString())
               .isBanned(doc.getBoolean("isBanned"))
               .isDeleted(doc.getBoolean("isDeleted"))

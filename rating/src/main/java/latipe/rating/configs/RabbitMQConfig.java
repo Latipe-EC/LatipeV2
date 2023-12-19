@@ -4,7 +4,6 @@ import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.Queue;
-import org.springframework.amqp.core.QueueBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,17 +29,17 @@ public class RabbitMQConfig {
   // spring bean for rabbitmq queue
   @Bean
   public Queue queueOrder() {
-    return QueueBuilder.durable(queueOrder).build();
+    return new Queue(queueOrder);
   }
 
   @Bean
   public Queue queueProduct() {
-    return QueueBuilder.durable(queueProduct).build();
+    return new Queue(queueProduct);
   }
 
   @Bean
   public Queue queueStore() {
-    return QueueBuilder.durable(queueStore).build();
+    return new Queue(queueStore);
   }
 
   // spring bean for rabbitmq exchange

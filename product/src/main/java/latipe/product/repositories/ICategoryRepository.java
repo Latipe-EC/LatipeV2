@@ -22,7 +22,7 @@ public interface ICategoryRepository extends MongoRepository<Category, String> {
 
   @Aggregation(pipeline = {
       "{  $match: { isDeleted: false, name: { $regex: ?2, $options: 'i'  }  } }",
-      "{ $sort: { createAt: -1 } }", "{ $skip: ?0 }", "{ $limit: ?1 }"})
+      "{ $sort: {image: -1, createAt: -1 } }", "{ $skip: ?0 }", "{ $limit: ?1 }"})
   List<Category> findCategoryWithPaginationAndSearch(long skip, int limit, String name);
 
   @Query(value = "{'name': {$regex: ?0, $options: 'i'}, 'isDeleted': false}", count = true)

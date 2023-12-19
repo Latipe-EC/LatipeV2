@@ -219,7 +219,7 @@ public class UserController {
   }
 
   @SecureInternalPhase
-  @PostMapping(value = "/{userId}/internal/info-rating", produces = MediaType.APPLICATION_JSON_VALUE)
+  @GetMapping(value = "/{userId}/internal/info-rating", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<InfoRatingResponse> getInfoForRating(
       @PathVariable String userId
   ) {

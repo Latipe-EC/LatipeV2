@@ -196,6 +196,10 @@ public class ProductService implements IProductService {
       if (input.images().isEmpty()) {
         throw new BadRequestException("Product must have at least 1 image");
       }
+      if (input.images().stream().anyMatch(String::isBlank)) {
+        throw new BadRequestException("Image is required");
+      }
+
       if (input.productVariants().isEmpty()) {
         checkProductNoOption(input.price());
 
@@ -210,6 +214,7 @@ public class ProductService implements IProductService {
       var storeId = storeClient.getStoreId(request.getHeader("Authorization"), userId);
 
       var prod = productMapper.mapToProductBeforeCreate(input, storeId);
+      prod.setIsPublished(input.isPublished());
       var savedProd = productRepository.save(prod);
 
       // send message create message
@@ -513,6 +518,11 @@ public class ProductService implements IProductService {
     if (input.images().isEmpty()) {
       throw new BadRequestException("Product must have at least 1 image");
     }
+
+    if (input.images().stream().anyMatch(String::isBlank)) {
+      throw new BadRequestException("Image is required");
+    }
+
     if (input.productVariants().isEmpty()) {
 
       checkProductNoOption(input.price());
@@ -526,6 +536,7 @@ public class ProductService implements IProductService {
     }
 
     var savedProd = productMapper.mapToProductBeforeUpdate(product.getId(), input, store);
+    savedProd.setIsPublished(input.isPublished());
     savedProd = productRepository.save(savedProd);
 
     // send message create message
@@ -555,7 +566,7 @@ public class ProductService implements IProductService {
 
     productVariantVms.get(0).options().forEach(
         option -> {
-          if (option.getImage().isBlank()) {
+          if (option == null || option.getImage().isBlank()) {
             throw new BadRequestException("Image is required");
           }
         }
