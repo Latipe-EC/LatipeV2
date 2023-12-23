@@ -301,9 +301,10 @@ public class ProductService implements IProductService {
           throw new BadRequestException("Product out of stock");
         }
 
-        Double promotionalPrice = 0.0;
+        double promotionalPrice = 0.0;
         if (productClassificationsDoc.get("promotionalPrice") != null) {
-          promotionalPrice = productClassificationsDoc.getDouble("promotionalPrice");
+          promotionalPrice = Double.parseDouble(
+              productClassificationsDoc.get("promotionalPrice").toString());
         }
 
         storeIds.add(doc.getString("storeId"));
@@ -311,12 +312,15 @@ public class ProductService implements IProductService {
         return ProductOrderVm.builder().productId(doc.getObjectId("_id").toString())
             .name(doc.getString("name"))
             .optionId(productClassificationsDoc.getObjectId("_id").toString())
-            .quantity(prodOrder.quantity()).price(productClassificationsDoc.getDouble("price"))
+            .quantity(prodOrder.quantity()).price(
+                Double.parseDouble(productClassificationsDoc.get("price").toString()))
             .promotionalPrice(promotionalPrice).image(doc.getList("images", String.class).get(0))
             .nameOption(productClassificationsDoc.getString("name")).totalPrice(
-                productClassificationsDoc.getDouble("promotionalPrice") == null ?
-                    productClassificationsDoc.getDouble("price") * prodOrder.quantity()
-                    : productClassificationsDoc.getDouble("promotionalPrice")
+                productClassificationsDoc.get("promotionalPrice") == null ?
+                    Double.parseDouble(productClassificationsDoc.get("price").toString())
+                        * prodOrder.quantity()
+                    : Double.parseDouble(
+                        productClassificationsDoc.get("promotionalPrice").toString())
                         * prodOrder.quantity()).storeId(doc.getString("storeId")).build();
       }).toList();
 
@@ -437,7 +441,7 @@ public class ProductService implements IProductService {
             .orElseThrow();
         return new ProductThumbnailVm(doc.getObjectId("_id").toString(), doc.getString("name"),
             productClassificationsDoc.getString("name"),
-            productClassificationsDoc.getDouble("price"),
+            Double.parseDouble(productClassificationsDoc.get("price").toString()),
             image, store.id(), store.name(), store.cityOrProvinceId());
       }).toList();
     });
