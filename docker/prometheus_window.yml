@@ -6,64 +6,64 @@ scrape_configs:
   - job_name: "auth_service"
     metrics_path: "/actuator/prometheus"
     static_configs:
-      - targets: [ "host.docker.internal:8081" ]
-
+      - targets: [ "172.17.0.1:8081" ]
+        
   - job_name: "user_service"
     metrics_path: "/actuator/prometheus"
     static_configs:
-      - targets: [ "host.docker.internal:8888" ]
+      - targets: [ "172.17.0.1:8888" ]
 
   - job_name: "cart_service"
     metrics_path: "/actuator/prometheus"
     static_configs:
-      - targets: [ "host.docker.internal:7650" ]
+      - targets: [ "172.17.0.1:7650" ]
 
   - job_name: "media_service"
     metrics_path: "/actuator/prometheus"
     static_configs:
-      - targets: [ "host.docker.internal:7657" ]
+      - targets: [ "172.17.0.1:7657" ]
 
   - job_name: "product_service"
     metrics_path: "/actuator/prometheus"
     static_configs:
-      - targets: [ "host.docker.internal:8645" ]
+      - targets: [ "172.17.0.1:8645" ]
 
   - job_name: "search_service"
     metrics_path: "/actuator/prometheus"
     static_configs:
-      - targets: [ "host.docker.internal:8092" ]
+      - targets: [ "172.17.0.1:8092" ]
 
   - job_name: "store_service"
     metrics_path: "/actuator/prometheus"
     static_configs:
-      - targets: [ "host.docker.internal:8118" ]
+      - targets: [ "172.17.0.1:8118" ]
 
   - job_name: "payment_service"
     metrics_path: "/actuator/prometheus"
     static_configs:
-      - targets: [ "host.docker.internal:8081" ]
+      - targets: [ "172.17.0.1:8081" ]
         
   - job_name: "promotion_service"
     metrics_path: "/metrics"
     static_configs:
-      - targets: [ "host.docker.internal:5010" ]
+      - targets: [ "172.17.0.1:5010" ]
 
   - job_name: "email_service"
     metrics_path: "/metrics"
     static_configs:
-      - targets: [ "host.docker.internal:5015" ]
+      - targets: [ "172.17.0.1:5015" ]
 
   - job_name: "delivery_service"
     metrics_path: "/metrics"
     static_configs:
-      - targets: [ "host.docker.internal:5005" ]
+      - targets: [ "172.17.0.1:5005" ]
 
   - job_name: "order-worker"
     metrics_path: "/metrics"
     static_configs:
-      - targets: [ "host.docker.internal:5001" ]
+      - targets: [ "172.17.0.1:5001" ]
 
   - job_name: "order-rest-api"
     metrics_path: "/metrics"
     static_configs:
-      - targets: [ "host.docker.internal:5000" ]
+      - targets: [ "172.17.0.1:5000" ]
