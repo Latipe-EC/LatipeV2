@@ -82,7 +82,6 @@ public class UserService implements IUserService {
       var user = userRepository.findById(id)
           .orElseThrow(() -> new NotFoundException("User not found"));
       user.setRole(roleRepository.findById(user.getRoleId()).orElse(null));
-      var userResponse = userMapper.mapToResponse(user);
       return userMapper.mapToResponse(user);
     });
   }
@@ -254,7 +253,6 @@ public class UserService implements IUserService {
           input.firstName() + " " + input.lastName(),
           passwordEncoder.encode(input.hashedPassword()), username);
       user.setIsBanned(false);
-      user.setVerifiedAt(ZonedDateTime.now());
       var savedUser = userRepository.save(user);
       savedUser.setRole(role);
 

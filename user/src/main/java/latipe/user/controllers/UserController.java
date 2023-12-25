@@ -185,7 +185,7 @@ public class UserController {
   @ResponseStatus(HttpStatus.CREATED)
   @PutMapping(value = "/upgrade-to-vendor", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<Void> upgradeVendor() {
-    UserCredentialResponse userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
+    var userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
         .getAttribute("user")));
     return userService.upgradeVendor(userCredential.id());
   }
