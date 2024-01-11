@@ -70,10 +70,13 @@ public class AuthController {
   public CompletableFuture<LoginResponse> createAuthenticationToken(
       @RequestBody @Valid LoginRequest loginRequest) {
     return CompletableFuture.supplyAsync(() -> {
-      User user = getUser(loginRequest.username());
+      var user = getUser(loginRequest.username());
       if (!jwtUtil.comparePassword(loginRequest.password(), user.getPassword())) {
         throw new BadRequestException("Password not correct");
       }
+
+      if (user.getIsBanned())
+        throw new UnauthorizedException("Your account has been banned");
 
       if (user.getIsDeleted()) {
         throw new UnauthorizedException("Your account has been deleted");
@@ -143,7 +146,7 @@ public class AuthController {
         throw new UnauthorizedException("Your account has not been verified");
       }
 
-      if (user.getIsBan()) {
+      if (user.getIsBanned()) {
         throw new UnauthorizedException("Your account has been banned");
       }
 

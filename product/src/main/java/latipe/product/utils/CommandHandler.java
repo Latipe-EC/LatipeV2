@@ -5,27 +5,47 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.List;
+import java.util.Random;
 import latipe.product.entity.Category;
 import latipe.product.entity.attribute.Attribute;
 import latipe.product.repositories.ICategoryRepository;
+import latipe.product.repositories.IProductRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
 
 @Component
+@RequiredArgsConstructor
 public class CommandHandler {
 
   private final ICategoryRepository categoryRepository;
+  private final IProductRepository productRepository;
 
-  public CommandHandler(ICategoryRepository categoryRepository) throws IOException {
-    this.categoryRepository = categoryRepository;
-//    handleCommand(categoryRepository);
-//    addAttribute(categoryRepository);
-  }
 
   @PostConstruct
   public void init() {
-
+//    var products = productRepository.findAll();
+//    for (var product : products) {
+//      if(product.getPrice() == 0) {
+//        product.setPrice(product.getProductClassifications().get(0).getPrice());
+//      }
+//      if (product.getPromotionalPrice() >= product.getPrice()) {
+//        Random rand = new Random();
+//        int randomNum = rand.nextInt(20) + 1;
+//        product.setPromotionalPrice(product.getPrice() - product.getPrice() * randomNum / 100);
+//      }
+//      for (var classify : product.getProductClassifications()) {
+//        if (classify.getPromotionalPrice() >= classify.getPrice()) {
+//          Random rand = new Random();
+//          int randomNum = rand.nextInt(20) + 1;
+//          classify.setPromotionalPrice(classify.getPrice() - classify.getPrice() * randomNum / 100);
+//        }
+//      }
+//    }
+//    productRepository.saveAll(products);
+//        handleCommand(categoryRepository);
+//    addAttribute(categoryRepository);
   }
 
   public void addAttribute(ICategoryRepository categoryRepository) throws IOException {

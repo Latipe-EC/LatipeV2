@@ -3,7 +3,7 @@ package latipe.user.request;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
-import java.time.ZonedDateTime;
+import java.sql.Date;
 import latipe.user.entity.Gender;
 
 public record UpdateUserRequest(
@@ -18,7 +18,7 @@ public record UpdateUserRequest(
     @JsonProperty(value = "phoneNumber")
     String phoneNumber,
     String avatar,
-    ZonedDateTime birthday,
+    Date birthday,
     Gender gender
 ) {
 

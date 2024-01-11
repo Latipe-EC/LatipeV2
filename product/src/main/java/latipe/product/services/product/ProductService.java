@@ -368,10 +368,14 @@ public class ProductService implements IProductService {
   @Async
   public CompletableFuture<ProductDetailResponse> getProductDetail(String productId) {
     return CompletableFuture.supplyAsync(() -> {
-      Product product = productRepository.findById(productId)
+      var product = productRepository.findById(productId)
           .orElseThrow(() -> new NotFoundException("PRODUCT_NOT_FOUND", productId));
 
-      List<Category> categories = categoryRepository.findAllById(product.getCategories());
+      if (product.getIsBanned() || product.getIsDeleted()) {
+        throw new NotFoundException("Product not found");
+      }
+
+      var categories = categoryRepository.findAllById(product.getCategories());
 
       var store = storeClient.getDetailStore(product.getStoreId());
 

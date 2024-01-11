@@ -94,8 +94,8 @@ public class ProductController {
   @GetMapping(value = "/{id}/advance", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<ProductResponse> getProductDetailByVendor(
       @PathVariable("id") String prodId) {
-    HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-    UserCredentialResponse userCredential = (UserCredentialResponse) (request.getAttribute("user"));
+    var request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+    var userCredential = (UserCredentialResponse) (request.getAttribute("user"));
     return productService.get(userCredential.id(), prodId, request);
   }
 
