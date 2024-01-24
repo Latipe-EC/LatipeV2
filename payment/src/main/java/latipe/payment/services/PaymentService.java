@@ -1,7 +1,6 @@
 package latipe.payment.services;
 
 
-import static latipe.payment.constants.CONSTANTS.URL;
 import static latipe.payment.utils.GenTokenInternal.generateHash;
 import static latipe.payment.utils.GenTokenInternal.getPrivateKey;
 
@@ -10,11 +9,6 @@ import com.nimbusds.jose.shaded.gson.JsonObject;
 import com.nimbusds.jose.shaded.gson.JsonParser;
 import com.paypal.core.PayPalHttpClient;
 import com.paypal.orders.OrdersGetRequest;
-import feign.Feign;
-import feign.Logger;
-import feign.gson.GsonDecoder;
-import feign.gson.GsonEncoder;
-import feign.okhttp.OkHttpClient;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -66,6 +60,7 @@ import okhttp3.MediaType;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
@@ -76,7 +71,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class PaymentService {
 
-  private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(PaymentService.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(
+      PaymentService.class);
   private final PaymentRepository paymentRepository;
   private final SecureInternalProperties secureInternalProperties;
   private final PayPalHttpClient payPalHttpClient;
@@ -84,6 +80,8 @@ public class PaymentService {
   private final WithdrawRepository withdrawRepository;
   private final RabbitMQProducer rabbitMQProducer;
   private final Gson gson;
+  private final StoreClient storeClient;
+  private final UserClient userClient;
 
   @Value("${encryption.key}")
   private String ENCRYPTION_KEY;
@@ -129,11 +127,6 @@ public class PaymentService {
           }
 
           // check user
-
-          var userClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
-              .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL)
-              .target(UserClient.class, URL);
-
           String hash;
           try {
             hash = generateHash("user-service",
@@ -199,10 +192,6 @@ public class PaymentService {
     return CompletableFuture.supplyAsync(
         () -> {
           // check user
-          var storeClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
-              .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL)
-              .target(StoreClient.class, URL);
-
           String hash;
           try {
             hash = generateHash("store-service",
@@ -281,10 +270,6 @@ public class PaymentService {
           }
 
           // call api withdraw amount
-          var storeClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
-              .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL)
-              .target(StoreClient.class, URL);
-
           String hash;
           try {
             hash = generateHash("store-service",
@@ -526,10 +511,6 @@ public class PaymentService {
         && payment.getPaymentStatus().equals(EPaymentStatus.COMPLETED)
     ) {
       // call api refund amount and minus point
-      var userClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
-          .decoder(new GsonDecoder()).logLevel(feign.Logger.Level.FULL)
-          .target(UserClient.class, URL);
-
       String hash;
       try {
         hash = generateHash("user-service",
@@ -553,4 +534,5 @@ public class PaymentService {
     payment.setPaymentStatus(EPaymentStatus.COMPLETED);
     return paymentRepository.save(payment);
   }
+
 }

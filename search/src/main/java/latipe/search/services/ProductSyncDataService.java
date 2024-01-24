@@ -1,13 +1,6 @@
 package latipe.search.services;
 
 
-import static latipe.search.constants.CONSTANTS.URL;
-
-import feign.Feign;
-import feign.Logger;
-import feign.gson.GsonDecoder;
-import feign.gson.GsonEncoder;
-import feign.okhttp.OkHttpClient;
 import latipe.search.constants.MessageCode;
 import latipe.search.document.Product;
 import latipe.search.exceptions.NotFoundException;
@@ -24,11 +17,9 @@ public class ProductSyncDataService {
 
   private final ProductRepository productRepository;
   private final ProductMapper productMapper;
+  private final ProductClient productClient;
 
   public ProductESDetailVm getProductESDetailById(String id) {
-
-    var productClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
-        .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL).target(ProductClient.class, URL);
     return productClient.getProductESDetailById(id);
   }
 

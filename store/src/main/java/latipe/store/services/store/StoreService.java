@@ -1,16 +1,10 @@
 package latipe.store.services.store;
 
 
-import static latipe.store.constants.CONSTANTS.URL;
 import static latipe.store.utils.GenTokenInternal.generateHash;
 import static latipe.store.utils.GenTokenInternal.getPrivateKey;
 
 import com.google.gson.Gson;
-import feign.Feign;
-import feign.Logger;
-import feign.gson.GsonDecoder;
-import feign.gson.GsonEncoder;
-import feign.okhttp.OkHttpClient;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -66,13 +60,13 @@ public class StoreService implements IStoreService {
   private final Gson gson;
   private final ICommissionService commissionService;
   private final MongoTemplate mongoTemplate;
+  private final UserClient userClient;
+  private final ProductClient productClient;
 
   @Override
   @Async
   public CompletableFuture<StoreResponse> create(String userId, CreateStoreRequest input,
       String token) {
-    UserClient userClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
-        .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL).target(UserClient.class, URL);
 
     return CompletableFuture.supplyAsync(() -> {
 
@@ -198,9 +192,6 @@ public class StoreService implements IStoreService {
         throw new RuntimeException(e);
       }
 
-      var productClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
-          .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL).target(ProductClient.class, URL);
-
       return productClient.getProductStore(hash, name, skip, limit, orderBy, store.getId());
     });
   }
@@ -223,9 +214,6 @@ public class StoreService implements IStoreService {
         throw new RuntimeException(e);
       }
 
-      var productClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
-          .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL).target(ProductClient.class, URL);
-
       return productClient.getProductStore(hash, name, skip, limit, orderBy, store.getId());
     });
   }
@@ -244,9 +232,6 @@ public class StoreService implements IStoreService {
       } catch (Exception e) {
         throw new RuntimeException(e);
       }
-
-      var productClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
-          .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL).target(ProductClient.class, URL);
 
       return productClient.getBanProductStore(hash, name, skip, limit, orderBy, store.getId());
     });

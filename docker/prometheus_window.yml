@@ -7,7 +7,7 @@ scrape_configs:
     metrics_path: "/actuator/prometheus"
     static_configs:
       - targets: [ "172.17.0.1:8081" ]
-        
+
   - job_name: "user_service"
     metrics_path: "/actuator/prometheus"
     static_configs:
@@ -42,7 +42,7 @@ scrape_configs:
     metrics_path: "/actuator/prometheus"
     static_configs:
       - targets: [ "172.17.0.1:8081" ]
-        
+
   - job_name: "promotion_service"
     metrics_path: "/metrics"
     static_configs:

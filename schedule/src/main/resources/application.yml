@@ -1,8 +1,12 @@
 server:
-  port: 8767
+  port: ${PORT:8767}
   error:
     include-message: always
     include-binding-errors: always
+
+gate-way:
+  host: ${GATE_WAY_HOST:http://localhost}
+  port: ${GATE_WAY_PORT:8181}
 
 spring:
   jpa:
@@ -17,9 +21,9 @@ spring:
   application:
     name: schedule-service
   datasource:
-    username: root
-    url: jdbc:mysql://localhost:3306/Latipe_Schedule_DB
-    password: 123123@Dat
+    username: ${username:root}
+    url: jdbc:mysql://${HOST_DB:localhost}:${PORT_DB:3306}/${NAME_DB:Latipe_Schedule_DB}
+    password: ${password:123123}@Dat
   main:
     allow-bean-definition-overriding: true
   quartz:
@@ -45,10 +49,10 @@ spring:
           instanceId: AUTO
           dataSource:
             myDataSource:
-              URL: jdbc:mysql://localhost:3306/Latipe_Schedule_DB
-              user: root
+              URL: jdbc:mysql://${HOST_DB:localhost}:${PORT_DB:3306}/${NAME_DB:Latipe_Schedule_DB}
+              user: ${username:root}
               driver: com.mysql.cj.jdbc.Driver
-              password: 123123@Dat
+              password: ${password:123123}@Dat
 
 
 rabbitmq:

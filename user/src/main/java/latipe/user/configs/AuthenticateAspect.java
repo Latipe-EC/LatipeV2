@@ -12,7 +12,7 @@ import latipe.user.exceptions.UnauthorizedException;
 import latipe.user.feign.AuthClient;
 import latipe.user.request.TokenRequest;
 import latipe.user.response.UserCredentialResponse;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.stereotype.Component;
@@ -22,8 +22,10 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 @Aspect
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class AuthenticateAspect {
+
+  private final GateWayProperties gateWayProperties;
 
   @Before("@annotation(latipe.user.annotations.Authenticate)")
   public void authenticate() throws UnauthorizedException {
@@ -32,7 +34,8 @@ public class AuthenticateAspect {
         .encoder(new GsonEncoder())
         .decoder(new GsonDecoder())
         .logLevel(Logger.Level.FULL)
-        .target(AuthClient.class, "http://localhost:8181/api/v1");
+        .target(AuthClient.class,
+            "%s:%s/api/v1".formatted(gateWayProperties.getHost(), gateWayProperties.getPort()));
     String token = getTokenFromRequest();
     if (token == null) {
       throw new UnauthorizedException("Unauthorized");

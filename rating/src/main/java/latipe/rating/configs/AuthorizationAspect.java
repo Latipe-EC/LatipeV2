@@ -14,17 +14,19 @@ import latipe.rating.exceptions.UnauthorizedException;
 import latipe.rating.feign.AuthClient;
 import latipe.rating.request.TokenRequest;
 import latipe.rating.response.UserCredentialResponse;
+import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
-import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 
 @Aspect
-@Component
+@RequiredArgsConstructor
 public class AuthorizationAspect {
+
+  private final GateWayProperties gateWayProperties;
 
   @Before("@annotation(requiresAuthorization)")
   public void checkAuthorization(JoinPoint joinPoint, RequiresAuthorization requiresAuthorization)
@@ -39,7 +41,8 @@ public class AuthorizationAspect {
           .encoder(new GsonEncoder())
           .decoder(new GsonDecoder())
           .logLevel(Logger.Level.FULL)
-          .target(AuthClient.class, "http://localhost:8181/api/v1");
+          .target(AuthClient.class,
+              "%s:%s/api/v1".formatted(gateWayProperties.getHost(), gateWayProperties.getPort()));
       UserCredentialResponse credential = authClient.getCredential(new TokenRequest(token));
 
       if (credential == null) {

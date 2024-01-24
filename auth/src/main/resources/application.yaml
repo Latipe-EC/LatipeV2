@@ -5,6 +5,10 @@ spring:
     mongodb:
       uri: ${SPRING_DATA_MONGODB_URI:mongodb://localhost:27017/Latipe-User-DB}
 
+gate-way:
+  host: ${GATE_WAY_HOST:http://localhost}
+  port: ${GATE_WAY_PORT:8181}
+
 server:
   port: ${AUTH_PORT:8081}
 #  servlet:

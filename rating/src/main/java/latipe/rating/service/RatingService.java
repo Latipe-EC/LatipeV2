@@ -1,17 +1,11 @@
 package latipe.rating.service;
 
 
-import static latipe.rating.constants.CONSTANTS.URL;
 import static latipe.rating.constants.CONSTANTS.X_API_KEY_ORDER;
 import static latipe.rating.utils.GenTokenInternal.generateHash;
 import static latipe.rating.utils.GenTokenInternal.getPrivateKey;
 
 import com.google.gson.Gson;
-import feign.Feign;
-import feign.Logger;
-import feign.gson.GsonDecoder;
-import feign.gson.GsonEncoder;
-import feign.okhttp.OkHttpClient;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import latipe.rating.configs.SecureInternalProperties;
@@ -52,15 +46,14 @@ public class RatingService implements IRatingService {
   private final RabbitMQProducer rabbitMQProducer;
   private final SecureInternalProperties secureInternalProperties;
   private final Gson gson;
+  private final UserClient userClient;
+  private final OrderClient orderClient;
 
   @Override
   @Async
   public CompletableFuture<RatingResponse> create(CreateRatingRequest request, String userId) {
     return CompletableFuture.supplyAsync(() -> {
       // CAll api check rating order
-      var orderClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
-          .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL).target(OrderClient.class, URL);
-
       // TODO : REMEMBER CHANGE TO REAL TOKEN
       var response = orderClient.getRating(X_API_KEY_ORDER, request.orderItemId());
       if (response.getData().getRating_id()
@@ -70,8 +63,6 @@ public class RatingService implements IRatingService {
       }
 
       // get info user
-      var userClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
-          .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL).target(UserClient.class, URL);
 
       String hash;
       try {

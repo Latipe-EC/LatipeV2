@@ -11,6 +11,11 @@ spring:
       max-file-size: 125MB
 server:
   port: ${MEDIA_PORT:7657}
+
+gate-way:
+  host: ${GATE_WAY_HOST:http://localhost}
+  port: ${GATE_WAY_PORT:8181}
+
   #  servlet:
 #    context-path: /api/v1
 

@@ -25,6 +25,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @AllArgsConstructor
 public class AuthenticateAspect {
 
+  private final GateWayProperties gateWayProperties;
 
   @Before("@annotation(latipe.rating.annotations.Authenticate)")
   public void authenticate() throws UnauthorizedException {
@@ -33,7 +34,8 @@ public class AuthenticateAspect {
         .encoder(new GsonEncoder())
         .decoder(new GsonDecoder())
         .logLevel(Logger.Level.FULL)
-        .target(AuthClient.class, "http://localhost:8181/api/v1");
+        .target(AuthClient.class,
+            "%s:%s/api/v1".formatted(gateWayProperties.getHost(), gateWayProperties.getPort()));
     String token = getTokenFromRequest();
     if (token == null) {
       throw new UnauthorizedException("Unauthorized");

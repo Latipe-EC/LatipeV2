@@ -1,6 +1,5 @@
 package latipe.cart.services.Product;
 
-import static latipe.cart.constants.CONSTANTS.URL;
 import static latipe.cart.utils.GenTokenInternal.generateHash;
 import static latipe.cart.utils.GenTokenInternal.getPrivateKey;
 
@@ -10,6 +9,7 @@ import feign.gson.GsonDecoder;
 import feign.gson.GsonEncoder;
 import feign.okhttp.OkHttpClient;
 import java.util.List;
+import latipe.cart.configs.GateWayProperties;
 import latipe.cart.configs.SecureInternalProperties;
 import latipe.cart.feign.ProductClient;
 import latipe.cart.request.ProductFeatureRequest;
@@ -22,11 +22,17 @@ import org.springframework.stereotype.Service;
 public class ProductService {
 
   private final SecureInternalProperties secureInternalProperties;
+  private final GateWayProperties gateWayProperties;
 
   public List<ProductThumbnailResponse> getProducts(
       List<ProductFeatureRequest> ids) {
-    var productClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
-        .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL).target(ProductClient.class, URL);
+    var productClient = Feign.builder()
+        .client(new OkHttpClient()).encoder(new GsonEncoder())
+        .decoder(new GsonDecoder())
+        .logLevel(Logger.Level.FULL)
+        .target(ProductClient.class,
+            "%s:%s/api/v1".formatted(gateWayProperties.getHost(), gateWayProperties.getPort()));
+
     String hash;
     try {
       hash = generateHash("product-service",

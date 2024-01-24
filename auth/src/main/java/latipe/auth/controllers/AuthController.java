@@ -18,6 +18,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.concurrent.CompletableFuture;
 import latipe.auth.config.ApiPrefixController;
+import latipe.auth.config.GateWayProperties;
 import latipe.auth.config.JwtTokenService;
 import latipe.auth.config.SecureInternalProperties;
 import latipe.auth.entity.Role;
@@ -64,6 +65,7 @@ public class AuthController {
   private final MongoTemplate mongoTemplate;
   private final SecureInternalProperties secureInternalProperties;
   private final ObjectMapper objectMapper;
+  private final GateWayProperties gateWayProperties;
 
   @PostMapping("/login")
   @ResponseStatus(HttpStatus.OK)
@@ -75,8 +77,9 @@ public class AuthController {
         throw new BadRequestException("Password not correct");
       }
 
-      if (user.getIsBanned())
+      if (user.getIsBanned()) {
         throw new UnauthorizedException("Your account has been banned");
+      }
 
       if (user.getIsDeleted()) {
         throw new UnauthorizedException("Your account has been deleted");
@@ -166,7 +169,8 @@ public class AuthController {
   public Void verifyAccount(@Valid @RequestBody RequestVerifyAccountRequest request) {
     var tokenClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
         .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL)
-        .target(TokenClient.class, "http://localhost:8181/api/v1");
+        .target(TokenClient.class,
+            "%s:%s/api/v1".formatted(gateWayProperties.getHost(), gateWayProperties.getPort()));
     String hash;
     try {
       hash = generateHash("user-service", getPrivateKey(secureInternalProperties.getPrivateKey()));
@@ -181,7 +185,8 @@ public class AuthController {
   public Void requestVerifyAccount(@Valid @RequestBody VerifyAccountRequest request) {
     var tokenClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
         .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL)
-        .target(TokenClient.class, "http://localhost:8181/api/v1");
+        .target(TokenClient.class,
+            "%s:%s/api/v1".formatted(gateWayProperties.getHost(), gateWayProperties.getPort()));
     String hash;
     try {
       hash = generateHash("user-service", getPrivateKey(secureInternalProperties.getPrivateKey()));
@@ -195,7 +200,8 @@ public class AuthController {
   public Void verifyAccount(@Valid @RequestBody ForgotPasswordRequest request) {
     var tokenClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
         .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL)
-        .target(TokenClient.class, "http://localhost:8181/api/v1");
+        .target(TokenClient.class,
+            "%s:%s/api/v1".formatted(gateWayProperties.getHost(), gateWayProperties.getPort()));
     String hash;
     try {
       hash = generateHash("user-service", getPrivateKey(secureInternalProperties.getPrivateKey()));
@@ -210,7 +216,8 @@ public class AuthController {
   public Void verifyAccount(@Valid @RequestBody ResetPasswordRequest request) {
     var tokenClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
         .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL)
-        .target(TokenClient.class, "http://localhost:8181/api/v1");
+        .target(TokenClient.class,
+            "%s:%s/api/v1".formatted(gateWayProperties.getHost(), gateWayProperties.getPort()));
     String hash;
     try {
       hash = generateHash("user-service", getPrivateKey(secureInternalProperties.getPrivateKey()));
@@ -226,7 +233,8 @@ public class AuthController {
     var userClient = Feign.builder().client(new OkHttpClient())
         .encoder(new GsonEncoder())
         .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL)
-        .target(UserClient.class, "http://localhost:8181/api/v1");
+        .target(UserClient.class,
+            "%s:%s/api/v1".formatted(gateWayProperties.getHost(), gateWayProperties.getPort()));
     String hash;
     try {
       hash = generateHash("user-service", getPrivateKey(secureInternalProperties.getPrivateKey()));
@@ -264,7 +272,6 @@ public class AuthController {
         Criteria.where("phoneNumber").is(username));
 
     Aggregation aggregation = Aggregation.newAggregation(Aggregation.match(criteria),
-//        new CustomAggregationOperation(lookup),
         Aggregation.lookup(mongoTemplate.getCollectionName(Role.class), "roleId", "_id", "roles"),
         Aggregation.addFields()
             .addFieldWithValue("role", ArrayOperators.arrayOf("roles").elementAt(0)).build());

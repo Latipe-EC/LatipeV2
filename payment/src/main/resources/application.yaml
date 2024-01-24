@@ -8,6 +8,10 @@ spring:
     port: ${RABBIT_MQ_PORT:5672}
     host: ${HOST_RABBIT_MQ_PORT:localhost}
 
+gate-way:
+  host: ${GATE_WAY_HOST:http://localhost}
+  port: ${GATE_WAY_PORT:8181}
+
 server:
   port: ${PAYMENT_PORT:8381}
 #  servlet:

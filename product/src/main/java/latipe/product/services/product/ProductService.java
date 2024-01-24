@@ -5,10 +5,6 @@ import static latipe.product.utils.GenTokenInternal.getPrivateKey;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.Gson;
-import feign.Feign;
-import feign.gson.GsonDecoder;
-import feign.gson.GsonEncoder;
-import feign.okhttp.OkHttpClient;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -54,6 +50,7 @@ import latipe.product.viewmodel.ProductPriceVm;
 import latipe.product.viewmodel.ProductSample;
 import latipe.product.viewmodel.ProductThumbnailVm;
 import latipe.product.viewmodel.ProductVariantVm;
+import lombok.RequiredArgsConstructor;
 import org.bson.Document;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.LoggerFactory;
@@ -67,6 +64,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class ProductService implements IProductService {
 
   private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(ProductService.class);
@@ -79,23 +77,6 @@ public class ProductService implements IProductService {
   private final SecureInternalProperties secureInternalProperties;
   private final Gson gson;
   private final StoreClient storeClient;
-
-  public ProductService(IProductRepository productRepository,
-      ICategoryRepository categoryRepository, ProductMapper productMapper,
-      MongoTemplate mongoTemplate,
-      RabbitMQProducer rabbitMQProducer, CategoryMapper categoryMapper,
-      SecureInternalProperties secureInternalProperties, Gson gson) {
-    this.productRepository = productRepository;
-    this.categoryRepository = categoryRepository;
-    this.productMapper = productMapper;
-    this.mongoTemplate = mongoTemplate;
-    this.rabbitMQProducer = rabbitMQProducer;
-    this.categoryMapper = categoryMapper;
-    this.secureInternalProperties = secureInternalProperties;
-    this.gson = gson;
-    this.storeClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
-        .decoder(new GsonDecoder()).target(StoreClient.class, "http://localhost:8181/api/v1");
-  }
 
   @Async
   @Override

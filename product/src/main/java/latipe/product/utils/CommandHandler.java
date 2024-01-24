@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.List;
-import java.util.Random;
 import latipe.product.entity.Category;
 import latipe.product.entity.attribute.Attribute;
 import latipe.product.repositories.ICategoryRepository;
