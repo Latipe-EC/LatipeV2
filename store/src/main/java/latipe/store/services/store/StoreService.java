@@ -28,6 +28,7 @@ import latipe.store.request.GetProvinceCodesRequest;
 import latipe.store.request.MultipleStoreRequest;
 import latipe.store.request.UpdateBalanceRequest;
 import latipe.store.request.UpdateStoreRequest;
+import latipe.store.response.ProvinceCodeResponse;
 import latipe.store.response.ProvinceCodesResponse;
 import latipe.store.response.StoreAdminResponse;
 import latipe.store.response.StoreDetailResponse;
@@ -147,6 +148,11 @@ public class StoreService implements IStoreService {
     return CompletableFuture.supplyAsync(() -> {
       var store = storeRepository.findById(storeId)
           .orElseThrow(() -> new NotFoundException("Store not found"));
+
+      if (store.getIsDeleted()) {
+        throw new BadRequestException("Store is deleted");
+      }
+
       return storeMapper.mapToStoreResponse(store,
           commissionService.calcPercentStore(store.getPoint()));
     });
@@ -157,6 +163,10 @@ public class StoreService implements IStoreService {
     return CompletableFuture.supplyAsync(() -> {
       var store = storeRepository.findByOwnerId(userId)
           .orElseThrow(() -> new NotFoundException("Store not found"));
+
+      if (store.getIsDeleted()) {
+        throw new BadRequestException("Store is deleted");
+      }
       return storeMapper.mapToStoreDetailResponse(store,
           commissionService.calcPercentStore(store.getPoint()), store.getEWallet());
     });
@@ -173,6 +183,20 @@ public class StoreService implements IStoreService {
         throw new BadRequestException("Invalid province id");
       }
       return ProvinceCodesResponse.builder().codes(codes).build();
+    });
+  }
+
+  @Override
+  @Async
+  public CompletableFuture<ProvinceCodeResponse> getProvinceCode(String storeId) {
+    return CompletableFuture.supplyAsync(() -> {
+      var store = storeRepository.findById(storeId)
+          .orElseThrow(() -> new NotFoundException("Store not found"));
+
+      if (store.getIsDeleted()) {
+        throw new BadRequestException("Store is deleted");
+      }
+      return new ProvinceCodeResponse(store.getAddress().getCityOrProvinceId());
     });
   }
 

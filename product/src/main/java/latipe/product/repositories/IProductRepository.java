@@ -15,4 +15,7 @@ public interface IProductRepository extends MongoRepository<Product, String> {
 
   @Query(value = "{'storeId': ?0, isBanned: true, isDeleted: false,  'name': { $regex: ?1, $options: 'i' }}", count = true)
   Long countProductBanByStoreId(String id, String name);
+
+  @Query(value = "{_id:  { $in: ?0 },  storeId: ?1 }")
+  List<Product> findAllByIdsAndStoreId(List<String> ids, String storeId);
 }

@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "latipe.product.grpc";
+option java_outer_classname = "ProductProto";
+
+//package protobuf;
+
+service ProductService {
+  rpc CheckInStock(GetPurchaseProductRequest) returns (GetPurchaseItemResponse) {}
+  rpc UpdateQuantity(UpdateProductQuantityRequest) returns (UpdateProductQuantityResponse) {}
+}
+
+message GetPurchaseProductRequest {
+  string storeId = 1;
+  repeated GetPurchaseItemRequest items = 2;
+}
+
+message GetPurchaseItemRequest {
+  string productId = 1;
+  string optionId = 2;
+  int32 quantity = 3;
+}
+
+message ItemResponse {
+  string productId = 1;
+  string name = 2;
+  int64 quantity = 3;
+  string image = 4;
+  int64 price = 5;
+  int64 promotionalPrice = 6;
+  string optionId = 7;
+  string nameOption = 8;
+  string storeId = 9;
+  int64 totalPrice = 10;
+}
+
+message GetPurchaseItemResponse {
+  string storeId = 1;
+  string provinceCode = 2;
+  int64 totalPrice = 3;
+  repeated ItemResponse items = 4;
+}
+
+message UpdateProductQuantityRequest {
+  string storeId = 1;
+  repeated GetPurchaseItemRequest items = 2;
+}
+
+message UpdateProductQuantityResponse {
+  bool isSuccess = 1;
+}

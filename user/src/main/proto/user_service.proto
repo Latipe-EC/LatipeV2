@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "latipe.user.grpc";
+option java_outer_classname = "UserProto";
+
+service UserService{
+  rpc GetAddressDetail(GetDetailAddressRequest) returns(GetDetailAddressResponse) {}
+}
+
+message GetDetailAddressRequest {
+  string addressId = 1;
+  string userId = 2;
+}
+
+message GetDetailAddressResponse {
+  string id = 1;
+  string contactName = 2;
+  string phone = 3;
+  string detailAddress = 4;
+  string zipCode = 5;
+  string cityOrProvinceId = 6;
+  string cityOrProvinceName = 7;
+  string districtId = 8;
+  string districtName = 9;
+  string wardId = 10;
+  string wardName = 11;
+  int32 countryId = 12;
+  string countryName = 13;
+}

@@ -13,6 +13,7 @@ import latipe.store.request.GetProvinceCodesRequest;
 import latipe.store.request.MultipleStoreRequest;
 import latipe.store.request.UpdateBalanceRequest;
 import latipe.store.request.UpdateStoreRequest;
+import latipe.store.response.ProvinceCodeResponse;
 import latipe.store.response.ProvinceCodesResponse;
 import latipe.store.response.StoreAdminResponse;
 import latipe.store.response.StoreDetailResponse;
@@ -34,6 +35,8 @@ public interface IStoreService {
   CompletableFuture<StoreDetailResponse> getMyStore(String userId);
 
   CompletableFuture<ProvinceCodesResponse> getProvinceCodes(GetProvinceCodesRequest input);
+
+  CompletableFuture<ProvinceCodeResponse> getProvinceCode(String storeId);
 
   CompletableFuture<PagedResultDto<ProductStoreResponse>> getMyProductStore(long skip, int limit,
       String name, String orderBy, String userId);

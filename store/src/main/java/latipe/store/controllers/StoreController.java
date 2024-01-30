@@ -18,6 +18,7 @@ import latipe.store.request.GetProvinceCodesRequest;
 import latipe.store.request.MultipleStoreRequest;
 import latipe.store.request.UpdateBalanceRequest;
 import latipe.store.request.UpdateStoreRequest;
+import latipe.store.response.ProvinceCodeResponse;
 import latipe.store.response.ProvinceCodesResponse;
 import latipe.store.response.StoreAdminResponse;
 import latipe.store.response.StoreDetailResponse;
@@ -156,6 +157,14 @@ public class StoreController {
   public CompletableFuture<ProvinceCodesResponse> getProvinceCodes(
       @RequestBody GetProvinceCodesRequest input) {
     return storeService.getProvinceCodes(input);
+  }
+
+  @SecureInternalPhase
+  @ResponseStatus(HttpStatus.OK)
+  @GetMapping(value = "/{storeId}/province-code", produces = MediaType.APPLICATION_JSON_VALUE)
+  public CompletableFuture<ProvinceCodeResponse> getProvinceCode(
+      @PathVariable String storeId) {
+    return storeService.getProvinceCode(storeId);
   }
 
   @SecureInternalPhase

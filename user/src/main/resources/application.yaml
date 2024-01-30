@@ -12,6 +12,10 @@ gate-way:
   host: ${GATE_WAY_HOST:http://localhost}
   port: ${GATE_WAY_PORT:8181}
 
+grpc:
+  port: ${GRPC_PRODUCT_PORT:9362}
+
+
 rabbitmq:
   email:
     user-register-topic:

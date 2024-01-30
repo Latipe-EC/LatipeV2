@@ -4,6 +4,13 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <artifactId>product</artifactId>
   <build>
+    <extensions>
+      <extension>
+        <artifactId>os-maven-plugin</artifactId>
+        <groupId>kr.motd.maven</groupId>
+        <version>1.6.2</version>
+      </extension>
+    </extensions>
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -35,22 +42,44 @@
         </configuration>
         <groupId>org.springframework.boot</groupId>
       </plugin>
-
+      <plugin>
+        <artifactId>protobuf-maven-plugin</artifactId>
+        <configuration>
+          <pluginArtifact>io.grpc:protoc-gen-grpc-java:${grpc.version}:exe:${os.detected.classifier}
+          </pluginArtifact>
+          <pluginId>grpc-java</pluginId>
+          <protocArtifact>
+            com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}
+          </protocArtifact>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>compile</goal>
+              <goal>compile-custom</goal>
+            </goals>
+          </execution>
+        </executions>
+        <groupId>org.xolstice.maven.plugins</groupId>
+        <version>0.6.1</version>
+      </plugin>
     </plugins>
   </build>
   <dependencies>
+
+    <dependency>
+      <artifactId>lombok</artifactId>
+      <groupId>org.projectlombok</groupId>
+    </dependency>
+
     <dependency>
       <artifactId>spring-boot-starter-actuator</artifactId>
       <groupId>org.springframework.boot</groupId>
     </dependency>
+
     <dependency>
       <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
       <groupId>org.springframework.cloud</groupId>
-    </dependency>
-    <dependency>
-      <artifactId>lombok</artifactId>
-      <groupId>org.projectlombok</groupId>
-      <optional>true</optional>
     </dependency>
     <dependency>
       <artifactId>jakarta.validation-api</artifactId>
@@ -144,10 +173,46 @@
       <groupId>com.github.ben-manes.caffeine</groupId>
       <version>3.1.8</version>
     </dependency>
+
     <dependency>
       <artifactId>spring-boot-starter-cache</artifactId>
       <groupId>org.springframework.boot</groupId>
     </dependency>
+
+    <dependency>
+      <artifactId>javax.annotation-api</artifactId>
+      <groupId>javax.annotation</groupId>
+      <version>1.2</version>
+    </dependency>
+
+    <dependency>
+      <artifactId>grpc-netty-shaded</artifactId>
+      <groupId>io.grpc</groupId>
+      <scope>compile</scope>
+      <version>${grpc.version}</version>
+    </dependency>
+    <dependency>
+      <artifactId>grpc-protobuf</artifactId>
+      <groupId>io.grpc</groupId>
+      <version>${grpc.version}</version>
+    </dependency>
+    <dependency>
+      <artifactId>grpc-stub</artifactId>
+      <groupId>io.grpc</groupId>
+      <version>${grpc.version}</version>
+    </dependency>
+
+    <dependency>
+      <artifactId>grpc-spring-boot-starter</artifactId>
+      <groupId>net.devh</groupId>
+      <version>2.13.0.RELEASE</version>
+    </dependency>
+    <!--    <dependency>-->
+    <!--      <groupId>io.github.lognet</groupId>-->
+    <!--      <artifactId>grpc-spring-boot-starter</artifactId>-->
+    <!--      <version>5.1.5</version>-->
+    <!--    </dependency>-->
+
   </dependencies>
   <dependencyManagement>
     <dependencies>
@@ -169,18 +234,19 @@
     <artifactId>spring-boot-starter-parent</artifactId>
     <groupId>org.springframework.boot</groupId>
     <relativePath/>
-    <version>3.1.2</version> <!-- lookup parent from repository -->
+    <version>3.1.5</version> <!-- lookup parent from repository -->
   </parent>
 
   <properties>
+    <grpc.version>1.42.1</grpc.version>
     <java.version>17</java.version>
     <mainClass>latipe.product.ProductApplication</mainClass>
     <mapstruct.version>1.5.5.Final</mapstruct.version>
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
+    <protobuf.version>3.3.0</protobuf.version>
     <spring-cloud.version>2022.0.3</spring-cloud.version>
     <springdoc-openapi-starter-webmvc-ui.version>2.0.2</springdoc-openapi-starter-webmvc-ui.version>
-
   </properties>
 
   <version>1.0.0-SNAPSHOT</version>

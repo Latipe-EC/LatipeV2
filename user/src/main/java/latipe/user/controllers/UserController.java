@@ -1,5 +1,7 @@
 package latipe.user.controllers;
 
+import static latipe.user.utils.Constants.ADMIN;
+
 import jakarta.validation.Valid;
 import java.util.concurrent.CompletableFuture;
 import latipe.user.annotations.ApiPrefixController;
@@ -120,7 +122,7 @@ public class UserController {
   @GetMapping(value = "/my-address/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<UserAddress> getMyAddress(@PathVariable String id) {
 
-    UserCredentialResponse userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
+    var userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
         .getAttribute("user")));
     return userService.getMyAddresses(id, userCredential.id());
 
@@ -136,13 +138,13 @@ public class UserController {
   }
 
   @ResponseStatus(HttpStatus.CREATED)
-  @RequiresAuthorization("ADMIN")
+  @RequiresAuthorization(ADMIN)
   @PostMapping(value = "/create-user", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<UserResponse> createUser(@Valid @RequestBody CreateUserRequest input) {
     return userService.create(input);
   }
 
-  @RequiresAuthorization("ADMIN")
+  @RequiresAuthorization(ADMIN)
   @GetMapping(value = "/admin", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<PagedResultDto<UserAdminResponse>> getUserAdmin(
       @RequestParam(defaultValue = "") String keyword,
@@ -153,7 +155,7 @@ public class UserController {
     return userService.getUserAdmin(keyword, skip, size, orderBy, isBan);
   }
 
-  @RequiresAuthorization("ADMIN")
+  @RequiresAuthorization(ADMIN)
   @PatchMapping(value = "/{userId}/ban", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<Void> banUser(
       @PathVariable String userId,
@@ -161,14 +163,14 @@ public class UserController {
     return userService.banUser(userId, request);
   }
 
-  @RequiresAuthorization("ADMIN")
+  @RequiresAuthorization(ADMIN)
   @GetMapping(value = "/{userId}/admin", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<UserResponse> getDetailUserByAdmin(
       @PathVariable String userId) {
     return userService.getProfile(userId);
   }
 
-  @RequiresAuthorization("ADMIN")
+  @RequiresAuthorization(ADMIN)
   @GetMapping(value = "/count", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<Long> countAllUser() {
     return userService.countAllUser();
@@ -213,7 +215,7 @@ public class UserController {
   public CompletableFuture<Void> updateUserName(
       @Valid @RequestBody UpdateUserNameRequest request
   ) {
-    UserCredentialResponse userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
+    var userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
         .getAttribute("user")));
     return userService.updateUserName(request, userCredential.id());
   }

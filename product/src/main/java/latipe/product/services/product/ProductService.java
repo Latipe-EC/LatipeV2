@@ -247,6 +247,7 @@ public class ProductService implements IProductService {
     return CompletableFuture.supplyAsync(() -> {
 
       // handle case product id and option id is same
+      long startTime = System.nanoTime();
       Set<OrderProductCheckRequest> orderProductSet = new HashSet<>();
       for (OrderProductCheckRequest orderProduct : prodOrders) {
         OrderProductCheckRequest existingProduct = orderProductSet.stream()
@@ -271,7 +272,7 @@ public class ProductService implements IProductService {
 
       var orders = documents.stream().map(doc -> {
 
-        Document productClassificationsDoc = doc.get("productClassifications", Document.class);
+        var productClassificationsDoc = doc.get("productClassifications", Document.class);
 
         OrderProductCheckRequest prodOrder = orderProductSet.stream().filter(
                 x -> x.productId().equals(doc.getObjectId("_id").toString()) && x.optionId()
@@ -319,6 +320,8 @@ public class ProductService implements IProductService {
       var storeProvinceCodes = storeClient.getProvinceCodes(hash,
           GetProvinceCodesRequest.builder().ids(storeIds).build());
 
+      long endTime = System.nanoTime();
+      LOGGER.info(endTime - startTime + " ns");
       return OrderProductResponse.builder()
           .totalPrice(Math.ceil(orders.stream().mapToDouble(ProductOrderVm::totalPrice).sum()))
           .products(orders).storeProvinceCodes(storeProvinceCodes.codes()).build();
@@ -452,6 +455,7 @@ public class ProductService implements IProductService {
         if (product.getProductVariants().isEmpty()) {
           product.setQuantity(req.quantity());
         }
+
         for (ProductClassification productClassification : product.getProductClassifications()) {
           if (productClassification.getId().equals(req.optionId())) {
             if (productClassification.getQuantity() < req.quantity()) {
@@ -485,7 +489,6 @@ public class ProductService implements IProductService {
         }
         rabbitMQProducer.sendMessage(message);
       }
-
       return null;
     });
   }
