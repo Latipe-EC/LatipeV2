@@ -22,6 +22,12 @@ rabbitmq:
       name: rating_exchange
     queue:
       name: internal.rating.product
+  order:
+    exchange: order_routing_key
+    commit: order.product.update
+    rollback: order.product.rollback
+    reply: product.quantity.reply
+    queue: internal.order
 
 secure-internal:
   public-key: "MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAKl5SroD9NuxQ955qCcCMERMAMJz2/CZfx3WTHkQa8cvf13FBkRFvRkLD7U1MRCNylxe+oebmy/OF4GzuSxcDl8CAwEAAQ=="

@@ -54,6 +54,7 @@ import lombok.RequiredArgsConstructor;
 import org.bson.Document;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
@@ -77,6 +78,10 @@ public class ProductService implements IProductService {
   private final SecureInternalProperties secureInternalProperties;
   private final Gson gson;
   private final StoreClient storeClient;
+  @Value("${rabbitmq.exchange.name}")
+  private String exchange;
+  @Value("${rabbitmq.routing.key}")
+  private String routingKey;
 
   @Async
   @Override
@@ -206,7 +211,7 @@ public class ProductService implements IProductService {
       } catch (JsonProcessingException e) {
         throw new RuntimeException(e);
       }
-      rabbitMQProducer.sendMessage(message);
+      rabbitMQProducer.sendMessage(exchange, routingKey, message);
 
       return productMapper.mapToProductToResponse(savedProd, null);
     });
@@ -487,7 +492,7 @@ public class ProductService implements IProductService {
         } catch (JsonProcessingException e) {
           throw new RuntimeException(e);
         }
-        rabbitMQProducer.sendMessage(message);
+        rabbitMQProducer.sendMessage(exchange, routingKey, message);
       }
       return null;
     });
@@ -539,7 +544,7 @@ public class ProductService implements IProductService {
     } catch (JsonProcessingException e) {
       throw new RuntimeException(e);
     }
-    rabbitMQProducer.sendMessage(message);
+    rabbitMQProducer.sendMessage(exchange, routingKey, message);
 
     return CompletableFuture.completedFuture(productMapper.mapToProductToResponse(savedProd, null));
   }
@@ -637,7 +642,7 @@ public class ProductService implements IProductService {
       } catch (JsonProcessingException e) {
         throw new RuntimeException(e);
       }
-      rabbitMQProducer.sendMessage(message);
+      rabbitMQProducer.sendMessage(exchange, routingKey, message);
 
       return null;
     });
@@ -668,7 +673,7 @@ public class ProductService implements IProductService {
       try {
         String message = ParseObjectToString.parse(
             new ProductMessageVm(id, Action.BAN, request.isBanned()));
-        rabbitMQProducer.sendMessage(message);
+        rabbitMQProducer.sendMessage(exchange, routingKey, message);
       } catch (JsonProcessingException e) {
         throw new RuntimeException(e);
       }
