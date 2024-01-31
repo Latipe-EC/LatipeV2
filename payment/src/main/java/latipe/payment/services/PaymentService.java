@@ -50,6 +50,7 @@ import latipe.payment.response.PaymentResponse;
 import latipe.payment.response.UserCredentialResponse;
 import latipe.payment.utils.TokenUtils;
 import latipe.payment.viewmodel.OrderMessage;
+import latipe.payment.viewmodel.OrderReplyMessage;
 import latipe.payment.viewmodel.TokenWithdraw;
 import latipe.payment.viewmodel.WithdrawMessage;
 import lombok.RequiredArgsConstructor;
@@ -92,6 +93,12 @@ public class PaymentService {
   private String topicWithdrawKey;
   @Value("${rabbitmq.email.exchange.name}")
   private String exchangeName;
+
+
+  @Value("${rabbitmq.order.reply}")
+  private String replyRoutingKey;
+  @Value("${rabbitmq.order.exchange}")
+  private String exchange;
 
   @Async
   public CompletableFuture<CapturedPaymentResponse> capturePayment(
@@ -180,6 +187,7 @@ public class PaymentService {
           if (request.status().equals("COMPLETED")) {
             payment.setPaymentStatus(EPaymentStatus.COMPLETED);
           }
+          payment.setEmail(request.email());
           paymentRepository.save(payment);
           return null;
         }
@@ -290,23 +298,10 @@ public class PaymentService {
           }
 
           okhttp3.OkHttpClient client = new okhttp3.OkHttpClient();
-          MediaType mediaType = MediaType.parse("application/json");
-          var body = RequestBody.create(
-              "{\n  \"sender_batch_header\": {\n    \"email_subject\": \"You have a payment\"\n  },\n  \"items\": [\n    {\n      \"recipient_type\": \"EMAIL\",\n      \"amount\": {\n        \"value\": "
-                  + withdraw.getAmount().divide(new BigDecimal(23000), 2, RoundingMode.CEILING)
-                  + ",\n        \"currency\": \"" + "USD"
-                  + "\"\n      },\n      \"receiver\": \"" + withdraw.getEmailRecipient()
-                  + "\",\n      \"note\": \"Complete withdraw!\",\n      \"sender_item_id\": \"item1\"\n    }\n  ]\n}",
-              mediaType);
-
           Request req;
           try {
-            req = new Request.Builder()
-                .url("https://api.sandbox.paypal.com/v1/payments/payouts")
-                .post(body)
-                .addHeader("content-type", "application/json")
-                .addHeader("authorization", "Bearer %s".formatted(getAccessToken()))
-                .build();
+            req = requestTransferMoney(withdraw.getEmailRecipient(),
+                withdraw.getAmount().divide(new BigDecimal(23000), 2, RoundingMode.CEILING));
           } catch (IOException e) {
             throw new RuntimeException(e);
           }
@@ -350,7 +345,6 @@ public class PaymentService {
             if (response.statusCode() != 200) {
               throw new BadRequestException("Cannot get order");
             }
-
             var order = response.result();
             if (order.status().equals("COMPLETED")) {
               payment.setPaymentStatus(EPaymentStatus.COMPLETED);
@@ -491,19 +485,22 @@ public class PaymentService {
   public void handleOrderCreate(
       OrderMessage message) {
     var payment = new Payment();
-    payment.setOrderId(message.orderUuid());
+    payment.setOrderId(message.orderId());
     payment.setAmount(message.amount());
     payment.setPaymentStatus(EPaymentStatus.PENDING);
-    payment.setUserId(message.userRequest().userId());
+    payment.setUserId(message.userId());
     payment.setPaymentMethod(
         message.paymentMethod() == 1 ? EPaymentMethod.COD : EPaymentMethod.PAYPAL);
 
     paymentRepository.save(payment);
+
+    rabbitMQProducer.sendMessage(gson.toJson(
+        OrderReplyMessage.create(1, message.orderId())), exchange, replyRoutingKey);
   }
 
   public void handleUserCancelOrder(
       OrderMessage message) {
-    var payment = paymentRepository.findByOrderId(message.orderUuid()).orElseThrow(
+    var payment = paymentRepository.findByOrderId(message.orderId()).orElseThrow(
         () -> new NotFoundException("Not found payment")
     );
 
@@ -528,11 +525,88 @@ public class PaymentService {
 
   public Payment handleFinishShipping(
       OrderMessage message) {
-    var payment = paymentRepository.findByOrderId(message.orderUuid()).orElseThrow(
+    var payment = paymentRepository.findByOrderId(message.orderId()).orElseThrow(
         () -> new NotFoundException("Not found payment")
     );
     payment.setPaymentStatus(EPaymentStatus.COMPLETED);
     return paymentRepository.save(payment);
   }
 
+  public void handleRollbackOrder(String orderId) {
+    var payment = paymentRepository.findByOrderId(orderId).orElseThrow(
+        () -> new NotFoundException("Not found payment")
+    );
+
+    var withdraw = withdrawRepository.findByOrderId(orderId).orElse(null);
+
+    // IMPORTANT: if payment is already completed, do not throw exception because it causes rollback
+    if (payment.getIsRefund() && withdraw != null) {
+      LOGGER.info("Payment with order id: {} is already refund", orderId);
+      return;
+    }
+
+    Request req;
+    try {
+      req = requestTransferMoney(payment.getEmail(),
+          payment.getAmount().divide(new BigDecimal(23000), 2, RoundingMode.CEILING));
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+
+    // save payment before refund
+    payment.setIsRefund(true);
+    paymentRepository.save(payment);
+
+    okhttp3.OkHttpClient client = new okhttp3.OkHttpClient();
+    try {
+      var response = client.newCall(req).execute();
+      if (!response.isSuccessful()) {
+        payment.setIsRefund(false);
+        paymentRepository.save(payment);
+        throw new BadRequestException("FAILED:Paypal");
+      }
+    } catch (IOException e) {
+      payment.setIsRefund(false);
+      paymentRepository.save(payment);
+      throw new BadRequestException("FAILED:Paypal");
+    }
+
+    try {
+      var newWithdraw = Withdraw.builder()
+          .emailRecipient(payment.getEmail())
+          .amount(payment.getAmount())
+          .userId(payment.getUserId())
+          .withdrawStatus(EWithdrawStatus.COMPLETED)
+          .type(EWithdrawType.PAYPAL)
+          .orderId(payment.getOrderId())
+          .build();
+      withdrawRepository.save(newWithdraw);
+    } catch (Exception e) {
+      LOGGER.error("Cannot create withdraw amount with payment id: {}, proceed with refund",
+          payment.getId());
+      // remember check
+      throw new BadRequestException("FAILED:Withdraw");
+    }
+
+    LOGGER.info("Complete refund amount with payment id: {}", payment.getId());
+  }
+
+  private Request requestTransferMoney(
+      String emailRecipient, BigDecimal amount) throws IOException {
+    MediaType mediaType = MediaType.parse("application/json");
+    var body = RequestBody.create(
+        "{\n  \"sender_batch_header\": {\n    \"email_subject\": \"You have a payment\"\n  },\n  \"items\": [\n    {\n      \"recipient_type\": \"EMAIL\",\n      \"amount\": {\n        \"value\": "
+            + amount
+            + ",\n        \"currency\": \"" + "USD"
+            + "\"\n      },\n      \"receiver\": \"" + emailRecipient
+            + "\",\n      \"note\": \"Complete withdraw!\",\n      \"sender_item_id\": \"item1\"\n    }\n  ]\n}",
+        mediaType);
+
+    return new Request.Builder()
+        .url("https://api.sandbox.paypal.com/v1/payments/payouts")
+        .post(body)
+        .addHeader("content-type", "application/json")
+        .addHeader("authorization", "Bearer %s".formatted(getAccessToken()))
+        .build();
+  }
 }

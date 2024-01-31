@@ -5,6 +5,7 @@ import latipe.product.constants.Action;
 import latipe.product.producer.RabbitMQProducer;
 import latipe.product.repositories.IProductRepository;
 import latipe.product.request.UpdateProductQuantityRequest;
+import latipe.product.viewmodel.OrderReplyMessage;
 import latipe.product.viewmodel.RatingMessage;
 import latipe.product.viewmodel.UpdateProductQuantityVm;
 import lombok.RequiredArgsConstructor;
@@ -25,11 +26,12 @@ public class DataConsumer {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DataConsumer.class);
   private final IProductRepository productRepository;
- private final RabbitMQProducer rabbitMQProducer;
+  private final RabbitMQProducer rabbitMQProducer;
   @Value("${rabbitmq.order.exchange}")
   private String exchange;
   @Value("${rabbitmq.order.reply}")
   private String replyRoutingKey;
+  private final Gson gson;
 
   // TODO miss message when use topic exchange remember test again
   @RabbitListener(bindings = @QueueBinding(value = @Queue(value = "${rabbitmq.rating.queue.name}",
@@ -84,15 +86,17 @@ public class DataConsumer {
       key = "${rabbitmq.order.commit}"))
   public void listenCommitOrder(Message consumerRecord) {
     LOGGER.info("Received message from order");
+    String orderId = null;
     try {
       if (consumerRecord != null) {
-        Gson gson = new Gson();
         var request = gson.fromJson(new String(consumerRecord.getBody()),
             UpdateProductQuantityVm.class);
         var prods = productRepository.findAllByIdsAndStoreId(request.items().stream().map(
             UpdateProductQuantityRequest::productId
         ).toList(), request.storeId());
+        // save orderId to handle rollback
 
+        orderId = request.orderId();
         for (var item : request.items()) {
           var prod = prods.stream().filter(p -> p.getId().equals(item.productId())
           ).findFirst();
@@ -106,25 +110,35 @@ public class DataConsumer {
                     .setQuantity(classification.get().getQuantity() - item.quantity());
               } else {
                 // product out of stock
-                rabbitMQProducer.sendMessage(exchange, replyRoutingKey, request.orderId());
+                rabbitMQProducer.sendMessage(exchange, replyRoutingKey,
+                    gson.toJson(OrderReplyMessage.create(0, request.orderId())));
                 return;
               }
             } else {
               // not found classification
-              rabbitMQProducer.sendMessage(exchange, replyRoutingKey, request.orderId());
+              rabbitMQProducer.sendMessage(exchange, replyRoutingKey,
+                  gson.toJson(OrderReplyMessage.create(0, request.orderId())));
               return;
             }
           } else {
             // not found product
-            rabbitMQProducer.sendMessage(exchange, replyRoutingKey, request.orderId());
+            rabbitMQProducer.sendMessage(exchange, replyRoutingKey,
+                gson.toJson(OrderReplyMessage.create(0, request.orderId())));
             return;
           }
         }
         productRepository.saveAll(prods);
+
+        rabbitMQProducer.sendMessage(exchange, replyRoutingKey,
+            gson.toJson(OrderReplyMessage.create(1, request.orderId())));
         LOGGER.info("Update quantity success");
       }
     } catch (RuntimeException e) {
-      LOGGER.error("error processing message: {}", e.getMessage());
+      if (orderId != null) {
+        rabbitMQProducer.sendMessage(exchange, replyRoutingKey,
+            gson.toJson(OrderReplyMessage.create(0, orderId)));
+      }
+      LOGGER.error("Error processing message: {}", e.getMessage());
     }
   }
 

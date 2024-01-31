@@ -12,16 +12,14 @@ import io.grpc.Status;
 import java.security.interfaces.RSAPublicKey;
 import latipe.product.configs.SecureInternalProperties;
 import latipe.product.exceptions.UnauthorizedException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@RequiredArgsConstructor
 public class GrpcServerRequestInterceptor implements ServerInterceptor {
 
   private final SecureInternalProperties secureInternalProperties;
-
-  public GrpcServerRequestInterceptor(SecureInternalProperties secureInternalProperties) {
-    this.secureInternalProperties = secureInternalProperties;
-  }
 
   @Override
   public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(

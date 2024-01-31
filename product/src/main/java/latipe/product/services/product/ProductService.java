@@ -228,9 +228,9 @@ public class ProductService implements IProductService {
   @Async
   public CompletableFuture<ProductPriceVm> getPrice(String prodId, String code) {
     return CompletableFuture.supplyAsync(() -> {
-      Product product = productRepository.findById(prodId)
+      var product = productRepository.findById(prodId)
           .orElseThrow(() -> new BadRequestException("Product not found"));
-      if (product.getPrice() > 0) {
+      if (product.getProductVariants().isEmpty()) {
         throw new BadRequestException("Product is not have variant");
       }
       for (ProductClassification classification : product.getProductClassifications()) {
@@ -342,8 +342,13 @@ public class ProductService implements IProductService {
 
       List<String> categoryNames = categoryRepository.findAllById(product.getCategories()).stream()
           .map(Category::getName).toList();
-      return new ProductESDetailVm(product.getId(), product.getName(), product.getSlug(),
-          product.getPrice(), product.getIsPublished(), product.getImages(),
+      return new ProductESDetailVm(product.getId(),
+          product.getName(), product.getSlug(),
+          product.getProductClassifications().get(0).getPromotionalPrice() > 0
+              ? product.getProductClassifications().get(0).getPromotionalPrice()
+              : product.getProductClassifications().get(0).getPrice(),
+          product.getIsPublished(),
+          product.getImages(),
           product.getDescription(),
           product.getProductClassifications(),
           product.getProductClassifications().stream().map(ProductClassification::getName).toList(),
@@ -369,7 +374,9 @@ public class ProductService implements IProductService {
       var store = storeClient.getDetailStore(product.getStoreId());
 
       return new ProductDetailResponse(product.getId(), product.getName(), product.getSlug(),
-          product.getPrice(), product.getPromotionalPrice(), product.getIsPublished(),
+          product.getProductClassifications().get(0).getPrice(),
+          product.getProductClassifications().get(0).getPromotionalPrice(),
+          product.getIsPublished(),
           product.getImages(), product.getDescription(), product.getProductClassifications(),
           product.getProductVariants(),
           categories.stream().map(categoryMapper::mapToCategoryResponse).toList(),
@@ -457,9 +464,6 @@ public class ProductService implements IProductService {
         }
 
         boolean isFound = false;
-        if (product.getProductVariants().isEmpty()) {
-          product.setQuantity(req.quantity());
-        }
 
         for (ProductClassification productClassification : product.getProductClassifications()) {
           if (productClassification.getId().equals(req.optionId())) {

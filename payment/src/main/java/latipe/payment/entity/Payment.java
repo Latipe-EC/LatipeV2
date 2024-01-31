@@ -26,8 +26,10 @@ public class Payment extends AbstractAuditEntity {
   private String checkoutId;
   private BigDecimal amount;
   private Double paymentFee;
+  private String email;
   private EPaymentMethod paymentMethod;
   private EPaymentStatus paymentStatus;
   private String gatewayTransactionId;
   private String failureMessage;
+  private Boolean isRefund = false;
 }

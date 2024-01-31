@@ -47,6 +47,12 @@ rabbitmq:
     name: order_exchange
   queue:
     name: internal.payment
+  order:
+    exchange: order_transaction_ex
+    commit: order.payment.update
+    rollback: order.payment.rollback
+    reply: product.payment.reply
+    queue: internal.order
 
 expiration:
   withdraw-exps: 900

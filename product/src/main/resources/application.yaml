@@ -23,7 +23,7 @@ rabbitmq:
     queue:
       name: internal.rating.product
   order:
-    exchange: order_routing_key
+    exchange: order_transaction_ex
     commit: order.product.update
     rollback: order.product.rollback
     reply: product.quantity.reply

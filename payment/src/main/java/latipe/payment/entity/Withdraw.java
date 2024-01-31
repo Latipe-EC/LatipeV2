@@ -28,5 +28,8 @@ public class Withdraw extends AbstractAuditEntity {
   private String failureMessage;
   private EWithdrawType type;
   private String emailRecipient;
+  private String checkoutId;
+  private String orderId;
+
 
 }

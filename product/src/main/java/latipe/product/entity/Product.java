@@ -1,6 +1,5 @@
 package latipe.product.entity;
 
-import jakarta.validation.constraints.Min;
 import java.util.ArrayList;
 import java.util.List;
 import latipe.product.entity.attribute.AttributeValue;
@@ -23,7 +22,6 @@ public class Product extends AbstractAuditEntity {
   private Boolean isBanned = false;
   private Boolean isDeleted = false;
   private Boolean isPublished = true;
-  private Double promotionalPrice;
   private List<AttributeValue> detailsProduct;
   private List<Integer> ratings = List.of(0, 0, 0, 0, 0);
   @Id
@@ -32,10 +30,6 @@ public class Product extends AbstractAuditEntity {
   private String description;
   private List<String> categories;
   private String slug;
-  @Min(0)
-  private Double price;
-  @Min(0)
-  private int quantity;
   private int countSale = 0;
   private String storeId;
   private List<String> images = new ArrayList<>();
