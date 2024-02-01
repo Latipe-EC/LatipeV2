@@ -72,7 +72,7 @@ public class ProductGrpcService extends ProductServiceGrpc.ProductServiceImplBas
         var classification = classificationOpt.get();
         if (classification.getQuantity() >= item.getQuantity()) {
           listItem.add(classification);
-          total += classification.getQuantity() * (classification.getPromotionalPrice() > 0
+          total += item.getQuantity() * (classification.getPromotionalPrice() > 0
               ? classification.getPromotionalPrice() : classification.getPrice());
         } else {
           responseObserver.onError(
