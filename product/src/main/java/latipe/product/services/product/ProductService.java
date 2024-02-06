@@ -39,12 +39,17 @@ import latipe.product.request.UpdateProductRequest;
 import latipe.product.response.OrderProductResponse;
 import latipe.product.response.ProductAdminResponse;
 import latipe.product.response.ProductDetailResponse;
+import latipe.product.response.ProductListGetResponse;
+import latipe.product.response.ProductNameListResponse;
 import latipe.product.response.ProductResponse;
 import latipe.product.response.ProductStoreResponse;
+import latipe.product.utils.AvgRating;
 import latipe.product.utils.ParseObjectToString;
 import latipe.product.viewmodel.ProductClassificationVm;
 import latipe.product.viewmodel.ProductESDetailVm;
+import latipe.product.viewmodel.ProductGetVm;
 import latipe.product.viewmodel.ProductMessageVm;
+import latipe.product.viewmodel.ProductNameGetVm;
 import latipe.product.viewmodel.ProductOrderVm;
 import latipe.product.viewmodel.ProductPriceVm;
 import latipe.product.viewmodel.ProductSample;
@@ -127,7 +132,7 @@ public class ProductService implements IProductService {
             .countSale(doc.getInteger("countSale"))
             .isBanned(doc.getBoolean("isBanned"))
             .reasonBan(doc.getString("reasonBan")).price(price)
-            .rating(calculateRatingAverage(prod.getRatings()))
+            .rating(AvgRating.calc(prod.getRatings()))
             .isDeleted(doc.getBoolean("isDeleted")).build();
       });
       return PagedResultDto.create(Pagination.create(total, skip, limit), list.toList());
@@ -354,7 +359,7 @@ public class ProductService implements IProductService {
           product.getProductClassifications().stream().map(ProductClassification::getName).toList(),
           categoryNames, product.getDetailsProduct(), product.getIsBanned(), product.getIsDeleted(),
           product.getCreatedDate(), product.getCountSale(),
-          calculateRatingAverage(product.getRatings()));
+          AvgRating.calc(product.getRatings()));
     });
   }
 
@@ -383,6 +388,30 @@ public class ProductService implements IProductService {
           product.getDetailsProduct(), product.getIsBanned(), product.getIsDeleted(),
           product.getCreatedDate(), store, product.getRatings());
     });
+  }
+
+  @Override
+  public CompletableFuture<ProductListGetResponse> findProductAdvance(String keyword, Integer page,
+      Integer size, String category) {
+    return CompletableFuture.supplyAsync(() -> {
+
+      var count = productRepository.count();
+      return new ProductListGetResponse(
+          productRepository.searchProductTemp(keyword, category, (long) page * size, size).stream()
+              .map(
+                  ProductGetVm::fromModel).toList(),
+          page, size, count, (int) Math.ceil((double) count / size),
+          count <= (long) (page + 1) * size
+      );
+    });
+  }
+
+  @Override
+  public CompletableFuture<ProductNameListResponse> autoCompleteProductName(String keyword) {
+    return CompletableFuture.supplyAsync(() -> new ProductNameListResponse(
+        productRepository.searchProductTemp(keyword, null, 0, 5).stream().map(
+            ProductNameGetVm::fromModel).toList()
+    ));
   }
 
   @Override
@@ -735,22 +764,11 @@ public class ProductService implements IProductService {
           .countProductVariants(prod.getProductVariants().size())
           .countSale(doc.getInteger("countSale"))
           .reasonBan(doc.getString("reasonBan")).price(price)
-          .rating(calculateRatingAverage(prod.getRatings())).build();
+          .rating(AvgRating.calc(prod.getRatings())).build();
 
     }).toList();
     return PagedResultDto.create(Pagination.create(total, skip, limit), list);
   }
 
-  public double calculateRatingAverage(List<Integer> ratings) {
-    int totalWeight = 0;
-    int weightedSum = 0;
 
-    for (int i = 0; i < ratings.size(); i++) {
-      int weight = i + 1;
-      totalWeight += weight;
-      weightedSum += weight * ratings.get(i);
-    }
-
-    return (double) weightedSum / totalWeight;
-  }
 }

@@ -10,6 +10,8 @@ import latipe.product.request.BanProductRequest;
 import latipe.product.request.CreateProductRequest;
 import latipe.product.request.OrderProductCheckRequest;
 import latipe.product.request.ProductFeatureRequest;
+import latipe.product.response.ProductListGetResponse;
+import latipe.product.response.ProductNameListResponse;
 import latipe.product.request.UpdateProductQuantityRequest;
 import latipe.product.request.UpdateProductRequest;
 import latipe.product.response.OrderProductResponse;
@@ -20,6 +22,7 @@ import latipe.product.response.ProductStoreResponse;
 import latipe.product.viewmodel.ProductESDetailVm;
 import latipe.product.viewmodel.ProductPriceVm;
 import latipe.product.viewmodel.ProductThumbnailVm;
+import org.springframework.web.bind.annotation.RequestParam;
 
 public interface IProductService {
 
@@ -60,4 +63,13 @@ public interface IProductService {
       String name, String orderBy, EStatusBan statusBan);
 
   CompletableFuture<ProductDetailResponse> getProductDetail(String productId);
+
+  CompletableFuture<ProductListGetResponse> findProductAdvance(
+      @RequestParam(defaultValue = "") String keyword,
+      @RequestParam(defaultValue = "0") Integer page,
+      @RequestParam(defaultValue = "12") Integer size,
+      @RequestParam(required = false) String category
+  );
+
+  CompletableFuture<ProductNameListResponse> autoCompleteProductName(String keyword);
 }

@@ -14,6 +14,8 @@ import latipe.product.request.BanProductRequest;
 import latipe.product.request.CreateProductRequest;
 import latipe.product.request.OrderProductCheckRequest;
 import latipe.product.request.ProductFeatureRequest;
+import latipe.product.response.ProductListGetResponse;
+import latipe.product.response.ProductNameListResponse;
 import latipe.product.request.UpdateProductQuantityRequest;
 import latipe.product.request.UpdateProductRequest;
 import latipe.product.response.OrderProductResponse;
@@ -26,6 +28,7 @@ import latipe.product.services.product.IProductService;
 import latipe.product.viewmodel.ProductESDetailVm;
 import latipe.product.viewmodel.ProductPriceVm;
 import latipe.product.viewmodel.ProductThumbnailVm;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
@@ -45,13 +48,11 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @RestController
 @ApiPrefixController("products")
 @Validated
+@RequiredArgsConstructor
 public class ProductController {
 
   private final IProductService productService;
 
-  public ProductController(IProductService productService) {
-    this.productService = productService;
-  }
 
   @RequiresAuthorization("VENDOR")
   @ResponseStatus(HttpStatus.CREATED)
@@ -176,5 +177,22 @@ public class ProductController {
   public CompletableFuture<Void> updateQuantity(
       @Valid @RequestBody List<UpdateProductQuantityRequest> request) {
     return productService.updateQuantity(request);
+  }
+
+
+  //
+  @GetMapping("/catalog-search")
+  public CompletableFuture<ProductListGetResponse> findProductAdvance(
+      @RequestParam(defaultValue = "") String keyword,
+      @RequestParam(defaultValue = "0") Integer page,
+      @RequestParam(defaultValue = "12") Integer size,
+      @RequestParam(required = false) String category
+  ) {
+    return productService.findProductAdvance(keyword, page, size, category);
+  }
+
+  @GetMapping("/search_suggest")
+  public CompletableFuture<ProductNameListResponse> autoCompleteProductName(@RequestParam String keyword) {
+    return productService.autoCompleteProductName(keyword);
   }
 }
