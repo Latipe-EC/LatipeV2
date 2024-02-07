@@ -139,6 +139,7 @@ public class DataConsumer {
                     }
                 }
                 productRepository.saveAll(prods);
+                orderLog.setStatus(1);
                 usingLogRepos.save(orderLog);
 
                 rabbitMQProducer.sendMessage(exchange, replyRoutingKey,
@@ -158,7 +159,7 @@ public class DataConsumer {
             durable = "true"), exchange = @Exchange(value = "${rabbitmq.order.exchange}", type = ExchangeTypes.TOPIC),
             key = "${rabbitmq.order.rollback}"))
     public void listenRollbackOrder(Message consumerRecord) {
-        LOGGER.info("Received message from order");
+        LOGGER.info("Received rollback message from transaction");
         try {
             if (consumerRecord != null) {
                 Gson gson = new Gson();
