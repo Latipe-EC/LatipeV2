@@ -16,6 +16,8 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import static latipe.payment.services.OrderStatus.*;
+
 @Service
 @RequiredArgsConstructor
 public class DataConsumer {
@@ -43,22 +45,26 @@ public class DataConsumer {
                 orderId = message.orderId();
                 orderStatus = message.status();
 
-                // create: order
-                if (message.status().equals(0)) {
-                    paymentService.handleOrderCreate(message);
-                } else if (message.status().equals(4)) {
-                    var payment = paymentService.handleFinishShipping(message);
-                    LOGGER.info(
-                            "User finish shipping order: %s with amount %s".formatted(payment.getOrderId(),
-                                    payment.getAmount()));
-                } else if (message.status().equals(7)) {
-                    paymentService.handleUserCancelOrder(message);
-                    LOGGER.info("User cancel order: {}", message.orderId());
+                switch (orderStatus) {
+
+                    case ORDER_SYSTEM_PROCESS -> paymentService.handleOrderCreate(message); //create purchase payment
+
+                    case ORDER_SHIPPING_FINISH -> {    //the order is finished shipping
+                        var payment = paymentService.handleFinishShipping(message);
+                        LOGGER.info("User finish shipping order: %s with amount %s".formatted(payment.getOrderId(),
+                                payment.getAmount()));
+                    }
+
+                    case ORDER_CANCEL_BY_USER, ORDER_CANCEL_BY_STORE,
+                            ORDER_CANCEL_BY_DELI, ORDER_CANCEL_BY_ADMIN -> {  //the order is cancel
+                        paymentService.handleUserCancelOrder(message);
+                        LOGGER.info("User cancel order: {}", message.orderId());
+                    }
                 }
             }
         } catch (RuntimeException e) {
             // rollback create order
-            if (orderId != null && orderStatus == 0) {
+            if (orderId != null && orderStatus == ORDER_SYSTEM_PROCESS) {
                 rabbitMQProducer.sendMessage(gson.toJson(
                         OrderReplyMessage.create(0, orderId)), exchange, replyRoutingKey);
             }
@@ -67,7 +73,7 @@ public class DataConsumer {
     }
 
     @RabbitListener(bindings = @QueueBinding(value = @Queue(value = "${rabbitmq.order.queue}", durable = "true"),
-            exchange = @Exchange(value = "${rabbitmq.order.exchange}",type = "topic"), key = "${rabbitmq.order.rollback}"))
+            exchange = @Exchange(value = "${rabbitmq.order.exchange}", type = "topic"), key = "${rabbitmq.order.rollback}"))
     public void listenRollbackOrder(Message consumerRecord) {
         String orderId;
         try {

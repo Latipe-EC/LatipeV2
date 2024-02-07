@@ -41,7 +41,7 @@ gate-way:
   port: ${GATE_WAY_PORT:8181}
 
 grpc:
-  port: ${GRPC_PRODUCT_PORT:9090}
+  port: ${GRPC_PRODUCT_PORT:9645}
 
 #  servlet:
 #    context-path: /api/v1
