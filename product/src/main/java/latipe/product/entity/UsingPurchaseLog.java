@@ -17,10 +17,11 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UsingPurchaseLog extends AbstractAuditEntity {
-    @Id
-    private String id;
-    private String orderId;
-    private Integer status;
-    private String storeId;
-    private List<UsingItem> items = new ArrayList<>();
+
+  @Id
+  private String id;
+  private String orderId;
+  private Integer status;
+  private String storeId;
+  private List<UsingItem> items = new ArrayList<>();
 }

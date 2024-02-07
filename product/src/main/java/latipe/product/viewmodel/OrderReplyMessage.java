@@ -7,6 +7,7 @@ public record OrderReplyMessage(
     @SerializedName(value = "order_id")
     String orderId
 ) {
+
   public static OrderReplyMessage create(int status, String orderId) {
     return new OrderReplyMessage(status, orderId);
   }

@@ -192,7 +192,8 @@ public class ProductController {
   }
 
   @GetMapping("/search_suggest")
-  public CompletableFuture<ProductNameListResponse> autoCompleteProductName(@RequestParam String keyword) {
+  public CompletableFuture<ProductNameListResponse> autoCompleteProductName(
+      @RequestParam String keyword) {
     return productService.autoCompleteProductName(keyword);
   }
 }
