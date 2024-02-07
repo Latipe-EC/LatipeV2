@@ -3,7 +3,8 @@ package latipe.product.utils;
 import java.util.List;
 
 public class AvgRating {
-  public static  double calc(List<Integer> ratings) {
+
+  public static double calc(List<Integer> ratings) {
     int totalWeight = 0;
     int weightedSum = 0;
 

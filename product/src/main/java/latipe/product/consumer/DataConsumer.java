@@ -2,11 +2,15 @@ package latipe.product.consumer;
 
 import com.google.gson.Gson;
 import latipe.product.constants.Action;
+import latipe.product.entity.UsingPurchaseLog;
+import latipe.product.entity.product.UsingItem;
 import latipe.product.producer.RabbitMQProducer;
 import latipe.product.repositories.IProductRepository;
+import latipe.product.repositories.IUsingPurchaseLogsRepository;
 import latipe.product.request.UpdateProductQuantityRequest;
 import latipe.product.viewmodel.OrderReplyMessage;
 import latipe.product.viewmodel.RatingMessage;
+import latipe.product.viewmodel.RollbackProductMessage;
 import latipe.product.viewmodel.UpdateProductQuantityVm;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -26,12 +30,13 @@ public class DataConsumer {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DataConsumer.class);
   private final IProductRepository productRepository;
+  private final IUsingPurchaseLogsRepository usingLogRepos;
   private final RabbitMQProducer rabbitMQProducer;
+  private final Gson gson;
   @Value("${rabbitmq.order.exchange}")
   private String exchange;
   @Value("${rabbitmq.order.reply}")
   private String replyRoutingKey;
-  private final Gson gson;
 
   // TODO miss message when use topic exchange remember test again
   @RabbitListener(bindings = @QueueBinding(value = @Queue(value = "${rabbitmq.rating.queue.name}",
@@ -81,33 +86,39 @@ public class DataConsumer {
     }
   }
 
-  @RabbitListener(bindings = @QueueBinding(value = @Queue(value = "${rabbitmq.order.queue}",
+  @RabbitListener(bindings = @QueueBinding(value = @Queue(value = "${rabbitmq.order.queue}.update",
       durable = "true"), exchange = @Exchange(value = "${rabbitmq.order.exchange}", type = ExchangeTypes.TOPIC),
       key = "${rabbitmq.order.commit}"))
   public void listenCommitOrder(Message consumerRecord) {
     LOGGER.info("Received message from order");
     String orderId = null;
     try {
+      var orderLog = new UsingPurchaseLog();
       if (consumerRecord != null) {
         var request = gson.fromJson(new String(consumerRecord.getBody()),
             UpdateProductQuantityVm.class);
+        LOGGER.info("{}", request);
         var prods = productRepository.findAllByIdsAndStoreId(request.items().stream().map(
-            UpdateProductQuantityRequest::productId
-        ).toList(), request.storeId());
+            UpdateProductQuantityRequest::productId).toList(), request.storeId());
         // save orderId to handle rollback
 
         orderId = request.orderId();
+        orderLog.setOrderId(orderId);
+        orderLog.setStoreId(request.storeId());
+
         for (var item : request.items()) {
-          var prod = prods.stream().filter(p -> p.getId().equals(item.productId())
-          ).findFirst();
+          var prod = prods.stream().filter(p -> p.getId().equals(item.productId())).findFirst();
           if (prod.isPresent()) {
-            var classification = prod.get().getProductClassifications().stream().filter(
-                c -> c.getId().equals(item.optionId())
-            ).findFirst();
+            var classification = prod.get().getProductClassifications()
+                .stream().filter(c -> c.getId().equals(item.optionId())).findFirst();
+
             if (classification.isPresent()) {
               if (classification.get().getQuantity() >= item.quantity()) {
                 classification.get()
                     .setQuantity(classification.get().getQuantity() - item.quantity());
+
+                orderLog.getItems().add(
+                    new UsingItem(item.productId(), item.optionId(), item.quantity()));
               } else {
                 // product out of stock
                 rabbitMQProducer.sendMessage(exchange, replyRoutingKey,
@@ -128,6 +139,8 @@ public class DataConsumer {
           }
         }
         productRepository.saveAll(prods);
+        orderLog.setStatus(1);
+        usingLogRepos.save(orderLog);
 
         rabbitMQProducer.sendMessage(exchange, replyRoutingKey,
             gson.toJson(OrderReplyMessage.create(1, request.orderId())));
@@ -142,33 +155,45 @@ public class DataConsumer {
     }
   }
 
-  @RabbitListener(bindings = @QueueBinding(value = @Queue(value = "${rabbitmq.order.queue}",
+  @RabbitListener(bindings = @QueueBinding(value = @Queue(value = "${rabbitmq.order.queue}.rollback",
       durable = "true"), exchange = @Exchange(value = "${rabbitmq.order.exchange}", type = ExchangeTypes.TOPIC),
       key = "${rabbitmq.order.rollback}"))
   public void listenRollbackOrder(Message consumerRecord) {
-    LOGGER.info("Received message from order");
+    LOGGER.info("Received rollback message from transaction");
     try {
       if (consumerRecord != null) {
         Gson gson = new Gson();
         var request = gson.fromJson(new String(consumerRecord.getBody()),
-            UpdateProductQuantityVm.class);
-        var prods = productRepository.findAllByIdsAndStoreId(request.items().stream().map(
-            UpdateProductQuantityRequest::productId
-        ).toList(), request.storeId());
+            RollbackProductMessage.class);
+        var usingLog = usingLogRepos.findUsingPurchaseLogByOrderId(request.orderId());
 
-        for (var item : request.items()) {
-          var prod = prods.stream().filter(p -> p.getId().equals(item.productId())
-          ).findFirst();
-          if (prod.isPresent()) {
-            var classification = prod.get().getProductClassifications().stream().filter(
-                c -> c.getId().equals(item.optionId())
-            ).findFirst();
-            classification.ifPresent(productClassification -> productClassification
-                .setQuantity(productClassification.getQuantity() + item.quantity()));
+        if (usingLog.isPresent()) {
+          var prods = productRepository.findAllByIdsAndStoreId(
+              usingLog.get().getItems().stream().map(
+                  UsingItem::getProductId).toList(), usingLog.get().getStoreId());
+
+          for (var item : usingLog.get().getItems()) {
+            var prod = prods.stream().filter(p -> p.getId().equals(item.getProductId()))
+                .findFirst();
+
+            if (prod.isPresent()) {
+              var classification = prod.get().getProductClassifications()
+                  .stream().filter(c -> c.getId().equals(item.getOptionId())).findFirst();
+
+              if (classification.isPresent()) {
+                classification.get()
+                    .setQuantity(classification.get().getQuantity() + item.getQuantity());
+              } else {
+                // not found classification
+                LOGGER.error("ROLLBACK not found classification");
+                return;
+              }
+            }
+            usingLog.get().setStatus(-1);
           }
+          usingLogRepos.save(usingLog.get());
+          productRepository.saveAll(prods);
         }
-        productRepository.saveAll(prods);
-        LOGGER.info("Rollback quantity success");
       }
     } catch (RuntimeException e) {
       LOGGER.error("error processing message: {}", e.getMessage());
