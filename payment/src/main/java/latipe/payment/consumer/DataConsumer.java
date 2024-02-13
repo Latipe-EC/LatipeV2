@@ -1,11 +1,11 @@
 package latipe.payment.consumer;
 
-import static latipe.payment.services.OrderStatus.ORDER_CANCEL_BY_ADMIN;
-import static latipe.payment.services.OrderStatus.ORDER_CANCEL_BY_DELI;
-import static latipe.payment.services.OrderStatus.ORDER_CANCEL_BY_STORE;
-import static latipe.payment.services.OrderStatus.ORDER_CANCEL_BY_USER;
-import static latipe.payment.services.OrderStatus.ORDER_SHIPPING_FINISH;
-import static latipe.payment.services.OrderStatus.ORDER_SYSTEM_PROCESS;
+import static latipe.payment.constants.CONSTANTS.ORDER_CANCEL_BY_ADMIN;
+import static latipe.payment.constants.CONSTANTS.ORDER_CANCEL_BY_DELI;
+import static latipe.payment.constants.CONSTANTS.ORDER_CANCEL_BY_STORE;
+import static latipe.payment.constants.CONSTANTS.ORDER_CANCEL_BY_USER;
+import static latipe.payment.constants.CONSTANTS.ORDER_SHIPPING_FINISH;
+import static latipe.payment.constants.CONSTANTS.ORDER_SYSTEM_PROCESS;
 
 import com.google.gson.Gson;
 import latipe.payment.producer.RabbitMQProducer;
