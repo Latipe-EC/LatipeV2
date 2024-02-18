@@ -16,19 +16,7 @@ public record CapturedPaymentRequest(
     String gatewayTransactionId,
     EPaymentMethod paymentMethod,
     EPaymentStatus paymentStatus,
+    String email,
     String failureMessage) {
-
-  public static CapturedPaymentRequest fromModel(Payment payment) {
-    return CapturedPaymentRequest.builder()
-        .amount(payment.getAmount())
-        .paymentFee(payment.getPaymentFee())
-        .checkoutId(payment.getCheckoutId())
-        .orderId(payment.getOrderId())
-        .gatewayTransactionId(payment.getGatewayTransactionId())
-        .paymentMethod(payment.getPaymentMethod())
-        .paymentStatus(payment.getPaymentStatus())
-        .failureMessage(payment.getFailureMessage())
-        .build();
-  }
 
 }

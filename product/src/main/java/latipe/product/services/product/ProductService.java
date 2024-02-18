@@ -394,10 +394,10 @@ public class ProductService implements IProductService {
   public CompletableFuture<ProductListGetResponse> findProductAdvance(String keyword, Integer page,
       Integer size, String category) {
     return CompletableFuture.supplyAsync(() -> {
-
       var count = productRepository.count();
       return new ProductListGetResponse(
-          productRepository.searchProductTemp(keyword, category, (long) page * size, size).stream()
+          productRepository.searchProductTemp(keyword, category == null ?
+                  "null" : category, (long) page * size, size).stream()
               .map(
                   ProductGetVm::fromModel).toList(),
           page, size, count, (int) Math.ceil((double) count / size),

@@ -105,16 +105,16 @@ public class PaymentService {
       CapturedPaymentRequest completedPayment) {
     return CompletableFuture.supplyAsync(
         () -> {
-          var payment = Payment.builder()
-              .checkoutId(completedPayment.checkoutId())
-              .orderId(completedPayment.orderId())
-              .paymentStatus(completedPayment.paymentStatus())
-              .paymentFee(completedPayment.paymentFee())
-              .paymentMethod(completedPayment.paymentMethod())
-              .amount(completedPayment.amount())
-              .failureMessage(completedPayment.failureMessage())
-              .gatewayTransactionId(completedPayment.gatewayTransactionId())
-              .build();
+          var payment = new Payment();
+          payment.setOrderId(completedPayment.orderId());
+          payment.setPaymentStatus(EPaymentStatus.COMPLETED);
+          payment.setPaymentFee(completedPayment.paymentFee());
+          payment.setPaymentMethod(completedPayment.paymentMethod());
+          payment.setAmount(completedPayment.amount());
+          payment.setFailureMessage(completedPayment.failureMessage());
+          payment.setGatewayTransactionId(completedPayment.gatewayTransactionId());
+          payment.setCheckoutId(completedPayment.checkoutId());
+          payment.setEmail(completedPayment.email());
           return CapturedPaymentResponse.fromModel(paymentRepository.save(payment));
         }
     );

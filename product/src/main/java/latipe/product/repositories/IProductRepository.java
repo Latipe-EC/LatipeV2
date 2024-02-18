@@ -21,9 +21,10 @@ public interface IProductRepository extends MongoRepository<Product, String> {
   List<Product> findAllByIdsAndStoreId(List<String> ids, String storeId);
 
   @Aggregation(pipeline = {
-      "{ $match: { $or: [ { 'categoryId': ?2 }, { 'categoryId': { $exists: false } } ], 'name': { $regex: ?1, $options: 'i' } } }",
-      "{ $skip: ?3 }",
-      "{ $limit: ?4 }"
+      "{ $match: { $or: [ { 'categoryId': ?1 },"
+          + " { 'categoryId': { $exists: false } } ], 'name': { $regex: ?0, $options: 'i' } } }",
+      "{ $skip: ?2 }",
+      "{ $limit: ?3 }"
   })
   List<Product> searchProductTemp(String keyword, String category, long skip,
       Integer limit);
