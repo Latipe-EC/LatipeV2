@@ -130,7 +130,7 @@ spring:
         - id: orders-service
           uri: http://localhost:${ORDER_PORT:5000}
           predicates:
-            - Path=/api/v1/orders/**
+            - Path=/api/v1/orders/**,/api/v2/orders/**
           filters:
             - RewritePath=/(?<segment>.*), /$\{segment}
 
