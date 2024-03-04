@@ -20,6 +20,7 @@ public class CartConsumer {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CartConsumer.class);
   private final ICartService cartService;
+  private final Gson gson;
 
   @RabbitListener(bindings = @QueueBinding(
       value = @Queue(value = "${rabbitmq.queue.name}",
@@ -29,13 +30,16 @@ public class CartConsumer {
   public void listen(Message consumerRecord) {
     try {
       if (consumerRecord != null) {
-        Gson gson = new Gson();
-        UpdateCartAfterOrderVm cartIdVmList = gson.fromJson(new String(consumerRecord.getBody()),
+        var cartIdVmList = gson.fromJson(new String(consumerRecord.getBody()),
             UpdateCartAfterOrderVm.class);
+
+        LOGGER.info(
+            "Remove cart with ids: [%s]".formatted(String.join(", ", cartIdVmList.cartIdVmList())));
+
         cartService.removeCartItemAfterOrder(cartIdVmList).get();
       }
     } catch (RuntimeException | ExecutionException | InterruptedException e) {
-      LOGGER.warn(e.getMessage());
+      LOGGER.error("Error when remove cart item after order: %s".formatted(e.getMessage()));
     }
   }
 }
