@@ -49,6 +49,7 @@ public class ProductGrpcService extends ProductServiceGrpc.ProductServiceImplBas
                 .setQuantity(classification.getQuantity())
                 .setImage(prod.getImages().get(0))
                 .setName(prod.getName())
+                .setNameOption(classification.getName())
                 .setPromotionalPrice(classification.getPromotionalPrice().longValue())
                 .setPrice(classification.getPrice().longValue())
                 .setStoreId(prod.getStoreId())
