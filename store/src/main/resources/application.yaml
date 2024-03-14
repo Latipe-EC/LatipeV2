@@ -6,7 +6,7 @@ spring:
       uri: ${SPRING_DATA_MONGODB_URI:mongodb://localhost:27017}
   rabbitmq:
     port: ${RABBIT_MQ_PORT:5672}
-    host: ${HOST_RABBIT_MQ_PORT:localhost}
+    host: ${RABBIT_MQ_HOST:localhost}
 
 server:
   port: ${STORE_PORT:8118}

@@ -26,7 +26,7 @@ spring:
     name: search-service
   rabbitmq:
     port: ${RABBIT_MQ_PORT:5672}
-    host: ${HOST_RABBIT_MQ_PORT:localhost}
+    host: ${RABBIT_MQ_HOST:localhost}
 
 gate-way:
   host: ${GATE_WAY_HOST:http://localhost}

@@ -1,6 +1,133 @@
 version: '3'
 services:
+  latipe-product-service:
+    image: 0353486363/latipe-product-service:latest
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/
+      RABBIT_MQ_HOST: rabbitmq
+    ports:
+      - "8645:8645"
+    networks:
+      - latipe-network
+  latipe-user-service:
+    image: 0353486363/latipe-user-service:latest
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/
+      RABBIT_MQ_HOST: rabbitmq
+    ports:
+      - "8381:8381"
+    networks:
+      - latipe-network
+  latipe-payment-service:
+    image: 0353486363/latipe-payment-service:latest
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/
+      RABBIT_MQ_HOST: rabbitmq
+
+    networks:
+      - latipe-network
+  latipe-search-service:
+    image: 0353486363/latipe-search-service:latest
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/
+      RABBIT_MQ_HOST: rabbitmq
+    ports:
+      - "8092:8092"
+    networks:
+      - latipe-network
+  latipe-auth-service:
+    image: 0353486363/latipe-auth-service:latest
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/
+      RABBIT_MQ_HOST: rabbitmq
+    ports:
+      - "8081:8081"
+    networks:
+      - latipe-network
+  latipe-store-service:
+    image: 0353486363/latipe-store-service:latest
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/
+      RABBIT_MQ_HOST: rabbitmq
+    ports:
+      - "8118:8118"
+    networks:
+      - latipe-network
   latipe-rating-service:
-    image: 0353486363/latipe-rating-service:tagname
+    image: 0353486363/latipe-rating-service:latest
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/
+      RABBIT_MQ_HOST: rabbitmq
+    ports:
+      - "8777:8777"
+    networks:
+      - latipe-network
+  latipe-media-service:
+    image: 0353486363/latipe-media-service:latest
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/
+      RABBIT_MQ_HOST: rabbitmq
+    ports:
+      - "7657:7657"
+    networks:
+      - latipe-network
+  latipe-api-gateway-service:
+    image: 0353486363/latipe-api-gateway-service:latest
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/
+      RABBIT_MQ_HOST: rabbitmq
     ports:
       - "8080:8080"
+    networks:
+      - latipe-network
+  latipe-cart-service:
+    image: 0353486363/latipe-cart-service:latest
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/
+      RABBIT_MQ_HOST: rabbitmq
+    ports:
+      - "7650:7650"
+    networks:
+      - latipe-network
+  latipe-discovery-server-service:
+    image: 0353486363/latipe-discovery-server-service:latest
+    ports:
+      - "8761:8761"
+    networks:
+      - latipe-network
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: 123123@Dat
+      MYSQL_DATABASE: backend_orders_service
+    ports:
+      - "3306:3306"
+    command: --default-authentication-plugin=mysql_native_password
+    networks:
+      - latipe-network
+
+  rabbitmq:
+    image: rabbitmq:3.12-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - latipe-network
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    networks:
+      - latipe-network
+
+  mongo:
+    image: mongo:7.0.1-rc0
+    ports:
+      - "27017:27017"
+    networks:
+      - latipe-network
+networks:
+  latipe-network:
+    driver: bridge
