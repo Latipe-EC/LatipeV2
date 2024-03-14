@@ -5,6 +5,8 @@ services:
     environment:
       SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/
       RABBIT_MQ_HOST: rabbitmq
+      EUREKA_HOST: latipe-discovery-server-service
+      GATE_WAY_HOST: latipe-api-gateway-service
     ports:
       - "8645:8645"
     networks:
@@ -14,6 +16,8 @@ services:
     environment:
       SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/
       RABBIT_MQ_HOST: rabbitmq
+      EUREKA_HOST: latipe-discovery-server-service
+      GATE_WAY_HOST: latipe-api-gateway-service
     ports:
       - "8381:8381"
     networks:
@@ -23,6 +27,8 @@ services:
     environment:
       SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/
       RABBIT_MQ_HOST: rabbitmq
+      EUREKA_HOST: latipe-discovery-server-service
+      GATE_WAY_HOST: latipe-api-gateway-service
 
     networks:
       - latipe-network
@@ -31,6 +37,8 @@ services:
     environment:
       SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/
       RABBIT_MQ_HOST: rabbitmq
+      EUREKA_HOST: latipe-discovery-server-service
+      GATE_WAY_HOST: latipe-api-gateway-service
     ports:
       - "8092:8092"
     networks:
@@ -40,6 +48,8 @@ services:
     environment:
       SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/
       RABBIT_MQ_HOST: rabbitmq
+      EUREKA_HOST: latipe-discovery-server-service
+      GATE_WAY_HOST: latipe-api-gateway-service
     ports:
       - "8081:8081"
     networks:
@@ -49,6 +59,8 @@ services:
     environment:
       SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/
       RABBIT_MQ_HOST: rabbitmq
+      EUREKA_HOST: latipe-discovery-server-service
+      GATE_WAY_HOST: latipe-api-gateway-service
     ports:
       - "8118:8118"
     networks:
@@ -58,6 +70,8 @@ services:
     environment:
       SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/
       RABBIT_MQ_HOST: rabbitmq
+      EUREKA_HOST: latipe-discovery-server-service
+      GATE_WAY_HOST: latipe-api-gateway-service
     ports:
       - "8777:8777"
     networks:
@@ -67,6 +81,8 @@ services:
     environment:
       SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/
       RABBIT_MQ_HOST: rabbitmq
+      EUREKA_HOST: latipe-discovery-server-service
+      GATE_WAY_HOST: latipe-api-gateway-service
     ports:
       - "7657:7657"
     networks:
@@ -76,19 +92,25 @@ services:
     environment:
       SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/
       RABBIT_MQ_HOST: rabbitmq
+      EUREKA_HOST: latipe-discovery-server-service
+      GATE_WAY_HOST: latipe-api-gateway-service
     ports:
       - "8080:8080"
     networks:
       - latipe-network
+
   latipe-cart-service:
     image: 0353486363/latipe-cart-service:latest
     environment:
       SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/
       RABBIT_MQ_HOST: rabbitmq
+      EUREKA_HOST: latipe-discovery-server-service
+      GATE_WAY_HOST: latipe-api-gateway-service
     ports:
       - "7650:7650"
     networks:
       - latipe-network
+
   latipe-discovery-server-service:
     image: 0353486363/latipe-discovery-server-service:latest
     ports:

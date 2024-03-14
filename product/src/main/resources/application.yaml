@@ -52,14 +52,13 @@ management:
         include: prometheus
   tracing:
     sampling:
-      probability: '1.0'
+      probability: "1.0"
 logging:
   pattern:
-    level: '%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]'
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://eureka:password@localhost:${EUREKA_PORT:8761}/eureka
+      defaultZone: http://eureka:password@${EUREKA_HOST:localhost}:${EUREKA_PORT:8761}/eureka
 springdoc:
   packagesToScan: latipe.product
-

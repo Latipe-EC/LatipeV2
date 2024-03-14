@@ -3,7 +3,7 @@ server:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://eureka:password@localhost:${EUREKA_PORT:8761}/eureka
+      defaultZone: http://eureka:password@${EUREKA_HOST:localhost}:${EUREKA_PORT:8761}/eureka
 app:
   eureka-server: localhost
 spring:
@@ -19,7 +19,7 @@ spring:
         - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
       globalcors:
         corsConfigurations:
-          '[/**]':
+          "[/**]":
             allowedOrigins: "*"
             allowedMethods: "*"
             allowedHeaders: "*"
@@ -159,5 +159,4 @@ management:
         include: prometheus
   tracing:
     sampling:
-      probability: '1.0'
-
+      probability: "1.0"

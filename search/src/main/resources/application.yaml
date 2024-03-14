@@ -11,10 +11,10 @@ management:
       percentiles-histogram:
         http:
           server:
-            requests: 'true'
+            requests: "true"
   tracing:
     sampling:
-      probability: '1.0'
+      probability: "1.0"
 elasticsearch:
   clustername: docker-cluster
   url: ${URL_ELASTIC:localhost:9200}
@@ -43,7 +43,7 @@ rabbitmq:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://eureka:password@localhost:${EUREKA_PORT:8761}/eureka
+      defaultZone: http://eureka:password@${EUREKA_HOST:localhost}:${EUREKA_PORT:8761}/eureka
 springdoc:
   packagesToScan: latipe.search
 
@@ -51,4 +51,4 @@ server:
   port: ${SEARCH_PORT:8092}
 logging:
   pattern:
-    level: '%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]'
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
