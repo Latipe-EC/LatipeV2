@@ -238,7 +238,7 @@
   </parent>
 
   <properties>
-    <grpc.version>1.42.1</grpc.version>
+    <grpc.version>1.62.2</grpc.version>
     <java.version>17</java.version>
     <mainClass>latipe.product.ProductApplication</mainClass>
     <mapstruct.version>1.5.5.Final</mapstruct.version>
