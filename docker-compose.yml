@@ -11,6 +11,7 @@ services:
       - "8645:8645"
     networks:
       - latipe-network
+
   latipe-user-service:
     image: 0353486363/latipe-user-service:latest
     environment:
@@ -22,6 +23,7 @@ services:
       - "8381:8381"
     networks:
       - latipe-network
+
   latipe-payment-service:
     image: 0353486363/latipe-payment-service:latest
     environment:
@@ -39,10 +41,12 @@ services:
       RABBIT_MQ_HOST: rabbitmq
       EUREKA_HOST: latipe-discovery-server-service
       GATE_WAY_HOST: latipe-api-gateway-service
+      URL_ELASTIC: elastic-search:9200
     ports:
       - "8092:8092"
     networks:
       - latipe-network
+  
   latipe-auth-service:
     image: 0353486363/latipe-auth-service:latest
     environment:
@@ -54,6 +58,7 @@ services:
       - "8081:8081"
     networks:
       - latipe-network
+
   latipe-store-service:
     image: 0353486363/latipe-store-service:latest
     environment:
@@ -65,6 +70,7 @@ services:
       - "8118:8118"
     networks:
       - latipe-network
+
   latipe-rating-service:
     image: 0353486363/latipe-rating-service:latest
     environment:
@@ -76,6 +82,7 @@ services:
       - "8777:8777"
     networks:
       - latipe-network
+
   latipe-media-service:
     image: 0353486363/latipe-media-service:latest
     environment:
@@ -87,6 +94,7 @@ services:
       - "7657:7657"
     networks:
       - latipe-network
+
   latipe-api-gateway-service:
     image: 0353486363/latipe-api-gateway-service:latest
     environment:
@@ -150,6 +158,27 @@ services:
       - "27017:27017"
     networks:
       - latipe-network
+
+  elastic-search:
+    image: 0353486363/latipe-elastic-search-vietnamese:latest
+    restart: on-failure
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+      memlock:
+        hard: -1
+        soft: -1
+    environment:
+      ES_JAVA_OPTS: "-Xmx2g -Xms2g"
+      bootstrap.memory_lock: "true"
+      discovery.type: "single-node"
+      xpack.security.enabled: "false"
+    ports:
+      - "9200:9200"
+    networks:
+      - latipe-network
+
 networks:
   latipe-network:
     driver: bridge

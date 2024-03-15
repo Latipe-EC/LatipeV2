@@ -2,8 +2,11 @@ package latipe.auth.constants;
 
 public class CONSTANTS {
 
+  public static final String REQUEST_ID = "req-id";
+
   public static enum TOKEN_TYPE {
     RESET_PASSWORD(1), VERIFY_EMAIL(2);
+
 
     private final int value;
 

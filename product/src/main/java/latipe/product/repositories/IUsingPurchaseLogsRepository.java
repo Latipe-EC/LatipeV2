@@ -1,10 +1,9 @@
 package latipe.product.repositories;
 
 
+import java.util.Optional;
 import latipe.product.entity.UsingPurchaseLog;
 import org.springframework.data.mongodb.repository.MongoRepository;
-
-import java.util.Optional;
 
 public interface IUsingPurchaseLogsRepository extends MongoRepository<UsingPurchaseLog, String> {
 

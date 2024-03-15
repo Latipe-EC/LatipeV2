@@ -108,6 +108,13 @@
       <groupId>io.github.openfeign</groupId>
       <version>10.11</version>
     </dependency>
+
+    <!-- Spring Data Redis -->
+    <dependency>
+      <artifactId>spring-boot-starter-data-redis</artifactId>
+      <groupId>org.springframework.boot</groupId>
+    </dependency>
+
   </dependencies>
   <dependencyManagement>
     <dependencies>

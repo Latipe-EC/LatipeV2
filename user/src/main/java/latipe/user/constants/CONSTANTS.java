@@ -2,6 +2,8 @@ package latipe.user.constants;
 
 public class CONSTANTS {
 
+  public static final String REQUEST_ID = "req-id";
+
   public static String USER = "USER";
   public static String ADMIN = "ADMIN";
   public static String VENDOR = "VENDOR";

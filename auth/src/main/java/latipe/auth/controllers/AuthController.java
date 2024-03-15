@@ -1,18 +1,22 @@
 package latipe.auth.controllers;
 
 
+import static latipe.auth.utils.AuthenticationUtils.genKeyCacheToken;
+import static latipe.auth.utils.AuthenticationUtils.getMethodName;
 import static latipe.auth.utils.Constants.ErrorCode.TOKEN_EXPIRED;
 import static latipe.auth.utils.GenTokenInternal.generateHash;
 import static latipe.auth.utils.GenTokenInternal.getPrivateKey;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import feign.Feign;
 import feign.Logger;
 import feign.gson.GsonDecoder;
 import feign.gson.GsonEncoder;
 import feign.okhttp.OkHttpClient;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
@@ -24,6 +28,7 @@ import latipe.auth.config.SecureInternalProperties;
 import latipe.auth.entity.Role;
 import latipe.auth.entity.User;
 import latipe.auth.exceptions.BadRequestException;
+import latipe.auth.exceptions.ForbiddenException;
 import latipe.auth.exceptions.NotFoundException;
 import latipe.auth.exceptions.UnauthorizedException;
 import latipe.auth.feign.TokenClient;
@@ -40,9 +45,12 @@ import latipe.auth.response.LoginResponse;
 import latipe.auth.response.RefreshTokenResponse;
 import latipe.auth.response.UserCredentialResponse;
 import latipe.auth.response.UserResponse;
+import latipe.auth.services.TokenCache;
 import latipe.auth.viewmodel.ErrorMessage;
+import latipe.auth.viewmodel.LogMessage;
 import lombok.RequiredArgsConstructor;
 import org.bson.Document;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
@@ -61,17 +69,24 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthController {
 
+  private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(AuthController.class);
   private final JwtTokenService jwtUtil;
   private final MongoTemplate mongoTemplate;
   private final SecureInternalProperties secureInternalProperties;
   private final ObjectMapper objectMapper;
   private final GateWayProperties gateWayProperties;
+  private final TokenCache tokenCache;
+  private final Gson gson;
 
   @PostMapping("/login")
   @ResponseStatus(HttpStatus.OK)
   public CompletableFuture<LoginResponse> createAuthenticationToken(
-      @RequestBody @Valid LoginRequest loginRequest) {
+      @RequestBody @Valid LoginRequest loginRequest, HttpServletRequest request) {
     return CompletableFuture.supplyAsync(() -> {
+      LOGGER.info(gson.toJson(
+          LogMessage.create("Login request from user %s".formatted(loginRequest.username()),
+              request, getMethodName())));
+
       var user = getUser(loginRequest.username());
       if (!jwtUtil.comparePassword(loginRequest.password(), user.getPassword())) {
         throw new BadRequestException("Password not correct");
@@ -92,6 +107,15 @@ public class AuthController {
       final String accessToken = jwtUtil.createAccessToken(user);
       final String refreshToken = jwtUtil.createRefreshToken(user.getEmail());
 
+      tokenCache.cacheToken(genKeyCacheToken(accessToken, user.getEmail()),
+          gson.toJson(UserCredentialResponse.builder()
+              .email(user.getEmail())
+              .phone(user.getPhoneNumber())
+              .id(user.getId())
+              .role(user.getRole().getName())
+              .build()));
+
+      LOGGER.info("Login success for user {}", loginRequest.username());
       return LoginResponse.builder().accessToken(accessToken).refreshToken(refreshToken)
           .id(user.getId()).firstName(user.getFirstName()).lastName(user.getLastName())
           .displayName(user.getDisplayName()).phone(user.getPhoneNumber()).email(user.getEmail())
@@ -103,7 +127,10 @@ public class AuthController {
   @PostMapping("/refresh-token")
   @ResponseStatus(HttpStatus.OK)
   public CompletableFuture<RefreshTokenResponse> refreshAuthenticationToken(
-      @RequestBody @Valid RefreshTokenRequest refreshTokenRequest) {
+      @RequestBody @Valid RefreshTokenRequest refreshTokenRequest, HttpServletRequest request) {
+    LOGGER.info(
+        gson.toJson(LogMessage.create("Refresh token request", request, getMethodName())));
+
     return CompletableFuture.supplyAsync(() -> {
       String refreshToken = refreshTokenRequest.refreshToken();
       // Check if the refresh token is valid and not expired
@@ -117,7 +144,15 @@ public class AuthController {
         if (jwtUtil.validateToken(refreshToken, user)) {
           final String accessToken = jwtUtil.createAccessToken(user);
           refreshToken = jwtUtil.createRefreshToken(user.getEmail());
+          tokenCache.cacheToken(genKeyCacheToken(accessToken, user.getEmail()),
+              gson.toJson(UserCredentialResponse.builder()
+                  .email(user.getEmail())
+                  .phone(user.getPhoneNumber())
+                  .id(user.getId())
+                  .role(user.getRole().getName())
+                  .build()));
 
+          LOGGER.info("Refresh token success for user {}", username);
           return new RefreshTokenResponse(accessToken, refreshToken);
         }
       } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
@@ -128,45 +163,64 @@ public class AuthController {
   }
 
   @PostMapping("/validate-token")
-  @ResponseStatus(HttpStatus.OK)
   public CompletableFuture<UserCredentialResponse> validateToken(
-      @Valid @RequestBody TokenRequest accessToken) {
+      @Valid @RequestBody TokenRequest accessToken, HttpServletRequest request) {
+
+    LOGGER.info(
+        gson.toJson(LogMessage.create("Validate token request", request, getMethodName())));
+    String username = jwtUtil.checkToken(accessToken.token(), "access-token");
+
+    var userCache = tokenCache.getUserDetails(genKeyCacheToken(accessToken.token(), username));
+
+    if (userCache != null) {
+      LOGGER.info("Validate token success for user {}", username);
+      var user = gson.fromJson(userCache, UserCredentialResponse.class);
+      return CompletableFuture.completedFuture(
+          UserCredentialResponse.builder().email(user.email())
+              .phone(user.phone()).id(user.id()).role(user.role()).build());
+    }
 
     return CompletableFuture.supplyAsync(() -> {
-      String username = jwtUtil.checkToken(accessToken.token(), "access-token");
-      User user = getUser(username);
+      var user = getUser(username);
 
       if (user.getPoint() < -100) {
-        throw new UnauthorizedException(
+        throw new BadRequestException(
             "Your account has been locked due to too many cancellations");
       }
 
       if (user.getIsDeleted()) {
-        throw new UnauthorizedException("Your account has been deleted");
+        throw new BadRequestException("Your account has been deleted");
       }
 
       if (user.getVerifiedAt() == null) {
-        throw new UnauthorizedException("Your account has not been verified");
+        throw new BadRequestException("Your account has not been verified");
       }
 
       if (user.getIsBanned()) {
-        throw new UnauthorizedException("Your account has been banned");
+        throw new ForbiddenException("Your account has been banned");
       }
 
       try {
         if (jwtUtil.validateToken(accessToken.token(), user)) {
+          LOGGER.info("Validate token success for user {}", username);
           return UserCredentialResponse.builder().email(user.getEmail())
               .phone(user.getPhoneNumber()).id(user.getId()).role(user.getRole().getName()).build();
         }
         throw new UnauthorizedException(TOKEN_EXPIRED);
       } catch (RuntimeException | NoSuchAlgorithmException | InvalidKeySpecException e) {
+        LOGGER.error("Error validating token: {}", e.getMessage());
         throw new RuntimeException(e);
       }
     });
   }
 
   @PostMapping("/verify-account")
-  public Void verifyAccount(@Valid @RequestBody RequestVerifyAccountRequest request) {
+  public Void verifyAccount(@Valid @RequestBody RequestVerifyAccountRequest input,
+      HttpServletRequest request) {
+
+    LOGGER.info(gson.toJson(
+        LogMessage.create("Verify account request from user %s".formatted(input.email()),
+            request, getMethodName())));
     var tokenClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
         .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL)
         .target(TokenClient.class,
@@ -174,15 +228,23 @@ public class AuthController {
     String hash;
     try {
       hash = generateHash("user-service", getPrivateKey(secureInternalProperties.getPrivateKey()));
-      tokenClient.requestVerifyAccount(hash, request);
+      tokenClient.requestVerifyAccount(hash, input);
+      LOGGER.info("Verify account success for user {}", input.email());
       return null;
     } catch (Exception e) {
+      LOGGER.error("Error verifying account {}: {}", input.email(), e.getMessage());
       return renderErrorMsg(e);
     }
   }
 
   @PostMapping("/finish-verify-account")
-  public Void requestVerifyAccount(@Valid @RequestBody VerifyAccountRequest request) {
+  public Void requestVerifyAccount(@Valid @RequestBody VerifyAccountRequest input,
+      HttpServletRequest request) {
+
+    LOGGER.info(
+        gson.toJson(LogMessage.create("Finish verify account request", request, getMethodName())
+        ));
+
     var tokenClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
         .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL)
         .target(TokenClient.class,
@@ -190,14 +252,23 @@ public class AuthController {
     String hash;
     try {
       hash = generateHash("user-service", getPrivateKey(secureInternalProperties.getPrivateKey()));
-      return tokenClient.verifyAccount(hash, request);
+      LOGGER.info("Finish verify account success");
+      return tokenClient.verifyAccount(hash, input);
     } catch (Exception e) {
+      LOGGER.error("Error finishing verify account: {}", e.getMessage());
       return renderErrorMsg(e);
     }
   }
 
   @PostMapping("/forgot-password")
-  public Void verifyAccount(@Valid @RequestBody ForgotPasswordRequest request) {
+  public Void verifyAccount(@Valid @RequestBody ForgotPasswordRequest input,
+      HttpServletRequest request) {
+
+    LOGGER.info(gson.toJson(
+        LogMessage.create("Forgot password request from user %s".formatted(input.email()), request,
+            getMethodName())
+    ));
+
     var tokenClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
         .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL)
         .target(TokenClient.class,
@@ -205,15 +276,23 @@ public class AuthController {
     String hash;
     try {
       hash = generateHash("user-service", getPrivateKey(secureInternalProperties.getPrivateKey()));
-      tokenClient.forgotPassword(hash, request);
+      tokenClient.forgotPassword(hash, input);
+      LOGGER.info("Forgot password success for user {}", input.email());
       return null;
     } catch (Exception e) {
+      LOGGER.error("Error forgot password: {}", e.getMessage());
       return renderErrorMsg(e);
     }
   }
 
   @PostMapping("/reset-password")
-  public Void verifyAccount(@Valid @RequestBody ResetPasswordRequest request) {
+  public Void verifyAccount(@Valid @RequestBody ResetPasswordRequest input,
+      HttpServletRequest request) {
+
+    LOGGER.info(
+        gson.toJson(LogMessage.create("Reset password request", request, getMethodName())
+        ));
+
     var tokenClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
         .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL)
         .target(TokenClient.class,
@@ -221,15 +300,25 @@ public class AuthController {
     String hash;
     try {
       hash = generateHash("user-service", getPrivateKey(secureInternalProperties.getPrivateKey()));
-      tokenClient.resetPassword(hash, request);
+      tokenClient.resetPassword(hash, input);
+      LOGGER.info("Reset password success");
       return null;
     } catch (Exception e) {
+      LOGGER.error("Error reset password: {}", e.getMessage());
       return renderErrorMsg(e);
     }
   }
 
   @PostMapping("/register")
-  public UserResponse verifyAccount(@Valid @RequestBody RegisterRequest request) {
+  public UserResponse verifyAccount(@Valid @RequestBody RegisterRequest input,
+      HttpServletRequest request) {
+
+    LOGGER.info(
+        gson.toJson(
+            LogMessage.create("Register request from user %s".formatted(input.email()), request,
+                getMethodName())
+        ));
+
     var userClient = Feign.builder().client(new OkHttpClient())
         .encoder(new GsonEncoder())
         .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL)
@@ -238,8 +327,10 @@ public class AuthController {
     String hash;
     try {
       hash = generateHash("user-service", getPrivateKey(secureInternalProperties.getPrivateKey()));
-      return userClient.register(hash, request);
+      LOGGER.info("Register success for user {}", input.email());
+      return userClient.register(hash, input);
     } catch (Exception e) {
+      LOGGER.error("Error registering user {}: {}", input.email(), e.getMessage());
       renderErrorMsg(e);
       return null;
     }
@@ -285,4 +376,5 @@ public class AuthController {
         mongoTemplate.getConverter().read(Role.class, userRaw.get("role", Document.class)));
     return user;
   }
+
 }

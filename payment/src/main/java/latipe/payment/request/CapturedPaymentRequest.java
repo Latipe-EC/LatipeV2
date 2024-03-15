@@ -2,7 +2,6 @@ package latipe.payment.request;
 
 
 import java.math.BigDecimal;
-import latipe.payment.entity.Payment;
 import latipe.payment.entity.enumeration.EPaymentMethod;
 import latipe.payment.entity.enumeration.EPaymentStatus;
 import lombok.Builder;

@@ -1,6 +1,8 @@
 package latipe.payment.constants;
 
 public class CONSTANTS {
+
+  public static final String REQUEST_ID = "req-id";
   public static final int ORDER_SYSTEM_PROCESS = 0;
   public static final int ORDER_CREATED = 1;
   public static final int ORDER_PREPARED = 2;

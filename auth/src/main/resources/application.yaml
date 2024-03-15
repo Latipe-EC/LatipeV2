@@ -4,7 +4,14 @@ spring:
   data:
     mongodb:
       uri: ${SPRING_DATA_MONGODB_URI:mongodb://localhost:27017/Latipe-User-DB}
-
+  cache:
+    type: redis
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+    config:
+      entryTtl-access-token: 5
+      entryTtl-data: 5
 gate-way:
   host: ${GATE_WAY_HOST:http://localhost}
   port: ${GATE_WAY_PORT:8181}

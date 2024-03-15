@@ -1,6 +1,7 @@
 package latipe.product.configs;
 
 import com.mongodb.ConnectionString;
+import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import java.time.ZoneOffset;
@@ -40,8 +41,10 @@ public class MongoConfig extends AbstractMongoClientConfiguration {
 
   @Override
   public MongoClient mongoClient() {
-    ConnectionString connectionString = new ConnectionString(mongoUri);
-    return MongoClients.create(connectionString);
+    var connectionString = new ConnectionString(mongoUri);
+    return MongoClients.create(MongoClientSettings.builder()
+        .applyConnectionString(connectionString)
+        .build());
   }
 
   @Override

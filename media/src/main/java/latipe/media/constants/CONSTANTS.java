@@ -2,6 +2,8 @@ package latipe.media.constants;
 
 public class CONSTANTS {
 
+  public static final String REQUEST_ID = "req-id";
+
   public static final String VIDEO = "VIDEO";
   public static final String IMAGE = "IMAGE";
   public static final String AUDIO = "AUDIO";
