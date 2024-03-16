@@ -12,6 +12,14 @@ spring:
     config:
       entryTtl-access-token: 5
       entryTtl-data: 5
+
+service:
+  user: ${USER_SERVICE:user-service}
+
+context:
+  initializer:
+    classes: latipe.auth.configs.PortInitializer
+
 gate-way:
   host: ${GATE_WAY_HOST:http://localhost}
   port: ${GATE_WAY_PORT:8181}

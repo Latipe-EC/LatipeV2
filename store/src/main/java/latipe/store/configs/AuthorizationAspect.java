@@ -13,11 +13,13 @@ import latipe.store.exceptions.ForbiddenException;
 import latipe.store.exceptions.UnauthorizedException;
 import latipe.store.feign.AuthClient;
 import latipe.store.request.TokenRequest;
-import latipe.store.response.UserCredentialResponse;
+import latipe.store.utils.GetInstanceServer;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -27,7 +29,13 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @RequiredArgsConstructor
 public class AuthorizationAspect {
 
-  private final GateWayProperties gateWayProperties;
+  private final LoadBalancerClient loadBalancer;
+  private final GsonDecoder gsonDecoder;
+  private final GsonEncoder gsonEncoder;
+  private final OkHttpClient okHttpClient;
+
+  @Value("${service.auth}")
+  private String authService;
 
   @Before("@annotation(requiresAuthorization)")
   public void checkAuthorization(JoinPoint joinPoint, RequiresAuthorization requiresAuthorization)
@@ -37,14 +45,16 @@ public class AuthorizationAspect {
       throw new UnauthorizedException("Unauthorized");
     }
     try {
-      AuthClient authClient = Feign.builder()
-          .client(new OkHttpClient())
-          .encoder(new GsonEncoder())
-          .decoder(new GsonDecoder())
+      var authClient = Feign.builder()
+          .client(okHttpClient)
+          .encoder(gsonEncoder)
+          .decoder(gsonDecoder)
           .logLevel(Logger.Level.FULL)
           .target(AuthClient.class,
-              "%s:%s/api/v1".formatted(gateWayProperties.getHost(), gateWayProperties.getPort()));
-      UserCredentialResponse credential = authClient.getCredential(new TokenRequest(token));
+              String.format("%s/api/v1", GetInstanceServer.get(
+                  loadBalancer, authService
+              )));
+      var credential = authClient.getCredential(new TokenRequest(token));
 
       if (credential == null) {
         throw new UnauthorizedException("Unauthorized");

@@ -3,6 +3,10 @@ package latipe.product.services.product;
 import static latipe.product.utils.GenTokenInternal.generateHash;
 import static latipe.product.utils.GenTokenInternal.getPrivateKey;
 
+import feign.Feign;
+import feign.gson.GsonDecoder;
+import feign.gson.GsonEncoder;
+import feign.okhttp.OkHttpClient;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import java.util.ArrayList;
@@ -19,9 +23,11 @@ import latipe.product.grpc.ItemResponse;
 import latipe.product.grpc.ProductServiceGrpc;
 import latipe.product.repositories.IProductRepository;
 import latipe.product.response.ProvinceCodeResponse;
+import latipe.product.utils.GetInstanceServer;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 
 //@GRpcService
 @RequiredArgsConstructor
@@ -29,8 +35,12 @@ public class ProductGrpcService extends ProductServiceGrpc.ProductServiceImplBas
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ProductGrpcService.class);
   private final IProductRepository productRepository;
-  private final StoreClient storeClient;
   private final SecureInternalProperties secureInternalProperties;
+  private final LoadBalancerClient loadBalancer;
+  private final GsonDecoder gsonDecoder;
+  private final GsonEncoder gsonEncoder;
+  private final OkHttpClient okHttpClient;
+  private final String storeService;
 
   @Override
   public void checkInStock(GetPurchaseProductRequest request,
@@ -91,6 +101,12 @@ public class ProductGrpcService extends ProductServiceGrpc.ProductServiceImplBas
     String hash;
     ProvinceCodeResponse storeProvinceCode;
     try {
+      var storeClient = Feign.builder().client(okHttpClient).encoder(gsonEncoder)
+          .decoder(gsonDecoder).target(StoreClient.class,
+              String.format("%s/api/v1", GetInstanceServer.get(
+                  loadBalancer, storeService
+              )));
+
       hash = generateHash("store-service",
           getPrivateKey(secureInternalProperties.getPrivateKey()));
       storeProvinceCode = storeClient.getProvinceCode(request.getStoreId(), hash);

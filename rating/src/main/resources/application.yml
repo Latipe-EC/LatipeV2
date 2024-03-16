@@ -11,6 +11,14 @@ spring:
 server:
   port: ${RATING_PORT:8777}
 
+context:
+  initializer:
+    classes: latipe.rating.configs.PortInitializer
+
+service:
+  user: ${USER_SERVICE:user-service}
+  auth: ${AUTH_SERVICE:auth-service}
+
 gate-way:
   host: ${GATE_WAY_HOST:http://localhost}
   port: ${GATE_WAY_PORT:8181}

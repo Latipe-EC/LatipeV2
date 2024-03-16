@@ -1,4 +1,4 @@
-package latipe.auth.config.gson;
+package latipe.auth.configs.gson;
 
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;

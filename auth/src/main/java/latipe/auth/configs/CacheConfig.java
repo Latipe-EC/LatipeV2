@@ -1,4 +1,4 @@
-package latipe.auth.config;
+package latipe.auth.configs;
 
 import java.time.Duration;
 import org.slf4j.Logger;

@@ -1,4 +1,4 @@
-package latipe.auth.config;
+package latipe.auth.annotations;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

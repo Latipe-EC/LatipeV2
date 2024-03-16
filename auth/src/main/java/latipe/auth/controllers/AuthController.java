@@ -11,7 +11,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import feign.Feign;
-import feign.Logger;
 import feign.gson.GsonDecoder;
 import feign.gson.GsonEncoder;
 import feign.okhttp.OkHttpClient;
@@ -21,10 +20,9 @@ import jakarta.validation.Valid;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.concurrent.CompletableFuture;
-import latipe.auth.config.ApiPrefixController;
-import latipe.auth.config.GateWayProperties;
-import latipe.auth.config.JwtTokenService;
-import latipe.auth.config.SecureInternalProperties;
+import latipe.auth.annotations.ApiPrefixController;
+import latipe.auth.configs.JwtTokenService;
+import latipe.auth.configs.SecureInternalProperties;
 import latipe.auth.entity.Role;
 import latipe.auth.entity.User;
 import latipe.auth.exceptions.BadRequestException;
@@ -46,17 +44,21 @@ import latipe.auth.response.RefreshTokenResponse;
 import latipe.auth.response.UserCredentialResponse;
 import latipe.auth.response.UserResponse;
 import latipe.auth.services.TokenCache;
+import latipe.auth.utils.GetInstanceServer;
 import latipe.auth.viewmodel.ErrorMessage;
 import latipe.auth.viewmodel.LogMessage;
 import lombok.RequiredArgsConstructor;
 import org.bson.Document;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -67,16 +69,25 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "User authentication")
 @Validated
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*")
 public class AuthController {
 
   private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(AuthController.class);
+
   private final JwtTokenService jwtUtil;
   private final MongoTemplate mongoTemplate;
   private final SecureInternalProperties secureInternalProperties;
   private final ObjectMapper objectMapper;
-  private final GateWayProperties gateWayProperties;
   private final TokenCache tokenCache;
   private final Gson gson;
+
+  private final LoadBalancerClient loadBalancer;
+  private final GsonDecoder gsonDecoder;
+  private final GsonEncoder gsonEncoder;
+  private final OkHttpClient okHttpClient;
+
+  @Value("${service.user}")
+  private String userService;
 
   @PostMapping("/login")
   @ResponseStatus(HttpStatus.OK)
@@ -221,13 +232,15 @@ public class AuthController {
     LOGGER.info(gson.toJson(
         LogMessage.create("Verify account request from user %s".formatted(input.email()),
             request, getMethodName())));
-    var tokenClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
-        .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL)
-        .target(TokenClient.class,
-            "%s:%s/api/v1".formatted(gateWayProperties.getHost(), gateWayProperties.getPort()));
     String hash;
     try {
       hash = generateHash("user-service", getPrivateKey(secureInternalProperties.getPrivateKey()));
+      var tokenClient =
+          Feign.builder().client(okHttpClient).encoder(gsonEncoder)
+              .decoder(gsonDecoder).target(TokenClient.class,
+                  String.format("%s/api/v1", GetInstanceServer.get(
+                      loadBalancer, userService
+                  )));
       tokenClient.requestVerifyAccount(hash, input);
       LOGGER.info("Verify account success for user {}", input.email());
       return null;
@@ -245,14 +258,17 @@ public class AuthController {
         gson.toJson(LogMessage.create("Finish verify account request", request, getMethodName())
         ));
 
-    var tokenClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
-        .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL)
-        .target(TokenClient.class,
-            "%s:%s/api/v1".formatted(gateWayProperties.getHost(), gateWayProperties.getPort()));
     String hash;
     try {
       hash = generateHash("user-service", getPrivateKey(secureInternalProperties.getPrivateKey()));
       LOGGER.info("Finish verify account success");
+      var tokenClient =
+          Feign.builder().client(okHttpClient).encoder(gsonEncoder)
+              .decoder(gsonDecoder).target(TokenClient.class,
+                  String.format("%s/api/v1", GetInstanceServer.get(
+                      loadBalancer, userService
+                  )));
+
       return tokenClient.verifyAccount(hash, input);
     } catch (Exception e) {
       LOGGER.error("Error finishing verify account: {}", e.getMessage());
@@ -269,13 +285,16 @@ public class AuthController {
             getMethodName())
     ));
 
-    var tokenClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
-        .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL)
-        .target(TokenClient.class,
-            "%s:%s/api/v1".formatted(gateWayProperties.getHost(), gateWayProperties.getPort()));
     String hash;
     try {
       hash = generateHash("user-service", getPrivateKey(secureInternalProperties.getPrivateKey()));
+      var tokenClient =
+          Feign.builder().client(okHttpClient).encoder(gsonEncoder)
+              .decoder(gsonDecoder).target(TokenClient.class,
+                  String.format("%s/api/v1", GetInstanceServer.get(
+                      loadBalancer, userService
+                  )));
+
       tokenClient.forgotPassword(hash, input);
       LOGGER.info("Forgot password success for user {}", input.email());
       return null;
@@ -293,13 +312,16 @@ public class AuthController {
         gson.toJson(LogMessage.create("Reset password request", request, getMethodName())
         ));
 
-    var tokenClient = Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
-        .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL)
-        .target(TokenClient.class,
-            "%s:%s/api/v1".formatted(gateWayProperties.getHost(), gateWayProperties.getPort()));
     String hash;
     try {
       hash = generateHash("user-service", getPrivateKey(secureInternalProperties.getPrivateKey()));
+      var tokenClient =
+          Feign.builder().client(okHttpClient).encoder(gsonEncoder)
+              .decoder(gsonDecoder).target(TokenClient.class,
+                  String.format("%s/api/v1", GetInstanceServer.get(
+                      loadBalancer, userService
+                  )));
+
       tokenClient.resetPassword(hash, input);
       LOGGER.info("Reset password success");
       return null;
@@ -319,15 +341,17 @@ public class AuthController {
                 getMethodName())
         ));
 
-    var userClient = Feign.builder().client(new OkHttpClient())
-        .encoder(new GsonEncoder())
-        .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL)
-        .target(UserClient.class,
-            "%s:%s/api/v1".formatted(gateWayProperties.getHost(), gateWayProperties.getPort()));
     String hash;
     try {
       hash = generateHash("user-service", getPrivateKey(secureInternalProperties.getPrivateKey()));
       LOGGER.info("Register success for user {}", input.email());
+      var userClient =
+          Feign.builder().client(okHttpClient).encoder(gsonEncoder)
+              .decoder(gsonDecoder).target(UserClient.class,
+                  String.format("%s/api/v1", GetInstanceServer.get(
+                      loadBalancer, userService
+                  )));
+
       return userClient.register(hash, input);
     } catch (Exception e) {
       LOGGER.error("Error registering user {}: {}", input.email(), e.getMessage());

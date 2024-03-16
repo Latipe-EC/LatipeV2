@@ -2,7 +2,6 @@ package latipe.search.configs;
 
 import feign.Feign;
 import feign.FeignException;
-import feign.Logger;
 import feign.gson.GsonDecoder;
 import feign.gson.GsonEncoder;
 import feign.okhttp.OkHttpClient;
@@ -11,37 +10,43 @@ import java.util.Objects;
 import latipe.search.exceptions.UnauthorizedException;
 import latipe.search.feign.AuthClient;
 import latipe.search.request.TokenRequest;
-import latipe.search.response.UserCredentialResponse;
-import lombok.AllArgsConstructor;
+import latipe.search.utils.GetInstanceServer;
+import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-
 @Aspect
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class AuthenticateAspect {
 
-  private final GateWayProperties gateWayProperties;
+  private final LoadBalancerClient loadBalancer;
+  private final GsonDecoder gsonDecoder;
+  private final GsonEncoder gsonEncoder;
+  private final OkHttpClient okHttpClient;
+
+  @Value("${service.auth}")
+  private String authService;
 
   @Before("@annotation(latipe.search.annotations.Authenticate)")
   public void authenticate() throws UnauthorizedException {
-    AuthClient authClient = Feign.builder()
-        .client(new OkHttpClient())
-        .encoder(new GsonEncoder())
-        .decoder(new GsonDecoder())
-        .logLevel(Logger.Level.FULL)
-        .target(AuthClient.class,
-            "%s:%s/api/v1".formatted(gateWayProperties.getHost(), gateWayProperties.getPort()));
+
     String token = getTokenFromRequest();
     if (token == null) {
       throw new UnauthorizedException("Unauthorized");
     }
     try {
-      UserCredentialResponse credential = authClient.getCredential(new TokenRequest(token));
+      var authClient = Feign.builder().client(okHttpClient).encoder(gsonEncoder)
+          .decoder(gsonDecoder).target(AuthClient.class,
+              String.format("%s/api/v1", GetInstanceServer.get(
+                  loadBalancer, authService
+              )));
+      var credential = authClient.getCredential(new TokenRequest(token));
       if (credential == null) {
         throw new UnauthorizedException("Unauthorized");
       }

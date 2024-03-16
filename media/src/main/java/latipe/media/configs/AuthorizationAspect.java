@@ -2,7 +2,6 @@ package latipe.media.configs;
 
 import feign.Feign;
 import feign.FeignException;
-import feign.Logger;
 import feign.gson.GsonDecoder;
 import feign.gson.GsonEncoder;
 import feign.okhttp.OkHttpClient;
@@ -13,11 +12,13 @@ import latipe.media.exceptions.ForbiddenException;
 import latipe.media.exceptions.UnauthorizedException;
 import latipe.media.feign.AuthClient;
 import latipe.media.request.TokenRequest;
-import latipe.media.response.UserCredentialResponse;
+import latipe.media.utils.GetInstanceServer;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -27,7 +28,13 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @RequiredArgsConstructor
 public class AuthorizationAspect {
 
-  private final GateWayProperties gateWayProperties;
+  private final LoadBalancerClient loadBalancer;
+  private final GsonDecoder gsonDecoder;
+  private final GsonEncoder gsonEncoder;
+  private final OkHttpClient okHttpClient;
+
+  @Value("${service.auth}")
+  private String authService;
 
   @Before("@annotation(requiresAuthorization)")
   public void checkAuthorization(JoinPoint joinPoint, RequiresAuthorization requiresAuthorization)
@@ -37,14 +44,13 @@ public class AuthorizationAspect {
       throw new UnauthorizedException("Unauthorized");
     }
     try {
-      AuthClient authClient = Feign.builder()
-          .client(new OkHttpClient())
-          .encoder(new GsonEncoder())
-          .decoder(new GsonDecoder())
-          .logLevel(Logger.Level.FULL)
-          .target(AuthClient.class,
-              "%s:%s/api/v1".formatted(gateWayProperties.getHost(), gateWayProperties.getPort()));
-      UserCredentialResponse credential = authClient.getCredential(new TokenRequest(token));
+
+      var authClient = Feign.builder().client(okHttpClient).encoder(gsonEncoder)
+          .decoder(gsonDecoder).target(AuthClient.class,
+              String.format("%s/api/v1", GetInstanceServer.get(
+                  loadBalancer, authService
+              )));
+      var credential = authClient.getCredential(new TokenRequest(token));
 
       if (credential == null) {
         throw new UnauthorizedException("Unauthorized");

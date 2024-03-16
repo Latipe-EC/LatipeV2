@@ -1,13 +1,11 @@
 package latipe.search.configs;
 
-import feign.Feign;
-import feign.Logger;
 import feign.gson.GsonDecoder;
 import feign.gson.GsonEncoder;
 import feign.okhttp.OkHttpClient;
 import latipe.search.annotations.ApiPrefixController;
-import latipe.search.feign.ProductClient;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.context.request.RequestContextListener;
@@ -20,13 +18,16 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @RequiredArgsConstructor
 public class AppConfig implements WebMvcConfigurer {
 
-  private final GateWayProperties gateWayProperties;
+  @Value("${service.auth}")
+  private String authService;
+
+  @Value("${service.product}")
+  private String productService;
 
   @Override
   public void addCorsMappings(CorsRegistry registry) {
     registry.addMapping("/**").allowedMethods("*").allowedOrigins("*").allowedHeaders("*");
   }
-
 
   @Override
   public void configurePathMatch(PathMatchConfigurer configurer) {
@@ -40,9 +41,18 @@ public class AppConfig implements WebMvcConfigurer {
   }
 
   @Bean
-  public ProductClient getProductClient() {
-    return Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
-        .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL).target(ProductClient.class,
-            "%s:%s/api/v1".formatted(gateWayProperties.getHost(), gateWayProperties.getPort()));
+  public GsonDecoder getGsonDecoder() {
+    return new GsonDecoder();
   }
+
+  @Bean
+  public GsonEncoder getGsonEncoder() {
+    return new GsonEncoder();
+  }
+
+  @Bean
+  public OkHttpClient okHttpClient() {
+    return new OkHttpClient();
+  }
+
 }

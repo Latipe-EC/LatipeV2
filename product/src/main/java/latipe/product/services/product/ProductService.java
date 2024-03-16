@@ -5,6 +5,10 @@ import static latipe.product.utils.GenTokenInternal.getPrivateKey;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.Gson;
+import feign.Feign;
+import feign.gson.GsonDecoder;
+import feign.gson.GsonEncoder;
+import feign.okhttp.OkHttpClient;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -44,6 +48,7 @@ import latipe.product.response.ProductNameListResponse;
 import latipe.product.response.ProductResponse;
 import latipe.product.response.ProductStoreResponse;
 import latipe.product.utils.AvgRating;
+import latipe.product.utils.GetInstanceServer;
 import latipe.product.utils.ParseObjectToString;
 import latipe.product.viewmodel.ProductClassificationVm;
 import latipe.product.viewmodel.ProductESDetailVm;
@@ -60,6 +65,7 @@ import org.bson.Document;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
@@ -82,11 +88,16 @@ public class ProductService implements IProductService {
   private final CategoryMapper categoryMapper;
   private final SecureInternalProperties secureInternalProperties;
   private final Gson gson;
-  private final StoreClient storeClient;
+  private final LoadBalancerClient loadBalancer;
+  private final GsonDecoder gsonDecoder;
+  private final GsonEncoder gsonEncoder;
+  private final OkHttpClient okHttpClient;
   @Value("${rabbitmq.exchange.name}")
   private String exchange;
   @Value("${rabbitmq.routing.key}")
   private String routingKey;
+  @Value("${service.store}")
+  private String storeService;
 
   @Async
   @Override
@@ -168,6 +179,8 @@ public class ProductService implements IProductService {
     return CompletableFuture.supplyAsync(() -> {
       var prod = productRepository.findById(prodId)
           .orElseThrow(() -> new BadRequestException("Product not found"));
+      var storeClient = getStoreClient();
+
       // get store id from store service
       var storeId = storeClient.getStoreId(request.getHeader("Authorization"), userId);
 
@@ -202,6 +215,9 @@ public class ProductService implements IProductService {
         CheckProductHaveOption(input.productVariants(), input.productClassifications());
       }
       // get store id from store service
+
+      var storeClient = getStoreClient();
+
       var storeId = storeClient.getStoreId(request.getHeader("Authorization"), userId);
 
       var prod = productMapper.mapToProductBeforeCreate(input, storeId);
@@ -327,6 +343,8 @@ public class ProductService implements IProductService {
         throw new RuntimeException(e);
       }
 
+      var storeClient = getStoreClient();
+
       var storeProvinceCodes = storeClient.getProvinceCodes(hash,
           GetProvinceCodesRequest.builder().ids(storeIds).build());
 
@@ -367,6 +385,7 @@ public class ProductService implements IProductService {
   @Async
   public CompletableFuture<ProductDetailResponse> getProductDetail(String productId) {
     return CompletableFuture.supplyAsync(() -> {
+      LOGGER.info("Get product detail by id: " + productId);
       var product = productRepository.findById(productId)
           .orElseThrow(() -> new NotFoundException("PRODUCT_NOT_FOUND", productId));
 
@@ -375,6 +394,8 @@ public class ProductService implements IProductService {
       }
 
       var categories = categoryRepository.findAllById(product.getCategories());
+
+      var storeClient = getStoreClient();
 
       var store = storeClient.getDetailStore(product.getStoreId());
 
@@ -443,6 +464,9 @@ public class ProductService implements IProductService {
 
       var storeIds = new HashSet<>(
           documents.stream().map(doc -> doc.getString("storeId")).toList());
+
+      var storeClient = getStoreClient();
+
       var stores = storeClient.getDetailStores(hash, MultipleStoreRequest.builder()
           .ids(storeIds).build());
 
@@ -539,6 +563,8 @@ public class ProductService implements IProductService {
         .orElseThrow(() -> new BadRequestException("Product not found"));
 
     // check permission to change product (store service)
+    var storeClient = getStoreClient();
+
     var store = storeClient.getStoreId(request.getHeader("Authorization"), userId);
 
     if (!store.equals(product.getStoreId())) {
@@ -659,6 +685,7 @@ public class ProductService implements IProductService {
       Product product = productRepository.findById(id)
           .orElseThrow(() -> new BadRequestException("Product not found"));
       // check permission to change product (store service)
+      var storeClient = getStoreClient();
 
       var store = storeClient.getStoreId(request.getHeader("Authorization"), userId);
       if (!store.equals(product.getStoreId())) {
@@ -679,6 +706,14 @@ public class ProductService implements IProductService {
 
       return null;
     });
+  }
+
+  private StoreClient getStoreClient() {
+    return Feign.builder().client(okHttpClient).encoder(gsonEncoder)
+        .decoder(gsonDecoder).target(StoreClient.class,
+            String.format("%s/api/v1", GetInstanceServer.get(
+                loadBalancer, storeService
+            )));
   }
 
   @Override

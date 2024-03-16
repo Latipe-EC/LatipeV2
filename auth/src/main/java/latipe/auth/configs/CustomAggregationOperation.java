@@ -1,4 +1,4 @@
-package latipe.auth.config;
+package latipe.auth.configs;
 
 import org.bson.Document;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;

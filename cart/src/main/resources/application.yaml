@@ -19,6 +19,14 @@ rabbitmq:
 server:
   port: ${CART_PORT:7650}
 
+service:
+  auth: ${AUTH_SERVICE:auth-service}
+  product: ${PROODUCT_SERVICE:product-service}
+
+context:
+  initializer:
+    classes: latipe.cart.configs.PortInitializer
+
 gate-way:
   host: ${GATE_WAY_HOST:http://localhost}
   port: ${GATE_WAY_PORT:8181}

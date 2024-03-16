@@ -1,4 +1,4 @@
-package latipe.auth.config;
+package latipe.auth.configs;
 
 import static latipe.auth.utils.Constants.ErrorCode.TOKEN_EXPIRED;
 import static latipe.auth.utils.Constants.ErrorCode.TOKEN_INVALID;

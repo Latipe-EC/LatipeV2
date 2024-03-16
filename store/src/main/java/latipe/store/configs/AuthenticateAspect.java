@@ -12,20 +12,27 @@ import latipe.store.exceptions.UnauthorizedException;
 import latipe.store.feign.AuthClient;
 import latipe.store.request.TokenRequest;
 import latipe.store.response.UserCredentialResponse;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-
 @Aspect
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class AuthenticateAspect {
 
+  private final LoadBalancerClient loadBalancer;
+  private final GsonDecoder gsonDecoder;
+  private final GsonEncoder gsonEncoder;
+  private final OkHttpClient okHttpClient;
   private final GateWayProperties gateWayProperties;
+  @Value("${service.auth}")
+  private String authService;
 
   @Before("@annotation(latipe.store.annotations.Authenticate)")
   public void authenticate() throws UnauthorizedException {

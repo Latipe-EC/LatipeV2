@@ -1,4 +1,4 @@
-package latipe.auth.config;
+package latipe.auth.configs;
 
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;

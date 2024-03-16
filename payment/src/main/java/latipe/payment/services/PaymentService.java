@@ -9,6 +9,10 @@ import com.nimbusds.jose.shaded.gson.JsonObject;
 import com.nimbusds.jose.shaded.gson.JsonParser;
 import com.paypal.core.PayPalHttpClient;
 import com.paypal.orders.OrdersGetRequest;
+import feign.Feign;
+import feign.gson.GsonDecoder;
+import feign.gson.GsonEncoder;
+import feign.okhttp.OkHttpClient;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -48,6 +52,7 @@ import latipe.payment.response.CapturedPaymentResponse;
 import latipe.payment.response.CheckPaymentOrderResponse;
 import latipe.payment.response.PaymentResponse;
 import latipe.payment.response.UserCredentialResponse;
+import latipe.payment.utils.GetInstanceServer;
 import latipe.payment.utils.TokenUtils;
 import latipe.payment.viewmodel.OrderMessage;
 import latipe.payment.viewmodel.OrderReplyMessage;
@@ -64,6 +69,7 @@ import okhttp3.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -81,8 +87,11 @@ public class PaymentService {
   private final WithdrawRepository withdrawRepository;
   private final RabbitMQProducer rabbitMQProducer;
   private final Gson gson;
-  private final StoreClient storeClient;
-  private final UserClient userClient;
+  private final LoadBalancerClient loadBalancer;
+  private final GsonDecoder gsonDecoder;
+  private final GsonEncoder gsonEncoder;
+  private final OkHttpClient okHttpClient;
+
 
   @Value("${encryption.key}")
   private String ENCRYPTION_KEY;
@@ -99,6 +108,15 @@ public class PaymentService {
   private String replyRoutingKey;
   @Value("${rabbitmq.order.exchange}")
   private String exchange;
+
+  @Value("${service.auth}")
+  private String authService;
+
+  @Value("${service.user}")
+  private String userService;
+
+  @Value("${service.store}")
+  private String storeService;
 
   @Async
   public CompletableFuture<CapturedPaymentResponse> capturePayment(
@@ -142,6 +160,11 @@ public class PaymentService {
             throw new RuntimeException(e);
           }
 
+          var userClient = Feign.builder().client(okHttpClient).encoder(gsonEncoder)
+              .decoder(gsonDecoder).target(UserClient.class,
+                  String.format("%s/api/v1", GetInstanceServer.get(
+                      loadBalancer, userService
+                  )));
           userClient.checkBalance(hash,
               new CheckBalanceRequest(payment.getUserId(), payment.getAmount()));
 
@@ -207,6 +230,12 @@ public class PaymentService {
           } catch (Exception e) {
             throw new RuntimeException(e);
           }
+
+          var storeClient = Feign.builder().client(okHttpClient).encoder(gsonEncoder)
+              .decoder(gsonDecoder).target(StoreClient.class,
+                  String.format("%s/api/v1", GetInstanceServer.get(
+                      loadBalancer, storeService
+                  )));
 
           storeClient.checkBalance(hash,
               new CheckBalanceStoreRequest(userCredential.id(), request.amount()));
@@ -287,6 +316,12 @@ public class PaymentService {
           }
 
           try {
+            var storeClient = Feign.builder().client(okHttpClient).encoder(gsonEncoder)
+                .decoder(gsonDecoder).target(StoreClient.class,
+                    String.format("%s/api/v1", GetInstanceServer.get(
+                        loadBalancer, storeService
+                    )));
+
             storeClient.updateBalance(hash,
                 new UpdateBalanceStoreRequest(userCredential.id(), withdraw.getAmount()));
           } catch (Exception e) {
@@ -314,6 +349,13 @@ public class PaymentService {
           } catch (IOException e) {
             LOGGER.error("Cannot withdraw amount with withdraw id: {}, proceed with refund",
                 withdraw.getId());
+
+            var storeClient = Feign.builder().client(okHttpClient).encoder(gsonEncoder)
+                .decoder(gsonDecoder).target(StoreClient.class,
+                    String.format("%s/api/v1", GetInstanceServer.get(
+                        loadBalancer, storeService
+                    )));
+
             storeClient.updateBalance(hash,
                 new UpdateBalanceStoreRequest(userCredential.id(), withdraw.getAmount().negate()));
             throw new BadRequestException("Cannot withdraw amount");
@@ -515,6 +557,12 @@ public class PaymentService {
       } catch (Exception e) {
         throw new RuntimeException(e);
       }
+
+      var userClient = Feign.builder().client(okHttpClient).encoder(gsonEncoder)
+          .decoder(gsonDecoder).target(UserClient.class,
+              String.format("%s/api/v1", GetInstanceServer.get(
+                  loadBalancer, userService
+              )));
 
       userClient.cancelOrder(hash,
           new CancelOrderRequest(payment.getUserId(), payment.getAmount()));

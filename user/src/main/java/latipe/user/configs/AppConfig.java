@@ -1,5 +1,8 @@
 package latipe.user.configs;
 
+import feign.gson.GsonDecoder;
+import feign.gson.GsonEncoder;
+import feign.okhttp.OkHttpClient;
 import io.grpc.Server;
 import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder;
 import java.io.IOException;
@@ -50,6 +53,21 @@ public class AppConfig implements WebMvcConfigurer {
   @Bean
   public RequestContextListener requestContextListener() {
     return new RequestContextListener();
+  }
+
+  @Bean
+  public GsonDecoder getGsonDecoder() {
+    return new GsonDecoder();
+  }
+
+  @Bean
+  public GsonEncoder getGsonEncoder() {
+    return new GsonEncoder();
+  }
+
+  @Bean
+  public OkHttpClient okHttpClient() {
+    return new OkHttpClient();
   }
 
   @Bean

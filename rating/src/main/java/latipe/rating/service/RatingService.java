@@ -6,6 +6,10 @@ import static latipe.rating.utils.GenTokenInternal.generateHash;
 import static latipe.rating.utils.GenTokenInternal.getPrivateKey;
 
 import com.google.gson.Gson;
+import feign.Feign;
+import feign.gson.GsonDecoder;
+import feign.gson.GsonEncoder;
+import feign.okhttp.OkHttpClient;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import latipe.rating.configs.SecureInternalProperties;
@@ -25,9 +29,12 @@ import latipe.rating.request.CreateRatingRequest;
 import latipe.rating.request.UpdateRatingRequest;
 import latipe.rating.response.RatingResponse;
 import latipe.rating.response.UserCredentialResponse;
+import latipe.rating.utils.GetInstanceServer;
 import latipe.rating.viewmodel.RatingMessage;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.bson.Document;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
@@ -37,7 +44,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class RatingService implements IRatingService {
 
   private final RatingMapper ratingMapper;
@@ -46,8 +53,15 @@ public class RatingService implements IRatingService {
   private final RabbitMQProducer rabbitMQProducer;
   private final SecureInternalProperties secureInternalProperties;
   private final Gson gson;
-  private final UserClient userClient;
   private final OrderClient orderClient;
+
+  private final LoadBalancerClient loadBalancer;
+  private final GsonDecoder gsonDecoder;
+  private final GsonEncoder gsonEncoder;
+  private final OkHttpClient okHttpClient;
+
+  @Value("${service.user}")
+  private String userService;
 
   @Override
   @Async
@@ -71,6 +85,12 @@ public class RatingService implements IRatingService {
       } catch (Exception e) {
         throw new RuntimeException(e);
       }
+      var userClient = Feign.builder().client(okHttpClient).encoder(gsonEncoder)
+          .decoder(gsonDecoder).target(UserClient.class,
+              String.format("%s/api/v1", GetInstanceServer.get(
+                  loadBalancer, userService
+              )));
+
       var userDetail = userClient.getInfoForRating(hash, userId);
 
       var rating = ratingMapper.mapToRatingBeforeCreate(request, userId, userDetail.username(),

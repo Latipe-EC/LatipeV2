@@ -2,6 +2,9 @@ package latipe.media.configs;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import feign.gson.GsonDecoder;
+import feign.gson.GsonEncoder;
+import feign.okhttp.OkHttpClient;
 import latipe.media.annotations.ApiPrefixController;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -36,6 +39,21 @@ public class AppConfig implements WebMvcConfigurer {
   public void configurePathMatch(PathMatchConfigurer configurer) {
     configurer.addPathPrefix("/api/v1",
         HandlerTypePredicate.forAnnotation(ApiPrefixController.class));
+  }
+
+  @Bean
+  public GsonDecoder getGsonDecoder() {
+    return new GsonDecoder();
+  }
+
+  @Bean
+  public GsonEncoder getGsonEncoder() {
+    return new GsonEncoder();
+  }
+
+  @Bean
+  public OkHttpClient okHttpClient() {
+    return new OkHttpClient();
   }
 
   @Bean

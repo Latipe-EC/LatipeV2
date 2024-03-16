@@ -1,6 +1,5 @@
 package latipe.product.configs;
 
-import feign.Feign;
 import feign.gson.GsonDecoder;
 import feign.gson.GsonEncoder;
 import feign.okhttp.OkHttpClient;
@@ -8,7 +7,6 @@ import io.grpc.Server;
 import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder;
 import java.io.IOException;
 import latipe.product.annotations.ApiPrefixController;
-import latipe.product.feign.StoreClient;
 import latipe.product.interceptor.GrpcServerRequestInterceptor;
 import latipe.product.repositories.IProductRepository;
 import latipe.product.services.product.ProductGrpcService;
@@ -16,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.context.request.RequestContextListener;
@@ -30,12 +29,15 @@ public class AppConfig implements WebMvcConfigurer {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AppConfig.class);
 
-  private final GateWayProperties gateWayProperties;
   private final IProductRepository productRepository;
   private final SecureInternalProperties secureInternalProperties;
+  private final LoadBalancerClient loadBalancer;
 
   @Value("${grpc.port}")
   private int grpcServerPort;
+
+  @Value("${service.store}")
+  private String storeService;
 
   @Override
   public void addCorsMappings(CorsRegistry registry) {
@@ -55,11 +57,20 @@ public class AppConfig implements WebMvcConfigurer {
   }
 
   @Bean
-  public StoreClient getStoreClient() {
-    return Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
-        .decoder(new GsonDecoder()).target(StoreClient.class,
-            "%s:%s/api/v1".formatted(gateWayProperties.getHost(), gateWayProperties.getPort()));
+  public GsonDecoder getGsonDecoder() {
+    return new GsonDecoder();
   }
+
+  @Bean
+  public GsonEncoder getGsonEncoder() {
+    return new GsonEncoder();
+  }
+
+  @Bean
+  public OkHttpClient okHttpClient() {
+    return new OkHttpClient();
+  }
+
 
   @Bean
   public Server grpcServer() {
@@ -67,7 +78,8 @@ public class AppConfig implements WebMvcConfigurer {
     var server = NettyServerBuilder.forPort(grpcServerPort)
         .intercept(new GrpcServerRequestInterceptor(secureInternalProperties))
         .addService(
-            new ProductGrpcService(productRepository, getStoreClient(), secureInternalProperties))
+            new ProductGrpcService(productRepository, secureInternalProperties
+                , loadBalancer, getGsonDecoder(), getGsonEncoder(), okHttpClient(), storeService))
         .build();
 
     try {

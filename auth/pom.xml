@@ -84,29 +84,27 @@
       <groupId>io.micrometer</groupId>
       <scope>runtime</scope>
     </dependency>
-    <dependency>
-      <artifactId>caffeine</artifactId>
-      <groupId>com.github.ben-manes.caffeine</groupId>
-      <version>3.1.8</version>
-    </dependency>
+
     <dependency>
       <artifactId>spring-boot-starter-cache</artifactId>
       <groupId>org.springframework.boot</groupId>
     </dependency>
+
+    <!-- Feign client -->
     <dependency>
       <artifactId>feign-okhttp</artifactId>
       <groupId>io.github.openfeign</groupId>
-      <version>10.11</version>
+      <version>${feign.version}</version>
     </dependency>
     <dependency>
       <artifactId>feign-gson</artifactId>
       <groupId>io.github.openfeign</groupId>
-      <version>10.11</version>
+      <version>${feign.version}</version>
     </dependency>
     <dependency>
       <artifactId>feign-slf4j</artifactId>
       <groupId>io.github.openfeign</groupId>
-      <version>10.11</version>
+      <version>${feign.version}</version>
     </dependency>
 
     <!-- Spring Data Redis -->
@@ -139,6 +137,7 @@
     <version>3.1.5</version> <!-- lookup parent from repository -->
   </parent>
   <properties>
+    <feign.version>13.2.1</feign.version>
     <java.version>17</java.version>
     <mainClass>latipe.auth.AuthApplication</mainClass>
     <maven.compiler.source>17</maven.compiler.source>

@@ -18,12 +18,8 @@ public interface StoreClient {
   @Headers("Authorization: {requester}")
   String getStoreId(@Param("requester") String requester, @Param("userId") String userId);
 
-  @RequestLine("GET /stores/{userId}")
-  StoreResponse getDetailStore(@Param("userId") String userId);
-
-//  @RequestLine("GET /stores/{userId}")
-//  @Headers({"X-API-KEY: {requester}", "Content-Type: application/json"})
-//  List<StoreResponse> getListDetailStore(@Param("userId") String userId);
+  @RequestLine("GET /stores/{storeId}")
+  StoreResponse getDetailStore(@Param("storeId") String storeId);
 
   @RequestLine("POST /stores/get-province-codes")
   @Headers({"X-API-KEY: {requester}", "Content-Type: application/json"})

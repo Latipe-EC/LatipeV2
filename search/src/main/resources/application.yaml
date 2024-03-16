@@ -15,6 +15,7 @@ management:
   tracing:
     sampling:
       probability: "1.0"
+
 elasticsearch:
   clustername: docker-cluster
   url: ${URL_ELASTIC:localhost:9200}
@@ -27,6 +28,14 @@ spring:
   rabbitmq:
     port: ${RABBIT_MQ_PORT:5672}
     host: ${RABBIT_MQ_HOST:localhost}
+
+context:
+  initializer:
+    classes: latipe.search.configs.PortInitializer
+
+service:
+  product: ${PRODUCT_SERVICE:product-service}
+  auth: ${AUTH_SERVICE:auth-service}
 
 gate-way:
   host: ${GATE_WAY_HOST:http://localhost}

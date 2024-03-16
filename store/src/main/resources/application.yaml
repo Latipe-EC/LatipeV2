@@ -11,6 +11,15 @@ spring:
 server:
   port: ${STORE_PORT:8118}
 
+context:
+  initializer:
+    classes: latipe.store.configs.PortInitializer
+
+service:
+  auth: ${AUTH_SERVICE:auth-service}
+  user: ${USER_SERVICE:user-service}
+  product: ${PRODUCT_SERVICE:product-service}
+
 gate-way:
   host: ${GATE_WAY_HOST:http://localhost}
   port: ${GATE_WAY_PORT:8181}

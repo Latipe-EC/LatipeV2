@@ -1,25 +1,43 @@
 package latipe.search.services;
 
 
+import feign.Feign;
+import feign.gson.GsonDecoder;
+import feign.gson.GsonEncoder;
+import feign.okhttp.OkHttpClient;
 import latipe.search.constants.MessageCode;
 import latipe.search.document.Product;
 import latipe.search.exceptions.NotFoundException;
 import latipe.search.feign.ProductClient;
 import latipe.search.mapper.ProductMapper;
 import latipe.search.repositories.ProductRepository;
+import latipe.search.utils.GetInstanceServer;
 import latipe.search.viewmodel.ProductESDetailVm;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.stereotype.Service;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ProductSyncDataService {
 
   private final ProductRepository productRepository;
   private final ProductMapper productMapper;
-  private final ProductClient productClient;
+  private final LoadBalancerClient loadBalancer;
+  private final GsonDecoder gsonDecoder;
+  private final GsonEncoder gsonEncoder;
+  private final OkHttpClient okHttpClient;
+  @Value("${service.product}")
+  private String productService;
 
   public ProductESDetailVm getProductESDetailById(String id) {
+    var productClient = Feign.builder().client(okHttpClient).encoder(gsonEncoder)
+        .decoder(gsonDecoder).target(ProductClient.class,
+            String.format("%s/api/v1", GetInstanceServer.get(
+                loadBalancer, productService
+            )));
+
     return productClient.getProductESDetailById(id);
   }
 
