@@ -15,10 +15,18 @@ public record LogMessage(
 ) {
 
   public static LogMessage create(String message, HttpServletRequest request, String methodName) {
-    var id = UUID.randomUUID().toString();
-    request.setAttribute(REQUEST_ID, id);
-    return new LogMessage(id, request.getRemoteAddr(),
-        request.getHeader("User-Agent"),
-        request.getMethod(), methodName, message);
+    if (request != null) {
+      var id = UUID.randomUUID().toString();
+      request.setAttribute(REQUEST_ID, id);
+      String ip = request.getHeader("X-Forwarded-For");
+      if (ip == null) {
+        ip = request.getRemoteAddr();
+      }
+      return new LogMessage(id, ip,
+          request.getHeader("User-Agent"),
+          request.getMethod(), methodName, message);
+    } else {
+      return new LogMessage("", "", "", "", methodName, message);
+    }
   }
 }

@@ -1,6 +1,9 @@
 package latipe.payment.services;
 
 
+import static latipe.payment.constants.CONSTANTS.PAYPAL_STATUS_APPROVED;
+import static latipe.payment.constants.CONSTANTS.PAYPAL_STATUS_COMPLETED;
+import static latipe.payment.utils.AuthenticationUtils.getMethodName;
 import static latipe.payment.utils.GenTokenInternal.generateHash;
 import static latipe.payment.utils.GenTokenInternal.getPrivateKey;
 
@@ -13,6 +16,7 @@ import feign.Feign;
 import feign.gson.GsonDecoder;
 import feign.gson.GsonEncoder;
 import feign.okhttp.OkHttpClient;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -54,6 +58,7 @@ import latipe.payment.response.PaymentResponse;
 import latipe.payment.response.UserCredentialResponse;
 import latipe.payment.utils.GetInstanceServer;
 import latipe.payment.utils.TokenUtils;
+import latipe.payment.viewmodel.LogMessage;
 import latipe.payment.viewmodel.OrderMessage;
 import latipe.payment.viewmodel.OrderReplyMessage;
 import latipe.payment.viewmodel.TokenWithdraw;
@@ -66,8 +71,6 @@ import okhttp3.MediaType;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.scheduling.annotation.Async;
@@ -78,8 +81,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class PaymentService {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(
-      PaymentService.class);
   private final PaymentRepository paymentRepository;
   private final SecureInternalProperties secureInternalProperties;
   private final PayPalHttpClient payPalHttpClient;
@@ -109,9 +110,6 @@ public class PaymentService {
   @Value("${rabbitmq.order.exchange}")
   private String exchange;
 
-  @Value("${service.auth}")
-  private String authService;
-
   @Value("${service.user}")
   private String userService;
 
@@ -120,7 +118,12 @@ public class PaymentService {
 
   @Async
   public CompletableFuture<CapturedPaymentResponse> capturePayment(
-      CapturedPaymentRequest completedPayment) {
+      CapturedPaymentRequest completedPayment, HttpServletRequest request) {
+
+    log.info(gson.toJson(
+        LogMessage.create("Capture payment with order id: %s".formatted(completedPayment.orderId()),
+            request, getMethodName())));
+
     return CompletableFuture.supplyAsync(
         () -> {
           var payment = new Payment();
@@ -133,17 +136,25 @@ public class PaymentService {
           payment.setGatewayTransactionId(completedPayment.gatewayTransactionId());
           payment.setCheckoutId(completedPayment.checkoutId());
           payment.setEmail(completedPayment.email());
-          return CapturedPaymentResponse.fromModel(paymentRepository.save(payment));
+
+          var savedPayment = paymentRepository.save(payment);
+          log.info("Capture payment with order id: %s successfully".formatted(
+              completedPayment.orderId()));
+          return CapturedPaymentResponse.fromModel(savedPayment);
         }
     );
   }
 
   @Async
   public CompletableFuture<Void> payOrder(
-      PayOrderRequest request) {
+      PayOrderRequest input, HttpServletRequest request) {
+    log.info(gson.toJson(
+        LogMessage.create("Pay order with order id: %s".formatted(input.orderId()),
+            request, getMethodName())));
+
     return CompletableFuture.supplyAsync(
         () -> {
-          var payment = paymentRepository.findByOrderId(request.orderId()).orElseThrow(
+          var payment = paymentRepository.findByOrderId(input.orderId()).orElseThrow(
               () -> new NotFoundException("Cannot find order")
           );
 
@@ -157,6 +168,7 @@ public class PaymentService {
             hash = generateHash("user-service",
                 getPrivateKey(secureInternalProperties.getPrivateKey()));
           } catch (Exception e) {
+            log.error("Cannot generate hash");
             throw new RuntimeException(e);
           }
 
@@ -171,6 +183,7 @@ public class PaymentService {
           // if success update payment status
           payment.setPaymentStatus(EPaymentStatus.COMPLETED);
           paymentRepository.save(payment);
+          log.info("Pay order with order id: %s successfully".formatted(input.orderId()));
           return null;
         }
     );
@@ -178,12 +191,17 @@ public class PaymentService {
 
   @Async
   public CompletableFuture<CheckPaymentOrderResponse> getPaymentOrder(
-      String orderId) {
+      String orderId, HttpServletRequest request) {
+    log.info(gson.toJson(
+        LogMessage.create("Get payment order with order id: %s".formatted(orderId),
+            request, getMethodName())));
+
     return CompletableFuture.supplyAsync(
         () -> {
           var payment = paymentRepository.findByOrderId(orderId).orElseThrow(
               () -> new NotFoundException("Cannot find order")
           );
+          log.info("Get payment order with order id: %s successfully".formatted(orderId));
           return CheckPaymentOrderResponse.fromModel(payment);
         }
     );
@@ -191,10 +209,14 @@ public class PaymentService {
 
   @Async
   public CompletableFuture<Void> payByPaypal(
-      PayByPaypalRequest request, UserCredentialResponse userCredential) {
+      PayByPaypalRequest input, HttpServletRequest request) {
+    log.info(gson.toJson(
+        LogMessage.create("Pay by paypal with order id: %s".formatted(input.orderId()),
+            request, getMethodName())));
+
     return CompletableFuture.supplyAsync(
         () -> {
-          var payment = paymentRepository.findByOrderId(request.orderId()).orElseThrow(
+          var payment = paymentRepository.findByOrderId(input.orderId()).orElseThrow(
               () -> new NotFoundException("Cannot find order")
           );
 
@@ -202,16 +224,17 @@ public class PaymentService {
             throw new BadRequestException("Cannot pay for this");
           }
 
-          if (!payment.getUserId().equals(userCredential.id())) {
+          if (!payment.getUserId().equals(getUserId(request))) {
             throw new ForbiddenException("you dont have permission to do this");
           }
 
-          payment.setCheckoutId(request.id());
-          if (request.status().equals("COMPLETED")) {
+          payment.setCheckoutId(input.id());
+          if (input.status().equals("COMPLETED")) {
             payment.setPaymentStatus(EPaymentStatus.COMPLETED);
           }
-          payment.setEmail(request.email());
+          payment.setEmail(input.email());
           paymentRepository.save(payment);
+          log.info("Pay by paypal with order id: %s successfully".formatted(input.orderId()));
           return null;
         }
     );
@@ -219,7 +242,10 @@ public class PaymentService {
 
   @Async
   public CompletableFuture<Void> withdrawPaypal(
-      WithdrawPaypalRequest request, UserCredentialResponse userCredential) {
+      WithdrawPaypalRequest input, HttpServletRequest request) {
+    log.info(gson.toJson(
+        LogMessage.create("Withdraw paypal with amount: %s".formatted(input.amount()),
+            request, getMethodName())));
     return CompletableFuture.supplyAsync(
         () -> {
           // check user
@@ -228,6 +254,7 @@ public class PaymentService {
             hash = generateHash("store-service",
                 getPrivateKey(secureInternalProperties.getPrivateKey()));
           } catch (Exception e) {
+            log.error("Cannot generate hash");
             throw new RuntimeException(e);
           }
 
@@ -238,10 +265,10 @@ public class PaymentService {
                   )));
 
           storeClient.checkBalance(hash,
-              new CheckBalanceStoreRequest(userCredential.id(), request.amount()));
+              new CheckBalanceStoreRequest(getUserId(request), input.amount()));
 
           var withdraw = withdrawRepository.findByUserIdAndWithdrawStatus(
-                  userCredential.id(), EWithdrawStatus.PENDING)
+                  getUserId(request), EWithdrawStatus.PENDING)
               .orElse(null);
           if (withdraw != null) {
             withdraw.setWithdrawStatus(EWithdrawStatus.CANCELLED);
@@ -249,9 +276,9 @@ public class PaymentService {
           }
 
           var newWithdraw = Withdraw.builder()
-              .emailRecipient(request.email())
-              .amount(request.amount())
-              .userId(userCredential.id())
+              .emailRecipient(input.email())
+              .amount(input.amount())
+              .userId(getUserId(request))
               .withdrawStatus(EWithdrawStatus.PENDING)
               .type(EWithdrawType.PAYPAL)
               .build();
@@ -265,7 +292,7 @@ public class PaymentService {
 
           var token = TokenUtils.encodeToken(tokenWithdraw, ENCRYPTION_KEY);
           var message = gson.toJson(new WithdrawMessage(
-              userCredential.email(),
+              ((UserCredentialResponse) request.getAttribute("user")).email(),
               newWithdraw.getAmount(),
               token,
               newWithdraw.getEmailRecipient(),
@@ -274,8 +301,8 @@ public class PaymentService {
           ));
 
           rabbitMQProducer.sendMessage(message, exchangeName, topicWithdrawKey);
-          LOGGER.info("Create new withdraw amount with withdraw id: {}", newWithdraw.getId());
-          LOGGER.info("Token withdraw: %s, with id: %s".formatted(token, newWithdraw.getId()));
+          log.info("Create new withdraw amount with withdraw id: {}", newWithdraw.getId());
+          log.info("Token withdraw: %s, with id: %s".formatted(token, newWithdraw.getId()));
           return null;
         }
     );
@@ -283,10 +310,13 @@ public class PaymentService {
 
   @Async
   public CompletableFuture<Void> validWithdrawPaypal(
-      ValidWithdrawPaypalRequest request, UserCredentialResponse userCredential) {
+      ValidWithdrawPaypalRequest input, HttpServletRequest request) {
+    log.info(gson.toJson(
+        LogMessage.create("Valid withdraw paypal with token: %s".formatted(input.token()),
+            request, getMethodName())));
     return CompletableFuture.supplyAsync(
         () -> {
-          var tokenWithdraw = gson.fromJson(TokenUtils.decodeToken(request.token(), ENCRYPTION_KEY),
+          var tokenWithdraw = gson.fromJson(TokenUtils.decodeToken(input.token(), ENCRYPTION_KEY),
               TokenWithdraw.class);
 
           if (tokenWithdraw == null || ZonedDateTime.now()
@@ -298,7 +328,7 @@ public class PaymentService {
               () -> new NotFoundException("Cannot find withdraw")
           );
 
-          if (!withdraw.getUserId().equals(userCredential.id())) {
+          if (!withdraw.getUserId().equals(getUserId(request))) {
             throw new ForbiddenException("you dont have permission to do this");
           }
 
@@ -312,6 +342,7 @@ public class PaymentService {
             hash = generateHash("store-service",
                 getPrivateKey(secureInternalProperties.getPrivateKey()));
           } catch (Exception e) {
+            log.error("Cannot generate hash");
             throw new RuntimeException(e);
           }
 
@@ -323,9 +354,9 @@ public class PaymentService {
                     )));
 
             storeClient.updateBalance(hash,
-                new UpdateBalanceStoreRequest(userCredential.id(), withdraw.getAmount()));
+                new UpdateBalanceStoreRequest(getUserId(request), withdraw.getAmount()));
           } catch (Exception e) {
-            LOGGER.error("Cannot withdraw amount with withdraw id: {}, update status to cancel",
+            log.error("Cannot withdraw amount with withdraw id: {}, update status to cancel",
                 withdraw.getId());
             withdraw.setWithdrawStatus(EWithdrawStatus.CANCELLED);
             withdrawRepository.save(withdraw);
@@ -347,7 +378,7 @@ public class PaymentService {
               throw new BadRequestException("Cannot withdraw amount");
             }
           } catch (IOException e) {
-            LOGGER.error("Cannot withdraw amount with withdraw id: {}, proceed with refund",
+            log.error("Cannot withdraw amount with withdraw id: {}, proceed with refund",
                 withdraw.getId());
 
             var storeClient = Feign.builder().client(okHttpClient).encoder(gsonEncoder)
@@ -357,12 +388,12 @@ public class PaymentService {
                     )));
 
             storeClient.updateBalance(hash,
-                new UpdateBalanceStoreRequest(userCredential.id(), withdraw.getAmount().negate()));
+                new UpdateBalanceStoreRequest(getUserId(request), withdraw.getAmount().negate()));
             throw new BadRequestException("Cannot withdraw amount");
           }
           withdraw.setWithdrawStatus(EWithdrawStatus.COMPLETED);
           withdrawRepository.save(withdraw);
-          LOGGER.info("Complete withdraw amount with withdraw id: {}", withdraw.getId());
+          log.info("Complete withdraw amount with withdraw id: {}", withdraw.getId());
           return null;
         }
     );
@@ -370,27 +401,30 @@ public class PaymentService {
 
   @Async
   public CompletableFuture<CheckPaymentOrderResponse> checkOrderPaypal(String orderId,
-      UserCredentialResponse userCredential) {
+      HttpServletRequest request) {
+    log.info(gson.toJson(
+        LogMessage.create("Check order paypal with order id: %s".formatted(orderId),
+            request, getMethodName())));
     return CompletableFuture.supplyAsync(
         () -> {
           var payment = paymentRepository.findByOrderId(orderId).orElseThrow(
               () -> new NotFoundException("Cannot find order")
           );
 
-          if (!payment.getUserId().equals(userCredential.id())) {
+          if (!payment.getUserId().equals(getUserId(request))) {
             throw new ForbiddenException("you dont have permission to do this");
           }
 
-          OrdersGetRequest request = new OrdersGetRequest(payment.getCheckoutId());
+          var ordersGetRequest = new OrdersGetRequest(payment.getCheckoutId());
           try {
-            var response = payPalHttpClient.execute(request);
+            var response = payPalHttpClient.execute(ordersGetRequest);
             if (response.statusCode() != 200) {
               throw new BadRequestException("Cannot get order");
             }
             var order = response.result();
-            if (order.status().equals("COMPLETED")) {
+            if (order.status().equals(PAYPAL_STATUS_COMPLETED)) {
               payment.setPaymentStatus(EPaymentStatus.COMPLETED);
-            } else if (order.status().equals("APPROVED")) {
+            } else if (order.status().equals(PAYPAL_STATUS_APPROVED)) {
               payment.setPaymentStatus(EPaymentStatus.PENDING);
             } else {
               payment.setPaymentStatus(EPaymentStatus.CANCELLED);
@@ -398,17 +432,23 @@ public class PaymentService {
             paymentRepository.save(payment);
 
           } catch (IOException e) {
+            log.error("Cannot get order with order id: %s".formatted(orderId));
             throw new RuntimeException(e);
           }
 
           paymentRepository.save(payment);
+          log.info("Check order paypal with order id: %s successfully".formatted(orderId));
           return CheckPaymentOrderResponse.fromModel(payment);
         }
     );
   }
 
   @Async
-  public CompletableFuture<CheckPaymentOrderResponse> checkPaymentInternal(String orderId) {
+  public CompletableFuture<CheckPaymentOrderResponse> checkPaymentInternal(String orderId,
+      HttpServletRequest request) {
+    log.info(gson.toJson(
+        LogMessage.create("Check payment internal with order id: %s".formatted(orderId),
+            request, getMethodName())));
     return CompletableFuture.supplyAsync(
         () -> {
           var payment = paymentRepository.findByOrderId(orderId).orElseThrow(
@@ -417,9 +457,9 @@ public class PaymentService {
 
           if (payment.getPaymentMethod().equals(EPaymentMethod.PAYPAL)
               && payment.getCheckoutId() != null) {
-            OrdersGetRequest request = new OrdersGetRequest(payment.getCheckoutId());
+            var ordersGetRequest = new OrdersGetRequest(payment.getCheckoutId());
             try {
-              var response = payPalHttpClient.execute(request);
+              var response = payPalHttpClient.execute(ordersGetRequest);
               if (response.statusCode() != 200) {
                 throw new BadRequestException("Cannot get order");
               }
@@ -435,6 +475,7 @@ public class PaymentService {
 
 
             } catch (IOException e) {
+              log.error("Cannot get order with order id: %s".formatted(orderId));
               throw new RuntimeException(e);
             }
           }
@@ -453,6 +494,7 @@ public class PaymentService {
             payment.setPaymentStatus(EPaymentStatus.CANCELLED);
           }
           payment = paymentRepository.save(payment);
+          log.info("Check payment internal with order id: %s successfully".formatted(orderId));
           return CheckPaymentOrderResponse.fromModel(payment);
         }
     );
@@ -463,7 +505,12 @@ public class PaymentService {
       String keyword,
       Long skip,
       Integer size,
-      EStatusFilter statusFilter) {
+      EStatusFilter statusFilter, HttpServletRequest request) {
+    log.info(gson.toJson(
+        LogMessage.create(
+            "Get paginate payment with keyword: %s, skip: %s, size: %s, statusFilter: %s"
+                .formatted(keyword, skip, size, statusFilter),
+            request, getMethodName())));
     return CompletableFuture.supplyAsync(
         () -> {
           List<EPaymentStatus> statuses;
@@ -478,6 +525,9 @@ public class PaymentService {
           }
           var payments = paymentRepository.findPaginate(keyword, skip, size, statuses);
           var total = paymentRepository.countPayment(keyword, statuses);
+          log.info(
+              "Get paginate payment with keyword: %s, skip: %s, size: %s, statusFilter: %s successfully"
+                  .formatted(keyword, skip, size, statusFilter));
           return new PagedResultDto<>(
               new Pagination(total, skip, size),
               payments.stream().map(PaymentResponse::fromModel).toList()
@@ -487,6 +537,7 @@ public class PaymentService {
   }
 
   private String getAccessToken() throws IOException {
+    log.info("Get access token");
 
     var paymentProvider = paymentProviderRepository.findById("PaypalPayment")
         .orElseThrow(()
@@ -520,12 +571,14 @@ public class PaymentService {
       JsonObject responseJson = JsonParser.parseString(responseBody)
           .getAsJsonObject();
       response.close();
+      log.info("Get access token successfully");
       return responseJson.get("access_token").getAsString();
     }
   }
 
   public void handleOrderCreate(
       OrderMessage message) {
+    log.info("Handle order create with order id: {}", message.orderId());
     var payment = new Payment();
     payment.setOrderId(message.orderId());
     payment.setAmount(message.amount());
@@ -538,10 +591,12 @@ public class PaymentService {
 
     rabbitMQProducer.sendMessage(gson.toJson(
         OrderReplyMessage.create(1, message.orderId())), exchange, replyRoutingKey);
+    log.info("Handle order create with order id: {} successfully", message.orderId());
   }
 
   public void handleUserCancelOrder(
       OrderMessage message) {
+    log.info("Handle user cancel order with order id: {}", message.orderId());
     var payment = paymentRepository.findByOrderId(message.orderId()).orElseThrow(
         () -> new NotFoundException("Not found payment")
     );
@@ -555,6 +610,7 @@ public class PaymentService {
         hash = generateHash("user-service",
             getPrivateKey(secureInternalProperties.getPrivateKey()));
       } catch (Exception e) {
+        log.error("Cannot generate hash");
         throw new RuntimeException(e);
       }
 
@@ -568,19 +624,23 @@ public class PaymentService {
           new CancelOrderRequest(payment.getUserId(), payment.getAmount()));
       payment.setPaymentStatus(EPaymentStatus.CANCELLED);
       paymentRepository.save(payment);
+      log.info("Handle user cancel order with order id: {} successfully", message.orderId());
     }
   }
 
   public Payment handleFinishShipping(
       OrderMessage message) {
+    log.info("Handle finish shipping with order id: {}", message.orderId());
     var payment = paymentRepository.findByOrderId(message.orderId()).orElseThrow(
         () -> new NotFoundException("Not found payment")
     );
     payment.setPaymentStatus(EPaymentStatus.COMPLETED);
+    log.info("Handle finish shipping with order id: {} successfully", message.orderId());
     return paymentRepository.save(payment);
   }
 
   public void handleRollbackOrder(String orderId) {
+    log.info("Handle rollback order with order id: {}", orderId);
     var payment = paymentRepository.findByOrderId(orderId).orElseThrow(
         () -> new NotFoundException("Not found payment")
     );
@@ -589,7 +649,7 @@ public class PaymentService {
 
     // IMPORTANT: if payment is already completed, do not throw exception because it causes rollback
     if (payment.getIsRefund() && withdraw != null) {
-      LOGGER.info("Payment with order id: {} is already refund", orderId);
+      log.info("Payment with order id: {} is already refund", orderId);
       return;
     }
 
@@ -598,6 +658,7 @@ public class PaymentService {
       req = requestTransferMoney(payment.getEmail(),
           payment.getAmount().divide(new BigDecimal(23000), 2, RoundingMode.CEILING));
     } catch (IOException e) {
+      log.error("Cannot create request transfer money");
       throw new RuntimeException(e);
     }
 
@@ -630,13 +691,13 @@ public class PaymentService {
           .build();
       withdrawRepository.save(newWithdraw);
     } catch (Exception e) {
-      LOGGER.error("Cannot create withdraw amount with payment id: {}, proceed with refund",
+      log.error("Cannot create withdraw amount with payment id: {}, proceed with refund",
           payment.getId());
       // remember check
       throw new BadRequestException("FAILED:Withdraw");
     }
 
-    LOGGER.info("Complete refund amount with payment id: {}", payment.getId());
+    log.info("Complete refund amount with payment id: {}", payment.getId());
   }
 
   private Request requestTransferMoney(
@@ -656,5 +717,9 @@ public class PaymentService {
         .addHeader("content-type", "application/json")
         .addHeader("authorization", "Bearer %s".formatted(getAccessToken()))
         .build();
+  }
+
+  private String getUserId(HttpServletRequest request) {
+    return ((UserCredentialResponse) request.getAttribute("user")).id();
   }
 }

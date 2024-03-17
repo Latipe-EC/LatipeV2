@@ -1,6 +1,7 @@
 package latipe.search.controllers;
 
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.concurrent.CompletableFuture;
 import latipe.search.annotations.ApiPrefixController;
 import latipe.search.constants.ESortType;
@@ -31,14 +32,17 @@ public class ProductController {
       @RequestParam(required = false) String classification,
       @RequestParam(required = false) Double minPrice,
       @RequestParam(required = false) Double maxPrice,
-      @RequestParam(defaultValue = "DEFAULT") ESortType sortType
+      @RequestParam(defaultValue = "DEFAULT") ESortType sortType, HttpServletRequest request
+
   ) {
     return productService.findProductAdvance(keyword, page, size, category, classification,
-        minPrice, maxPrice, sortType);
+        minPrice, maxPrice, sortType, request);
   }
 
   @GetMapping("/search_suggest")
-  public ResponseEntity<ProductNameListVm> productSearchAutoComplete(@RequestParam String keyword) {
-    return ResponseEntity.ok(productService.autoCompleteProductName(keyword));
+  public ResponseEntity<ProductNameListVm> productSearchAutoComplete(@RequestParam String keyword,
+      HttpServletRequest request
+  ) {
+    return ResponseEntity.ok(productService.autoCompleteProductName(keyword, request));
   }
 }

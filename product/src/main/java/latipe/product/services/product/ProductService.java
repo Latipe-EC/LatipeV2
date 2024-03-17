@@ -1,5 +1,6 @@
 package latipe.product.services.product;
 
+import static latipe.product.utils.AuthenticationUtils.getMethodName;
 import static latipe.product.utils.GenTokenInternal.generateHash;
 import static latipe.product.utils.GenTokenInternal.getPrivateKey;
 
@@ -47,9 +48,11 @@ import latipe.product.response.ProductListGetResponse;
 import latipe.product.response.ProductNameListResponse;
 import latipe.product.response.ProductResponse;
 import latipe.product.response.ProductStoreResponse;
+import latipe.product.response.UserCredentialResponse;
 import latipe.product.utils.AvgRating;
 import latipe.product.utils.GetInstanceServer;
 import latipe.product.utils.ParseObjectToString;
+import latipe.product.viewmodel.LogMessage;
 import latipe.product.viewmodel.ProductClassificationVm;
 import latipe.product.viewmodel.ProductESDetailVm;
 import latipe.product.viewmodel.ProductGetVm;
@@ -61,9 +64,9 @@ import latipe.product.viewmodel.ProductSample;
 import latipe.product.viewmodel.ProductThumbnailVm;
 import latipe.product.viewmodel.ProductVariantVm;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.data.domain.Sort.Direction;
@@ -77,9 +80,9 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ProductService implements IProductService {
 
-  private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(ProductService.class);
   private final IProductRepository productRepository;
   private final ICategoryRepository categoryRepository;
   private final ProductMapper productMapper;
@@ -102,7 +105,11 @@ public class ProductService implements IProductService {
   @Async
   @Override
   public CompletableFuture<PagedResultDto<ProductAdminResponse>> getAdminProduct(long skip,
-      int limit, String name, String orderBy, EStatusBan ban) {
+      int limit, String name, String orderBy, EStatusBan ban, HttpServletRequest request) {
+    log.info(gson.toJson(
+        LogMessage.create("Get admin product with skip: %s, limit: %s, name: %s".formatted(
+            skip, limit, name), request, getMethodName())));
+
     return CompletableFuture.supplyAsync(() -> {
       List<Boolean> banCriteria;
       if (ban == EStatusBan.ALL) {
@@ -146,6 +153,7 @@ public class ProductService implements IProductService {
             .rating(AvgRating.calc(prod.getRatings()))
             .isDeleted(doc.getBoolean("isDeleted")).build();
       });
+      log.info("Get admin product successfully");
       return PagedResultDto.create(Pagination.create(total, skip, limit), list.toList());
     });
   }
@@ -153,10 +161,14 @@ public class ProductService implements IProductService {
   @Async
   @Override
   public CompletableFuture<PagedResultDto<ProductStoreResponse>> getMyProductStore(long skip,
-      int limit, String name, String orderBy, String storeId) {
+      int limit, String name, String orderBy, String storeId, HttpServletRequest request) {
+    log.info(gson.toJson(
+        LogMessage.create("Get my product store with skip: %s, limit: %s, name: %s".formatted(
+            skip, limit, name), request, getMethodName())));
     return CompletableFuture.supplyAsync(() -> {
       var aggregate = createQueryProduct(skip, limit, name, orderBy, storeId, false, false);
       var total = productRepository.countProductByStoreId(storeId, name);
+      log.info("Get my product store successfully");
       return getProductResponsePagedResultDto(skip, limit, total, aggregate);
     });
   }
@@ -164,38 +176,46 @@ public class ProductService implements IProductService {
   @Async
   @Override
   public CompletableFuture<PagedResultDto<ProductStoreResponse>> getBanProductStore(long skip,
-      int limit, String name, String orderBy, String storeId) {
+      int limit, String name, String orderBy, String storeId, HttpServletRequest request) {
+    log.info(gson.toJson(
+        LogMessage.create("Get ban product store with skip: %s, limit: %s, name: %s".formatted(
+            skip, limit, name), request, getMethodName())));
     return CompletableFuture.supplyAsync(() -> {
       var aggregate = createQueryProduct(skip, limit, name, orderBy, storeId, true, false);
       var total = productRepository.countProductBanByStoreId(storeId, name);
+      log.info("Get ban product store successfully");
       return getProductResponsePagedResultDto(skip, limit, total, aggregate);
     });
   }
 
   @Override
   @Async
-  public CompletableFuture<ProductResponse> get(String userId, String prodId,
+  public CompletableFuture<ProductResponse> get(String prodId,
       HttpServletRequest request) {
+    log.info(gson.toJson(
+        LogMessage.create("Get product by id: %s".formatted(prodId), request, getMethodName())));
     return CompletableFuture.supplyAsync(() -> {
       var prod = productRepository.findById(prodId)
           .orElseThrow(() -> new BadRequestException("Product not found"));
       var storeClient = getStoreClient();
 
       // get store id from store service
-      var storeId = storeClient.getStoreId(request.getHeader("Authorization"), userId);
+      var storeId = storeClient.getStoreId(request.getHeader("Authorization"), getUserId(request));
 
       if (!storeId.equals(prod.getStoreId())) {
         throw new BadRequestException("You don't have permission to view this product");
       }
       var categories = categoryRepository.findAllById(prod.getCategories());
+      log.info("Get product by id successfully");
       return productMapper.mapToProductToResponse(prod, categories);
     });
   }
 
   @Override
   @Async
-  public CompletableFuture<ProductResponse> create(String userId, CreateProductRequest input,
+  public CompletableFuture<ProductResponse> create(CreateProductRequest input,
       HttpServletRequest request) {
+    log.info(gson.toJson(LogMessage.create("Create product", request, getMethodName())));
     return CompletableFuture.supplyAsync(() -> {
       if (input.images().isEmpty()) {
         throw new BadRequestException("Product must have at least 1 image");
@@ -218,7 +238,7 @@ public class ProductService implements IProductService {
 
       var storeClient = getStoreClient();
 
-      var storeId = storeClient.getStoreId(request.getHeader("Authorization"), userId);
+      var storeId = storeClient.getStoreId(request.getHeader("Authorization"), getUserId(request));
 
       var prod = productMapper.mapToProductBeforeCreate(input, storeId);
       prod.setIsPublished(input.isPublished());
@@ -234,6 +254,7 @@ public class ProductService implements IProductService {
       }
       rabbitMQProducer.sendMessage(exchange, routingKey, message);
 
+      log.info("Create product successfully");
       return productMapper.mapToProductToResponse(savedProd, null);
     });
 
@@ -241,13 +262,19 @@ public class ProductService implements IProductService {
 
   @Override
   @Async
-  public CompletableFuture<Long> countAllProduct() {
+  public CompletableFuture<Long> countAllProduct(HttpServletRequest request) {
+    log.info(gson.toJson(LogMessage.create("Count all product", request, getMethodName())));
     return CompletableFuture.supplyAsync(productRepository::count);
   }
 
   @Override
   @Async
-  public CompletableFuture<ProductPriceVm> getPrice(String prodId, String code) {
+  public CompletableFuture<ProductPriceVm> getPrice(String prodId, String code,
+      HttpServletRequest request) {
+    log.info(gson.toJson(
+        LogMessage.create("Get price by product id: %s, code: %s".formatted(prodId, code), request,
+            getMethodName())));
+
     return CompletableFuture.supplyAsync(() -> {
       var product = productRepository.findById(prodId)
           .orElseThrow(() -> new BadRequestException("Product not found"));
@@ -259,6 +286,7 @@ public class ProductService implements IProductService {
           ProductPriceVm productPriceVm;
           productPriceVm = ProductPriceVm.builder().code(code).image(classification.getImage())
               .price(classification.getPrice()).quantity(classification.getQuantity()).build();
+          log.info("Get price by product id successfully");
           return productPriceVm;
         }
       }
@@ -269,11 +297,11 @@ public class ProductService implements IProductService {
   @Override
   @Async
   public CompletableFuture<OrderProductResponse> checkProductInStock(
-      List<OrderProductCheckRequest> prodOrders) {
+      List<OrderProductCheckRequest> prodOrders, HttpServletRequest request) {
+    log.info(gson.toJson(LogMessage.create("Check product in stock", request, getMethodName())));
     return CompletableFuture.supplyAsync(() -> {
 
       // handle case product id and option id is same
-      long startTime = System.nanoTime();
       Set<OrderProductCheckRequest> orderProductSet = new HashSet<>();
       for (OrderProductCheckRequest orderProduct : prodOrders) {
         OrderProductCheckRequest existingProduct = orderProductSet.stream()
@@ -348,8 +376,7 @@ public class ProductService implements IProductService {
       var storeProvinceCodes = storeClient.getProvinceCodes(hash,
           GetProvinceCodesRequest.builder().ids(storeIds).build());
 
-      long endTime = System.nanoTime();
-      LOGGER.info(endTime - startTime + " ns");
+      log.info("Check product in stock successfully");
       return OrderProductResponse.builder()
           .totalPrice(Math.ceil(orders.stream().mapToDouble(ProductOrderVm::totalPrice).sum()))
           .products(orders).storeProvinceCodes(storeProvinceCodes.codes()).build();
@@ -358,13 +385,18 @@ public class ProductService implements IProductService {
 
   @Override
   @Async
-  public CompletableFuture<ProductESDetailVm> getProductESDetailById(String productId) {
+  public CompletableFuture<ProductESDetailVm> getProductESDetailById(String productId,
+      HttpServletRequest request) {
+    log.info(gson.toJson(
+        LogMessage.create("Get product es detail by id: %s".formatted(productId), request,
+            getMethodName())));
     return CompletableFuture.supplyAsync(() -> {
       Product product = productRepository.findById(productId)
           .orElseThrow(() -> new NotFoundException("PRODUCT_NOT_FOUND", productId));
 
       List<String> categoryNames = categoryRepository.findAllById(product.getCategories()).stream()
           .map(Category::getName).toList();
+      log.info("Get product es detail by id successfully");
       return new ProductESDetailVm(product.getId(),
           product.getName(), product.getSlug(),
           product.getProductClassifications().get(0).getPromotionalPrice() > 0
@@ -383,9 +415,12 @@ public class ProductService implements IProductService {
 
   @Override
   @Async
-  public CompletableFuture<ProductDetailResponse> getProductDetail(String productId) {
+  public CompletableFuture<ProductDetailResponse> getProductDetail(String productId,
+      HttpServletRequest request) {
+    log.info(gson.toJson(
+        LogMessage.create("Get product detail by id: %s".formatted(productId), request,
+            getMethodName())));
     return CompletableFuture.supplyAsync(() -> {
-      LOGGER.info("Get product detail by id: " + productId);
       var product = productRepository.findById(productId)
           .orElseThrow(() -> new NotFoundException("PRODUCT_NOT_FOUND", productId));
 
@@ -399,6 +434,7 @@ public class ProductService implements IProductService {
 
       var store = storeClient.getDetailStore(product.getStoreId());
 
+      log.info("Get product detail by id successfully");
       return new ProductDetailResponse(product.getId(), product.getName(), product.getSlug(),
           product.getProductClassifications().get(0).getPrice(),
           product.getProductClassifications().get(0).getPromotionalPrice(),
@@ -413,14 +449,20 @@ public class ProductService implements IProductService {
 
   @Override
   public CompletableFuture<ProductListGetResponse> findProductAdvance(String keyword, Integer page,
-      Integer size, String category) {
+      Integer size, String category, HttpServletRequest request) {
+    log.info(gson.toJson(LogMessage.create(
+        "Find product advance with keyword: %s, page: %s, size: %s, category: %s".formatted(
+            keyword, page, size, category), request, getMethodName())));
     return CompletableFuture.supplyAsync(() -> {
       var count = productRepository.count();
+      var data = productRepository.searchProductTemp(keyword, category == null ?
+              "null" : category, (long) page * size, size).stream()
+          .map(
+              ProductGetVm::fromModel).toList();
+
+      log.info("Find product advance successfully");
       return new ProductListGetResponse(
-          productRepository.searchProductTemp(keyword, category == null ?
-                  "null" : category, (long) page * size, size).stream()
-              .map(
-                  ProductGetVm::fromModel).toList(),
+          data,
           page, size, count, (int) Math.ceil((double) count / size),
           count <= (long) (page + 1) * size
       );
@@ -428,7 +470,11 @@ public class ProductService implements IProductService {
   }
 
   @Override
-  public CompletableFuture<ProductNameListResponse> autoCompleteProductName(String keyword) {
+  public CompletableFuture<ProductNameListResponse> autoCompleteProductName(String keyword,
+      HttpServletRequest request) {
+    log.info(gson.toJson(
+        LogMessage.create("Auto complete product name with keyword: %s".formatted(keyword), request,
+            getMethodName())));
     return CompletableFuture.supplyAsync(() -> new ProductNameListResponse(
         productRepository.searchProductTemp(keyword, null, 0, 5).stream().map(
             ProductNameGetVm::fromModel).toList()
@@ -438,7 +484,11 @@ public class ProductService implements IProductService {
   @Override
   @Async
   public CompletableFuture<List<ProductThumbnailVm>> getFeatureProduct(
-      List<ProductFeatureRequest> products) {
+      List<ProductFeatureRequest> products, HttpServletRequest request) {
+    log.info(gson.toJson(LogMessage.create("Get feature product: %s".formatted(
+            products.stream().map(ProductFeatureRequest::productId).toList()), request,
+        getMethodName())));
+
     return CompletableFuture.supplyAsync(() -> {
 
       var prodFilter = products.stream().map(ProductFeatureRequest::productId).toList();
@@ -480,18 +530,10 @@ public class ProductService implements IProductService {
         } else {
           image = productSample.productVariants().get(0).options().get(0).getImage();
         }
-//        if (productSample.productVariants().isEmpty()) {
-//          image = doc.getString("image");
-//        } else {
-//          int size = productSample.productVariants().get(0).options().size() * productSample.productVariants().size() == 2 ? productSample.productVariants().get(1)
-//              .options().size() : 1;
-//          image = productSample.productVariants().get(0).options().get(
-//                  size / (Integer.parseInt(productClassificationsDoc.getString("code") + 1)))
-//              .getImage();
-//        }
 
         var store = stores.stream().filter(x -> x.id().equals(doc.getString("storeId"))).findFirst()
             .orElseThrow();
+        log.info("Get feature product successfully");
         return new ProductThumbnailVm(doc.getObjectId("_id").toString(), doc.getString("name"),
             productClassificationsDoc.getString("name"),
             Double.parseDouble(productClassificationsDoc.get("price").toString()),
@@ -502,10 +544,14 @@ public class ProductService implements IProductService {
 
   @Override
   @Async
-  public CompletableFuture<Void> updateQuantity(List<UpdateProductQuantityRequest> request) {
+  public CompletableFuture<Void> updateQuantity(List<UpdateProductQuantityRequest> input,
+      HttpServletRequest request) {
+    log.info(gson.toJson(LogMessage.create("Update quantity product with ids: [%s]".formatted(
+        input.stream().map(UpdateProductQuantityRequest::productId).toList()
+    ), request, getMethodName())));
     return CompletableFuture.supplyAsync(() -> {
       List<Product> products = new ArrayList<>();
-      for (UpdateProductQuantityRequest req : request) {
+      for (UpdateProductQuantityRequest req : input) {
 
         Product product;
         int index = products.indexOf(new Product(req.productId()));
@@ -551,21 +597,24 @@ public class ProductService implements IProductService {
         }
         rabbitMQProducer.sendMessage(exchange, routingKey, message);
       }
+      log.info("Update quantity product successfully");
       return null;
     });
   }
 
   @Override
   @Async
-  public CompletableFuture<ProductResponse> update(String userId, String id,
+  public CompletableFuture<ProductResponse> update(String id,
       UpdateProductRequest input, HttpServletRequest request) {
+    log.info(gson.toJson(
+        LogMessage.create("Update product with id: %s".formatted(id), request, getMethodName())));
     var product = productRepository.findById(id)
         .orElseThrow(() -> new BadRequestException("Product not found"));
 
     // check permission to change product (store service)
     var storeClient = getStoreClient();
 
-    var store = storeClient.getStoreId(request.getHeader("Authorization"), userId);
+    var store = storeClient.getStoreId(request.getHeader("Authorization"), getUserId(request));
 
     if (!store.equals(product.getStoreId())) {
       throw new BadRequestException("You don't have permission to change this product");
@@ -605,7 +654,78 @@ public class ProductService implements IProductService {
     }
     rabbitMQProducer.sendMessage(exchange, routingKey, message);
 
+    log.info("Update product successfully");
     return CompletableFuture.completedFuture(productMapper.mapToProductToResponse(savedProd, null));
+  }
+
+  @Override
+  @Async
+  public CompletableFuture<Void> remove(String id, HttpServletRequest request) {
+    log.info(gson.toJson(
+        LogMessage.create("Remove product with id: %s".formatted(id), request, getMethodName())));
+    return CompletableFuture.supplyAsync(() -> {
+      Product product = productRepository.findById(id)
+          .orElseThrow(() -> new BadRequestException("Product not found"));
+      // check permission to change product (store service)
+      var storeClient = getStoreClient();
+
+      var store = storeClient.getStoreId(request.getHeader("Authorization"), getUserId(request));
+      if (!store.equals(product.getStoreId())) {
+        throw new BadRequestException("You don't have permission to change this product");
+      }
+      product.setIsDeleted(true);
+      var savedProduct = productRepository.save(product);
+
+      // send message create message
+      String message;
+      try {
+        message = ParseObjectToString.parse(
+            new ProductMessageVm(savedProduct.getId(), Action.UPDATE, null));
+      } catch (JsonProcessingException e) {
+        throw new RuntimeException(e);
+      }
+      rabbitMQProducer.sendMessage(exchange, routingKey, message);
+      log.info("Remove product successfully");
+      return null;
+    });
+  }
+
+  @Override
+  @Async
+  public CompletableFuture<Void> ban(String id, BanProductRequest input,
+      HttpServletRequest request) {
+    log.info(gson.toJson(
+        LogMessage.create("Ban product with id: %s".formatted(id), request, getMethodName())));
+    return CompletableFuture.supplyAsync(() -> {
+
+      var product = productRepository.findById(id)
+          .orElseThrow(
+              () -> new NotFoundException("Product not found"));
+      if (product.getIsBanned().equals(input.isBanned())) {
+        throw new BadRequestException("Product already banned");
+      }
+      product.setIsBanned(input.isBanned());
+      if (input.isBanned()) {
+        log.info("Product {} is banned with reason {}", id, input.reason());
+        product.setReasonBan(input.reason());
+      } else {
+        log.info("Product {} is unbanned", id);
+        product.setReasonBan(null);
+      }
+      productRepository.save(product);
+
+      // send message create message
+      try {
+        String message = ParseObjectToString.parse(
+            new ProductMessageVm(id, Action.BAN, input.isBanned()));
+        rabbitMQProducer.sendMessage(exchange, routingKey, message);
+      } catch (JsonProcessingException e) {
+        log.error("Error when send message to rabbitmq", e);
+        throw new RuntimeException(e);
+      }
+      log.info("Ban product successfully");
+      return null;
+    });
   }
 
   private void CheckProductHaveOption(List<ProductVariantVm> productVariantVms,
@@ -678,35 +798,6 @@ public class ProductService implements IProductService {
     }
   }
 
-  @Override
-  @Async
-  public CompletableFuture<Void> remove(String userId, String id, HttpServletRequest request) {
-    return CompletableFuture.supplyAsync(() -> {
-      Product product = productRepository.findById(id)
-          .orElseThrow(() -> new BadRequestException("Product not found"));
-      // check permission to change product (store service)
-      var storeClient = getStoreClient();
-
-      var store = storeClient.getStoreId(request.getHeader("Authorization"), userId);
-      if (!store.equals(product.getStoreId())) {
-        throw new BadRequestException("You don't have permission to change this product");
-      }
-      product.setIsDeleted(true);
-      var savedProduct = productRepository.save(product);
-
-      // send message create message
-      String message;
-      try {
-        message = ParseObjectToString.parse(
-            new ProductMessageVm(savedProduct.getId(), Action.UPDATE, null));
-      } catch (JsonProcessingException e) {
-        throw new RuntimeException(e);
-      }
-      rabbitMQProducer.sendMessage(exchange, routingKey, message);
-
-      return null;
-    });
-  }
 
   private StoreClient getStoreClient() {
     return Feign.builder().client(okHttpClient).encoder(gsonEncoder)
@@ -714,40 +805,6 @@ public class ProductService implements IProductService {
             String.format("%s/api/v1", GetInstanceServer.get(
                 loadBalancer, storeService
             )));
-  }
-
-  @Override
-  @Async
-  public CompletableFuture<Void> ban(String id, BanProductRequest request) {
-    return CompletableFuture.supplyAsync(() -> {
-
-      var product = productRepository.findById(id)
-          .orElseThrow(
-              () -> new NotFoundException("Product not found"));
-      if (product.getIsBanned().equals(request.isBanned())) {
-        throw new BadRequestException("Product already banned");
-      }
-      product.setIsBanned(request.isBanned());
-      if (request.isBanned()) {
-        LOGGER.info("Product {} is banned with reason {}", id, request.reason());
-        product.setReasonBan(request.reason());
-      } else {
-        LOGGER.info("Product {} is unbanned", id);
-        product.setReasonBan(null);
-      }
-      productRepository.save(product);
-
-      // send message create message
-      try {
-        String message = ParseObjectToString.parse(
-            new ProductMessageVm(id, Action.BAN, request.isBanned()));
-        rabbitMQProducer.sendMessage(exchange, routingKey, message);
-      } catch (JsonProcessingException e) {
-        throw new RuntimeException(e);
-      }
-
-      return null;
-    });
   }
 
   private TypedAggregation<ProductClassification> createQueryClassification(List<String> prods,
@@ -805,5 +862,8 @@ public class ProductService implements IProductService {
     return PagedResultDto.create(Pagination.create(total, skip, limit), list);
   }
 
+  private String getUserId(HttpServletRequest request) {
+    return ((UserCredentialResponse) request.getAttribute("user")).id();
+  }
 
 }

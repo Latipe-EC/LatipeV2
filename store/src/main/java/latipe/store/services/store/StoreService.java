@@ -1,6 +1,7 @@
 package latipe.store.services.store;
 
 
+import static latipe.store.utils.AuthenticationUtils.getMethodName;
 import static latipe.store.utils.GenTokenInternal.generateHash;
 import static latipe.store.utils.GenTokenInternal.getPrivateKey;
 
@@ -9,6 +10,7 @@ import feign.Feign;
 import feign.gson.GsonDecoder;
 import feign.gson.GsonEncoder;
 import feign.okhttp.OkHttpClient;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -38,14 +40,16 @@ import latipe.store.response.StoreAdminResponse;
 import latipe.store.response.StoreDetailResponse;
 import latipe.store.response.StoreResponse;
 import latipe.store.response.StoreSimplifyResponse;
+import latipe.store.response.UserCredentialResponse;
 import latipe.store.response.product.ProductStoreResponse;
 import latipe.store.services.commission.ICommissionService;
 import latipe.store.utils.GetInstanceServer;
+import latipe.store.viewmodel.LogMessage;
 import latipe.store.viewmodel.StoreMessage;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.data.domain.Sort.Direction;
@@ -57,9 +61,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class StoreService implements IStoreService {
-
-  private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(StoreService.class);
 
   private final IStoreRepository storeRepository;
   private final StoreMapper storeMapper;
@@ -82,12 +85,18 @@ public class StoreService implements IStoreService {
 
   @Override
   @Async
-  public CompletableFuture<StoreResponse> create(String userId, CreateStoreRequest input,
-      String token) {
+  public CompletableFuture<StoreResponse> create(CreateStoreRequest input,
+      HttpServletRequest request
+  ) {
+
+    log.info(gson.toJson(
+        LogMessage.create("create store with name: [%s], by user: [id: %s]".formatted(input.name(),
+            getUserId(request)), request, getMethodName())
+    ));
 
     return CompletableFuture.supplyAsync(() -> {
 
-      var store = storeRepository.findByOwnerId(userId).orElse(null);
+      var store = storeRepository.findByOwnerId(getUserId(request)).orElse(null);
 
       if (store != null) {
         throw new BadRequestException("One User can only have one store");
@@ -98,7 +107,7 @@ public class StoreService implements IStoreService {
         throw new BadRequestException("Store name already exists");
       }
 
-      store = storeMapper.mapToStoreBeforeCreate(input, userId);
+      store = storeMapper.mapToStoreBeforeCreate(input, getUserId(request));
       store = storeRepository.save(store);
 
       // update role store
@@ -108,20 +117,27 @@ public class StoreService implements IStoreService {
                   loadBalancer, userService
               )));
 
-      userClient.upgradeVendor(token);
+      userClient.upgradeVendor(request.getHeader("Authorization"));
       String message = gson.toJson(
           StoreMessage.builder().id(store.getId()).op(Action.CREATE).build());
       rabbitMQProducer.sendMessage(message);
+
+      log.info("Create store successfully [id={}]", store.getId());
       return storeMapper.mapToStoreResponse(store, null);
     });
   }
 
   @Override
   @Async
-  public CompletableFuture<StoreResponse> update(String userId, UpdateStoreRequest input) {
+  public CompletableFuture<StoreResponse> update(UpdateStoreRequest input,
+      HttpServletRequest request) {
+    log.info(gson.toJson(
+        LogMessage.create("Update store with [id: %s]".formatted(
+            getUserId(request)), request, getMethodName())));
+
     return CompletableFuture.supplyAsync(() -> {
 
-      var store = storeRepository.findByOwnerId(userId)
+      var store = storeRepository.findByOwnerId(getUserId(request))
           .orElseThrow(() -> new NotFoundException("Store not found"));
 
       if (store.getAddress() == null) {
@@ -131,11 +147,13 @@ public class StoreService implements IStoreService {
       if (store.getIsDeleted()) {
         throw new BadRequestException("Store is deleted");
       }
-      if (!store.getOwnerId().equals(userId)) {
+      if (!store.getOwnerId().equals(getUserId(request))) {
         throw new BadRequestException("You are not the owner of this store");
       }
       storeMapper.mapToStoreBeforeUpdate(store, input);
       store = storeRepository.save(store);
+
+      log.info("Update store with [id: %s] successfully".formatted(getUserId(request)));
 
       return storeMapper.mapToStoreResponse(store, null);
     });
@@ -143,7 +161,11 @@ public class StoreService implements IStoreService {
 
   @Override
   @Async
-  public CompletableFuture<String> getStoreByUserId(String userId) {
+  public CompletableFuture<String> getStoreByUserId(
+      String userId, HttpServletRequest request) {
+    log.info(gson.toJson(
+        LogMessage.create("Get store by user id: [%s]".formatted(
+            userId), request, getMethodName())));
     return CompletableFuture.supplyAsync(() -> {
       var store = storeRepository.findByOwnerId(userId)
           .orElseThrow(() -> new NotFoundException("Store not found"));
@@ -159,14 +181,16 @@ public class StoreService implements IStoreService {
       if (store.getIsDeleted()) {
         throw new BadRequestException("Store is deleted");
       }
+      log.info("Get store by user id: [id: %s] successfully".formatted(userId));
       return store.getId();
     });
   }
 
   @Override
   @Async
-  public CompletableFuture<StoreResponse> getDetailStoreById(String storeId) {
-    LOGGER.info("Get detail store by id {}", storeId);
+  public CompletableFuture<StoreResponse> getDetailStoreById(String storeId,
+      HttpServletRequest request) {
+    log.info("Get detail store by id {}", storeId);
     return CompletableFuture.supplyAsync(() -> {
       var store = storeRepository.findById(storeId)
           .orElseThrow(() -> new NotFoundException("Store not found"));
@@ -174,29 +198,43 @@ public class StoreService implements IStoreService {
       if (store.getIsDeleted()) {
         throw new BadRequestException("Store is deleted");
       }
+      var point = commissionService.calcPercentStore(store.getPoint(), request);
 
+      log.info("Get detail store by id {} successfully", storeId);
       return storeMapper.mapToStoreResponse(store,
-          commissionService.calcPercentStore(store.getPoint()));
-    });
-  }
-
-  @Override
-  public CompletableFuture<StoreDetailResponse> getMyStore(String userId) {
-    return CompletableFuture.supplyAsync(() -> {
-      var store = storeRepository.findByOwnerId(userId)
-          .orElseThrow(() -> new NotFoundException("Store not found"));
-
-      if (store.getIsDeleted()) {
-        throw new BadRequestException("Store is deleted");
-      }
-      return storeMapper.mapToStoreDetailResponse(store,
-          commissionService.calcPercentStore(store.getPoint()), store.getEWallet());
+          point);
     });
   }
 
   @Override
   @Async
-  public CompletableFuture<ProvinceCodesResponse> getProvinceCodes(GetProvinceCodesRequest input) {
+  public CompletableFuture<StoreDetailResponse> getMyStore(HttpServletRequest request) {
+    log.info(gson.toJson(
+        LogMessage.create("Get my store [userId: %s]".formatted(getUserId(request)), request,
+            getMethodName())));
+    return CompletableFuture.supplyAsync(() -> {
+      var store = storeRepository.findByOwnerId(getUserId(request))
+          .orElseThrow(() -> new NotFoundException("Store not found"));
+
+      if (store.getIsDeleted()) {
+        throw new BadRequestException("Store is deleted");
+      }
+
+      var point = commissionService.calcPercentStore(store.getPoint(), request);
+
+      log.info("Get my store [userId: %s] successfully".formatted(getUserId(request)));
+      return storeMapper.mapToStoreDetailResponse(store, point, store.getEWallet());
+    });
+  }
+
+  @Override
+  @Async
+  public CompletableFuture<ProvinceCodesResponse> getProvinceCodes(GetProvinceCodesRequest input,
+      HttpServletRequest request) {
+    log.info(gson.toJson(
+        LogMessage.create("Get province codes with [ids: %s]".formatted(
+            input.ids()), request, getMethodName())));
+
     return CompletableFuture.supplyAsync(() -> {
       Set<String> storeIds = Set.copyOf(input.ids());
       List<String> codes = storeRepository.findByIdIn(input.ids()).stream()
@@ -204,13 +242,18 @@ public class StoreService implements IStoreService {
       if (codes.size() != storeIds.size()) {
         throw new BadRequestException("Invalid province id");
       }
+      log.info("Get province codes with [ids: %s] successfully".formatted(input.ids()));
       return ProvinceCodesResponse.builder().codes(codes).build();
     });
   }
 
   @Override
   @Async
-  public CompletableFuture<ProvinceCodeResponse> getProvinceCode(String storeId) {
+  public CompletableFuture<ProvinceCodeResponse> getProvinceCode(String storeId,
+      HttpServletRequest request) {
+    log.info(gson.toJson(
+        LogMessage.create("Get province code with [storeId: %s]".formatted(
+            storeId), request, getMethodName())));
     return CompletableFuture.supplyAsync(() -> {
       var store = storeRepository.findById(storeId)
           .orElseThrow(() -> new NotFoundException("Store not found"));
@@ -218,6 +261,7 @@ public class StoreService implements IStoreService {
       if (store.getIsDeleted()) {
         throw new BadRequestException("Store is deleted");
       }
+      log.info("Get province code with [storeId: %s] successfully".formatted(storeId));
       return new ProvinceCodeResponse(store.getAddress().getCityOrProvinceId());
     });
   }
@@ -225,10 +269,13 @@ public class StoreService implements IStoreService {
   @Override
   @Async
   public CompletableFuture<PagedResultDto<ProductStoreResponse>> getMyProductStore(long skip,
-      int limit, String name, String orderBy, String userId) {
+      int limit, String name, String orderBy, HttpServletRequest request) {
+    log.info(gson.toJson(
+        LogMessage.create("Get my product store with [skip: %s, limit: %s, name: %s, orderBy: %s]"
+            .formatted(skip, limit, name, orderBy), request, getMethodName())));
     return CompletableFuture.supplyAsync(() -> {
 
-      var store = getStore(userId);
+      var store = getStore(getUserId(request));
 
       String hash;
       try {
@@ -243,6 +290,9 @@ public class StoreService implements IStoreService {
               String.format("%s/api/v1", GetInstanceServer.get(
                   loadBalancer, productService
               )));
+
+      log.info("Get my product store with [skip: %s, limit: %s, name: %s, orderBy: %s] successfully"
+          .formatted(skip, limit, name, orderBy));
 
       return productClient.getProductStore(hash, name, skip, limit, orderBy, store.getId());
     });
@@ -252,7 +302,12 @@ public class StoreService implements IStoreService {
   @Override
   @Async
   public CompletableFuture<PagedResultDto<ProductStoreResponse>> getProductStore(long skip,
-      int limit, String name, String orderBy, String storeId) {
+      int limit, String name, String orderBy, String storeId, HttpServletRequest request) {
+    log.info(gson.toJson(
+        LogMessage.create(
+            "Get product store with [skip: %s, limit: %s, name: %s, orderBy: %s, storeId: %s]"
+                .formatted(skip, limit, name, orderBy, storeId), request, getMethodName())));
+
     return CompletableFuture.supplyAsync(() -> {
 
       var store = storeRepository.findById(storeId)
@@ -263,6 +318,7 @@ public class StoreService implements IStoreService {
         hash = generateHash("product-service",
             getPrivateKey(secureInternalProperties.getPrivateKey()));
       } catch (Exception e) {
+        log.error("Error generate hash");
         throw new RuntimeException(e);
       }
 
@@ -272,6 +328,9 @@ public class StoreService implements IStoreService {
                   loadBalancer, productService
               )));
 
+      log.info(
+          "Get product store with [skip: %s, limit: %s, name: %s, orderBy: %s, storeId: %s] successfully".formatted(
+              skip, limit, name, orderBy, storeId));
       return productClient.getProductStore(hash, name, skip, limit, orderBy, store.getId());
     });
   }
@@ -279,15 +338,20 @@ public class StoreService implements IStoreService {
   @Override
   @Async
   public CompletableFuture<PagedResultDto<ProductStoreResponse>> getBanProductStore(long skip,
-      int limit, String name, String orderBy, String userId) {
+      int limit, String name, String orderBy, HttpServletRequest request) {
+    log.info(gson.toJson(
+        LogMessage.create("Get ban product store with [skip: %s, limit: %s, name: %s, orderBy: %s]"
+            .formatted(skip, limit, name, orderBy), request, getMethodName())));
+
     return CompletableFuture.supplyAsync(() -> {
 
-      var store = getStore(userId);
+      var store = getStore(getUserId(request));
       String hash;
       try {
         hash = generateHash("product-service",
             getPrivateKey(secureInternalProperties.getPrivateKey()));
       } catch (Exception e) {
+        log.error("Error generate hash");
         throw new RuntimeException(e);
       }
       var productClient = Feign.builder().client(okHttpClient).encoder(gsonEncoder)
@@ -296,6 +360,9 @@ public class StoreService implements IStoreService {
                   loadBalancer, productService
               )));
 
+      log.info(
+          "Get ban product store with [skip: %s, limit: %s, name: %s, orderBy: %s] successfully".formatted(
+              skip, limit, name, orderBy));
       return productClient.getBanProductStore(hash, name, skip, limit, orderBy, store.getId());
     });
 
@@ -304,21 +371,30 @@ public class StoreService implements IStoreService {
   @Override
   @Async
   public CompletableFuture<List<StoreSimplifyResponse>> getMultipleStore(
-      MultipleStoreRequest input) {
+      MultipleStoreRequest input, HttpServletRequest request) {
+    log.info(gson.toJson(
+        LogMessage.create("Get multiple store with [ids: %s]".formatted(
+            input.ids()), request, getMethodName())));
+
     return CompletableFuture.supplyAsync(() -> {
       var stores = storeRepository.findByIdIn(input.ids());
       if (stores.size() != input.ids().size()) {
         throw new BadRequestException("Invalid store id");
       }
+      log.info("Get multiple store with [ids: %s] successfully".formatted(input.ids()));
       return stores.stream().map(storeMapper::mapToStoreSimplifyResponse).toList();
     });
   }
 
   @Override
   @Async
-  public CompletableFuture<Void> checkBalance(CheckBalanceRequest input) {
+  public CompletableFuture<Void> checkBalance(CheckBalanceRequest input,
+      HttpServletRequest request) {
+    log.info(gson.toJson(
+        LogMessage.create("Check balance with [amount: %s]".formatted(
+            input.amount()), request, getMethodName())));
     return CompletableFuture.supplyAsync(() -> {
-      var store = storeRepository.findByOwnerId(input.userId())
+      var store = storeRepository.findByOwnerId(getUserId(request))
           .orElseThrow(() -> new NotFoundException("Store not found"));
 
       if (!store.getIsActive() || store.getIsBan()) {
@@ -328,15 +404,20 @@ public class StoreService implements IStoreService {
       if (store.getEWallet() < Double.parseDouble(input.amount().toString())) {
         throw new BadRequestException("Insufficient balance");
       }
+      log.info("Check balance with [amount: %s] successfully".formatted(input.amount()));
       return null;
     });
   }
 
   @Override
   @Async
-  public CompletableFuture<Void> UpdateBalance(UpdateBalanceRequest input) {
+  public CompletableFuture<Void> UpdateBalance(UpdateBalanceRequest input,
+      HttpServletRequest request) {
+    log.info(gson.toJson(
+        LogMessage.create("Update balance with [amount: %s]".formatted(
+            input.amount()), request, getMethodName())));
     return CompletableFuture.supplyAsync(() -> {
-      var store = storeRepository.findByOwnerId(input.userId())
+      var store = storeRepository.findByOwnerId(getUserId(request))
           .orElseThrow(() -> new NotFoundException("Store not found"));
 
       if (!store.getIsActive() || store.getIsBan()) {
@@ -348,7 +429,8 @@ public class StoreService implements IStoreService {
       }
 
       store.setEWallet(store.getEWallet() - Double.parseDouble(input.amount().toString()));
-      storeRepository.save(store);
+
+      log.info("Update balance with [amount: %s] successfully".formatted(input.amount()));
       return null;
     });
   }
@@ -359,7 +441,11 @@ public class StoreService implements IStoreService {
       Long skip,
       Integer size,
       String orderBy,
-      EStatusBan ban) {
+      EStatusBan ban, HttpServletRequest request) {
+    log.info(gson.toJson(
+        LogMessage.create(
+            "Get store admin with [keyword: %s, skip: %s, size: %s, orderBy: %s, ban: %s]"
+                .formatted(keyword, skip, size, orderBy, ban), request, getMethodName())));
     return CompletableFuture.supplyAsync(() -> {
       Direction direction = orderBy.charAt(0) == '-' ? Direction.DESC : Direction.ASC;
       String orderByField = orderBy.charAt(0) == '-' ? orderBy.substring(1) : orderBy;
@@ -390,6 +476,9 @@ public class StoreService implements IStoreService {
           })
           .toList();
 
+      log.info(
+          "Get store admin with [keyword: %s, skip: %s, size: %s, orderBy: %s, ban: %s] successfully".formatted(
+              keyword, skip, size, orderBy, ban));
       return PagedResultDto.create(
           new Pagination(storeRepository.countStoreAdmin(banCriteria, keyword), skip, size),
           list);
@@ -398,41 +487,56 @@ public class StoreService implements IStoreService {
 
   @Async
   @Override
-  public CompletableFuture<StoreDetailResponse> getDetailStoreByAdmin(String userId) {
+  public CompletableFuture<StoreDetailResponse> getDetailStoreByAdmin(
+      String userId, HttpServletRequest request) {
+    log.info(gson.toJson(
+        LogMessage.create("Get detail store by admin with [userId: %s]".formatted(
+            userId), request, getMethodName())));
     return CompletableFuture.supplyAsync(() -> {
-      var store = storeRepository.findById(userId)
+      var store = storeRepository.findById(getUserId(request))
           .orElseThrow(() -> new NotFoundException("Store not found"));
+
+      var point = commissionService.calcPercentStore(store.getPoint(), request);
+      log.info("Get detail store by admin with [userId: %s] successfully".formatted(userId));
       return storeMapper.mapToStoreDetailResponse(store,
-          commissionService.calcPercentStore(store.getPoint()), store.getEWallet());
+          point, store.getEWallet());
     });
   }
 
   @Async
   @Override
-  public CompletableFuture<Long> countAllStore() {
+  public CompletableFuture<Long> countAllStore(HttpServletRequest request) {
+    log.info(gson.toJson(
+        LogMessage.create("Count all store", request, getMethodName())));
     return CompletableFuture.supplyAsync(storeRepository::count);
   }
 
   @Async
   @Override
-  public CompletableFuture<Void> banStore(String userId, BanStoreRequest request) {
+  public CompletableFuture<Void> banStore(
+      String storeId, BanStoreRequest input, HttpServletRequest request) {
+    log.info(gson.toJson(
+        LogMessage.create("Ban store with [id: %s]".formatted(
+            storeId), request, getMethodName())));
+
     return CompletableFuture.supplyAsync(() -> {
-      var store = storeRepository.findById(userId)
+      var store = storeRepository.findById(storeId)
           .orElseThrow(
               () -> new NotFoundException("Store not found"));
-      if (store.getIsBan().equals(request.isBanned())) {
+      if (store.getIsBan().equals(input.isBanned())) {
         throw new BadRequestException("Store already banned");
       }
 
-      store.setIsBan(request.isBanned());
-      if (request.isBanned()) {
-        LOGGER.info("Store {} is banned with reason {}", userId, request.reason());
-        store.setReasonBan(request.reason());
+      store.setIsBan(input.isBanned());
+      if (input.isBanned()) {
+        log.info("Store {} is banned with reason {}", getUserId(request), input.reason());
+        store.setReasonBan(input.reason());
       } else {
-        LOGGER.info("Store {} is unbanned", userId);
+        log.info("Store {} is unbanned", getUserId(request));
         store.setReasonBan(null);
       }
       storeRepository.save(store);
+      log.info("Ban store with [id: %s] successfully".formatted(storeId));
       return null;
     });
   }
@@ -450,5 +554,9 @@ public class StoreService implements IStoreService {
       throw new BadRequestException("Store is deleted");
     }
     return store;
+  }
+
+  private String getUserId(HttpServletRequest request) {
+    return ((UserCredentialResponse) request.getAttribute("user")).id();
   }
 }

@@ -17,7 +17,6 @@ import latipe.payment.request.WithdrawPaypalRequest;
 import latipe.payment.response.CapturedPaymentResponse;
 import latipe.payment.response.CheckPaymentOrderResponse;
 import latipe.payment.response.PaymentResponse;
-import latipe.payment.response.UserCredentialResponse;
 import latipe.payment.services.PaymentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,8 +25,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 @RestController
 @ApiPrefixController("payment")
@@ -38,67 +35,64 @@ public class PaymentController {
 
   @PostMapping("/capture-payment")
   public CompletableFuture<CapturedPaymentResponse> capturePayment(
-      @Valid @RequestBody CapturedPaymentRequest capturedPaymentRequest) {
-    return paymentService.capturePayment(capturedPaymentRequest);
+      @Valid @RequestBody CapturedPaymentRequest capturedPaymentRequest,
+      HttpServletRequest request) {
+    return paymentService.capturePayment(capturedPaymentRequest, request);
   }
 
   @PostMapping("/pay")
   public CompletableFuture<Void> validPayment(
-      @Valid @RequestBody PayOrderRequest request) {
-    return paymentService.payOrder(request);
+      @Valid @RequestBody PayOrderRequest input, HttpServletRequest request) {
+    return paymentService.payOrder(input, request);
   }
 
 
   @Authenticate
   @PostMapping("/payment-order/{orderId}")
   public CompletableFuture<CheckPaymentOrderResponse> getPayment(
-      @PathVariable String orderId) {
-    return paymentService.getPaymentOrder(orderId);
+      @PathVariable String orderId, HttpServletRequest request) {
+    return paymentService.getPaymentOrder(orderId, request);
   }
 
   @Authenticate
   @PostMapping("/capture-payments/paypal")
   public CompletableFuture<Void> payByPaypal(
-      @Valid @RequestBody PayByPaypalRequest request) {
-    HttpServletRequest req = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-    UserCredentialResponse userCredential = (UserCredentialResponse) (req.getAttribute("user"));
-    return paymentService.payByPaypal(request, userCredential);
+      @Valid @RequestBody PayByPaypalRequest input, HttpServletRequest request) {
+
+    return paymentService.payByPaypal(input, request);
   }
 
   @Authenticate
   @GetMapping("/check-order-paypal/{orderId}")
   public CompletableFuture<CheckPaymentOrderResponse> checkOrderPaypal(
-      @PathVariable String orderId) {
-    HttpServletRequest req = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-    UserCredentialResponse userCredential = (UserCredentialResponse) (req.getAttribute("user"));
-    return paymentService.checkOrderPaypal(orderId, userCredential);
+      @PathVariable String orderId, HttpServletRequest request) {
+
+    return paymentService.checkOrderPaypal(orderId, request);
   }
 
   @SecureInternalPhase
   @GetMapping("/check-order-internal/{orderId}")
   public CompletableFuture<CheckPaymentOrderResponse> checkPaymentInternal(
-      @PathVariable String orderId) {
-    return paymentService.checkPaymentInternal(orderId);
+      @PathVariable String orderId, HttpServletRequest request) {
+    return paymentService.checkPaymentInternal(orderId, request);
   }
 
   @RequiresAuthorization("VENDOR")
   @PostMapping("/withdraw-paypal")
   public CompletableFuture<Void> withdrawPaypal(
       @Valid @RequestBody
-      WithdrawPaypalRequest request) {
-    HttpServletRequest req = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-    UserCredentialResponse userCredential = (UserCredentialResponse) (req.getAttribute("user"));
-    return paymentService.withdrawPaypal(request, userCredential);
+      WithdrawPaypalRequest input, HttpServletRequest request) {
+
+    return paymentService.withdrawPaypal(input, request);
   }
 
   @RequiresAuthorization("VENDOR")
   @PostMapping("/valid-withdraw-paypal")
   public CompletableFuture<Void> validWithdrawPaypal(
       @Valid @RequestBody
-      ValidWithdrawPaypalRequest request) {
-    HttpServletRequest req = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-    UserCredentialResponse userCredential = (UserCredentialResponse) (req.getAttribute("user"));
-    return paymentService.validWithdrawPaypal(request, userCredential);
+      ValidWithdrawPaypalRequest input, HttpServletRequest request) {
+
+    return paymentService.validWithdrawPaypal(input, request);
   }
 
   @RequiresAuthorization("ADMIN")
@@ -107,7 +101,7 @@ public class PaymentController {
       @RequestParam(defaultValue = "") String keyword,
       @RequestParam(defaultValue = "0") Long skip,
       @RequestParam(defaultValue = "12") Integer size,
-      @RequestParam(defaultValue = "ALL") EStatusFilter statusFilter) {
-    return paymentService.getPaginate(keyword, skip, size, statusFilter);
+      @RequestParam(defaultValue = "ALL") EStatusFilter statusFilter, HttpServletRequest request) {
+    return paymentService.getPaginate(keyword, skip, size, statusFilter, request);
   }
 }

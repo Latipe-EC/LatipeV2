@@ -17,8 +17,6 @@
                 <argument>-jar</argument>
                 <argument>cart/target/cart-1.0.0-SNAPSHOT.jar</argument>
                 <argument>-jar</argument>
-                <!--                <argument>schedule/target/cart-1.0.0-SNAPSHOT.jar</argument>-->
-                <!--                <argument>-jar</argument>-->
                 <argument>payment/target/payment-1.0.0-SNAPSHOT.jar</argument>
                 <argument>-jar</argument>
                 <argument>product/target/product-1.0.0-SNAPSHOT.jar</argument>

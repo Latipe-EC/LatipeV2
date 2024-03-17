@@ -1,5 +1,6 @@
 package latipe.store.controllers;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.concurrent.CompletableFuture;
 import latipe.store.annotations.ApiPrefixController;
@@ -36,9 +37,10 @@ public class CommissionController {
   @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<CommissionResponse> createCommission(
       @RequestBody @Valid
-      CreateCommissionRequest request
+      CreateCommissionRequest input, HttpServletRequest request
+
   ) {
-    return commissionService.create(request);
+    return commissionService.create(input, request);
   }
 
   @RequiresAuthorization("ADMIN")
@@ -47,18 +49,20 @@ public class CommissionController {
   public CompletableFuture<CommissionResponse> updateCommission(
       @PathVariable String id,
       @RequestBody @Valid
-      UpdateCommissionRequest request
+      UpdateCommissionRequest input, HttpServletRequest request
+
   ) {
-    return commissionService.update(id, request);
+    return commissionService.update(id, input, request);
   }
 
   @RequiresAuthorization("ADMIN")
   @ResponseStatus(HttpStatus.OK)
   @DeleteMapping(value = "{id}", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<Void> deleteCommission(
-      @PathVariable String id
+      @PathVariable String id, HttpServletRequest request
+
   ) {
-    return commissionService.delete(id);
+    return commissionService.delete(id, request);
   }
 
   @RequiresAuthorization("ADMIN")
@@ -67,8 +71,9 @@ public class CommissionController {
   public CompletableFuture<PagedResultDto<CommissionResponse>> getPaginate(
       @RequestParam(defaultValue = "") String keyword,
       @RequestParam(defaultValue = "0") Long skip,
-      @RequestParam(defaultValue = "12") Integer size
+      @RequestParam(defaultValue = "12") Integer size, HttpServletRequest request
+
   ) {
-    return commissionService.getPaginate(keyword, skip, size);
+    return commissionService.getPaginate(keyword, skip, size, request);
   }
 }

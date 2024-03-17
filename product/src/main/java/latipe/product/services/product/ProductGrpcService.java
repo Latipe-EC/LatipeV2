@@ -47,7 +47,6 @@ public class ProductGrpcService extends ProductServiceGrpc.ProductServiceImplBas
       StreamObserver<GetPurchaseItemResponse> responseObserver) {
 
     LOGGER.info("Received request check in stock");
-    long startTime = System.nanoTime();
     var prods = productRepository.findAllByIdsAndStoreId(request.getItemsList().stream().map(
         GetPurchaseItemRequest::getProductId
     ).toList(), request.getStoreId());
@@ -115,8 +114,7 @@ public class ProductGrpcService extends ProductServiceGrpc.ProductServiceImplBas
           Status.INTERNAL.withDescription(e.getMessage()).asRuntimeException());
       return;
     }
-    long endTime = System.nanoTime();
-    LOGGER.info(endTime - startTime + " ns");
+    LOGGER.info("Check in stock successfully");
     responseObserver.onNext(
         GetPurchaseItemResponse.newBuilder()
             .setTotalPrice(total)

@@ -1,6 +1,7 @@
 package latipe.store.services.store;
 
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -23,45 +24,60 @@ import latipe.store.response.product.ProductStoreResponse;
 
 public interface IStoreService {
 
-  CompletableFuture<StoreResponse> create(String userId, CreateStoreRequest input, String token);
+  CompletableFuture<StoreResponse> create(CreateStoreRequest input, HttpServletRequest request);
 
-  CompletableFuture<StoreResponse> update(String userId, UpdateStoreRequest input)
+  CompletableFuture<StoreResponse> update(UpdateStoreRequest input
+      , HttpServletRequest request)
       throws InvocationTargetException, IllegalAccessException;
 
-  CompletableFuture<String> getStoreByUserId(String userId);
+  CompletableFuture<String> getStoreByUserId(String userId
+      , HttpServletRequest request);
 
-  CompletableFuture<StoreResponse> getDetailStoreById(String storeId);
+  CompletableFuture<StoreResponse> getDetailStoreById(String storeId
+      , HttpServletRequest request);
 
-  CompletableFuture<StoreDetailResponse> getMyStore(String userId);
+  CompletableFuture<StoreDetailResponse> getMyStore(HttpServletRequest request);
 
-  CompletableFuture<ProvinceCodesResponse> getProvinceCodes(GetProvinceCodesRequest input);
+  CompletableFuture<ProvinceCodesResponse> getProvinceCodes(GetProvinceCodesRequest input
+      , HttpServletRequest request);
 
-  CompletableFuture<ProvinceCodeResponse> getProvinceCode(String storeId);
+  CompletableFuture<ProvinceCodeResponse> getProvinceCode(String storeId
+      , HttpServletRequest request);
 
   CompletableFuture<PagedResultDto<ProductStoreResponse>> getMyProductStore(long skip, int limit,
-      String name, String orderBy, String userId);
+      String name, String orderBy
+      , HttpServletRequest request);
 
   CompletableFuture<PagedResultDto<ProductStoreResponse>> getProductStore(long skip, int limit,
-      String name, String orderBy, String storeId);
+      String name, String orderBy, String storeId
+      , HttpServletRequest request);
 
   CompletableFuture<PagedResultDto<ProductStoreResponse>> getBanProductStore(long skip, int limit,
-      String name, String orderBy, String userId);
+      String name, String orderBy
+      , HttpServletRequest request);
 
-  CompletableFuture<List<StoreSimplifyResponse>> getMultipleStore(MultipleStoreRequest input);
+  CompletableFuture<List<StoreSimplifyResponse>> getMultipleStore(MultipleStoreRequest input
+      , HttpServletRequest request);
 
-  CompletableFuture<Void> checkBalance(CheckBalanceRequest input);
+  CompletableFuture<Void> checkBalance(CheckBalanceRequest input
+      , HttpServletRequest request);
 
-  CompletableFuture<Void> UpdateBalance(UpdateBalanceRequest input);
+  CompletableFuture<Void> UpdateBalance(UpdateBalanceRequest input
+      , HttpServletRequest request);
 
   CompletableFuture<PagedResultDto<StoreAdminResponse>> getStoreAdmin(String keyword,
       Long skip,
       Integer size,
       String orderBy,
-      EStatusBan isBan);
+      EStatusBan isBan
+      , HttpServletRequest request);
 
-  CompletableFuture<Void> banStore(String userId, BanStoreRequest request);
+  CompletableFuture<Void> banStore(String storeId, BanStoreRequest input
+      , HttpServletRequest request);
 
-  CompletableFuture<StoreDetailResponse> getDetailStoreByAdmin(String userId);
+  CompletableFuture<StoreDetailResponse> getDetailStoreByAdmin(String userId
+      , HttpServletRequest request);
 
-  CompletableFuture<Long> countAllStore();
+  CompletableFuture<Long> countAllStore(
+      HttpServletRequest request);
 }

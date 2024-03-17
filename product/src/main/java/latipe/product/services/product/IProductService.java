@@ -28,48 +28,53 @@ public interface IProductService {
 
 
   CompletableFuture<OrderProductResponse> checkProductInStock(
-      List<OrderProductCheckRequest> prodOrders);
+      List<OrderProductCheckRequest> prodOrders, HttpServletRequest request);
 
-  CompletableFuture<ProductPriceVm> getPrice(String prodId, String code);
-
-  CompletableFuture<Long> countAllProduct();
-
-  CompletableFuture<ProductResponse> update(String userId, String id, UpdateProductRequest input,
+  CompletableFuture<ProductPriceVm> getPrice(String prodId, String code,
       HttpServletRequest request);
 
-  CompletableFuture<Void> remove(String userId, String id, HttpServletRequest request);
+  CompletableFuture<Long> countAllProduct(HttpServletRequest request);
 
-  CompletableFuture<Void> ban(String id, BanProductRequest input);
+  CompletableFuture<ProductResponse> update(String id, UpdateProductRequest input,
+      HttpServletRequest request);
+
+  CompletableFuture<Void> remove(String id, HttpServletRequest request);
+
+  CompletableFuture<Void> ban(String id, BanProductRequest input, HttpServletRequest request);
 
   CompletableFuture<List<ProductThumbnailVm>> getFeatureProduct(
-      List<ProductFeatureRequest> products);
+      List<ProductFeatureRequest> products, HttpServletRequest request);
 
-  CompletableFuture<ProductESDetailVm> getProductESDetailById(String productId);
-
-  CompletableFuture<ProductResponse> create(String userId, CreateProductRequest input,
+  CompletableFuture<ProductESDetailVm> getProductESDetailById(String productId,
       HttpServletRequest request);
 
-  CompletableFuture<ProductResponse> get(String userId, String prodId, HttpServletRequest request);
+  CompletableFuture<ProductResponse> create(CreateProductRequest input,
+      HttpServletRequest request);
 
-  CompletableFuture<Void> updateQuantity(List<UpdateProductQuantityRequest> request);
+  CompletableFuture<ProductResponse> get(String prodId, HttpServletRequest request);
+
+  CompletableFuture<Void> updateQuantity(List<UpdateProductQuantityRequest> input,
+      HttpServletRequest request);
 
   CompletableFuture<PagedResultDto<ProductStoreResponse>> getMyProductStore(long skip, int limit,
-      String name, String orderBy, String storeId);
+      String name, String orderBy, String storeId, HttpServletRequest request);
 
   CompletableFuture<PagedResultDto<ProductStoreResponse>> getBanProductStore(long skip, int limit,
-      String name, String orderBy, String storeId);
+      String name, String orderBy, String storeId, HttpServletRequest request);
 
   CompletableFuture<PagedResultDto<ProductAdminResponse>> getAdminProduct(long skip, int limit,
-      String name, String orderBy, EStatusBan statusBan);
+      String name, String orderBy, EStatusBan statusBan, HttpServletRequest request);
 
-  CompletableFuture<ProductDetailResponse> getProductDetail(String productId);
+  CompletableFuture<ProductDetailResponse> getProductDetail(String productId,
+      HttpServletRequest request);
 
   CompletableFuture<ProductListGetResponse> findProductAdvance(
       @RequestParam(defaultValue = "") String keyword,
       @RequestParam(defaultValue = "0") Integer page,
       @RequestParam(defaultValue = "12") Integer size,
       @RequestParam(required = false) String category
-  );
+      , HttpServletRequest request);
 
-  CompletableFuture<ProductNameListResponse> autoCompleteProductName(String keyword);
+  CompletableFuture<ProductNameListResponse> autoCompleteProductName(String keyword,
+      HttpServletRequest request);
 }

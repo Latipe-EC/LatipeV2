@@ -1,10 +1,14 @@
 package latipe.search.services;
 
+import static latipe.search.utils.AuthenticationUtils.getMethodName;
+
 import co.elastic.clients.elasticsearch._types.aggregations.Aggregation;
 import co.elastic.clients.elasticsearch._types.aggregations.StringTermsAggregate;
 import co.elastic.clients.elasticsearch._types.aggregations.StringTermsBucket;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.MatchAllQuery;
+import com.google.gson.Gson;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -14,10 +18,13 @@ import java.util.concurrent.CompletableFuture;
 import latipe.search.constants.ESortType;
 import latipe.search.constants.ProductField;
 import latipe.search.document.Product;
+import latipe.search.viewmodel.LogMessage;
 import latipe.search.viewmodel.ProductGetVm;
 import latipe.search.viewmodel.ProductListGetVm;
 import latipe.search.viewmodel.ProductNameGetVm;
 import latipe.search.viewmodel.ProductNameListVm;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.common.unit.Fuzziness;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -33,13 +40,13 @@ import org.springframework.data.elasticsearch.core.query.FetchSourceFilter;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
+@Slf4j
 public class ProductService {
 
   private final ElasticsearchOperations elasticsearchOperations;
+  private final Gson gson;
 
-  public ProductService(ElasticsearchOperations elasticsearchOperations) {
-    this.elasticsearchOperations = elasticsearchOperations;
-  }
 
   public CompletableFuture<ProductListGetVm> findProductAdvance(
       String keyword,
@@ -49,7 +56,13 @@ public class ProductService {
       String classification,
       Double minPrice,
       Double maxPrice,
-      ESortType sortType) {
+      ESortType sortType, HttpServletRequest request
+  ) {
+    log.info(gson.toJson(LogMessage.create(
+        "findProductAdvance: [keyword]: %s, [page]: %s, [size]: %s, [category]: %s, [classification]: %s, [minPrice]: %s, [maxPrice]: %s, [sortType]: %s".formatted(
+            keyword, page, size, category, classification, minPrice, maxPrice, sortType)
+        , request, getMethodName())));
+
     return CompletableFuture.supplyAsync(() -> {
       var nativeQuery = NativeQuery.builder()
           .withAggregation("categories", Aggregation.of(a -> a
@@ -111,6 +124,7 @@ public class ProductService {
       List<ProductGetVm> productListVmList = searchHitsResult.stream()
           .map(i -> ProductGetVm.fromModel(i.getContent())).toList();
 
+      log.info("Find product advance successfully");
       return new ProductListGetVm(
           productListVmList,
           productPage.getNumber(),
@@ -120,7 +134,35 @@ public class ProductService {
           productPage.isLast(),
           getAggregations(searchHitsResult));
     });
+  }
 
+  public ProductNameListVm autoCompleteProductName(final String keyword, HttpServletRequest request
+  ) {
+    log.info(gson.toJson(LogMessage.create(
+        "autoCompleteProductName: [keyword]: %s".formatted(keyword), request, getMethodName())));
+    var matchQuery = NativeQuery.builder()
+        .withQuery(
+            q -> q.matchPhrasePrefix(
+                mPP -> mPP.field("name").query(keyword)
+            )
+        )
+        .withSourceFilter(new FetchSourceFilter(
+            new String[]{"name"},
+            null)
+        )
+        .withPageable(PageRequest.of(0, 5)) // Limit to top 5
+        .build();
+    SearchHits<Product> result = elasticsearchOperations.search(matchQuery, Product.class);
+    List<Product> products = result.stream().map(SearchHit::getContent).toList();
+    products.forEach(product -> {
+      String name = product.getName();
+      String[] words = name.split(" ");
+      if (words.length > 10) {
+        product.setName(String.join(" ", Arrays.copyOfRange(words, 0, 10)));
+      }
+    });
+    log.info("Auto complete product name successfully");
+    return new ProductNameListVm(products.stream().map(ProductNameGetVm::fromModel).toList());
   }
 
   private void extractedStr(String strField, String productField, BoolQuery.Builder b) {
@@ -186,28 +228,5 @@ public class ProductService {
     return aggregationsMap;
   }
 
-  public ProductNameListVm autoCompleteProductName(final String keyword) {
-    var matchQuery = NativeQuery.builder()
-        .withQuery(
-            q -> q.matchPhrasePrefix(
-                mPP -> mPP.field("name").query(keyword)
-            )
-        )
-        .withSourceFilter(new FetchSourceFilter(
-            new String[]{"name"},
-            null)
-        )
-        .withPageable(PageRequest.of(0, 5)) // Limit to top 5
-        .build();
-    SearchHits<Product> result = elasticsearchOperations.search(matchQuery, Product.class);
-    List<Product> products = result.stream().map(SearchHit::getContent).toList();
-    products.forEach(product -> {
-      String name = product.getName();
-      String[] words = name.split(" ");
-      if (words.length > 10) {
-        product.setName(String.join(" ", Arrays.copyOfRange(words, 0, 10)));
-      }
-    });
-    return new ProductNameListVm(products.stream().map(ProductNameGetVm::fromModel).toList());
-  }
+
 }

@@ -1,5 +1,6 @@
 package latipe.user.services.user;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.concurrent.CompletableFuture;
 import latipe.user.constants.EStatusBan;
 import latipe.user.dtos.PagedResultDto;
@@ -19,46 +20,50 @@ import latipe.user.response.UserResponse;
 
 public interface IUserService {
 
-  CompletableFuture<UserResponse> create(CreateUserRequest input);
+  CompletableFuture<UserResponse> create(CreateUserRequest input, HttpServletRequest request);
 
-  CompletableFuture<PagedResultDto<UserAddress>> getMyAddresses(String id, int page, int size);
+  CompletableFuture<PagedResultDto<UserAddress>> getMyAddresses(int page, int size,
+      HttpServletRequest request);
 
-  CompletableFuture<UserAddress> addMyAddresses(String id,
-      CreateUserAddressRequest input);
+  CompletableFuture<UserAddress> addMyAddresses(
+      CreateUserAddressRequest input, HttpServletRequest request);
 
-  CompletableFuture<Void> deleteMyAddresses(String id, String userId);
+  CompletableFuture<Void> deleteMyAddresses(String id, HttpServletRequest request);
 
-  CompletableFuture<UserAddress> getMyAddresses(String id, String userId);
+  CompletableFuture<UserAddress> getMyAddresses(String id, HttpServletRequest request);
 
   CompletableFuture<UserAddress> updateMyAddresses(UpdateUserAddressRequest input,
-      String userId, String addressId);
+      String addressId, HttpServletRequest request);
 
-  CompletableFuture<UserResponse> register(RegisterRequest input);
+  CompletableFuture<UserResponse> register(RegisterRequest input, HttpServletRequest request);
 
-  CompletableFuture<UserResponse> updateProfile(String id, UpdateUserRequest input);
+  CompletableFuture<UserResponse> updateProfile(UpdateUserRequest input,
+      HttpServletRequest request);
 
-  CompletableFuture<UserResponse> getProfile(String id);
+  CompletableFuture<UserResponse> getProfile(HttpServletRequest request);
 
-  CompletableFuture<Long> countAllUser();
+  CompletableFuture<Long> countAllUser(HttpServletRequest request);
 
-  CompletableFuture<Void> upgradeVendor(String userId);
+  CompletableFuture<Void> upgradeVendor(HttpServletRequest request);
 
-  CompletableFuture<Integer> countMyAddress(String userId);
+  CompletableFuture<Integer> countMyAddress(HttpServletRequest request);
 
-  CompletableFuture<Void> checkBalance(CheckBalanceRequest request);
+  CompletableFuture<Void> checkBalance(CheckBalanceRequest input, HttpServletRequest request);
 
-  CompletableFuture<Void> cancelOrder(CancelOrderRequest request);
+  CompletableFuture<Void> cancelOrder(CancelOrderRequest input, HttpServletRequest request);
 
-  CompletableFuture<Void> updateUserName(UpdateUserNameRequest request, String userId);
+  CompletableFuture<Void> updateUserName(UpdateUserNameRequest input, HttpServletRequest request);
 
-  CompletableFuture<InfoRatingResponse> getInfoForRating(String userId);
+  CompletableFuture<InfoRatingResponse> getInfoForRating(String userId, HttpServletRequest request);
 
   CompletableFuture<PagedResultDto<UserAdminResponse>> getUserAdmin(String keyword,
       Long skip,
       Integer size,
       String orderBy,
-      EStatusBan isBan);
+      EStatusBan isBan, HttpServletRequest request);
 
-  CompletableFuture<Void> banUser(String userId, BanUserRequest request);
+  CompletableFuture<Void> banUser(String userId, BanUserRequest input, HttpServletRequest request);
+
+  CompletableFuture<UserResponse> getUserByAdmin(String userId, HttpServletRequest request);
 
 }

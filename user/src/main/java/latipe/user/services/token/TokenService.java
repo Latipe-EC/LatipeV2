@@ -1,6 +1,9 @@
 package latipe.user.services.token;
 
+import static latipe.user.utils.AuthenticationUtils.getMethodName;
+
 import com.google.gson.Gson;
+import jakarta.servlet.http.HttpServletRequest;
 import java.time.ZonedDateTime;
 import java.util.concurrent.CompletableFuture;
 import latipe.user.constants.CONSTANTS;
@@ -17,7 +20,9 @@ import latipe.user.request.ResetPasswordRequest;
 import latipe.user.request.VerifyAccountRequest;
 import latipe.user.utils.TokenUtils;
 import latipe.user.viewmodel.ForgotPasswordMessage;
+import latipe.user.viewmodel.LogMessage;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class TokenService implements ITokenService {
 
   private final ITokenRepository tokenRepository;
@@ -49,10 +55,13 @@ public class TokenService implements ITokenService {
   @Async
   @Override
   @Transactional
-  public CompletableFuture<?> validateVerify(VerifyAccountRequest request) {
+  public CompletableFuture<?> validateVerify(VerifyAccountRequest input,
+      HttpServletRequest request) {
+    log.info(gson.toJson(LogMessage.create("Verify account", request, getMethodName())));
+
     return CompletableFuture.supplyAsync(
         () -> {
-          var id = TokenUtils.decodeToken(request.token(), ENCRYPTION_KEY);
+          var id = TokenUtils.decodeToken(input.token(), ENCRYPTION_KEY);
 
           var tokenEntity = tokenRepository.findByIdAndUsedFalseAndExpiredAtAfterAndType(id,
                   ZonedDateTime.now(), KeyType.VERIFY_ACCOUNT)
@@ -64,6 +73,8 @@ public class TokenService implements ITokenService {
           tokenEntity.setUsed(true);
           tokenRepository.save(tokenEntity);
           userRepository.save(user);
+
+          log.info("User verified account: " + user.getEmail());
           return null;
         }
     );
@@ -71,10 +82,14 @@ public class TokenService implements ITokenService {
 
   @Async
   @Override
-  public CompletableFuture<?> verifyAccount(RequestVerifyAccountRequest request) {
+  public CompletableFuture<?> verifyAccount(RequestVerifyAccountRequest input,
+      HttpServletRequest request) {
+    log.info(gson.toJson(
+        LogMessage.create("Request verify account: [email: %s]".formatted(input.email()), request,
+            getMethodName())));
     return CompletableFuture.supplyAsync(
         () -> {
-          var user = userRepository.findByEmail(request.email())
+          var user = userRepository.findByEmail(input.email())
               .orElseThrow(() -> new NotFoundException("User not found"));
 
           if (user.getIsDeleted()) {
@@ -108,6 +123,7 @@ public class TokenService implements ITokenService {
               null, tokenHash));
           rabbitMQProducer.sendMessage(message, exchange, routingUserRegisterKey);
 
+          log.info("Send mail verify account: " + user.getEmail());
           return null;
         }
     );
@@ -115,10 +131,14 @@ public class TokenService implements ITokenService {
 
   @Async
   @Override
-  public CompletableFuture<?> forgotPassword(ForgotPasswordRequest request) {
+  public CompletableFuture<?> forgotPassword(ForgotPasswordRequest input,
+      HttpServletRequest request) {
+    log.info(gson.toJson(
+        LogMessage.create("Request forgot password: [email: %s]".formatted(input.email()), request,
+            getMethodName())));
     return CompletableFuture.supplyAsync(
         () -> {
-          var user = userRepository.findByEmail(request.email())
+          var user = userRepository.findByEmail(input.email())
               .orElseThrow(() -> new NotFoundException("User not found"));
 
           if (user.getIsDeleted()) {
@@ -151,7 +171,7 @@ public class TokenService implements ITokenService {
 
           rabbitMQProducer.sendMessage(message, exchange,
               routingForgotPasswordKey);
-
+          log.info("Send mail forgot password: " + user.getEmail());
           return null;
         }
     );
@@ -159,10 +179,12 @@ public class TokenService implements ITokenService {
 
   @Async
   @Override
-  public CompletableFuture<?> resetPassword(ResetPasswordRequest request) {
+  public CompletableFuture<?> resetPassword(ResetPasswordRequest input,
+      HttpServletRequest request) {
+    log.info(gson.toJson(LogMessage.create("Reset password", request, getMethodName())));
     return CompletableFuture.supplyAsync(
         () -> {
-          var id = TokenUtils.decodeToken(request.token(), ENCRYPTION_KEY);
+          var id = TokenUtils.decodeToken(input.token(), ENCRYPTION_KEY);
           var tokenEntity = tokenRepository.findByIdAndUsedFalseAndExpiredAtAfterAndType(id,
                   ZonedDateTime.now(), KeyType.FORGOT_PASSWORD)
               .orElseThrow(() -> new NotFoundException("Token invalid"));
@@ -170,10 +192,12 @@ public class TokenService implements ITokenService {
           var user = userRepository.findById(tokenEntity.getUserId())
               .orElseThrow(() -> new NotFoundException("User not found"));
 
-          user.setHashedPassword(passwordEncoder.encode(request.password()));
+          user.setHashedPassword(passwordEncoder.encode(input.password()));
           tokenEntity.setUsed(true);
           tokenRepository.save(tokenEntity);
           userRepository.save(user);
+
+          log.info("User [%s] has reset password".formatted(user.getEmail()));
           return null;
         }
     );

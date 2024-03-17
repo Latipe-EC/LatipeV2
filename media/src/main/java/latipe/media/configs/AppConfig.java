@@ -2,6 +2,7 @@ package latipe.media.configs;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.google.gson.Gson;
 import feign.gson.GsonDecoder;
 import feign.gson.GsonEncoder;
 import feign.okhttp.OkHttpClient;
@@ -39,6 +40,11 @@ public class AppConfig implements WebMvcConfigurer {
   public void configurePathMatch(PathMatchConfigurer configurer) {
     configurer.addPathPrefix("/api/v1",
         HandlerTypePredicate.forAnnotation(ApiPrefixController.class));
+  }
+
+  @Bean
+  public Gson getGson() {
+    return new Gson();
   }
 
   @Bean

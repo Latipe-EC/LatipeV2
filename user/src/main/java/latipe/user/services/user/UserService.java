@@ -1,8 +1,10 @@
 package latipe.user.services.user;
 
 import static latipe.user.constants.CONSTANTS.DEFAULT_PASSWORD;
+import static latipe.user.utils.AuthenticationUtils.getMethodName;
 
 import com.google.gson.Gson;
+import jakarta.servlet.http.HttpServletRequest;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -31,15 +33,16 @@ import latipe.user.request.UpdateUserNameRequest;
 import latipe.user.request.UpdateUserRequest;
 import latipe.user.response.InfoRatingResponse;
 import latipe.user.response.UserAdminResponse;
+import latipe.user.response.UserCredentialResponse;
 import latipe.user.response.UserResponse;
 import latipe.user.utils.Constants;
 import latipe.user.utils.GenerateUtils;
 import latipe.user.utils.TokenUtils;
+import latipe.user.viewmodel.LogMessage;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.types.ObjectId;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -51,9 +54,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserService implements IUserService {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
 
   private final IUserRepository userRepository;
   private final IRoleRepository roleRepository;
@@ -77,37 +79,67 @@ public class UserService implements IUserService {
 
   @Async
   @Override
-  public CompletableFuture<UserResponse> getProfile(String id) {
+  public CompletableFuture<UserResponse> getProfile(HttpServletRequest request) {
+    log.info(gson.toJson(
+        LogMessage.create("Get profile [id: %s]".formatted(getUserId(request)), request,
+            getMethodName())));
     return CompletableFuture.supplyAsync(() -> {
-      var user = userRepository.findById(id)
+      var user = userRepository.findById(getUserId(request))
           .orElseThrow(() -> new NotFoundException("User not found"));
       user.setRole(roleRepository.findById(user.getRoleId()).orElse(null));
+      log.info("Get profile successfully [id: %s]".formatted(getUserId(request)));
       return userMapper.mapToResponse(user);
     });
   }
 
   @Async
   @Override
-  public CompletableFuture<Long> countAllUser() {
+  public CompletableFuture<UserResponse> getUserByAdmin(String userId, HttpServletRequest request) {
+    log.info(gson.toJson(
+        LogMessage.create("Get user by admin [id: %s]".formatted(userId), request,
+            getMethodName())));
+    return CompletableFuture.supplyAsync(() -> {
+      var user = userRepository.findById(getUserId(request))
+          .orElseThrow(() -> new NotFoundException("User not found"));
+      user.setRole(roleRepository.findById(user.getRoleId()).orElse(null));
+      log.info("Get user by admin successfully [id: %s]".formatted(userId));
+      return userMapper.mapToResponse(user);
+    });
+  }
+
+  @Async
+  @Override
+  public CompletableFuture<Long> countAllUser(HttpServletRequest request) {
+    log.info(gson.toJson(LogMessage.create("Count all user", request, getMethodName())));
     return CompletableFuture.supplyAsync(userRepository::count);
   }
 
   @Async
   @Override
-  public CompletableFuture<UserResponse> updateProfile(String id, UpdateUserRequest input) {
+  public CompletableFuture<UserResponse> updateProfile(UpdateUserRequest input,
+      HttpServletRequest request) {
+    var id = getUserId(request);
+
+    log.info(gson.toJson(
+        LogMessage.create("Update profile [id: %s]".formatted(id), request, getMethodName())));
     return CompletableFuture.supplyAsync(() -> {
       var user = userRepository.findById(id)
           .orElseThrow(() -> new NotFoundException("User not found"));
       userMapper.mapBeforeUpdateUser(user, input);
       user = userRepository.save(user);
+      log.info("Update profile successfully [id: %s]".formatted(id));
       return userMapper.mapToResponse(user);
     });
   }
 
   @Async
   @Override
-  public CompletableFuture<PagedResultDto<UserAddress>> getMyAddresses(String id, int page,
-      int size) {
+  public CompletableFuture<PagedResultDto<UserAddress>> getMyAddresses(int page,
+      int size, HttpServletRequest request) {
+    var id = getUserId(request);
+    log.info(gson.toJson(
+        LogMessage.create("Get my addresses [id: %s]".formatted(id), request, getMethodName())));
+
     return CompletableFuture.supplyAsync(() -> {
       var user = userRepository.findById(id)
           .orElseThrow(() -> new NotFoundException("User not found"));
@@ -116,6 +148,8 @@ public class UserService implements IUserService {
       if (startIndex >= endIndex) {
         return null;
       }
+
+      log.info("Get my addresses successfully [id: %s]".formatted(id));
       return PagedResultDto.create(
           new Pagination(user.getAddresses().size(), (long) (page - 1) * size, size),
           user.getAddresses().subList(startIndex, endIndex));
@@ -124,56 +158,90 @@ public class UserService implements IUserService {
 
   @Async
   @Override
-  public CompletableFuture<UserAddress> addMyAddresses(String id, CreateUserAddressRequest input) {
+  public CompletableFuture<UserAddress> addMyAddresses(CreateUserAddressRequest input,
+      HttpServletRequest request) {
+    var id = getUserId(request);
+    log.info(gson.toJson(
+        LogMessage.create("Add my address [id: %s]".formatted(id), request, getMethodName())));
+
     return CompletableFuture.supplyAsync(() -> {
-      User user = userRepository.findById(id)
+      var user = userRepository.findById(id)
           .orElseThrow(() -> new NotFoundException("User not found"));
+
+      var addressId = new ObjectId().toString();
       if (user.getAddresses().size() > 9) {
         throw new BadRequestException("You can only add up to 10 addresses");
       }
-      var address = userMapper.mapToUserAddress(new ObjectId().toString(), input);
+      var address = userMapper.mapToUserAddress(addressId, input);
       user.getAddresses().add(address);
       userRepository.save(user);
+
+      log.info(
+          "Add my address successfully [user-id: %s], [address-id: %s]".formatted(id, addressId));
       return address;
     });
   }
 
   @Async
   @Override
-  public CompletableFuture<Void> deleteMyAddresses(String id, String userId) {
+  public CompletableFuture<Void> deleteMyAddresses(String addressId, HttpServletRequest request) {
+    var userId = getUserId(request);
+    log.info(gson.toJson(
+        LogMessage.create(
+            "Delete my address [[user-id: %s], [address-id: %s]".formatted(userId, addressId),
+            request, getMethodName())));
+
     return CompletableFuture.supplyAsync(() -> {
-      User user = userRepository.findById(userId)
+      User user = userRepository.findById(addressId)
           .orElseThrow(() -> new NotFoundException("User not found"));
       for (UserAddress address : user.getAddresses()) {
-        if (address.getId().equals(id)) {
+        if (address.getId().equals(addressId)) {
           user.getAddresses().remove(address);
           userRepository.save(user);
+          log.info(
+              "Delete my address successfully [user-id: %s], [address-id: %s]".formatted(userId,
+                  addressId));
           return null;
         }
       }
-      throw new NotFoundException("Address not found with id: %s".formatted(id));
+      throw new NotFoundException("Address not found with id: %s".formatted(addressId));
     });
   }
 
   @Async
   @Override
-  public CompletableFuture<UserAddress> getMyAddresses(String id, String userId) {
+  public CompletableFuture<UserAddress> getMyAddresses(String addressId,
+      HttpServletRequest request) {
+    var userId = getUserId(request);
+    log.info(gson.toJson(
+        LogMessage.create(
+            "Get my address [user-id: %s], [address-id: %s]".formatted(userId, addressId), request,
+            getMethodName())));
+
     return CompletableFuture.supplyAsync(() -> {
       User user = userRepository.findById(userId)
           .orElseThrow(() -> new NotFoundException("User not found"));
       for (UserAddress address : user.getAddresses()) {
-        if (address.getId().equals(id)) {
+        if (address.getId().equals(addressId)) {
+          log.info("Get my address successfully [user-id: %s], [address-id: %s]".formatted(userId,
+              addressId));
           return address;
         }
       }
-      throw new NotFoundException("Address not found with id: %s".formatted(id));
+      throw new NotFoundException("Address not found with id: %s".formatted(addressId));
     });
   }
 
   @Async
   @Override
   public CompletableFuture<UserAddress> updateMyAddresses(UpdateUserAddressRequest input,
-      String userId, String addressId) {
+      String addressId, HttpServletRequest request) {
+    var userId = getUserId(request);
+    log.info(gson.toJson(
+        LogMessage.create(
+            "Update my address [user-id: %s], [address-id: %s]".formatted(userId, addressId),
+            request, getMethodName())));
+
     return CompletableFuture.supplyAsync(() -> {
       User user = userRepository.findById(userId)
           .orElseThrow(() -> new NotFoundException("User not found"));
@@ -181,6 +249,9 @@ public class UserService implements IUserService {
         if (address.getId().equals(addressId)) {
           userMapper.mapBeforeUpdateUserAddress(address, input);
           userRepository.save(user);
+          log.info(
+              "Update my address successfully [user-id: %s], [address-id: %s]".formatted(userId,
+                  addressId));
           return address;
         }
       }
@@ -190,7 +261,11 @@ public class UserService implements IUserService {
 
   @Async
   @Override
-  public CompletableFuture<UserResponse> create(CreateUserRequest input) {
+  public CompletableFuture<UserResponse> create(CreateUserRequest input,
+      HttpServletRequest request) {
+    log.info(gson.toJson(
+        LogMessage.create("Create user [email: %s]".formatted(input.email()), request,
+            getMethodName())));
     return CompletableFuture.supplyAsync(() -> {
       var role = roleRepository.findRoleByName(input.role()).orElseThrow(
           () -> new NotFoundException("Have error from server, please try again later"));
@@ -227,12 +302,18 @@ public class UserService implements IUserService {
           role.getName().equals(CONSTANTS.DELIVERY) ? routingDeliveryRegisterKey
               : routingUserRegisterKey);
 
+      log.info("Create user successfully [id: %s], [email: %s]".formatted(savedUser.getId(),
+          input.email()));
       return UserResponse.fromUser(savedUser);
     });
   }
 
   @Override
-  public CompletableFuture<UserResponse> register(RegisterRequest input) {
+  public CompletableFuture<UserResponse> register(RegisterRequest input,
+      HttpServletRequest request) {
+    log.info(gson.toJson(
+        LogMessage.create("Register [email: %s]".formatted(input.email()), request,
+            getMethodName())));
 
     return CompletableFuture.supplyAsync(() -> {
       var role = roleRepository.findRoleByName(Constants.USER).orElseThrow(
@@ -267,13 +348,19 @@ public class UserService implements IUserService {
           null, tokenHash));
       rabbitMQProducer.sendMessage(message, exchange, routingUserRegisterKey);
 
+      log.info("Register successfully [id: %s], [email: %s]".formatted(savedUser.getId(),
+          input.email()));
       return UserResponse.fromUser(savedUser);
     });
   }
 
   @Override
   @Async
-  public CompletableFuture<Void> upgradeVendor(String userId) {
+  public CompletableFuture<Void> upgradeVendor(HttpServletRequest request) {
+    var userId = getUserId(request);
+    log.info(gson.toJson(
+        LogMessage.create("Upgrade to vendor [id: %s]".formatted(userId), request,
+            getMethodName())));
 
     var user = userRepository.findById(userId)
         .orElseThrow(() -> new NotFoundException("User not found"));
@@ -282,16 +369,22 @@ public class UserService implements IUserService {
         .orElseThrow(() -> new NotFoundException("Have error from server, please try again later"));
     user.setRoleId(vendorRole.getId());
     userRepository.save(user);
+    log.info("Upgrade to vendor successfully [id: %s]".formatted(userId));
     return null;
   }
 
   @Async
   @Override
-  public CompletableFuture<Integer> countMyAddress(String userId) {
-
+  public CompletableFuture<Integer> countMyAddress(HttpServletRequest request) {
+    var userId = getUserId(request);
+    log.info(gson.toJson(
+        LogMessage.create("Count my address [id: %s]".formatted(userId), request,
+            getMethodName())));
     return CompletableFuture.supplyAsync(() -> {
       var user = userRepository.findById(userId)
           .orElseThrow(() -> new NotFoundException("User not found"));
+
+      log.info("Count my address successfully [id: %s]".formatted(userId));
       return user.getAddresses().size();
     });
 
@@ -299,17 +392,24 @@ public class UserService implements IUserService {
 
   @Async
   @Override
-  public CompletableFuture<Void> checkBalance(CheckBalanceRequest request) {
-
+  public CompletableFuture<Void> checkBalance(CheckBalanceRequest input,
+      HttpServletRequest request) {
+    var userId = getUserId(request);
+    log.info(gson.toJson(
+        LogMessage.create("Check balance [id: %s], [money: %s]".formatted(userId, input.money()),
+            request,
+            getMethodName())));
     return CompletableFuture.supplyAsync(() -> {
-      var user = userRepository.findById(request.userId())
+      var user = userRepository.findById(input.userId())
           .orElseThrow(() -> new NotFoundException("User not found"));
-      double money = Double.parseDouble(request.money().toString());
+      double money = Double.parseDouble(input.money().toString());
       if (user.getEWallet() < money) {
         throw new BadRequestException("Not enough money");
       }
       user.setEWallet(user.getEWallet() - money);
       userRepository.save(user);
+      log.info("Check balance successfully [id: %s], [balance: %s]".formatted(userId,
+          user.getEWallet()));
       return null;
     });
 
@@ -317,52 +417,76 @@ public class UserService implements IUserService {
 
   @Async
   @Override
-  public CompletableFuture<Void> cancelOrder(CancelOrderRequest request) {
+  public CompletableFuture<Void> cancelOrder(CancelOrderRequest input, HttpServletRequest request) {
+    var userId = getUserId(request);
+    log.info(gson.toJson(
+        LogMessage.create("Cancel order [id: %s], [money: %s]".formatted(userId, input.money()),
+            request,
+            getMethodName())));
+
     return CompletableFuture.supplyAsync(() -> {
-      var user = userRepository.findById(request.userId())
+      var user = userRepository.findById(input.userId())
           .orElseThrow(() -> new NotFoundException("User not found"));
-      double money = Double.parseDouble(request.money().toString());
+      double money = Double.parseDouble(input.money().toString());
       user.setEWallet(user.getEWallet() + money);
-      user.setPoint(user.getPoint() - Integer.parseInt(request.money().toString()) / 1000000);
-      userRepository.save(user);
+      user.setPoint(user.getPoint() - Integer.parseInt(input.money().toString()) / 1000000);
+      user = userRepository.save(user);
+      log.info("Cancel order successfully [id: %s], [balance: %s]".formatted(userId,
+          user.getEWallet()));
       return null;
     });
   }
 
   @Async
   @Override
-  public CompletableFuture<Void> updateUserName(UpdateUserNameRequest request, String userId) {
+  public CompletableFuture<Void> updateUserName(UpdateUserNameRequest input,
+      HttpServletRequest request) {
+    var userId = getUserId(request);
+    log.info(gson.toJson(
+        LogMessage.create("Update username [id: %s], [username: %s]".formatted(userId,
+                input.username()),
+            request, getMethodName())));
+
     return CompletableFuture.supplyAsync(() -> {
       var user = userRepository.findById(userId)
           .orElseThrow(() -> new NotFoundException("User not found"));
 
+      var oldUsername = user.getUsername();
       if (user.getIsChangeUsername()) {
         throw new BadRequestException("You can only change username once");
       }
 
-      if (userRepository.existsByUsername(request.username())) {
+      if (userRepository.existsByUsername(input.username())) {
         throw new BadRequestException("Username already exists");
       }
 
-      user.setUsername(request.username());
+      user.setUsername(input.username());
       user.setIsChangeUsername(true);
       userRepository.save(user);
+      log.info(
+          "Update username successfully [id: %s], [old username: %s], [new username: %s]".formatted(
+              userId, oldUsername,
+              input.username()));
       return null;
     });
   }
 
   @Async
   @Override
-  public CompletableFuture<InfoRatingResponse> getInfoForRating(String userId) {
+  public CompletableFuture<InfoRatingResponse> getInfoForRating(String userId,
+      HttpServletRequest request) {
+    log.info(gson.toJson(
+        LogMessage.create("Get info for rating [id: %s]".formatted(userId), request,
+            getMethodName())));
     return CompletableFuture.supplyAsync(() -> {
       var user = userRepository.findById(userId)
           .orElse(null);
 
+      log.info("Get info for rating successfully [id: %s]".formatted(userId));
       if (user == null || user.getIsDeleted() || user.getVerifiedAt() == null) {
         return new InfoRatingResponse("user deleted", null);
       }
       return new InfoRatingResponse(user.getUsernameReal(), user.getAvatar());
-
     });
   }
 
@@ -372,7 +496,12 @@ public class UserService implements IUserService {
       Long skip,
       Integer size,
       String orderBy,
-      EStatusBan ban) {
+      EStatusBan ban, HttpServletRequest request) {
+    log.info(gson.toJson(
+        LogMessage.create(
+            "Get user admin [keyword: %s], [skip: %s], [size: %s], [orderBy: %s], [ban: %s]".formatted(
+                keyword, skip, size, orderBy, ban), request, getMethodName())));
+
     return CompletableFuture.supplyAsync(() -> {
 
       Direction direction = orderBy.charAt(0) == '-' ? Direction.DESC : Direction.ASC;
@@ -424,6 +553,10 @@ public class UserService implements IUserService {
               .build())
           .toList();
 
+      log.info(
+          "Get user admin successfully [keyword: %s], [skip: %s], [size: %s], [orderBy: %s], [ban: %s]".formatted(
+              keyword, skip, size, orderBy, ban));
+
       return PagedResultDto.create(
           new Pagination(userRepository.countUserAdmin(banCriteria, keyword), skip, size),
           list);
@@ -432,26 +565,35 @@ public class UserService implements IUserService {
 
   @Async
   @Override
-  public CompletableFuture<Void> banUser(String userId, BanUserRequest request) {
+  public CompletableFuture<Void> banUser(String userId, BanUserRequest input,
+      HttpServletRequest request) {
+    log.info(gson.toJson(
+        LogMessage.create("Ban user [id: %s], [isBanned: %s]".formatted(userId, input.isBanned()),
+            request, getMethodName())));
     return CompletableFuture.supplyAsync(() -> {
       var user = userRepository.findById(userId)
           .orElseThrow(
               () -> new NotFoundException("User not found"));
-      if (user.getIsBanned().equals(request.isBanned())) {
+      if (user.getIsBanned().equals(input.isBanned())) {
         throw new BadRequestException("User already banned");
       }
-      user.setIsBanned(request.isBanned());
-      if (request.isBanned()) {
-        LOGGER.info("User {} is banned with reason {}", userId, request.reason());
-        user.setReasonBan(request.reason());
+      user.setIsBanned(input.isBanned());
+      if (input.isBanned()) {
+        log.info("User {} is banned with reason {}", userId, input.reason());
+        user.setReasonBan(input.reason());
       } else {
-        LOGGER.info("User {} is unbanned", userId);
+        log.info("User {} is unbanned", userId);
         user.setReasonBan(null);
       }
       userRepository.save(user);
+      log.info(
+          "Ban user successfully [id: %s], [isBanned: %s]".formatted(userId, input.isBanned()));
       return null;
 
     });
   }
 
+  private String getUserId(HttpServletRequest request) {
+    return ((UserCredentialResponse) request.getAttribute("user")).id();
+  }
 }

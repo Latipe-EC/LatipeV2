@@ -6,9 +6,12 @@ import java.security.NoSuchAlgorithmException;
 
 public class AuthenticationUtils {
 
-  private AuthenticationUtils() {
-
-    // Private constructor to prevent instantiation
+  public static String getMethodName() {
+    String methodName = Thread.currentThread().getStackTrace()[2].getMethodName();
+    if (methodName.startsWith("lambda$")) {
+      return methodName.split("\\$")[1];
+    }
+    return methodName;
   }
 
   public static String genKeyCacheToken(String token, String userId) {
@@ -29,13 +32,6 @@ public class AuthenticationUtils {
     }
   }
 
-  public static String getMethodName() {
-    String methodName = Thread.currentThread().getStackTrace()[2].getMethodName();
-    if (methodName.startsWith("lambda$")) {
-      return methodName.split("\\$")[1];
-    }
-    return methodName;
-  }
 //    public static String getCurrentUserId() {
 //        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 //

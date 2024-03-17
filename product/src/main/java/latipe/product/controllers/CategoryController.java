@@ -1,5 +1,6 @@
 package latipe.product.controllers;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.concurrent.CompletableFuture;
 import latipe.product.annotations.ApiPrefixController;
@@ -33,22 +34,22 @@ public class CategoryController {
   public CompletableFuture<?> getPaginateCategory(
       @RequestParam(value = "skip", defaultValue = "0") long skip,
       @RequestParam(value = "limit", defaultValue = "10") int limit,
-      @RequestParam(value = "name", defaultValue = "") String name) {
-    return categoryService.getPaginateCategory(skip, limit, name);
+      @RequestParam(value = "name", defaultValue = "") String name, HttpServletRequest request) {
+    return categoryService.getPaginateCategory(skip, limit, name, request);
   }
 
   @ResponseStatus(HttpStatus.OK)
   @GetMapping(value = "/search", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<?> searchNameCate(
-      @RequestParam(value = "name") String name) {
-    return categoryService.searchNameCate(name);
+      @RequestParam(value = "name") String name, HttpServletRequest request) {
+    return categoryService.searchNameCate(name, request);
   }
 
   @ResponseStatus(HttpStatus.OK)
   @GetMapping(value = "/children-categories/{parentId}", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<?> getListChildrenCategory(
-      @PathVariable String parentId) {
-    return categoryService.getListChildrenCategory(parentId);
+      @PathVariable String parentId, HttpServletRequest request) {
+    return categoryService.getListChildrenCategory(parentId, request);
   }
 
   @Authenticate
@@ -56,16 +57,16 @@ public class CategoryController {
   @ResponseStatus(HttpStatus.CREATED)
   @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<?> createStore(
-      @Valid @RequestBody CreateCategoryRequest input) {
-    return categoryService.create(input);
+      @Valid @RequestBody CreateCategoryRequest input, HttpServletRequest request) {
+    return categoryService.create(input, request);
   }
 
   @Authenticate
   @RequiresAuthorization("ADMIN")
   @ResponseStatus(HttpStatus.OK)
   @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<?> get(@PathVariable("id") String id) {
-    return categoryService.get(id);
+  public CompletableFuture<?> get(@PathVariable("id") String id, HttpServletRequest request) {
+    return categoryService.get(id, request);
   }
 
   @Authenticate
@@ -73,15 +74,16 @@ public class CategoryController {
   @ResponseStatus(HttpStatus.OK)
   @PutMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<?> updateStore(@PathVariable("id") String id,
-      @Valid @RequestBody UpdateCategoryRequest input) {
-    return categoryService.update(id, input);
+      @Valid @RequestBody UpdateCategoryRequest input, HttpServletRequest request) {
+    return categoryService.update(id, input, request);
   }
 
   @Authenticate
   @RequiresAuthorization("ADMIN")
   @ResponseStatus(HttpStatus.OK)
   @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<?> deleteCategory(@PathVariable("id") String id) {
-    return categoryService.remove(id);
+  public CompletableFuture<?> deleteCategory(@PathVariable("id") String id,
+      HttpServletRequest request) {
+    return categoryService.remove(id, request);
   }
 }

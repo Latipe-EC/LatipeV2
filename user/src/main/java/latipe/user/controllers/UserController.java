@@ -2,6 +2,7 @@ package latipe.user.controllers;
 
 import static latipe.user.utils.Constants.ADMIN;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.concurrent.CompletableFuture;
 import latipe.user.annotations.ApiPrefixController;
@@ -22,9 +23,9 @@ import latipe.user.request.UpdateUserNameRequest;
 import latipe.user.request.UpdateUserRequest;
 import latipe.user.response.InfoRatingResponse;
 import latipe.user.response.UserAdminResponse;
-import latipe.user.response.UserCredentialResponse;
 import latipe.user.response.UserResponse;
 import latipe.user.services.user.IUserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
@@ -38,37 +39,30 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 @Validated
 @RestController
 @ApiPrefixController("/users")
+@RequiredArgsConstructor
 public class UserController {
 
   private final IUserService userService;
 
-  public UserController(IUserService userService) {
-    this.userService = userService;
-  }
-
   @ResponseStatus(HttpStatus.OK)
   @Authenticate
   @GetMapping(value = "/my-profile", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<UserResponse> getMyProfile() {
-    UserCredentialResponse userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
-        .getAttribute("user")));
-    return userService.getProfile(userCredential.id());
+  public CompletableFuture<UserResponse> getMyProfile(HttpServletRequest request) {
+
+    return userService.getProfile(request);
   }
 
   @ResponseStatus(HttpStatus.OK)
   @Authenticate
   @PutMapping(value = "/my-profile", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<UserResponse> updateProfile(
-      @Valid @RequestBody UpdateUserRequest input) {
-    UserCredentialResponse userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
-        .getAttribute("user")));
-    return userService.updateProfile(userCredential.id(), input);
+      @Valid @RequestBody UpdateUserRequest input, HttpServletRequest request) {
+
+    return userService.updateProfile(input, request);
   }
 
   @ResponseStatus(HttpStatus.OK)
@@ -76,11 +70,9 @@ public class UserController {
   @GetMapping(value = "/my-address", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<PagedResultDto<UserAddress>> getMyAddresses(
       @RequestParam(name = "page", defaultValue = "1") int page,
-      @RequestParam(name = "size", defaultValue = "10") int size
+      @RequestParam(name = "size", defaultValue = "10") int size, HttpServletRequest request
   ) {
-    UserCredentialResponse userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
-        .getAttribute("user")));
-    return userService.getMyAddresses(userCredential.id(), page, size);
+    return userService.getMyAddresses(page, size, request);
   }
 
   @ResponseStatus(HttpStatus.OK)
@@ -88,60 +80,53 @@ public class UserController {
   @PutMapping(value = "/my-address/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<UserAddress> updateMyAddress(
       @PathVariable String id,
-      @Valid @RequestBody UpdateUserAddressRequest input) {
-    UserCredentialResponse userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
-        .getAttribute("user")));
-    return userService.updateMyAddresses(input, userCredential.id(), id);
+      @Valid @RequestBody UpdateUserAddressRequest input, HttpServletRequest request) {
+    return userService.updateMyAddresses(input, id, request);
   }
 
   @Authenticate
   @ResponseStatus(HttpStatus.CREATED)
   @PostMapping(value = "/my-address", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<UserAddress> addMyAddress(
-      @Valid @RequestBody CreateUserAddressRequest input) {
+      @Valid @RequestBody CreateUserAddressRequest input, HttpServletRequest request) {
 
-    UserCredentialResponse userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
-        .getAttribute("user")));
-    return userService.addMyAddresses(userCredential.id(), input);
+    return userService.addMyAddresses(input, request);
 
   }
 
   @ResponseStatus(HttpStatus.OK)
   @Authenticate
   @DeleteMapping(value = "/my-address/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<Void> deleteMyAddress(@PathVariable String id) {
+  public CompletableFuture<Void> deleteMyAddress(@PathVariable String id,
+      HttpServletRequest request) {
 
-    UserCredentialResponse userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
-        .getAttribute("user")));
-    return userService.deleteMyAddresses(id, userCredential.id());
+    return userService.deleteMyAddresses(id, request);
 
   }
 
   @ResponseStatus(HttpStatus.OK)
   @Authenticate
   @GetMapping(value = "/my-address/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<UserAddress> getMyAddress(@PathVariable String id) {
+  public CompletableFuture<UserAddress> getMyAddress(@PathVariable String id,
+      HttpServletRequest request) {
 
-    var userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
-        .getAttribute("user")));
-    return userService.getMyAddresses(id, userCredential.id());
+    return userService.getMyAddresses(id, request);
 
   }
 
   @Authenticate
   @ResponseStatus(HttpStatus.CREATED)
   @GetMapping(value = "/count-my-address", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<Integer> countMyUserAddress() {
-    UserCredentialResponse userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
-        .getAttribute("user")));
-    return userService.countMyAddress(userCredential.id());
+  public CompletableFuture<Integer> countMyUserAddress(HttpServletRequest request) {
+    return userService.countMyAddress(request);
   }
 
   @ResponseStatus(HttpStatus.CREATED)
   @RequiresAuthorization(ADMIN)
   @PostMapping(value = "/create-user", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<UserResponse> createUser(@Valid @RequestBody CreateUserRequest input) {
-    return userService.create(input);
+  public CompletableFuture<UserResponse> createUser(@Valid @RequestBody CreateUserRequest input,
+      HttpServletRequest request) {
+    return userService.create(input, request);
   }
 
   @RequiresAuthorization(ADMIN)
@@ -151,81 +136,79 @@ public class UserController {
       @RequestParam(defaultValue = "0") Long skip,
       @RequestParam(defaultValue = "12") Integer size,
       @RequestParam(defaultValue = "createdDate") String orderBy,
-      @RequestParam(defaultValue = "ALL") EStatusBan isBan) {
-    return userService.getUserAdmin(keyword, skip, size, orderBy, isBan);
+      @RequestParam(defaultValue = "ALL") EStatusBan isBan, HttpServletRequest request) {
+    return userService.getUserAdmin(keyword, skip, size, orderBy, isBan, request);
   }
 
   @RequiresAuthorization(ADMIN)
   @PatchMapping(value = "/{userId}/ban", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<Void> banUser(
       @PathVariable String userId,
-      @Valid @RequestBody BanUserRequest request) {
-    return userService.banUser(userId, request);
+      @Valid @RequestBody BanUserRequest input, HttpServletRequest request) {
+    return userService.banUser(userId, input, request);
   }
 
   @RequiresAuthorization(ADMIN)
   @GetMapping(value = "/{userId}/admin", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<UserResponse> getDetailUserByAdmin(
-      @PathVariable String userId) {
-    return userService.getProfile(userId);
+      @PathVariable String userId, HttpServletRequest request) {
+    return userService.getUserByAdmin(userId, request);
   }
 
   @RequiresAuthorization(ADMIN)
   @GetMapping(value = "/count", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<Long> countAllUser() {
-    return userService.countAllUser();
+  public CompletableFuture<Long> countAllUser(HttpServletRequest request) {
+    return userService.countAllUser(request);
   }
 
   @SecureInternalPhase
   @ResponseStatus(HttpStatus.CREATED)
   @PostMapping(value = "/register", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<UserResponse> register(@RequestBody RegisterRequest input) {
-    return userService.register(input);
+  public CompletableFuture<UserResponse> register(@RequestBody RegisterRequest input,
+      HttpServletRequest request) {
+    return userService.register(input, request);
   }
 
   @Authenticate
   @ResponseStatus(HttpStatus.CREATED)
   @PutMapping(value = "/upgrade-to-vendor", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<Void> upgradeVendor() {
-    var userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
-        .getAttribute("user")));
-    return userService.upgradeVendor(userCredential.id());
+  public CompletableFuture<Void> upgradeVendor(HttpServletRequest request) {
+    return userService.upgradeVendor(request);
   }
 
 
   @SecureInternalPhase
   @PostMapping(value = "/check-balance", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<Void> checkBalance(
-      @RequestBody CheckBalanceRequest request
+      @RequestBody CheckBalanceRequest input, HttpServletRequest request
   ) {
-    return userService.checkBalance(request);
+    return userService.checkBalance(input, request);
   }
 
   @SecureInternalPhase
   @PostMapping(value = "/cancel-order", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<Void> cancelOrder(
-      @RequestBody CancelOrderRequest request
+      @RequestBody CancelOrderRequest input, HttpServletRequest request
   ) {
-    return userService.cancelOrder(request);
+    return userService.cancelOrder(input, request);
   }
 
   @Authenticate
   @ResponseStatus(HttpStatus.CREATED)
   @PutMapping(value = "/profile/username", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<Void> updateUserName(
-      @Valid @RequestBody UpdateUserNameRequest request
+      @Valid @RequestBody UpdateUserNameRequest input, HttpServletRequest request
   ) {
-    var userCredential = ((UserCredentialResponse) (((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
-        .getAttribute("user")));
-    return userService.updateUserName(request, userCredential.id());
+
+    return userService.updateUserName(input, request);
   }
 
   @SecureInternalPhase
   @GetMapping(value = "/{userId}/internal/info-rating", produces = MediaType.APPLICATION_JSON_VALUE)
   public CompletableFuture<InfoRatingResponse> getInfoForRating(
-      @PathVariable String userId
+      @PathVariable String userId, HttpServletRequest request
   ) {
-    return userService.getInfoForRating(userId);
+    return userService.getInfoForRating(userId, request);
   }
 
 }

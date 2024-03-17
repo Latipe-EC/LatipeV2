@@ -1,5 +1,7 @@
 package latipe.cart.exceptions;
 
+import static latipe.cart.constants.CONSTANTS.REQUEST_ID;
+
 import com.fasterxml.jackson.core.JsonParseException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -23,7 +25,7 @@ import org.springframework.web.context.request.WebRequest;
 @Slf4j
 public class ApiExceptionHandler {
 
-  private static final String ERROR_LOG_FORMAT = "Error: URI: {}, ErrorCode: {}, Message: {}";
+  private static final String ERROR_LOG_FORMAT = "[Error] ID: {} URI: {}, ErrorCode: {}, Message: {}";
 
   @ExceptionHandler(NotFoundException.class)
   public ResponseEntity<ExceptionResponse> handleNotFoundException(NotFoundException ex,
@@ -32,7 +34,8 @@ public class ApiExceptionHandler {
     ExceptionResponse ExceptionResponse = new ExceptionResponse(HttpStatus.NOT_FOUND.toString(),
         "NotFound", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss yyyy-MM-dd")),
         message, request.getContextPath());
-    log.warn(ERROR_LOG_FORMAT, this.getServletPath(request), 404, message);
+    log.warn(ERROR_LOG_FORMAT, request.getAttribute(REQUEST_ID, 0), this.getServletPath(request),
+        404, message);
     log.debug(ex.toString());
     return new ResponseEntity<>(ExceptionResponse, HttpStatus.NOT_FOUND);
   }
@@ -45,7 +48,8 @@ public class ApiExceptionHandler {
         "Unauthorized ",
         LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss yyyy-MM-dd")), message,
         request.getContextPath());
-    log.warn(ERROR_LOG_FORMAT, this.getServletPath(request), 401, message);
+    log.warn(ERROR_LOG_FORMAT, request.getAttribute(REQUEST_ID, 0), this.getServletPath(request),
+        401, message);
     log.debug(ex.toString());
     return new ResponseEntity<>(ExceptionResponse, HttpStatus.UNAUTHORIZED);
   }
@@ -54,16 +58,18 @@ public class ApiExceptionHandler {
   public ResponseEntity<ExceptionResponse> handleBadRequestException(BadRequestException ex,
       WebRequest request) {
     String message = ex.getMessage();
-    ExceptionResponse ExceptionResponse = new ExceptionResponse(HttpStatus.BAD_REQUEST.toString(),
+    var ExceptionResponse = new ExceptionResponse(HttpStatus.BAD_REQUEST.toString(),
         "Bad request",
         LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss yyyy-MM-dd")), message,
         request.getContextPath());
+    log.warn(ERROR_LOG_FORMAT, request.getAttribute(REQUEST_ID, 0), this.getServletPath(request),
+        400, message);
     return ResponseEntity.badRequest().body(ExceptionResponse);
   }
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
   protected ResponseEntity<Object> handleMethodArgumentNotValid(
-      MethodArgumentNotValidException ex) {
+      MethodArgumentNotValidException ex, WebRequest request) {
     List<String> errors = ex.getBindingResult()
         .getFieldErrors()
         .stream()
@@ -83,7 +89,7 @@ public class ApiExceptionHandler {
       errors.add(violation.getRootBeanClass().getName() + " " +
           violation.getPropertyPath() + ": " + violation.getMessage());
     }
-    ExceptionResponse ExceptionResponse = new ExceptionResponse("400", "Bad Request",
+    var ExceptionResponse = new ExceptionResponse("400", "Bad Request",
         LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss yyyy-MM-dd")),
         "Request information is not valid", "", errors);
     return ResponseEntity.badRequest().body(ExceptionResponse);
@@ -103,7 +109,8 @@ public class ApiExceptionHandler {
         request.getContextPath()
     );
 
-    log.warn(ERROR_LOG_FORMAT, this.getServletPath(request), 400, message);
+    log.warn(ERROR_LOG_FORMAT, request.getAttribute(REQUEST_ID, 0), this.getServletPath(request),
+        400, message);
     log.debug(ex.toString());
     return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
   }
@@ -120,7 +127,8 @@ public class ApiExceptionHandler {
         request.getContextPath()
     );
 
-    log.warn(ERROR_LOG_FORMAT, this.getServletPath(request), 400, message);
+    log.warn(ERROR_LOG_FORMAT, request.getAttribute(REQUEST_ID, 0), this.getServletPath(request),
+        400, message);
     log.debug(ex.toString());
     return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
   }
@@ -138,17 +146,23 @@ public class ApiExceptionHandler {
         request.getContextPath()
     );
 
-    log.warn(ERROR_LOG_FORMAT, this.getServletPath(request), 400, message);
+    log.warn(ERROR_LOG_FORMAT, request.getAttribute(REQUEST_ID, 0), this.getServletPath(request),
+        400, message);
     log.debug(ex.toString());
     return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
   }
 
   @ExceptionHandler({SignInRequiredException.class})
-  public ResponseEntity<Object> handleSignInRequired(SignInRequiredException ex) {
+  public ResponseEntity<Object> handleSignInRequired(SignInRequiredException ex,
+      WebRequest request) {
     String message = ex.getMessage();
-    ExceptionResponse ExceptionResponse = new ExceptionResponse("403", "Authentication required",
+    var ExceptionResponse = new ExceptionResponse("403", "Authentication required",
         LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss yyyy-MM-dd")), message,
         "");
+
+    log.warn(ERROR_LOG_FORMAT, request.getAttribute(REQUEST_ID, 0), this.getServletPath(request),
+        403, message);
+    log.debug(ex.toString());
     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ExceptionResponse);
   }
 
@@ -158,7 +172,9 @@ public class ApiExceptionHandler {
     ExceptionResponse ExceptionResponse = new ExceptionResponse(HttpStatus.FORBIDDEN.toString(),
         "Forbidden", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss yyyy-MM-dd")),
         message, request.getContextPath());
-    log.warn(ERROR_LOG_FORMAT, this.getServletPath(request), 403, message);
+
+    log.warn(ERROR_LOG_FORMAT, request.getAttribute(REQUEST_ID, 0), this.getServletPath(request),
+        403, message);
     log.debug(ex.toString());
     return new ResponseEntity<>(ExceptionResponse, HttpStatus.FORBIDDEN);
   }

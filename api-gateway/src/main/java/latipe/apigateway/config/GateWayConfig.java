@@ -109,7 +109,11 @@ public class GateWayConfig {
             .filters(f -> f
                 .requestRateLimiter(c -> c.setRateLimiter(redisRateLimiter())
                     .setKeyResolver(remoteAddressKeyResolver)
-                ))
+                ).setResponseHeader("Access-Control-Allow-Origin", "*")
+                .setResponseHeader("Access-Control-Allow-Methods", "*")
+                .setResponseHeader("Access-Control-Allow-Headers", "*")
+                .setResponseHeader("Access-Control-Max-Age", "30")
+            )
             .uri("lb://rating-service"))
 
         .route("discovery_server", r -> r.path("/eureka/web")
@@ -144,7 +148,7 @@ public class GateWayConfig {
 
   @Bean
   public RedisRateLimiter redisRateLimiter() {
-    return new RedisRateLimiter(50, 100, 10);
+    return new RedisRateLimiter(50000, 100000, 10);
   }
 
 }

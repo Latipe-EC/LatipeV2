@@ -2,6 +2,7 @@ package latipe.rating.service;
 
 
 import static latipe.rating.constants.CONSTANTS.X_API_KEY_ORDER;
+import static latipe.rating.utils.AuthenticationUtils.getMethodName;
 import static latipe.rating.utils.GenTokenInternal.generateHash;
 import static latipe.rating.utils.GenTokenInternal.getPrivateKey;
 
@@ -10,6 +11,7 @@ import feign.Feign;
 import feign.gson.GsonDecoder;
 import feign.gson.GsonEncoder;
 import feign.okhttp.OkHttpClient;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import latipe.rating.configs.SecureInternalProperties;
@@ -30,8 +32,10 @@ import latipe.rating.request.UpdateRatingRequest;
 import latipe.rating.response.RatingResponse;
 import latipe.rating.response.UserCredentialResponse;
 import latipe.rating.utils.GetInstanceServer;
+import latipe.rating.viewmodel.LogMessage;
 import latipe.rating.viewmodel.RatingMessage;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
@@ -45,6 +49,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class RatingService implements IRatingService {
 
   private final RatingMapper ratingMapper;
@@ -65,11 +70,15 @@ public class RatingService implements IRatingService {
 
   @Override
   @Async
-  public CompletableFuture<RatingResponse> create(CreateRatingRequest request, String userId) {
+  public CompletableFuture<RatingResponse> create(CreateRatingRequest input,
+      HttpServletRequest request) {
+    log.info(gson.toJson(LogMessage.create("Create rating by user with id: %s".formatted(
+        getUserId(request)), request, getMethodName())));
+
     return CompletableFuture.supplyAsync(() -> {
       // CAll api check rating order
       // TODO : REMEMBER CHANGE TO REAL TOKEN
-      var response = orderClient.getRating(X_API_KEY_ORDER, request.orderItemId());
+      var response = orderClient.getRating(X_API_KEY_ORDER, input.orderItemId());
       if (response.getData().getRating_id()
           != null && !response.getData().getRating_id()
           .isBlank()) {
@@ -91,26 +100,31 @@ public class RatingService implements IRatingService {
                   loadBalancer, userService
               )));
 
-      var userDetail = userClient.getInfoForRating(hash, userId);
+      var userDetail = userClient.getInfoForRating(hash, getUserId(request));
 
-      var rating = ratingMapper.mapToRatingBeforeCreate(request, userId, userDetail.username(),
+      var rating = ratingMapper.mapToRatingBeforeCreate(input, getUserId(request),
+          userDetail.username(),
           userDetail.avatar());
       rating = ratingRepository.save(rating);
 
-      String message = gson.toJson(
+      var message = gson.toJson(
           RatingMessage.builder().orderItemId(rating.getOrderItemId()).ratingId(rating.getId())
               .storeId(rating.getStoreId())
               .rating(rating.getRating()).productId(rating.getProductId()).op(Action.CREATE)
               .build());
       rabbitMQProducer.sendMessage(message);
+
+      log.info("Create rating successfully");
       return ratingMapper.mapToRatingResponse(rating);
     });
   }
 
   @Override
   @Async
-  public CompletableFuture<RatingResponse> update(String id, UpdateRatingRequest request,
-      UserCredentialResponse userCredential) {
+  public CompletableFuture<RatingResponse> update(String id, UpdateRatingRequest input,
+      HttpServletRequest request) {
+    log.info(gson.toJson(
+        LogMessage.create("Update rating with id: %s".formatted(id), request, getMethodName())));
     return CompletableFuture.supplyAsync(() -> {
       var rating = ratingRepository.findById(id)
           .orElseThrow(() -> new NotFoundException("Rating not found"));
@@ -120,35 +134,40 @@ public class RatingService implements IRatingService {
         throw new BadRequestException("You are not allowed to update this rating");
       }
 
-      if (!rating.getUserId().equals(userCredential.id()) && !userCredential.role()
+      if (!rating.getUserId().equals(getUserId(request))
+          && !((UserCredentialResponse) request.getAttribute("user")).role()
           .equals("ADMIN")) {
         throw new BadRequestException("You are not allowed to delete this rating");
       }
 
-      ratingMapper.mapToRatingBeforeUpdate(rating, request, true);
+      ratingMapper.mapToRatingBeforeUpdate(rating, input, true);
 
       rating = ratingRepository.save(rating);
 
-      String message = gson.toJson(
+      var message = gson.toJson(
           RatingMessage.builder().orderItemId(rating.getOrderItemId()).ratingId(rating.getId())
               .rating(rating.getRating()).productId(rating.getProductId()).op(Action.UPDATE)
               .oldRating(oldRating).storeId(rating.getStoreId())
               .build());
       rabbitMQProducer.sendMessage(message);
 
+      log.info("Update rating successfully");
       return ratingMapper.mapToRatingResponse(rating);
     });
   }
 
   @Override
   @Async
-  public CompletableFuture<Void> delete(String id, UserCredentialResponse userCredential) {
+  public CompletableFuture<Void> delete(String id, HttpServletRequest request) {
+    log.info(gson.toJson(
+        LogMessage.create("Delete rating with id: %s".formatted(id), request, getMethodName())));
     return CompletableFuture.supplyAsync(() -> {
 
       var rating = ratingRepository.findById(id)
           .orElseThrow(() -> new NotFoundException("Rating not found"));
 
-      if (!rating.getUserId().equals(userCredential.id()) && !userCredential.role()
+      if (!rating.getUserId().equals(getUserId(request))
+          && !((UserCredentialResponse) request.getAttribute("user")).role()
           .equals("ADMIN")) {
         throw new BadRequestException("You are not allowed to delete this rating");
       }
@@ -161,7 +180,7 @@ public class RatingService implements IRatingService {
               .storeId(rating.getStoreId())
               .build());
       rabbitMQProducer.sendMessage(message);
-
+      log.info("Delete rating successfully");
       return null;
     });
   }
@@ -169,7 +188,10 @@ public class RatingService implements IRatingService {
   @Override
   @Async
   public CompletableFuture<PagedResultDto<RatingResponse>> getRatingProduct(String productId,
-      long skip, int pageSize, String orderBy, Star filterStar) {
+      long skip, int pageSize, String orderBy, Star filterStar, HttpServletRequest request) {
+    log.info(gson.toJson(
+        LogMessage.create("Get rating by product with id: %s".formatted(productId), request,
+            getMethodName())));
     return CompletableFuture.supplyAsync(() -> {
       var aggregate = createFilterByStore(skip, pageSize, orderBy, filterStar, productId, 1);
 
@@ -177,6 +199,7 @@ public class RatingService implements IRatingService {
 
       var total = ratingRepository.countRatingByProductId(productId);
 
+      log.info("Get rating by product successfully");
       return PagedResultDto.create(Pagination.create(total, skip, pageSize), list);
 
     });
@@ -185,22 +208,31 @@ public class RatingService implements IRatingService {
   @Override
   @Async
   public CompletableFuture<PagedResultDto<RatingResponse>> getRatingStore(String storeId, long skip,
-      int pageSize, String sortBy, Star filterStar) {
+      int pageSize, String sortBy, Star filterStar, HttpServletRequest request) {
+    log.info(gson.toJson(
+        LogMessage.create("Get rating by store with id: %s".formatted(storeId), request,
+            getMethodName())));
     return CompletableFuture.supplyAsync(() -> {
       var aggregate = createFilterByStore(skip, pageSize, sortBy, filterStar, storeId, 0);
       var list = queryRating(aggregate);
 
       var total = ratingRepository.countRatingByStoreId(storeId);
-
+      log.info("Get rating by store successfully");
       return PagedResultDto.create(Pagination.create(total, skip, pageSize), list);
     });
   }
 
   @Override
   @Async
-  public CompletableFuture<RatingResponse> getDetailRating(String id) {
-    return CompletableFuture.supplyAsync(() -> ratingRepository.findById(id)
-            .orElseThrow(() -> new NotFoundException("Rating not found")))
+  public CompletableFuture<RatingResponse> getDetailRating(String id, HttpServletRequest request) {
+    log.info(gson.toJson(LogMessage.create("Get detail rating with id: %s".formatted(id), request,
+        getMethodName())));
+
+    var rating = ratingRepository.findById(id)
+        .orElseThrow(() -> new NotFoundException("Rating not found"));
+
+    log.info("Get detail rating successfully");
+    return CompletableFuture.supplyAsync(() -> rating)
         .thenApplyAsync(ratingMapper::mapToRatingResponse);
   }
 
@@ -234,4 +266,7 @@ public class RatingService implements IRatingService {
             .detail(doc.getString("detail")).build()).toList();
   }
 
+  private String getUserId(HttpServletRequest request) {
+    return ((UserCredentialResponse) request.getAttribute("user")).id();
+  }
 }

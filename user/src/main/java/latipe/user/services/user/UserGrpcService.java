@@ -47,6 +47,7 @@ public class UserGrpcService extends UserServiceGrpc.UserServiceImplBase {
         .setZipCode(address.getZipCode() == null ? "" : address.getZipCode())
         .build();
 
+    LOGGER.info("Sending response get address detail");
     responseObserver.onNext(response);
     responseObserver.onCompleted();
   }

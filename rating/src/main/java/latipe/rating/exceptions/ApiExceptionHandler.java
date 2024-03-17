@@ -1,5 +1,7 @@
 package latipe.rating.exceptions;
 
+import static latipe.rating.constants.CONSTANTS.REQUEST_ID;
+
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
@@ -21,7 +23,7 @@ import org.springframework.web.context.request.WebRequest;
 @Slf4j
 public class ApiExceptionHandler {
 
-  private static final String ERROR_LOG_FORMAT = "Error: URI: {}, ErrorCode: {}, Message: {}";
+  private static final String ERROR_LOG_FORMAT = "[Error] ID: {} URI: {}, ErrorCode: {}, Message: {}";
 
   @ExceptionHandler(NotFoundException.class)
   public ResponseEntity<ExceptionResponse> handleNotFoundException(NotFoundException ex,
@@ -30,7 +32,8 @@ public class ApiExceptionHandler {
     ExceptionResponse ExceptionResponse = new ExceptionResponse(HttpStatus.NOT_FOUND.toString(),
         "NotFound", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss yyyy-MM-dd")),
         message, request.getContextPath());
-    log.warn(ERROR_LOG_FORMAT, this.getServletPath(request), 404, message);
+    log.warn(ERROR_LOG_FORMAT, request.getAttribute(REQUEST_ID, 0), this.getServletPath(request),
+        404, message);
     log.debug(ex.toString());
     return new ResponseEntity<>(ExceptionResponse, HttpStatus.NOT_FOUND);
   }
@@ -43,7 +46,8 @@ public class ApiExceptionHandler {
         "Unauthorized ",
         LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss yyyy-MM-dd")), message,
         request.getContextPath());
-    log.warn(ERROR_LOG_FORMAT, this.getServletPath(request), 401, message);
+    log.warn(ERROR_LOG_FORMAT, request.getAttribute(REQUEST_ID, 0), this.getServletPath(request),
+        401, message);
     log.debug(ex.toString());
     return new ResponseEntity<>(ExceptionResponse, HttpStatus.UNAUTHORIZED);
   }
@@ -56,6 +60,10 @@ public class ApiExceptionHandler {
         "Bad request",
         LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss yyyy-MM-dd")), message,
         request.getContextPath());
+
+    log.warn(ERROR_LOG_FORMAT, request.getAttribute(REQUEST_ID, 0), this.getServletPath(request),
+        400, message);
+    log.debug(ex.toString());
     return ResponseEntity.badRequest().body(ExceptionResponse);
   }
 
@@ -101,7 +109,8 @@ public class ApiExceptionHandler {
         request.getContextPath()
     );
 
-    log.warn(ERROR_LOG_FORMAT, this.getServletPath(request), 400, message);
+    log.warn(ERROR_LOG_FORMAT, request.getAttribute(REQUEST_ID, 0), this.getServletPath(request),
+        400, message);
     log.debug(ex.toString());
     return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
   }
@@ -121,7 +130,8 @@ public class ApiExceptionHandler {
     ExceptionResponse ExceptionResponse = new ExceptionResponse(HttpStatus.FORBIDDEN.toString(),
         "Forbidden", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss yyyy-MM-dd")),
         message, request.getContextPath());
-    log.warn(ERROR_LOG_FORMAT, this.getServletPath(request), 403, message);
+    log.warn(ERROR_LOG_FORMAT, request.getAttribute(REQUEST_ID, 0), this.getServletPath(request),
+        403, message);
     log.debug(ex.toString());
     return new ResponseEntity<>(ExceptionResponse, HttpStatus.FORBIDDEN);
   }

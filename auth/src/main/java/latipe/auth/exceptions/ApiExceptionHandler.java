@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import latipe.auth.viewmodel.ExceptionResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +26,7 @@ import org.springframework.web.context.request.WebRequest;
 @Slf4j
 public class ApiExceptionHandler {
 
-  private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(ApiExceptionHandler.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ApiExceptionHandler.class);
 
   private static final String ERROR_LOG_FORMAT = "[Error] ID: {} URI: {}, ErrorCode: {}, Message: {}";
 
