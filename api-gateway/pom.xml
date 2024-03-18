@@ -55,10 +55,7 @@
       <groupId>org.projectlombok</groupId>
     </dependency>
 
-    <dependency>
-      <artifactId>micrometer-tracing-bridge-brave</artifactId>
-      <groupId>io.micrometer</groupId>
-    </dependency>
+    
 
     <dependency>
       <artifactId>micrometer-registry-prometheus</artifactId>

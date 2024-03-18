@@ -3,7 +3,9 @@ management:
     web:
       exposure:
         include: prometheus
-
+  tracing:
+    sampling:
+      probability: "1.0"
   metrics:
     tags:
       application: ${spring.application.name}
@@ -12,9 +14,6 @@ management:
         http:
           server:
             requests: "true"
-  tracing:
-    sampling:
-      probability: "1.0"
 
 elasticsearch:
   clustername: docker-cluster
