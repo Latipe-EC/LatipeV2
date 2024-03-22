@@ -1,0 +1,43 @@
+spring:
+  application:
+    name: notification
+  data:
+    redis:
+      host: localhost
+      port: 6379
+    mongodb:
+      uri: ${SPRING_DATA_MONGODB_URI:mongodb://localhost:27017/Latipe-Notification-DB}
+  cloud:
+    stream:
+      bindings:
+        input:
+          destination: notification-topic
+server:
+  port: 10282
+
+context:
+  initializer:
+    classes: latipe.notification.configs.PortInitializer
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://eureka:password@${EUREKA_HOST:localhost}:${EUREKA_PORT:8761}/eureka
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus
+  tracing:
+    sampling:
+      probability: "1.0"
+  metrics:
+    tags:
+      application: ${spring.application.name}
+    distribution:
+      percentiles-histogram:
+        http:
+          server:
+            requests: "true"

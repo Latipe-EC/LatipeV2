@@ -1,0 +1,18 @@
+{
+  "format": "vParquet",
+  "blockID": "f347815d-c597-4a8c-b752-d1fd132bcc7a",
+  "minID": "AA328Ft6mAgnqnoA92hpUg==",
+  "maxID": "//ew4cRo3RZz0ZrKTiYYCQ==",
+  "tenantID": "single-tenant",
+  "startTime": "2024-03-19T16:38:32Z",
+  "endTime": "2024-03-19T17:08:42Z",
+  "totalObjects": 7236,
+  "size": 1721427,
+  "compactionLevel": 0,
+  "encoding": "none",
+  "indexPageSize": 0,
+  "totalRecords": 1,
+  "dataEncoding": "",
+  "bloomShards": 1,
+  "footerSize": 6200
+}
