@@ -64,24 +64,27 @@ jobs:
       - name: Calculate new version
         id: calc_version
         run: |
-          # Get the latest tag
-          latest_tag=$(git describe --tags `git rev-list --tags --max-count=1`)
-        
+          # Check if there are any tags
+          if git rev-list --tags --max-count=1 2>/dev/null; then
+            # Get the latest tag
+            latest_tag=$(git describe --tags `git rev-list --tags --max-count=1`)
+          else
+            # Default tag if there are no tags
+            latest_tag="1.0.0"
+          fi
+          
           # Break down the tag into major, minor, patch
           IFS='.' read -ra version_parts <<< "$latest_tag"
-        
+          
           major=${version_parts[0]}
           minor=${version_parts[1]}
           patch=${version_parts[2]}
-        
+          
           # Increment the patch version
           patch=$((patch + 1))
-        
+          
           # Construct the new tag
           new_tag="$major.$minor.$patch"
-        
-          # Set the new tag as an output variable
-          echo "::set-output name=new_tag::$new_tag"
 
       - name: Build Docker image
         run: |
