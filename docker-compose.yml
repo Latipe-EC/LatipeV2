@@ -17,8 +17,6 @@ services:
       RABBIT_MQ_HOST: rabbitmq
       EUREKA_HOST: latipe-discovery-server-service
       GATE_WAY_HOST: latipe-api-gateway-service
-    ports:
-      - "8381:8381"
     networks:
       - latipe-network
 
@@ -90,6 +88,8 @@ services:
       RABBIT_MQ_HOST: rabbitmq
       EUREKA_HOST: latipe-discovery-server-service
       GATE_WAY_HOST: latipe-api-gateway-service
+    ports:
+      - "8181:8181"
     networks:
       - latipe-network
 

@@ -95,12 +95,18 @@ public class ProductService implements IProductService {
   private final GsonDecoder gsonDecoder;
   private final GsonEncoder gsonEncoder;
   private final OkHttpClient okHttpClient;
+
   @Value("${rabbitmq.exchange.name}")
   private String exchange;
+
   @Value("${rabbitmq.routing.key}")
   private String routingKey;
+
   @Value("${service.store}")
   private String storeService;
+
+  @Value("${eureka.client.enabled}")
+  private boolean useEureka;
 
   @Async
   @Override
@@ -802,9 +808,9 @@ public class ProductService implements IProductService {
   private StoreClient getStoreClient() {
     return Feign.builder().client(okHttpClient).encoder(gsonEncoder)
         .decoder(gsonDecoder).target(StoreClient.class,
-            String.format("%s/api/v1", GetInstanceServer.get(
+            useEureka ? String.format("%s/api/v1", GetInstanceServer.get(
                 loadBalancer, storeService
-            )));
+            )) : storeService);
   }
 
   private TypedAggregation<ProductClassification> createQueryClassification(List<String> prods,

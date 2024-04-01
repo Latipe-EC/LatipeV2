@@ -41,6 +41,7 @@ public class ProductGrpcService extends ProductServiceGrpc.ProductServiceImplBas
   private final GsonEncoder gsonEncoder;
   private final OkHttpClient okHttpClient;
   private final String storeService;
+  private final boolean useEureka;
 
   @Override
   public void checkInStock(GetPurchaseProductRequest request,
@@ -102,9 +103,9 @@ public class ProductGrpcService extends ProductServiceGrpc.ProductServiceImplBas
     try {
       var storeClient = Feign.builder().client(okHttpClient).encoder(gsonEncoder)
           .decoder(gsonDecoder).target(StoreClient.class,
-              String.format("%s/api/v1", GetInstanceServer.get(
+              useEureka ? String.format("%s/api/v1", GetInstanceServer.get(
                   loadBalancer, storeService
-              )));
+              )) : storeService);
 
       hash = generateHash("store-service",
           getPrivateKey(secureInternalProperties.getPrivateKey()));

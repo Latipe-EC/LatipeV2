@@ -55,7 +55,6 @@
       <groupId>org.projectlombok</groupId>
     </dependency>
 
-    
 
     <dependency>
       <artifactId>micrometer-registry-prometheus</artifactId>

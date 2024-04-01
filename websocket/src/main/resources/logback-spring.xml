@@ -11,14 +11,15 @@
       <sortByTime>true</sortByTime>
     </format>
     <http>
-      <url>http://localhost:3100/loki/api/v1/push</url>
+      <url>${lokiHost}</url>
     </http>
   </appender>
   <include resource="org/springframework/boot/logging/logback/base.xml"/>
-
   <root level="INFO">
     <appender-ref ref="LOKI"/>
   </root>
+
+  <springProperty name="lokiHost" scope="context" source="loki.url"/>
 
   <springProperty name="appName" scope="context" source="spring.application.name"/>
 </configuration>

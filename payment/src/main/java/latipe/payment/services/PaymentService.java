@@ -93,20 +93,22 @@ public class PaymentService {
   private final GsonEncoder gsonEncoder;
   private final OkHttpClient okHttpClient;
 
-
   @Value("${encryption.key}")
   private String ENCRYPTION_KEY;
+
   @Value("${expiration.withdraw-exps}")
   private Long withdrawExps;
 
   @Value("${rabbitmq.email.payment-withdraw-topic.routing.key}")
   private String topicWithdrawKey;
+
   @Value("${rabbitmq.email.exchange.name}")
   private String exchangeName;
 
 
   @Value("${rabbitmq.order.reply}")
   private String replyRoutingKey;
+
   @Value("${rabbitmq.order.exchange}")
   private String exchange;
 
@@ -115,6 +117,9 @@ public class PaymentService {
 
   @Value("${service.store}")
   private String storeService;
+
+  @Value("${eureka.client.enabled}")
+  private boolean useEureka;
 
   @Async
   public CompletableFuture<CapturedPaymentResponse> capturePayment(
@@ -174,9 +179,9 @@ public class PaymentService {
 
           var userClient = Feign.builder().client(okHttpClient).encoder(gsonEncoder)
               .decoder(gsonDecoder).target(UserClient.class,
-                  String.format("%s/api/v1", GetInstanceServer.get(
+                  useEureka ? String.format("%s/api/v1", GetInstanceServer.get(
                       loadBalancer, userService
-                  )));
+                  )) : userService);
           userClient.checkBalance(hash,
               new CheckBalanceRequest(payment.getUserId(), payment.getAmount()));
 
@@ -260,9 +265,9 @@ public class PaymentService {
 
           var storeClient = Feign.builder().client(okHttpClient).encoder(gsonEncoder)
               .decoder(gsonDecoder).target(StoreClient.class,
-                  String.format("%s/api/v1", GetInstanceServer.get(
+                  useEureka ? String.format("%s/api/v1", GetInstanceServer.get(
                       loadBalancer, storeService
-                  )));
+                  )) : storeService);
 
           storeClient.checkBalance(hash,
               new CheckBalanceStoreRequest(getUserId(request), input.amount()));
@@ -349,9 +354,9 @@ public class PaymentService {
           try {
             var storeClient = Feign.builder().client(okHttpClient).encoder(gsonEncoder)
                 .decoder(gsonDecoder).target(StoreClient.class,
-                    String.format("%s/api/v1", GetInstanceServer.get(
+                    useEureka ? String.format("%s/api/v1", GetInstanceServer.get(
                         loadBalancer, storeService
-                    )));
+                    )) : storeService);
 
             storeClient.updateBalance(hash,
                 new UpdateBalanceStoreRequest(getUserId(request), withdraw.getAmount()));
@@ -383,9 +388,9 @@ public class PaymentService {
 
             var storeClient = Feign.builder().client(okHttpClient).encoder(gsonEncoder)
                 .decoder(gsonDecoder).target(StoreClient.class,
-                    String.format("%s/api/v1", GetInstanceServer.get(
+                    useEureka ? String.format("%s/api/v1", GetInstanceServer.get(
                         loadBalancer, storeService
-                    )));
+                    )) : storeService);
 
             storeClient.updateBalance(hash,
                 new UpdateBalanceStoreRequest(getUserId(request), withdraw.getAmount().negate()));
@@ -616,9 +621,9 @@ public class PaymentService {
 
       var userClient = Feign.builder().client(okHttpClient).encoder(gsonEncoder)
           .decoder(gsonDecoder).target(UserClient.class,
-              String.format("%s/api/v1", GetInstanceServer.get(
+              useEureka ? String.format("%s/api/v1", GetInstanceServer.get(
                   loadBalancer, userService
-              )));
+              )) : userService);
 
       userClient.cancelOrder(hash,
           new CancelOrderRequest(payment.getUserId(), payment.getAmount()));

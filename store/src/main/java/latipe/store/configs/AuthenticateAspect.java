@@ -12,6 +12,7 @@ import latipe.store.exceptions.UnauthorizedException;
 import latipe.store.feign.AuthClient;
 import latipe.store.request.TokenRequest;
 import latipe.store.response.UserCredentialResponse;
+import latipe.store.utils.GetInstanceServer;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
@@ -30,19 +31,25 @@ public class AuthenticateAspect {
   private final GsonDecoder gsonDecoder;
   private final GsonEncoder gsonEncoder;
   private final OkHttpClient okHttpClient;
-  private final GateWayProperties gateWayProperties;
+
   @Value("${service.auth}")
   private String authService;
 
+  @Value("${eureka.client.enabled}")
+  private boolean useEureka;
+
   @Before("@annotation(latipe.store.annotations.Authenticate)")
   public void authenticate() throws UnauthorizedException {
-    AuthClient authClient = Feign.builder()
-        .client(new OkHttpClient())
-        .encoder(new GsonEncoder())
-        .decoder(new GsonDecoder())
+    var authClient = Feign.builder()
+        .client(okHttpClient)
+        .encoder(gsonEncoder)
+        .decoder(gsonDecoder)
         .logLevel(Logger.Level.FULL)
         .target(AuthClient.class,
-            "%s:%s/api/v1".formatted(gateWayProperties.getHost(), gateWayProperties.getPort()));
+            useEureka ? String.format("%s/api/v1", GetInstanceServer.get(
+                loadBalancer, authService
+            )) : authService);
+
     String token = getTokenFromRequest();
     if (token == null) {
       throw new UnauthorizedException("Unauthorized");

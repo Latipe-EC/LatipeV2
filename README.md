@@ -45,6 +45,16 @@ docker-compose -f ./docker/docker-compose.yml -p docker up -d
 ./terminate.sh
 ```
 
+## In case of not using eureka:
+
+#### Please set `EUREKA_ENABLED` to `false` in `application.yaml` or `docker` file of each service.
+
+```
+  EUREKA_ENABLED: false
+```
+
+#### Go to `application.yaml` file of each service and find `service:` change service to actual url.
+
 ## Contributing
 
 - Give us a star

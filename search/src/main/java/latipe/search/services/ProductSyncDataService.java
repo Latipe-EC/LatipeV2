@@ -28,15 +28,19 @@ public class ProductSyncDataService {
   private final GsonDecoder gsonDecoder;
   private final GsonEncoder gsonEncoder;
   private final OkHttpClient okHttpClient;
+
   @Value("${service.product}")
   private String productService;
+
+  @Value("${eureka.client.enabled}")
+  private boolean useEureka;
 
   public ProductESDetailVm getProductESDetailById(String id) {
     var productClient = Feign.builder().client(okHttpClient).encoder(gsonEncoder)
         .decoder(gsonDecoder).target(ProductClient.class,
-            String.format("%s/api/v1", GetInstanceServer.get(
+            useEureka ? String.format("%s/api/v1", GetInstanceServer.get(
                 loadBalancer, productService
-            )));
+            )) : productService);
 
     return productClient.getProductESDetailById(id);
   }

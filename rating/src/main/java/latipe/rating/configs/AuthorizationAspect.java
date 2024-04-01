@@ -35,6 +35,9 @@ public class AuthorizationAspect {
   @Value("${service.auth}")
   private String authService;
 
+  @Value("${eureka.client.enabled}")
+  private boolean useEureka;
+
   @Before("@annotation(requiresAuthorization)")
   public void checkAuthorization(JoinPoint joinPoint, RequiresAuthorization requiresAuthorization)
       throws UnauthorizedException {
@@ -46,9 +49,9 @@ public class AuthorizationAspect {
 
       var authClient = Feign.builder().client(okHttpClient).encoder(gsonEncoder)
           .decoder(gsonDecoder).target(AuthClient.class,
-              String.format("%s/api/v1", GetInstanceServer.get(
+              useEureka ? String.format("%s/api/v1", GetInstanceServer.get(
                   loadBalancer, authService
-              )));
+              )) : authService);
       var credential = authClient.getCredential(new TokenRequest(token));
 
       if (credential == null) {

@@ -83,6 +83,9 @@ public class StoreService implements IStoreService {
   @Value("${service.user}")
   private String userService;
 
+  @Value("${eureka.client.enabled}")
+  private boolean useEureka;
+
   @Override
   @Async
   public CompletableFuture<StoreResponse> create(CreateStoreRequest input,
@@ -113,9 +116,9 @@ public class StoreService implements IStoreService {
       // update role store
       var userClient = Feign.builder().client(okHttpClient).encoder(gsonEncoder)
           .decoder(gsonDecoder).target(UserClient.class,
-              String.format("%s/api/v1", GetInstanceServer.get(
+              useEureka ? String.format("%s/api/v1", GetInstanceServer.get(
                   loadBalancer, userService
-              )));
+              )) : userService);
 
       userClient.upgradeVendor(request.getHeader("Authorization"));
       String message = gson.toJson(
@@ -287,9 +290,9 @@ public class StoreService implements IStoreService {
 
       var productClient = Feign.builder().client(okHttpClient).encoder(gsonEncoder)
           .decoder(gsonDecoder).target(ProductClient.class,
-              String.format("%s/api/v1", GetInstanceServer.get(
+              useEureka ? String.format("%s/api/v1", GetInstanceServer.get(
                   loadBalancer, productService
-              )));
+              )) : productService);
 
       log.info("Get my product store with [skip: %s, limit: %s, name: %s, orderBy: %s] successfully"
           .formatted(skip, limit, name, orderBy));
@@ -324,9 +327,9 @@ public class StoreService implements IStoreService {
 
       var productClient = Feign.builder().client(okHttpClient).encoder(gsonEncoder)
           .decoder(gsonDecoder).target(ProductClient.class,
-              String.format("%s/api/v1", GetInstanceServer.get(
+              useEureka ? String.format("%s/api/v1", GetInstanceServer.get(
                   loadBalancer, productService
-              )));
+              )) : productService);
 
       log.info(
           "Get product store with [skip: %s, limit: %s, name: %s, orderBy: %s, storeId: %s] successfully".formatted(
@@ -356,9 +359,9 @@ public class StoreService implements IStoreService {
       }
       var productClient = Feign.builder().client(okHttpClient).encoder(gsonEncoder)
           .decoder(gsonDecoder).target(ProductClient.class,
-              String.format("%s/api/v1", GetInstanceServer.get(
+              useEureka ? String.format("%s/api/v1", GetInstanceServer.get(
                   loadBalancer, productService
-              )));
+              )) : productService);
 
       log.info(
           "Get ban product store with [skip: %s, limit: %s, name: %s, orderBy: %s] successfully".formatted(

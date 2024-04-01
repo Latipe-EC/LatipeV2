@@ -4,11 +4,13 @@ server:
 
 eureka:
   client:
+    enabled: ${EUREKA_ENABLED:true}
     serviceUrl:
       defaultZone: http://eureka:password@${EUREKA_HOST:localhost}:${EUREKA_PORT:8761}/eureka
 app:
   eureka-server: ${EUREKA_HOST:localhost}
   host: ${API_GATEWAY_HOST:localhost}
+
 spring:
   application:
     name: api-gateway
@@ -161,7 +163,10 @@ management:
   endpoints:
     web:
       exposure:
-        include: prometheus
+        include: prometheus, health
+  endpoint:
+    health:
+      show-details: always
   tracing:
     sampling:
       probability: "1.0"

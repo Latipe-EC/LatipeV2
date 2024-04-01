@@ -25,6 +25,29 @@ public class CommandHandler {
   @PostConstruct
   public void init() {
 //    var products = productRepository.findAll();
+//
+//    List<String> uniqueImages = products.stream()
+//        .flatMap(product -> product.getImages().stream())
+//        .distinct()
+//        .toList();
+//    String imageFolder = "/home/cozark/Pictures/test_dl";
+//    uniqueImages = uniqueImages.subList(1171, uniqueImages.size());
+//    for (String imageUrl : uniqueImages) {
+//      try {
+//        URL url = new URL(imageUrl);
+//        String fileName = url.getPath().substring(url.getPath().lastIndexOf('/') + 1);
+//        Path outputPath = Path.of(imageFolder, fileName);
+//
+//        try (InputStream in = url.openStream()) {
+//          Files.copy(in, outputPath, StandardCopyOption.REPLACE_EXISTING);
+//        }
+//      } catch (Exception e) {
+//        System.out.println("Error downloading image: " + imageUrl);
+//        e.printStackTrace();
+//      }
+//    }
+
+//    var products = productRepository.findAll();
 //    for (var product : products) {
 //      if(product.getPrice() == 0) {
 //        product.setPrice(product.getProductClassifications().get(0).getPrice());

@@ -68,6 +68,9 @@ public class RatingService implements IRatingService {
   @Value("${service.user}")
   private String userService;
 
+  @Value("${eureka.client.enabled}")
+  private boolean useEureka;
+
   @Override
   @Async
   public CompletableFuture<RatingResponse> create(CreateRatingRequest input,
@@ -96,9 +99,9 @@ public class RatingService implements IRatingService {
       }
       var userClient = Feign.builder().client(okHttpClient).encoder(gsonEncoder)
           .decoder(gsonDecoder).target(UserClient.class,
-              String.format("%s/api/v1", GetInstanceServer.get(
+              useEureka ? String.format("%s/api/v1", GetInstanceServer.get(
                   loadBalancer, userService
-              )));
+              )) : userService);
 
       var userDetail = userClient.getInfoForRating(hash, getUserId(request));
 

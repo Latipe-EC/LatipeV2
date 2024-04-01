@@ -89,6 +89,9 @@ public class AuthController {
   @Value("${service.user}")
   private String userService;
 
+  @Value("${eureka.client.enabled}")
+  private boolean useEureka;
+
   @PostMapping("/login")
   @ResponseStatus(HttpStatus.OK)
   public CompletableFuture<LoginResponse> createAuthenticationToken(
@@ -238,9 +241,9 @@ public class AuthController {
       var tokenClient =
           Feign.builder().client(okHttpClient).encoder(gsonEncoder)
               .decoder(gsonDecoder).target(TokenClient.class,
-                  String.format("%s/api/v1", GetInstanceServer.get(
+                  useEureka ? String.format("%s/api/v1", GetInstanceServer.get(
                       loadBalancer, userService
-                  )));
+                  )) : userService);
       tokenClient.requestVerifyAccount(hash, input);
       LOGGER.info("Verify account success for user {}", input.email());
       return null;
@@ -265,9 +268,9 @@ public class AuthController {
       var tokenClient =
           Feign.builder().client(okHttpClient).encoder(gsonEncoder)
               .decoder(gsonDecoder).target(TokenClient.class,
-                  String.format("%s/api/v1", GetInstanceServer.get(
+                  useEureka ? String.format("%s/api/v1", GetInstanceServer.get(
                       loadBalancer, userService
-                  )));
+                  )) : userService);
 
       return tokenClient.verifyAccount(hash, input);
     } catch (Exception e) {
@@ -291,9 +294,9 @@ public class AuthController {
       var tokenClient =
           Feign.builder().client(okHttpClient).encoder(gsonEncoder)
               .decoder(gsonDecoder).target(TokenClient.class,
-                  String.format("%s/api/v1", GetInstanceServer.get(
+                  useEureka ? String.format("%s/api/v1", GetInstanceServer.get(
                       loadBalancer, userService
-                  )));
+                  )) : userService);
 
       tokenClient.forgotPassword(hash, input);
       LOGGER.info("Forgot password success for user {}", input.email());
@@ -318,9 +321,9 @@ public class AuthController {
       var tokenClient =
           Feign.builder().client(okHttpClient).encoder(gsonEncoder)
               .decoder(gsonDecoder).target(TokenClient.class,
-                  String.format("%s/api/v1", GetInstanceServer.get(
+                  useEureka ? String.format("%s/api/v1", GetInstanceServer.get(
                       loadBalancer, userService
-                  )));
+                  )) : userService);
 
       tokenClient.resetPassword(hash, input);
       LOGGER.info("Reset password success");
@@ -348,9 +351,9 @@ public class AuthController {
       var userClient =
           Feign.builder().client(okHttpClient).encoder(gsonEncoder)
               .decoder(gsonDecoder).target(UserClient.class,
-                  String.format("%s/api/v1", GetInstanceServer.get(
+                  useEureka ? String.format("%s/api/v1", GetInstanceServer.get(
                       loadBalancer, userService
-                  )));
+                  )) : userService);
 
       return userClient.register(hash, input);
     } catch (Exception e) {

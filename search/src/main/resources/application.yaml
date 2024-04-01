@@ -2,7 +2,10 @@ management:
   endpoints:
     web:
       exposure:
-        include: prometheus
+        include: prometheus, health
+  endpoint:
+    health:
+      show-details: always
   tracing:
     sampling:
       probability: "1.0"
@@ -28,6 +31,9 @@ spring:
     port: ${RABBIT_MQ_PORT:5672}
     host: ${RABBIT_MQ_HOST:localhost}
 
+loki:
+  url: ${LOKI_URL:http://localhost:3100/loki/api/v1/push}
+
 context:
   initializer:
     classes: latipe.search.configs.PortInitializer
@@ -50,6 +56,7 @@ rabbitmq:
 
 eureka:
   client:
+    enabled: ${EUREKA_ENABLED:true}
     serviceUrl:
       defaultZone: http://eureka:password@${EUREKA_HOST:localhost}:${EUREKA_PORT:8761}/eureka
 springdoc:

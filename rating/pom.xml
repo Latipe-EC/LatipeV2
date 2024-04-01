@@ -80,7 +80,7 @@
       <groupId>org.springframework.boot</groupId>
     </dependency>
 
-    
+
     <dependency>
       <artifactId>spring-boot-starter-web</artifactId>
       <groupId>org.springframework.boot</groupId>
@@ -88,29 +88,29 @@
 
     <dependency>
       <artifactId>micrometer-registry-prometheus</artifactId>
-      <groupId>io.micrometer</groupId>
-      <scope>runtime</scope>
       <exclusions>
         <exclusion>
-          <groupId>io.micrometer</groupId>
           <artifactId>micrometer-tracing-bridge-brave</artifactId>
+          <groupId>io.micrometer</groupId>
         </exclusion>
       </exclusions>
+      <groupId>io.micrometer</groupId>
+      <scope>runtime</scope>
     </dependency>
 
     <dependency>
-      <groupId>io.micrometer</groupId>
       <artifactId>micrometer-tracing-bridge-otel</artifactId>
+      <groupId>io.micrometer</groupId>
     </dependency>
     <dependency>
-      <groupId>io.opentelemetry</groupId>
       <artifactId>opentelemetry-exporter-otlp</artifactId>
+      <groupId>io.opentelemetry</groupId>
     </dependency>
     <dependency>
-      <groupId>com.github.loki4j</groupId>
       <artifactId>loki-logback-appender</artifactId>
-      <version>1.5.1</version>
+      <groupId>com.github.loki4j</groupId>
       <scope>runtime</scope>
+      <version>1.5.1</version>
     </dependency>
     <dependency>
       <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>

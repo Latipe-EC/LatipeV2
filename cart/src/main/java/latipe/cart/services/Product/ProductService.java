@@ -32,15 +32,18 @@ public class ProductService {
   @Value("${service.product}")
   private String productService;
 
+  @Value("${eureka.client.enabled}")
+  private boolean useEureka;
+
   public List<ProductThumbnailResponse> getProducts(
       List<ProductFeatureRequest> ids) {
 
     String hash;
     var productClient = Feign.builder().client(okHttpClient).encoder(gsonEncoder)
         .decoder(gsonDecoder).target(ProductClient.class,
-            String.format("%s/api/v1", GetInstanceServer.get(
+            useEureka ? String.format("%s/api/v1", GetInstanceServer.get(
                 loadBalancer, productService
-            )));
+            )) : productService);
     try {
       hash = generateHash(PRODUCT_SERVICE,
           getPrivateKey(secureInternalProperties.getPrivateKey()));

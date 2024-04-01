@@ -11,6 +11,9 @@ spring:
 server:
   port: ${RATING_PORT:8777}
 
+loki:
+  url: ${LOKI_URL:http://localhost:3100/loki/api/v1/push}
+
 context:
   initializer:
     classes: latipe.rating.configs.PortInitializer
@@ -40,7 +43,10 @@ management:
   endpoints:
     web:
       exposure:
-        include: prometheus
+        include: prometheus, health
+  endpoint:
+    health:
+      show-details: always
   tracing:
     sampling:
       probability: "1.0"
@@ -58,12 +64,13 @@ management:
     tracing:
       sampling:
         probability: 1.0
-        
+
 logging:
   pattern:
     level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
 eureka:
   client:
+    enabled: ${EUREKA_ENABLED:true}
     serviceUrl:
       defaultZone: http://eureka:password@${EUREKA_HOST:localhost}:${EUREKA_PORT:8761}/eureka
 springdoc:

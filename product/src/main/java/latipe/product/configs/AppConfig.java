@@ -39,6 +39,9 @@ public class AppConfig implements WebMvcConfigurer {
   @Value("${service.store}")
   private String storeService;
 
+  @Value("${eureka.client.enabled}")
+  private boolean useEureka;
+
   @Override
   public void addCorsMappings(CorsRegistry registry) {
     registry.addMapping("/**").allowedMethods("*").allowedOrigins("*").allowedHeaders("*");
@@ -79,7 +82,8 @@ public class AppConfig implements WebMvcConfigurer {
         .intercept(new GrpcServerRequestInterceptor(secureInternalProperties))
         .addService(
             new ProductGrpcService(productRepository, secureInternalProperties
-                , loadBalancer, getGsonDecoder(), getGsonEncoder(), okHttpClient(), storeService))
+                , loadBalancer, getGsonDecoder(), getGsonEncoder(), okHttpClient(), storeService,
+                useEureka))
         .build();
 
     try {
