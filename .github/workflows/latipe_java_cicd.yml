@@ -61,30 +61,16 @@ jobs:
         run: mvn clean package -DskipTests
         working-directory: ./${{ matrix.directory }}
 
-      - name: Calculate new version
-        id: calc_version
-        run: |
-          # Check if there are any tags
-          if git rev-list --tags --max-count=1 2>/dev/null; then
-            # Get the latest tag
-            latest_tag=$(git describe --tags `git rev-list --tags --max-count=1`)
-          else
-            # Default tag if there are no tags
-            latest_tag="1.0.0"
-          fi
-          
-          # Break down the tag into major, minor, patch
-          IFS='.' read -ra version_parts <<< "$latest_tag"
-          
-          major=${version_parts[0]}
-          minor=${version_parts[1]}
-          patch=${version_parts[2]}
-          
-          # Increment the patch version
-          patch=$((patch + 1))
-          
-          # Construct the new tag
-          new_tag="$major.$minor.$patch"
+      - name: Create a new release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+        with:
+          tag_name: ${{ github.sha }}
+          release_name: Release ${{ github.sha }}
+          draft: false
+          prerelease: false
 
       - name: Build Docker image
         run: |
