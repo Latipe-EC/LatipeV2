@@ -61,24 +61,12 @@ jobs:
         run: mvn clean package -DskipTests
         working-directory: ./${{ matrix.directory }}
 
-      - name: Create a new release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
-        with:
-          tag_name: ${{ github.sha }}
-          release_name: Release ${{ github.sha }}
-          draft: false
-          prerelease: false
-
       - name: Build Docker image
         run: |
-          VERSION=$(echo ${{ steps.calc_version.outputs.new_tag }})
+          VERSION=$(echo ${GITHUB_SHA::7})
           docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/${{ matrix.service }}:$VERSION ./${{ matrix.directory }}
 
       - name: Push Docker image to Docker Hub
         run: |
-          VERSION=$(echo ${{ steps.calc_version.outputs.new_tag }})
+          VERSION=$(echo ${GITHUB_SHA::7})
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/${{ matrix.service }}:$VERSION
-
