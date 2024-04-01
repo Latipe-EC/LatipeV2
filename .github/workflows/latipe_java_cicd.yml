@@ -61,13 +61,35 @@ jobs:
         run: mvn clean package -DskipTests
         working-directory: ./${{ matrix.directory }}
 
+      - name: Calculate new version
+        id: calc_version
+        run: |
+          # Get the latest tag
+          latest_tag=$(git describe --tags `git rev-list --tags --max-count=1`)
+
+          # Break down the tag into major, minor, patch
+          IFS='.' read -ra version_parts <<< "$latest_tag"
+
+          major=${version_parts[0]}
+          minor=${version_parts[1]}
+          patch=${version_parts[2]}
+
+          # Increment the patch version
+          patch=$((patch + 1))
+
+          # Construct the new tag
+          new_tag="$major.$minor.$patch"
+
+          # Set the new tag as an output variable
+          echo "::set-output name=new_tag::$new_tag"
+
       - name: Build Docker image
         run: |
-          VERSION=$(echo ${GITHUB_SHA::7})
+          VERSION=$(echo ${{ steps.calc_version.outputs.new_tag }})
           docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/${{ matrix.service }}:$VERSION ./${{ matrix.directory }}
 
       - name: Push Docker image to Docker Hub
         run: |
-          VERSION=$(echo ${GITHUB_SHA::7})
+          VERSION=$(echo ${{ steps.calc_version.outputs.new_tag }})
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/${{ matrix.service }}:$VERSION
 
