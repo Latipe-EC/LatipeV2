@@ -68,6 +68,6 @@ jobs:
 
       - name: Push Docker image to Docker Hub
         run: |
-          VERSION=$(echo ${GITHUB_REF#refs/tags/})
+          VERSION=$(echo ${GITHUB_SHA::7})
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/${{ matrix.service }}:$VERSION
 
