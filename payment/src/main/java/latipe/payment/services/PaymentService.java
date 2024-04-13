@@ -71,6 +71,7 @@ import okhttp3.MediaType;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.scheduling.annotation.Async;
@@ -216,30 +217,41 @@ public class PaymentService {
   public CompletableFuture<Void> payByPaypal(
       PayByPaypalRequest input, HttpServletRequest request) {
     log.info(gson.toJson(
-        LogMessage.create("Pay by paypal with order id: %s".formatted(input.orderId()),
+        LogMessage.create(
+            "Pay by paypal with order_ids: [%s]".formatted(
+                StringUtils.join(input.orderIds(), ", ")),
             request, getMethodName())));
 
     return CompletableFuture.supplyAsync(
         () -> {
-          var payment = paymentRepository.findByOrderId(input.orderId()).orElseThrow(
-              () -> new NotFoundException("Cannot find order")
-          );
+          var payments = paymentRepository.findByOrderIds(input.orderIds());
 
-          if (payment.getPaymentStatus().equals(EPaymentStatus.COMPLETED)) {
-            throw new BadRequestException("Cannot pay for this");
+          if (payments.isEmpty()) {
+            throw new NotFoundException("Cannot find orders");
           }
 
-          if (!payment.getUserId().equals(getUserId(request))) {
-            throw new ForbiddenException("you dont have permission to do this");
+          if (payments.size() != input.orderIds().size()) {
+            throw new NotFoundException("Cannot find all orders");
           }
 
-          payment.setCheckoutId(input.id());
-          if (input.status().equals("COMPLETED")) {
+          for (var payment : payments) {
+            if (payment.getPaymentStatus().equals(EPaymentStatus.COMPLETED)) {
+              throw new BadRequestException("Cannot pay for this");
+            }
+
+            if (!payment.getUserId().equals(getUserId(request))) {
+              throw new ForbiddenException("you dont have permission to do this");
+            }
+
+            payment.setCheckoutId(input.id());
+            payment.setEmail(input.email());
             payment.setPaymentStatus(EPaymentStatus.COMPLETED);
           }
-          payment.setEmail(input.email());
-          paymentRepository.save(payment);
-          log.info("Pay by paypal with order id: %s successfully".formatted(input.orderId()));
+
+          paymentRepository.saveAll(payments);
+
+          log.info("Pay by paypal with order_ids: [%s] successfully".formatted(
+              StringUtils.join(input.orderIds(), ", ")));
           return null;
         }
     );

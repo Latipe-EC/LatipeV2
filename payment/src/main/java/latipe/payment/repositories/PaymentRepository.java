@@ -15,6 +15,9 @@ public interface PaymentRepository extends MongoRepository<Payment, String> {
 
   Optional<Payment> findByOrderId(String orderId);
 
+  @Query("{ 'orderId': { $in: ?0 } }")
+  List<Payment> findByOrderIds(List<String> orderId);
+
   @Aggregation(pipeline = {
       "{ $match: { $and: [ { $or: [ { orderId: { $regex: ?0, $options: 'i' } }, { checkoutId: { $regex: ?0, $options: 'i' } } ] }, { paymentStatus: { $in: ?3 } } ] } }",
       "{ $skip: ?1 }", "{ $limit: ?2 }"

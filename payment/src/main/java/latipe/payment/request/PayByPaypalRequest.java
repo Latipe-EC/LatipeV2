@@ -1,5 +1,7 @@
 package latipe.payment.request;
 
-public record PayByPaypalRequest(String orderId, String id, String status, String email) {
+import java.util.List;
+
+public record PayByPaypalRequest(List<String> orderIds, String id, String status, String email) {
 
 }
