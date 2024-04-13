@@ -8,6 +8,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,6 +23,7 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 @Configuration
 @EnableMongoRepositories(basePackages = "latipe.user.repositories")
 @EnableMongoAuditing
+@Slf4j
 public class MongoConfig extends AbstractMongoClientConfiguration {
 
   private final List<Converter<?, ?>> converters = new ArrayList<Converter<?, ?>>();
@@ -41,7 +43,8 @@ public class MongoConfig extends AbstractMongoClientConfiguration {
   @Override
   public MongoClient mongoClient() {
     var connectionString = new ConnectionString(mongoUri);
-    String s;
+    log.info("MongoDB connection string: {}", connectionString);
+    log.info("MongoDB uri: {}", mongoUri);
     return MongoClients.create(connectionString);
   }
 
