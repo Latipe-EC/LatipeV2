@@ -2,100 +2,127 @@ routes:
   - id: auth_service
     paths:
       - /api/v1/auth/**
-    filters:
-      - requestRateLimiter
-      - setResponseHeader:
-          - Access-Control-Allow-Origin: "*"
-          - Access-Control-Allow-Methods: "*"
-          - Access-Control-Allow-Headers: "*"
-          - Access-Control-Max-Age: "30"
+    filter:
+      requestRateLimiter:
+        replenishRate: 1000
+        burstCapacity: 10000
+        requestedTokens: 10
+      responseHeaders:
+        - Access-Control-Allow-Origin: "*"
+        - Access-Control-Allow-Methods: "*"
+        - Access-Control-Allow-Headers: "*"
+        - Access-Control-Max-Age: "30"
     uri: lb://auth-service
   - id: user_service
     paths:
       - /api/v1/users/**
       - /api/v1/tokens/**
-    filters:
-      - requestRateLimiter
-      - setResponseHeader:
-          - Access-Control-Allow-Origin: "*"
-          - Access-Control-Allow-Methods: "*"
-          - Access-Control-Allow-Headers: "*"
-          - Access-Control-Max-Age: "30"
+    filter:
+      requestRateLimiter:
+        replenishRate: 1000
+        burstCapacity: 10000
+        requestedTokens: 10
+      responseHeaders:
+        - Access-Control-Allow-Origin: "*"
+        - Access-Control-Allow-Methods: "*"
+        - Access-Control-Allow-Headers: "*"
+        - Access-Control-Max-Age: "30"
     uri: lb://user-service
   - id: cart_service
     paths:
       - /api/v1/carts/**
-    filters:
-      - requestRateLimiter
-      - setResponseHeader:
-          - Access-Control-Allow-Origin: "*"
-          - Access-Control-Allow-Methods: "*"
-          - Access-Control-Allow-Headers: "*"
-          - Access-Control-Max-Age: "30"
+    filter:
+      requestRateLimiter:
+        replenishRate: 1000
+        burstCapacity: 10000
+        requestedTokens: 10
+      responseHeaders:
+        - Access-Control-Allow-Origin: "*"
+        - Access-Control-Allow-Methods: "*"
+        - Access-Control-Allow-Headers: "*"
+        - Access-Control-Max-Age: "30"
     uri: lb://cart-service
   - id: media_service
     paths:
       - /api/v1/medias/**
-    filters:
-      - requestRateLimiter
+    filter:
+      requestRateLimiter:
+        replenishRate: 1000
+        burstCapacity: 10000
+        requestedTokens: 10
     uri: lb://media-service
   - id: product_service
     paths:
       - /api/v1/products/**
       - /api/v1/categories/**
-    filters:
-      - requestRateLimiter
-      - setResponseHeader:
-          - Access-Control-Allow-Origin: "*"
-          - Access-Control-Allow-Methods: "*"
-          - Access-Control-Allow-Headers: "*"
-          - Access-Control-Max-Age: "30"
+    filter:
+      requestRateLimiter:
+        replenishRate: 1000
+        burstCapacity: 10000
+        requestedTokens: 10
+      responseHeaders:
+        - Access-Control-Allow-Origin: "*"
+        - Access-Control-Allow-Methods: "*"
+        - Access-Control-Allow-Headers: "*"
+        - Access-Control-Max-Age: "30"
     uri: lb://product-service
   - id: search_service
     paths:
       - /api/v1/search/**
-    filters:
-      - requestRateLimiter
-      - setResponseHeader:
-          - Access-Control-Allow-Origin: "*"
-          - Access-Control-Allow-Methods: "*"
-          - Access-Control-Allow-Headers: "*"
-          - Access-Control-Max-Age: "30"
+    filter:
+      requestRateLimiter:
+        replenishRate: 1000
+        burstCapacity: 10000
+        requestedTokens: 10
+      responseHeaders:
+        - Access-Control-Allow-Origin: "*"
+        - Access-Control-Allow-Methods: "*"
+        - Access-Control-Allow-Headers: "*"
+        - Access-Control-Max-Age: "30"
     uri: lb://search-service
   - id: store_service
     paths:
       - /api/v1/stores/**
       - /api/v1/commissions/**
-    filters:
-      - requestRateLimiter
-      - setResponseHeader:
-          - Access-Control-Allow-Origin: "*"
-          - Access-Control-Allow-Methods: "*"
-          - Access-Control-Allow-Headers: "*"
-          - Access-Control-Max-Age: "30"
+    filter:
+      requestRateLimiter:
+        replenishRate: 1000
+        burstCapacity: 10000
+        requestedTokens: 10
+      responseHeaders:
+        - Access-Control-Allow-Origin: "*"
+        - Access-Control-Allow-Methods: "*"
+        - Access-Control-Allow-Headers: "*"
+        - Access-Control-Max-Age: "30"
     uri: lb://store-service
   - id: payment_service
     paths:
       - /api/v1/payment/**
       - /api/v1/payment-providers/**
-    filters:
-      - requestRateLimiter
-      - setResponseHeader:
-          - Access-Control-Allow-Origin: "*"
-          - Access-Control-Allow-Methods: "*"
-          - Access-Control-Allow-Headers: "*"
-          - Access-Control-Max-Age: "30"
+    filter:
+      requestRateLimiter:
+        replenishRate: 1000
+        burstCapacity: 10000
+        requestedTokens: 10
+      responseHeaders:
+        - Access-Control-Allow-Origin: "*"
+        - Access-Control-Allow-Methods: "*"
+        - Access-Control-Allow-Headers: "*"
+        - Access-Control-Max-Age: "30"
     uri: lb://payment-service
   - id: rating_service
     paths:
       - /api/v1/ratings/**
-    filters:
-      - requestRateLimiter
-      - setResponseHeader:
-          - Access-Control-Allow-Origin: "*"
-          - Access-Control-Allow-Methods: "*"
-          - Access-Control-Allow-Headers: "*"
-          - Access-Control-Max-Age: "30"
+    filter:
+      requestRateLimiter:
+        replenishRate: 1000
+        burstCapacity: 10000
+        requestedTokens: 10
+      responseHeaders:
+        - Access-Control-Allow-Origin: "*"
+        - Access-Control-Allow-Methods: "*"
+        - Access-Control-Allow-Headers: "*"
+        - Access-Control-Max-Age: "30"
     uri: lb://rating-service
   - id: discovery_server
     paths:
@@ -109,12 +136,12 @@ routes:
     paths:
       - /api/v1/orders/**
       - /api/v2/orders/**
-    filters:
-      - setResponseHeader:
-          - Access-Control-Allow-Origin: "*"
-          - Access-Control-Allow-Methods: "*"
-          - Access-Control-Allow-Headers: "*"
-          - Access-Control-Max-Age: "30"
+    filter:
+      responseHeaders:
+        - Access-Control-Allow-Origin: "*"
+        - Access-Control-Allow-Methods: "*"
+        - Access-Control-Allow-Headers: "*"
+        - Access-Control-Max-Age: "30"
     uri: http://localhost:5000
   - id: delivery_service
     paths:
@@ -123,10 +150,10 @@ routes:
   - id: vouchers_service
     paths:
       - /api/v1/vouchers/**
-    filters:
-      - setResponseHeader:
-          - Access-Control-Allow-Origin: "*"
-          - Access-Control-Allow-Methods: "*"
-          - Access-Control-Allow-Headers: "*"
-          - Access-Control-Max-Age: "30"
+    filter:
+      responseHeaders:
+        - Access-Control-Allow-Origin: "*"
+        - Access-Control-Allow-Methods: "*"
+        - Access-Control-Allow-Headers: "*"
+        - Access-Control-Max-Age: "30"
     uri: http://localhost:5010
