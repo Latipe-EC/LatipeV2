@@ -8,8 +8,9 @@ eureka:
     serviceUrl:
       defaultZone: http://eureka:password@${EUREKA_HOST:localhost}:${EUREKA_PORT:8761}/eureka
 app:
-  eureka-server: ${EUREKA_HOST:localhost}
   host: ${API_GATEWAY_HOST:localhost}
+
+gateway_routes: "${GATEWAY_ROUTES:/home/cozark/Downloads/LatipeV2/api-gateway/src/main/resources/gateway.yaml}"
 
 spring:
   application:

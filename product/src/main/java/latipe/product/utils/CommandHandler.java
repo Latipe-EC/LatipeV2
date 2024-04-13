@@ -4,6 +4,11 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import latipe.product.entity.Category;
 import latipe.product.entity.attribute.Attribute;
@@ -24,14 +29,16 @@ public class CommandHandler {
 
   @PostConstruct
   public void init() {
-//    var products = productRepository.findAll();
-//
-//    List<String> uniqueImages = products.stream()
-//        .flatMap(product -> product.getImages().stream())
-//        .distinct()
-//        .toList();
+    var products = productRepository.findAll();
+
+    List<String> uniqueImages = products.stream()
+        .flatMap(product -> product.getImages().stream())
+        .distinct()
+        .toList();
+
+    System.out.println("Total unique images: " + uniqueImages.size());
 //    String imageFolder = "/home/cozark/Pictures/test_dl";
-//    uniqueImages = uniqueImages.subList(1171, uniqueImages.size());
+//    uniqueImages = uniqueImages.subList(2625, uniqueImages.size());
 //    for (String imageUrl : uniqueImages) {
 //      try {
 //        URL url = new URL(imageUrl);
