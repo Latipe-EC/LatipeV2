@@ -21,28 +21,28 @@ import org.springframework.data.elasticsearch.annotations.Setting;
 @AllArgsConstructor
 public class Product {
 
-  public boolean isBanned = false;
-  @Id
-  private String id;
-  @Field(type = FieldType.Text, analyzer = "my_analyzer", searchAnalyzer = "my_analyzer")
-  private String name;
-  private String description;
-  private String slug;
-  @Field(type = FieldType.Double)
-  private Double price;
-  private Boolean isPublished;
-  private int countSale = 0;
-  private List<String> images = new ArrayList<>();
-  @Field(type = FieldType.Keyword)
-  private List<String> categories;
-  @Field(type = FieldType.Keyword)
-  private List<String> classifications;
-  @Field(type = FieldType.Date)
-  private Date createdDate;
-  private List<ProductClassification> productClassifications = new ArrayList<>();
-  private String reasonBan;
-  private boolean isDeleted = false;
-  private Date lastModifiedDate;
-  private double ratings = 0.0;
+    public boolean isBanned = false;
+    @Id
+    private String id;
+    @Field(type = FieldType.Text, analyzer = "my_analyzer", searchAnalyzer = "my_analyzer")
+    private String name;
+    private String description;
+    private String slug;
+    @Field(type = FieldType.Double)
+    private Double price;
+    private Boolean isPublished;
+    private int countSale = 0;
+    private List<String> images = new ArrayList<>();
+    @Field(type = FieldType.Keyword)
+    private List<String> categories;
+    @Field(type = FieldType.Keyword)
+    private List<String> classifications;
+    @Field(type = FieldType.Date)
+    private Date createdDate;
+    private List<ProductClassification> productClassifications = new ArrayList<>();
+    private String reasonBan;
+    private boolean isDeleted = false;
+    private Date lastModifiedDate;
+    private double ratings = 0.0;
 
 }

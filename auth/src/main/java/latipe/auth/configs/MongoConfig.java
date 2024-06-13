@@ -25,49 +25,49 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 @EnableMongoAuditing
 public class MongoConfig extends AbstractMongoClientConfiguration {
 
-  private final List<Converter<?, ?>> converters = new ArrayList<>();
-  @Value("${spring.data.mongodb.uri}")
-  private String mongoUri;
+    private final List<Converter<?, ?>> converters = new ArrayList<>();
+    @Value("${spring.data.mongodb.uri}")
+    private String mongoUri;
 
-  @Bean
-  public MongoTransactionManager transactionManager(MongoDatabaseFactory mongoDatabaseFactory) {
-    return new MongoTransactionManager(mongoDatabaseFactory);
-  }
-
-  @Override
-  protected String getDatabaseName() {
-    return "Latipe-User-DB";
-  }
-
-  @Override
-  public MongoClient mongoClient() {
-    var connectionString = new ConnectionString(mongoUri);
-    return MongoClients.create(MongoClientSettings.builder()
-        .applyConnectionString(connectionString)
-        .build());
-  }
-
-  @Override
-  public MongoCustomConversions customConversions() {
-    converters.add(new ZonedDateTimeReadConverter());
-    converters.add(new ZonedDateTimeWriteConverter());
-    return new MongoCustomConversions(converters);
-  }
-
-  public static class ZonedDateTimeReadConverter implements Converter<Date, ZonedDateTime> {
+    @Bean
+    public MongoTransactionManager transactionManager(MongoDatabaseFactory mongoDatabaseFactory) {
+        return new MongoTransactionManager(mongoDatabaseFactory);
+    }
 
     @Override
-    public ZonedDateTime convert(Date date) {
-      return date.toInstant().atZone(ZoneOffset.UTC);
+    protected String getDatabaseName() {
+        return "Latipe-User-DB";
     }
-  }
-
-  public static class ZonedDateTimeWriteConverter implements Converter<ZonedDateTime, Date> {
 
     @Override
-    public Date convert(ZonedDateTime zonedDateTime) {
-      return Date.from(zonedDateTime.toInstant());
+    public MongoClient mongoClient() {
+        var connectionString = new ConnectionString(mongoUri);
+        return MongoClients.create(MongoClientSettings.builder()
+            .applyConnectionString(connectionString)
+            .build());
     }
-  }
+
+    @Override
+    public MongoCustomConversions customConversions() {
+        converters.add(new ZonedDateTimeReadConverter());
+        converters.add(new ZonedDateTimeWriteConverter());
+        return new MongoCustomConversions(converters);
+    }
+
+    public static class ZonedDateTimeReadConverter implements Converter<Date, ZonedDateTime> {
+
+        @Override
+        public ZonedDateTime convert(Date date) {
+            return date.toInstant().atZone(ZoneOffset.UTC);
+        }
+    }
+
+    public static class ZonedDateTimeWriteConverter implements Converter<ZonedDateTime, Date> {
+
+        @Override
+        public Date convert(ZonedDateTime zonedDateTime) {
+            return Date.from(zonedDateTime.toInstant());
+        }
+    }
 
 }

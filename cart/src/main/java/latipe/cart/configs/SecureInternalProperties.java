@@ -11,6 +11,6 @@ import org.springframework.context.annotation.Configuration;
 @Setter
 public class SecureInternalProperties {
 
-  private String publicKey;
-  private String privateKey;
+    private String publicKey;
+    private String privateKey;
 }

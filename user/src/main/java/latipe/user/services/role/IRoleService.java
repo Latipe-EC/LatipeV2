@@ -7,9 +7,9 @@ import latipe.user.response.RoleResponse;
 
 public interface IRoleService {
 
-  public CompletableFuture<RoleResponse> getOne(String id);
+    public CompletableFuture<RoleResponse> getOne(String id);
 
-  public CompletableFuture<RoleResponse> create(CreateRoleRequest input);
+    public CompletableFuture<RoleResponse> create(CreateRoleRequest input);
 
 }
 

@@ -8,8 +8,8 @@ public record OrderReplyMessage(
     String orderId
 ) {
 
-  public static OrderReplyMessage create(int status, String orderId) {
-    return new OrderReplyMessage(status, orderId);
-  }
+    public static OrderReplyMessage create(int status, String orderId) {
+        return new OrderReplyMessage(status, orderId);
+    }
 
 }

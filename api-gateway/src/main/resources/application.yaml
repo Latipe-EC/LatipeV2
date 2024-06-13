@@ -7,8 +7,6 @@ eureka:
     enabled: ${EUREKA_ENABLED:true}
     serviceUrl:
       defaultZone: http://eureka:password@${EUREKA_HOST:localhost}:${EUREKA_PORT:8761}/eureka
-app:
-  host: ${API_GATEWAY_HOST:localhost}
 
 gateway_routes: "${GATEWAY_ROUTES:/home/cozark/Downloads/LatipeV2/api-gateway/src/main/resources/gateway.yaml}"
 
@@ -32,129 +30,6 @@ spring:
             allowedHeaders: '*'
             allowedMethods: '*'
             allowedOrigins: '*'
-
-#      routes:
-#        - id: auth_service_host
-#          uri: lb://auth-service
-#          predicates:
-#            - Path=/api/v1/auth/**
-#
-#        - id: user_service_host
-#          uri: ${app.host}:${USER_PORT:8888}
-#          predicates:
-#            - Path=/api/v1/users/**
-#          filters:
-#            - RewritePath=/(?<segment>.*), /$\{segment}
-#
-#        - id: token_service_host
-#          uri: ${app.host}:${USER_PORT:8888}
-#          predicates:
-#            - Path=/api/v1/tokens/**
-#          filters:
-#            - RewritePath=/(?<segment>.*), /$\{segment}
-#
-#        - id: cart_service_host
-#          uri: ${app.host}:${CART_PORT:7650}
-#          predicates:
-#            - Path=/api/v1/carts/**
-#          filters:
-#            - RewritePath=/(?<segment>.*), /$\{segment}
-#
-#        - id: media_service_host
-#          uri: ${app.host}:${MEDIA_PORT:7657}
-#          predicates:
-#            - Path=/api/v1/medias/**
-#          filters:
-#            - RewritePath=/(?<segment>.*), /$\{segment}
-#
-#        - id: product_service_host
-#          uri: ${app.host}:${PRODUCT_PORT:8645}
-#          predicates:
-#            - Path=/api/v1/products/**
-#          filters:
-#            - RewritePath=/(?<segment>.*), /$\{segment}
-#
-#        - id: category_service_host
-#          uri: ${app.host}:${PRODUCT_PORT:8645}
-#          predicates:
-#            - Path=/api/v1/categories/**
-#          filters:
-#            - RewritePath=/(?<segment>.*), /$\{segment}
-#
-#        - id: search_service_host
-#          uri: ${app.host}:${SEARCH_PORT:8092}
-#          predicates:
-#            - Path=/api/v1/search/**
-#          filters:
-#            - RewritePath=/(?<segment>.*), /$\{segment}
-#
-#        - id: store_service_host
-#          uri: ${app.host}:${STORE_PORT:8118}
-#          predicates:
-#            - Path=/api/v1/stores/**
-#          filters:
-#            - RewritePath=/(?<segment>.*), /$\{segment}
-#
-#        - id: commission_service_host
-#          uri: ${app.host}:${STORE_PORT:8118}
-#          predicates:
-#            - Path=/api/v1/commissions/**
-#          filters:
-#            - RewritePath=/(?<segment>.*), /$\{segment}
-#
-#        - id: payment_service_host
-#          uri: ${app.host}:${PAYMENT_PORT:8381}
-#          predicates:
-#            - Path=/api/v1/payment/**
-#          filters:
-#            - RewritePath=/(?<segment>.*), /$\{segment}
-#
-#        - id: payment_provider_service_host
-#          uri: ${app.host}:${PAYMENT_PORT:8381}
-#          predicates:
-#            - Path=/api/v1/payment-providers/**
-#          filters:
-#            - RewritePath=/(?<segment>.*), /$\{segment}
-#
-#        - id: rating-service_host
-#          uri: ${app.host}:${RATING_PORT:8777}
-#          predicates:
-#            - Path=/api/v1/ratings/**
-#          filters:
-#            - RewritePath=/(?<segment>.*), /$\{segment}
-#
-#        - id: discovery_server
-#          uri: https://eureka:password@${app.eureka-server}:${EUREKA_PORT:8761}
-#          predicates:
-#            - Path=/eureka/web
-#          filters:
-#            - SetPath=/
-#
-#        - id: discovery_server_static
-#          uri: https://eureka:password@${app.eureka-server}:${EUREKA_PORT:8761}
-#          predicates:
-#            - Path=/eureka/**
-#
-#        - id: orders-service
-#          uri: ${app.host}:${ORDER_PORT:5000}
-#          predicates:
-#            - Path=/api/v1/orders/**,/api/v2/orders/**
-#          filters:
-#            - RewritePath=/(?<segment>.*), /$\{segment}
-#
-#        - id: delivery-service
-#          uri: ${app.host}:${DELIVERY_PORT:5005}
-#          predicates:
-#            - Path=/api/v1/delivery/**
-#          filters:
-#            - RewritePath=/(?<segment>.*), /$\{segment}
-#
-#        - id: vouchers-service
-#          uri: ${app.host}:${VOUCHER_PORT:5010}
-#          predicates:
-#            - Path=/api/v1/vouchers/**
-#          filters:
-#            - RewritePath=/(?<segment>.*), /$\{segment}
 
 logging:
   pattern:

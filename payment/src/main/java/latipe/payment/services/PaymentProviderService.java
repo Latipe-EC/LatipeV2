@@ -15,19 +15,20 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class PaymentProviderService {
 
-  private final PaymentProviderRepository paymentProviderRepository;
+    private final PaymentProviderRepository paymentProviderRepository;
 
-  @Async
-  public CompletableFuture<String> getAdditionalSettingsByPaymentProviderId(
-      String paymentProviderId) {
-    return CompletableFuture.supplyAsync(
-        () -> {
-          PaymentProvider paymentProvider = paymentProviderRepository.findById(paymentProviderId)
-              .orElseThrow(()
-                  -> new NotFoundException("PAYMENT_PROVIDER_NOT_FOUND", paymentProviderId));
-          return paymentProvider.getAdditionalSettings();
-        }
-    );
+    @Async
+    public CompletableFuture<String> getAdditionalSettingsByPaymentProviderId(
+        String paymentProviderId) {
+        return CompletableFuture.supplyAsync(
+            () -> {
+                PaymentProvider paymentProvider = paymentProviderRepository.findById(
+                        paymentProviderId)
+                    .orElseThrow(()
+                        -> new NotFoundException("PAYMENT_PROVIDER_NOT_FOUND", paymentProviderId));
+                return paymentProvider.getAdditionalSettings();
+            }
+        );
 
-  }
+    }
 }

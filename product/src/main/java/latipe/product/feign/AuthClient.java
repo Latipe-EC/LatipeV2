@@ -7,7 +7,7 @@ import latipe.product.response.UserCredentialResponse;
 
 public interface AuthClient {
 
-  @RequestLine("POST /auth/validate-token")
-  @Headers("Content-Type: application/json")
-  UserCredentialResponse getCredential(TokenRequest accessToken);
+    @RequestLine("POST /auth/validate-token")
+    @Headers("Content-Type: application/json")
+    UserCredentialResponse getCredential(TokenRequest accessToken);
 }

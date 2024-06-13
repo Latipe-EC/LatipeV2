@@ -15,18 +15,18 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class CreateOrderJob implements Job {
 
-  private static final Logger log = LoggerFactory.getLogger(CreateOrderJob.class);
-  private final RabbitMQProducer publish;
-  private final Gson gson;
+    private static final Logger log = LoggerFactory.getLogger(CreateOrderJob.class);
+    private final RabbitMQProducer publish;
+    private final Gson gson;
 
-  @Override
-  public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-    var orderId = jobExecutionContext.getJobDetail().getJobDataMap().getString("orderId");
-    var publishMessage = gson.toJson(new PublishMessage(
-        "CANCEL_ORDER",
-        orderId
-    ), PublishMessage.class);
-    publish.sendMessage(publishMessage);
-    log.info("Create Order with id {} executed", orderId);
-  }
+    @Override
+    public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
+        var orderId = jobExecutionContext.getJobDetail().getJobDataMap().getString("orderId");
+        var publishMessage = gson.toJson(new PublishMessage(
+            "CANCEL_ORDER",
+            orderId
+        ), PublishMessage.class);
+        publish.sendMessage(publishMessage);
+        log.info("Create Order with id {} executed", orderId);
+    }
 }

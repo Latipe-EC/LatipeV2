@@ -19,17 +19,17 @@ public record PaymentResponse(
     EPaymentStatus paymentStatus,
     String failureMessage) {
 
-  public static PaymentResponse fromModel(Payment payment) {
-    return PaymentResponse.builder()
-        .id(payment.getId())
-        .amount(payment.getAmount())
-        .paymentFee(payment.getPaymentFee())
-        .checkoutId(payment.getCheckoutId())
-        .orderId(payment.getOrderId())
-        .gatewayTransactionId(payment.getGatewayTransactionId())
-        .paymentMethod(payment.getPaymentMethod())
-        .paymentStatus(payment.getPaymentStatus())
-        .failureMessage(payment.getFailureMessage())
-        .build();
-  }
+    public static PaymentResponse fromModel(Payment payment) {
+        return PaymentResponse.builder()
+            .id(payment.getId())
+            .amount(payment.getAmount())
+            .paymentFee(payment.getPaymentFee())
+            .checkoutId(payment.getCheckoutId())
+            .orderId(payment.getOrderId())
+            .gatewayTransactionId(payment.getGatewayTransactionId())
+            .paymentMethod(payment.getPaymentMethod())
+            .paymentStatus(payment.getPaymentStatus())
+            .failureMessage(payment.getFailureMessage())
+            .build();
+    }
 }

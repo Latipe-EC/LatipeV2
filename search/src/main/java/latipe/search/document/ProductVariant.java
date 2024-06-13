@@ -12,17 +12,17 @@ import lombok.Setter;
 @AllArgsConstructor
 public class ProductVariant {
 
-  String id;
-  String name;
-  String image;
-  List<Options> options;
+    String id;
+    String name;
+    String image;
+    List<Options> options;
 
-  @Getter
-  @Setter
-  @NoArgsConstructor
-  @AllArgsConstructor
-  public static class Options {
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Options {
 
-    String value;
-  }
+        String value;
+    }
 }

@@ -46,169 +46,169 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class UserController {
 
-  private final IUserService userService;
+    private final IUserService userService;
 
-  @ResponseStatus(HttpStatus.OK)
-  @Authenticate
-  @GetMapping(value = "/my-profile", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<UserResponse> getMyProfile(HttpServletRequest request) {
+    @ResponseStatus(HttpStatus.OK)
+    @Authenticate
+    @GetMapping(value = "/my-profile", produces = MediaType.APPLICATION_JSON_VALUE)
+    public CompletableFuture<UserResponse> getMyProfile(HttpServletRequest request) {
 
-    return userService.getProfile(request);
-  }
+        return userService.getProfile(request);
+    }
 
-  @ResponseStatus(HttpStatus.OK)
-  @Authenticate
-  @PutMapping(value = "/my-profile", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<UserResponse> updateProfile(
-      @Valid @RequestBody UpdateUserRequest input, HttpServletRequest request) {
+    @ResponseStatus(HttpStatus.OK)
+    @Authenticate
+    @PutMapping(value = "/my-profile", produces = MediaType.APPLICATION_JSON_VALUE)
+    public CompletableFuture<UserResponse> updateProfile(
+        @Valid @RequestBody UpdateUserRequest input, HttpServletRequest request) {
 
-    return userService.updateProfile(input, request);
-  }
+        return userService.updateProfile(input, request);
+    }
 
-  @ResponseStatus(HttpStatus.OK)
-  @Authenticate
-  @GetMapping(value = "/my-address", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<PagedResultDto<UserAddress>> getMyAddresses(
-      @RequestParam(name = "page", defaultValue = "1") int page,
-      @RequestParam(name = "size", defaultValue = "10") int size, HttpServletRequest request
-  ) {
-    return userService.getMyAddresses(page, size, request);
-  }
+    @ResponseStatus(HttpStatus.OK)
+    @Authenticate
+    @GetMapping(value = "/my-address", produces = MediaType.APPLICATION_JSON_VALUE)
+    public CompletableFuture<PagedResultDto<UserAddress>> getMyAddresses(
+        @RequestParam(name = "page", defaultValue = "1") int page,
+        @RequestParam(name = "size", defaultValue = "10") int size, HttpServletRequest request
+    ) {
+        return userService.getMyAddresses(page, size, request);
+    }
 
-  @ResponseStatus(HttpStatus.OK)
-  @Authenticate
-  @PutMapping(value = "/my-address/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<UserAddress> updateMyAddress(
-      @PathVariable String id,
-      @Valid @RequestBody UpdateUserAddressRequest input, HttpServletRequest request) {
-    return userService.updateMyAddresses(input, id, request);
-  }
+    @ResponseStatus(HttpStatus.OK)
+    @Authenticate
+    @PutMapping(value = "/my-address/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public CompletableFuture<UserAddress> updateMyAddress(
+        @PathVariable String id,
+        @Valid @RequestBody UpdateUserAddressRequest input, HttpServletRequest request) {
+        return userService.updateMyAddresses(input, id, request);
+    }
 
-  @Authenticate
-  @ResponseStatus(HttpStatus.CREATED)
-  @PostMapping(value = "/my-address", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<UserAddress> addMyAddress(
-      @Valid @RequestBody CreateUserAddressRequest input, HttpServletRequest request) {
+    @Authenticate
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping(value = "/my-address", produces = MediaType.APPLICATION_JSON_VALUE)
+    public CompletableFuture<UserAddress> addMyAddress(
+        @Valid @RequestBody CreateUserAddressRequest input, HttpServletRequest request) {
 
-    return userService.addMyAddresses(input, request);
+        return userService.addMyAddresses(input, request);
 
-  }
+    }
 
-  @ResponseStatus(HttpStatus.OK)
-  @Authenticate
-  @DeleteMapping(value = "/my-address/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<Void> deleteMyAddress(@PathVariable String id,
-      HttpServletRequest request) {
+    @ResponseStatus(HttpStatus.OK)
+    @Authenticate
+    @DeleteMapping(value = "/my-address/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public CompletableFuture<Void> deleteMyAddress(@PathVariable String id,
+        HttpServletRequest request) {
 
-    return userService.deleteMyAddresses(id, request);
+        return userService.deleteMyAddresses(id, request);
 
-  }
+    }
 
-  @ResponseStatus(HttpStatus.OK)
-  @Authenticate
-  @GetMapping(value = "/my-address/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<UserAddress> getMyAddress(@PathVariable String id,
-      HttpServletRequest request) {
+    @ResponseStatus(HttpStatus.OK)
+    @Authenticate
+    @GetMapping(value = "/my-address/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public CompletableFuture<UserAddress> getMyAddress(@PathVariable String id,
+        HttpServletRequest request) {
 
-    return userService.getMyAddresses(id, request);
+        return userService.getMyAddresses(id, request);
 
-  }
+    }
 
-  @Authenticate
-  @ResponseStatus(HttpStatus.CREATED)
-  @GetMapping(value = "/count-my-address", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<Integer> countMyUserAddress(HttpServletRequest request) {
-    return userService.countMyAddress(request);
-  }
+    @Authenticate
+    @ResponseStatus(HttpStatus.CREATED)
+    @GetMapping(value = "/count-my-address", produces = MediaType.APPLICATION_JSON_VALUE)
+    public CompletableFuture<Integer> countMyUserAddress(HttpServletRequest request) {
+        return userService.countMyAddress(request);
+    }
 
-  @ResponseStatus(HttpStatus.CREATED)
-  @RequiresAuthorization(ADMIN)
-  @PostMapping(value = "/create-user", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<UserResponse> createUser(@Valid @RequestBody CreateUserRequest input,
-      HttpServletRequest request) {
-    return userService.create(input, request);
-  }
+    @ResponseStatus(HttpStatus.CREATED)
+    @RequiresAuthorization(ADMIN)
+    @PostMapping(value = "/create-user", produces = MediaType.APPLICATION_JSON_VALUE)
+    public CompletableFuture<UserResponse> createUser(@Valid @RequestBody CreateUserRequest input,
+        HttpServletRequest request) {
+        return userService.create(input, request);
+    }
 
-  @RequiresAuthorization(ADMIN)
-  @GetMapping(value = "/admin", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<PagedResultDto<UserAdminResponse>> getUserAdmin(
-      @RequestParam(defaultValue = "") String keyword,
-      @RequestParam(defaultValue = "0") Long skip,
-      @RequestParam(defaultValue = "12") Integer size,
-      @RequestParam(defaultValue = "createdDate") String orderBy,
-      @RequestParam(defaultValue = "ALL") EStatusBan isBan, HttpServletRequest request) {
-    return userService.getUserAdmin(keyword, skip, size, orderBy, isBan, request);
-  }
+    @RequiresAuthorization(ADMIN)
+    @GetMapping(value = "/admin", produces = MediaType.APPLICATION_JSON_VALUE)
+    public CompletableFuture<PagedResultDto<UserAdminResponse>> getUserAdmin(
+        @RequestParam(defaultValue = "") String keyword,
+        @RequestParam(defaultValue = "0") Long skip,
+        @RequestParam(defaultValue = "12") Integer size,
+        @RequestParam(defaultValue = "createdDate") String orderBy,
+        @RequestParam(defaultValue = "ALL") EStatusBan isBan, HttpServletRequest request) {
+        return userService.getUserAdmin(keyword, skip, size, orderBy, isBan, request);
+    }
 
-  @RequiresAuthorization(ADMIN)
-  @PatchMapping(value = "/{userId}/ban", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<Void> banUser(
-      @PathVariable String userId,
-      @Valid @RequestBody BanUserRequest input, HttpServletRequest request) {
-    return userService.banUser(userId, input, request);
-  }
+    @RequiresAuthorization(ADMIN)
+    @PatchMapping(value = "/{userId}/ban", produces = MediaType.APPLICATION_JSON_VALUE)
+    public CompletableFuture<Void> banUser(
+        @PathVariable String userId,
+        @Valid @RequestBody BanUserRequest input, HttpServletRequest request) {
+        return userService.banUser(userId, input, request);
+    }
 
-  @RequiresAuthorization(ADMIN)
-  @GetMapping(value = "/{userId}/admin", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<UserResponse> getDetailUserByAdmin(
-      @PathVariable String userId, HttpServletRequest request) {
-    return userService.getUserByAdmin(userId, request);
-  }
+    @RequiresAuthorization(ADMIN)
+    @GetMapping(value = "/{userId}/admin", produces = MediaType.APPLICATION_JSON_VALUE)
+    public CompletableFuture<UserResponse> getDetailUserByAdmin(
+        @PathVariable String userId, HttpServletRequest request) {
+        return userService.getUserByAdmin(userId, request);
+    }
 
-  @RequiresAuthorization(ADMIN)
-  @GetMapping(value = "/count", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<Long> countAllUser(HttpServletRequest request) {
-    return userService.countAllUser(request);
-  }
+    @RequiresAuthorization(ADMIN)
+    @GetMapping(value = "/count", produces = MediaType.APPLICATION_JSON_VALUE)
+    public CompletableFuture<Long> countAllUser(HttpServletRequest request) {
+        return userService.countAllUser(request);
+    }
 
-  @SecureInternalPhase
-  @ResponseStatus(HttpStatus.CREATED)
-  @PostMapping(value = "/register", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<UserResponse> register(@RequestBody RegisterRequest input,
-      HttpServletRequest request) {
-    return userService.register(input, request);
-  }
+    @SecureInternalPhase
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping(value = "/register", produces = MediaType.APPLICATION_JSON_VALUE)
+    public CompletableFuture<UserResponse> register(@RequestBody RegisterRequest input,
+        HttpServletRequest request) {
+        return userService.register(input, request);
+    }
 
-  @Authenticate
-  @ResponseStatus(HttpStatus.CREATED)
-  @PutMapping(value = "/upgrade-to-vendor", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<Void> upgradeVendor(HttpServletRequest request) {
-    return userService.upgradeVendor(request);
-  }
+    @Authenticate
+    @ResponseStatus(HttpStatus.CREATED)
+    @PutMapping(value = "/upgrade-to-vendor", produces = MediaType.APPLICATION_JSON_VALUE)
+    public CompletableFuture<Void> upgradeVendor(HttpServletRequest request) {
+        return userService.upgradeVendor(request);
+    }
 
 
-  @SecureInternalPhase
-  @PostMapping(value = "/check-balance", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<Void> checkBalance(
-      @RequestBody CheckBalanceRequest input, HttpServletRequest request
-  ) {
-    return userService.checkBalance(input, request);
-  }
+    @SecureInternalPhase
+    @PostMapping(value = "/check-balance", produces = MediaType.APPLICATION_JSON_VALUE)
+    public CompletableFuture<Void> checkBalance(
+        @RequestBody CheckBalanceRequest input, HttpServletRequest request
+    ) {
+        return userService.checkBalance(input, request);
+    }
 
-  @SecureInternalPhase
-  @PostMapping(value = "/cancel-order", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<Void> cancelOrder(
-      @RequestBody CancelOrderRequest input, HttpServletRequest request
-  ) {
-    return userService.cancelOrder(input, request);
-  }
+    @SecureInternalPhase
+    @PostMapping(value = "/cancel-order", produces = MediaType.APPLICATION_JSON_VALUE)
+    public CompletableFuture<Void> cancelOrder(
+        @RequestBody CancelOrderRequest input, HttpServletRequest request
+    ) {
+        return userService.cancelOrder(input, request);
+    }
 
-  @Authenticate
-  @ResponseStatus(HttpStatus.CREATED)
-  @PutMapping(value = "/profile/username", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<Void> updateUserName(
-      @Valid @RequestBody UpdateUserNameRequest input, HttpServletRequest request
-  ) {
+    @Authenticate
+    @ResponseStatus(HttpStatus.CREATED)
+    @PutMapping(value = "/profile/username", produces = MediaType.APPLICATION_JSON_VALUE)
+    public CompletableFuture<Void> updateUserName(
+        @Valid @RequestBody UpdateUserNameRequest input, HttpServletRequest request
+    ) {
 
-    return userService.updateUserName(input, request);
-  }
+        return userService.updateUserName(input, request);
+    }
 
-  @SecureInternalPhase
-  @GetMapping(value = "/{userId}/internal/info-rating", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<InfoRatingResponse> getInfoForRating(
-      @PathVariable String userId, HttpServletRequest request
-  ) {
-    return userService.getInfoForRating(userId, request);
-  }
+    @SecureInternalPhase
+    @GetMapping(value = "/{userId}/internal/info-rating", produces = MediaType.APPLICATION_JSON_VALUE)
+    public CompletableFuture<InfoRatingResponse> getInfoForRating(
+        @PathVariable String userId, HttpServletRequest request
+    ) {
+        return userService.getInfoForRating(userId, request);
+    }
 
 }

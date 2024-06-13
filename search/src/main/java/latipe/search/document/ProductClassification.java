@@ -13,12 +13,12 @@ import lombok.Setter;
 @AllArgsConstructor
 public class ProductClassification {
 
-  String id;
-  String image;
-  String name;
-  int quantity;
-  double price;
-  double promotionalPrice;
-  String sku;
-  String code;
+    String id;
+    String image;
+    String name;
+    int quantity;
+    double price;
+    double promotionalPrice;
+    String sku;
+    String code;
 }

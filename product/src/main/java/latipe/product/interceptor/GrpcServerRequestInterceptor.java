@@ -19,30 +19,31 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class GrpcServerRequestInterceptor implements ServerInterceptor {
 
-  private final SecureInternalProperties secureInternalProperties;
+    private final SecureInternalProperties secureInternalProperties;
 
-  @Override
-  public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(
-      ServerCall<ReqT, RespT> serverCall, Metadata metadata, ServerCallHandler<ReqT, RespT> next) {
+    @Override
+    public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(
+        ServerCall<ReqT, RespT> serverCall, Metadata metadata,
+        ServerCallHandler<ReqT, RespT> next) {
 
-    log.info("Validating user token");
-    var token = metadata.get(Metadata.Key.of("X-API-KEY", Metadata.ASCII_STRING_MARSHALLER));
-    try {
-      validateUserToken(token);
-    } catch (Exception e) {
-      throw Status.UNAUTHENTICATED.withDescription(e.getMessage()).asRuntimeException();
-    }
-    return next.startCall(serverCall, metadata);
-  }
-
-  private void validateUserToken(String token) throws Exception {
-    if (token == null) {
-      throw new UnauthorizedException("Unauthorized");
+        log.info("Validating user token");
+        var token = metadata.get(Metadata.Key.of("X-API-KEY", Metadata.ASCII_STRING_MARSHALLER));
+        try {
+            validateUserToken(token);
+        } catch (Exception e) {
+            throw Status.UNAUTHENTICATED.withDescription(e.getMessage()).asRuntimeException();
+        }
+        return next.startCall(serverCall, metadata);
     }
 
-    RSAPublicKey publicKey = getPublicKey(secureInternalProperties.getPublicKey());
-    if (!verifyHash("product-service", token, publicKey)) {
-      throw new UnauthorizedException("Unauthorized");
+    private void validateUserToken(String token) throws Exception {
+        if (token == null) {
+            throw new UnauthorizedException("Unauthorized");
+        }
+
+        RSAPublicKey publicKey = getPublicKey(secureInternalProperties.getPublicKey());
+        if (!verifyHash("product-service", token, publicKey)) {
+            throw new UnauthorizedException("Unauthorized");
+        }
     }
-  }
 }

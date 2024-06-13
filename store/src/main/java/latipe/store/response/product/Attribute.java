@@ -7,9 +7,9 @@ import lombok.Setter;
 @Setter
 public class Attribute {
 
-  String name;
-  String type;
-  String prefixUnit;
-  String options;
-  Boolean isRequired;
+    String name;
+    String type;
+    String prefixUnit;
+    String options;
+    Boolean isRequired;
 }

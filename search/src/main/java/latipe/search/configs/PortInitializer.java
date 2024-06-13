@@ -11,36 +11,37 @@ import org.springframework.core.env.ConfigurableEnvironment;
 public class PortInitializer implements
     ApplicationContextInitializer<ConfigurableApplicationContext> {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(PortInitializer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PortInitializer.class);
 
-  @Override
-  public void initialize(ConfigurableApplicationContext applicationContext) {
+    @Override
+    public void initialize(ConfigurableApplicationContext applicationContext) {
 
-    ConfigurableEnvironment environment = applicationContext.getEnvironment();
-    int port = environment.getProperty("server.port", Integer.class, findRandomPort());
-    if (isPortInUse(port)) {
-      int randomPort = findRandomPort();
-      LOGGER.info("[Search Service]: Port {} is already in use, so using random port {}", port,
-          randomPort);
-      System.setProperty("server.port", String.valueOf(randomPort));
-      return;
+        ConfigurableEnvironment environment = applicationContext.getEnvironment();
+        int port = environment.getProperty("server.port", Integer.class, findRandomPort());
+        if (isPortInUse(port)) {
+            int randomPort = findRandomPort();
+            LOGGER.info("[Search Service]: Port {} is already in use, so using random port {}",
+                port,
+                randomPort);
+            System.setProperty("server.port", String.valueOf(randomPort));
+            return;
+        }
+        LOGGER.info("[Search Service]: Port {} is available", port);
     }
-    LOGGER.info("[Search Service]: Port {} is available", port);
-  }
 
-  private boolean isPortInUse(int port) {
-    try (ServerSocket serverSocket = new ServerSocket(port)) {
-      return false;
-    } catch (IOException e) {
-      return true;
+    private boolean isPortInUse(int port) {
+        try (ServerSocket serverSocket = new ServerSocket(port)) {
+            return false;
+        } catch (IOException e) {
+            return true;
+        }
     }
-  }
 
-  private int findRandomPort() {
-    try (ServerSocket serverSocket = new ServerSocket(0)) {
-      return serverSocket.getLocalPort();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
+    private int findRandomPort() {
+        try (ServerSocket serverSocket = new ServerSocket(0)) {
+            return serverSocket.getLocalPort();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
-  }
 } 

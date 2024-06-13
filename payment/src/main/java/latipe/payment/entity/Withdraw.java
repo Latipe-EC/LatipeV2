@@ -19,17 +19,17 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Builder
 public class Withdraw extends AbstractAuditEntity {
 
-  @Id
-  private String id;
-  private String userId;
-  private EWithdrawStatus withdrawStatus;
-  private BigDecimal amount;
-  private String gatewayTransactionId;
-  private String failureMessage;
-  private EWithdrawType type;
-  private String emailRecipient;
-  private String checkoutId;
-  private String orderId;
+    @Id
+    private String id;
+    private String userId;
+    private EWithdrawStatus withdrawStatus;
+    private BigDecimal amount;
+    private String gatewayTransactionId;
+    private String failureMessage;
+    private EWithdrawType type;
+    private String emailRecipient;
+    private String checkoutId;
+    private String orderId;
 
 
 }

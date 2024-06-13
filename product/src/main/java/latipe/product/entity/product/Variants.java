@@ -14,35 +14,35 @@ import lombok.Setter;
 @AllArgsConstructor
 public class Variants {
 
-  String mainVariant;
-  @Min(1)
-  List<Options> options = new ArrayList<>();
-  List<subVariants> subVariants = new ArrayList<>();
-
-  @Getter
-  @Setter
-  @NoArgsConstructor
-  @AllArgsConstructor
-  public static class subVariants {
-
-    @Min(0)
-    String subVariant;
+    String mainVariant;
     @Min(1)
-    List<Options> options;
-  }
+    List<Options> options = new ArrayList<>();
+    List<subVariants> subVariants = new ArrayList<>();
 
-  @Getter
-  @Setter
-  @NoArgsConstructor
-  @AllArgsConstructor
-  public static class Options {
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class subVariants {
 
-    String name;
-    String image;
-    @Min(0)
-    Double price;
-    @Min(0)
-    int quantity;
-    String sku;
-  }
+        @Min(0)
+        String subVariant;
+        @Min(1)
+        List<Options> options;
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Options {
+
+        String name;
+        String image;
+        @Min(0)
+        Double price;
+        @Min(0)
+        int quantity;
+        String sku;
+    }
 }

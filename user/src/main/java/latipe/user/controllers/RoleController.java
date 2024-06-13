@@ -14,14 +14,14 @@ import org.springframework.web.bind.annotation.RestController;
 @ApiPrefixController("/roles")
 public class RoleController {
 
-  private final IRoleService roleService;
+    private final IRoleService roleService;
 
-  public RoleController(IRoleService roleService) {
-    this.roleService = roleService;
-  }
+    public RoleController(IRoleService roleService) {
+        this.roleService = roleService;
+    }
 
-  @PostMapping(value = "create-role", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<RoleResponse> createRole(@RequestBody CreateRoleRequest input) {
-    return roleService.create(input);
-  }
+    @PostMapping(value = "create-role", produces = MediaType.APPLICATION_JSON_VALUE)
+    public CompletableFuture<RoleResponse> createRole(@RequestBody CreateRoleRequest input) {
+        return roleService.create(input);
+    }
 }

@@ -16,9 +16,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "AttributeCategories")
 public class AttributeCategory extends AbstractAuditEntity {
 
-  @Id
-  String id;
-  List<Attribute> attributes;
-  String categoryId;
+    @Id
+    String id;
+    List<Attribute> attributes;
+    String categoryId;
 
 }

@@ -7,15 +7,15 @@ import lombok.Setter;
 @Setter
 public class OrderItemRatingResponse {
 
-  Integer code;
-  String message;
-  String error_code;
-  DataOrderItemRating data;
+    Integer code;
+    String message;
+    String error_code;
+    DataOrderItemRating data;
 
-  @Getter
-  @Setter
-  public static class DataOrderItemRating {
+    @Getter
+    @Setter
+    public static class DataOrderItemRating {
 
-    String rating_id;
-  }
+        String rating_id;
+    }
 }

@@ -28,64 +28,64 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @RequiredArgsConstructor
 public class AppConfig implements WebMvcConfigurer {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(AppConfig.class);
-  private final IUserRepository userRepository;
-  private final SecureInternalProperties secureInternalProperties;
-  @Value("${grpc.port}")
-  private int grpcServerPort;
+    private static final Logger LOGGER = LoggerFactory.getLogger(AppConfig.class);
+    private final IUserRepository userRepository;
+    private final SecureInternalProperties secureInternalProperties;
+    @Value("${grpc.port}")
+    private int grpcServerPort;
 
-  @Override
-  public void addCorsMappings(CorsRegistry registry) {
-    registry.addMapping("/**").allowedMethods("*").allowedOrigins("*").allowedHeaders("*");
-  }
-
-  @Override
-  public void configurePathMatch(PathMatchConfigurer configurer) {
-    configurer.addPathPrefix("/api/v1",
-        HandlerTypePredicate.forAnnotation(ApiPrefixController.class));
-  }
-
-  @Bean
-  public PasswordEncoder passwordEncoder() {
-    return new BCryptPasswordEncoder();
-  }
-
-  @Bean
-  public RequestContextListener requestContextListener() {
-    return new RequestContextListener();
-  }
-
-  @Bean
-  public GsonDecoder getGsonDecoder() {
-    return new GsonDecoder();
-  }
-
-  @Bean
-  public GsonEncoder getGsonEncoder() {
-    return new GsonEncoder();
-  }
-
-  @Bean
-  public OkHttpClient okHttpClient() {
-    return new OkHttpClient();
-  }
-
-  @Bean
-  public Server grpcServer() {
-
-    var server = NettyServerBuilder.forPort(grpcServerPort)
-        .intercept(new GrpcServerRequestInterceptor(secureInternalProperties))
-        .addService(
-            new UserGrpcService(userRepository))
-        .build();
-
-    try {
-      server.start();
-      LOGGER.info("Server GRPC started: " + grpcServerPort);
-    } catch (IOException e) {
-      LOGGER.error("Server GRPC did not start due to: " + e.getMessage());
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**").allowedMethods("*").allowedOrigins("*").allowedHeaders("*");
     }
 
-    return server;
-  }
+    @Override
+    public void configurePathMatch(PathMatchConfigurer configurer) {
+        configurer.addPathPrefix("/api/v1",
+            HandlerTypePredicate.forAnnotation(ApiPrefixController.class));
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public RequestContextListener requestContextListener() {
+        return new RequestContextListener();
+    }
+
+    @Bean
+    public GsonDecoder getGsonDecoder() {
+        return new GsonDecoder();
+    }
+
+    @Bean
+    public GsonEncoder getGsonEncoder() {
+        return new GsonEncoder();
+    }
+
+    @Bean
+    public OkHttpClient okHttpClient() {
+        return new OkHttpClient();
+    }
+
+    @Bean
+    public Server grpcServer() {
+
+        var server = NettyServerBuilder.forPort(grpcServerPort)
+            .intercept(new GrpcServerRequestInterceptor(secureInternalProperties))
+            .addService(
+                new UserGrpcService(userRepository))
+            .build();
+
+        try {
+            server.start();
+            LOGGER.info("Server GRPC started: " + grpcServerPort);
+        } catch (IOException e) {
+            LOGGER.error("Server GRPC did not start due to: " + e.getMessage());
+        }
+
+        return server;
+    }
 }

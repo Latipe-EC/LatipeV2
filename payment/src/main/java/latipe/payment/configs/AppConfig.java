@@ -17,35 +17,35 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @RequiredArgsConstructor
 public class AppConfig implements WebMvcConfigurer {
 
-  @Override
-  public void addCorsMappings(CorsRegistry registry) {
-    registry.addMapping("/**").allowedMethods("*").allowedOrigins("*").allowedHeaders("*");
-  }
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**").allowedMethods("*").allowedOrigins("*").allowedHeaders("*");
+    }
 
-  @Override
-  public void configurePathMatch(PathMatchConfigurer configurer) {
-    configurer.addPathPrefix("/api/v1",
-        HandlerTypePredicate.forAnnotation(ApiPrefixController.class));
-  }
+    @Override
+    public void configurePathMatch(PathMatchConfigurer configurer) {
+        configurer.addPathPrefix("/api/v1",
+            HandlerTypePredicate.forAnnotation(ApiPrefixController.class));
+    }
 
-  @Bean
-  public RequestContextListener requestContextListener() {
-    return new RequestContextListener();
-  }
+    @Bean
+    public RequestContextListener requestContextListener() {
+        return new RequestContextListener();
+    }
 
-  @Bean
-  public GsonDecoder getGsonDecoder() {
-    return new GsonDecoder();
-  }
+    @Bean
+    public GsonDecoder getGsonDecoder() {
+        return new GsonDecoder();
+    }
 
-  @Bean
-  public GsonEncoder getGsonEncoder() {
-    return new GsonEncoder();
-  }
+    @Bean
+    public GsonEncoder getGsonEncoder() {
+        return new GsonEncoder();
+    }
 
-  @Bean
-  public OkHttpClient okHttpClient() {
-    return new OkHttpClient();
-  }
+    @Bean
+    public OkHttpClient okHttpClient() {
+        return new OkHttpClient();
+    }
 
 }

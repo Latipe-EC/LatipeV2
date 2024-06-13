@@ -30,50 +30,50 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class CommissionController {
 
-  private final ICommissionService commissionService;
+    private final ICommissionService commissionService;
 
-  @RequiresAuthorization("ADMIN")
-  @ResponseStatus(HttpStatus.CREATED)
-  @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<CommissionResponse> createCommission(
-      @RequestBody @Valid
-      CreateCommissionRequest input, HttpServletRequest request
+    @RequiresAuthorization("ADMIN")
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public CompletableFuture<CommissionResponse> createCommission(
+        @RequestBody @Valid
+        CreateCommissionRequest input, HttpServletRequest request
 
-  ) {
-    return commissionService.create(input, request);
-  }
+    ) {
+        return commissionService.create(input, request);
+    }
 
-  @RequiresAuthorization("ADMIN")
-  @ResponseStatus(HttpStatus.OK)
-  @PutMapping(value = "{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<CommissionResponse> updateCommission(
-      @PathVariable String id,
-      @RequestBody @Valid
-      UpdateCommissionRequest input, HttpServletRequest request
+    @RequiresAuthorization("ADMIN")
+    @ResponseStatus(HttpStatus.OK)
+    @PutMapping(value = "{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public CompletableFuture<CommissionResponse> updateCommission(
+        @PathVariable String id,
+        @RequestBody @Valid
+        UpdateCommissionRequest input, HttpServletRequest request
 
-  ) {
-    return commissionService.update(id, input, request);
-  }
+    ) {
+        return commissionService.update(id, input, request);
+    }
 
-  @RequiresAuthorization("ADMIN")
-  @ResponseStatus(HttpStatus.OK)
-  @DeleteMapping(value = "{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<Void> deleteCommission(
-      @PathVariable String id, HttpServletRequest request
+    @RequiresAuthorization("ADMIN")
+    @ResponseStatus(HttpStatus.OK)
+    @DeleteMapping(value = "{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public CompletableFuture<Void> deleteCommission(
+        @PathVariable String id, HttpServletRequest request
 
-  ) {
-    return commissionService.delete(id, request);
-  }
+    ) {
+        return commissionService.delete(id, request);
+    }
 
-  @RequiresAuthorization("ADMIN")
-  @ResponseStatus(HttpStatus.OK)
-  @GetMapping(value = "/paginate", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<PagedResultDto<CommissionResponse>> getPaginate(
-      @RequestParam(defaultValue = "") String keyword,
-      @RequestParam(defaultValue = "0") Long skip,
-      @RequestParam(defaultValue = "12") Integer size, HttpServletRequest request
+    @RequiresAuthorization("ADMIN")
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "/paginate", produces = MediaType.APPLICATION_JSON_VALUE)
+    public CompletableFuture<PagedResultDto<CommissionResponse>> getPaginate(
+        @RequestParam(defaultValue = "") String keyword,
+        @RequestParam(defaultValue = "0") Long skip,
+        @RequestParam(defaultValue = "12") Integer size, HttpServletRequest request
 
-  ) {
-    return commissionService.getPaginate(keyword, skip, size, request);
-  }
+    ) {
+        return commissionService.getPaginate(keyword, skip, size, request);
+    }
 }

@@ -12,19 +12,19 @@ import latipe.cart.viewmodel.UpdateCartAfterOrderVm;
 
 public interface ICartService {
 
-  CompletableFuture<Void> removeCartItemAfterOrder(UpdateCartAfterOrderVm updateCartAfterOrderVm);
+    CompletableFuture<Void> removeCartItemAfterOrder(UpdateCartAfterOrderVm updateCartAfterOrderVm);
 
-  CompletableFuture<Void> updateQuantity(UpdateQuantityRequest input, HttpServletRequest request);
+    CompletableFuture<Void> updateQuantity(UpdateQuantityRequest input, HttpServletRequest request);
 
-  CompletableFuture<CartGetDetailResponse> addToCart(CartItemVm cartItemRequest,
-      HttpServletRequest request);
+    CompletableFuture<CartGetDetailResponse> addToCart(CartItemVm cartItemRequest,
+        HttpServletRequest request);
 
-  CompletableFuture<PagedResultDto<CartGetDetailResponse>> getMyCart(long skip,
-      int size, HttpServletRequest request);
+    CompletableFuture<PagedResultDto<CartGetDetailResponse>> getMyCart(long skip,
+        int size, HttpServletRequest request);
 
-  CompletableFuture<Void> deleteCartItem(DeleteCartItemRequest input, HttpServletRequest request);
+    CompletableFuture<Void> deleteCartItem(DeleteCartItemRequest input, HttpServletRequest request);
 
-  CompletableFuture<List<CartGetDetailResponse>> getListCart(List<String> cartIds,
-      HttpServletRequest request);
+    CompletableFuture<List<CartGetDetailResponse>> getListCart(List<String> cartIds,
+        HttpServletRequest request);
 
 }

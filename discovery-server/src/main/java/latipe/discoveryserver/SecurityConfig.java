@@ -15,35 +15,35 @@ import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 @Configuration
 public class SecurityConfig {
 
-  @Bean
-  public CorsWebFilter corsWebFilter() {
-    CorsConfiguration corsConfig = new CorsConfiguration();
-    corsConfig.addAllowedOrigin("*");
-    corsConfig.addAllowedHeader("*");
-    corsConfig.addAllowedMethod(HttpMethod.GET);
-    corsConfig.addAllowedMethod(HttpMethod.POST);
-    corsConfig.addAllowedMethod(HttpMethod.PUT);
-    corsConfig.addAllowedMethod(HttpMethod.DELETE);
-    corsConfig.addAllowedMethod(HttpMethod.PATCH);
-    corsConfig.addAllowedMethod(HttpMethod.OPTIONS);
+    @Bean
+    public CorsWebFilter corsWebFilter() {
+        CorsConfiguration corsConfig = new CorsConfiguration();
+        corsConfig.addAllowedOrigin("*");
+        corsConfig.addAllowedHeader("*");
+        corsConfig.addAllowedMethod(HttpMethod.GET);
+        corsConfig.addAllowedMethod(HttpMethod.POST);
+        corsConfig.addAllowedMethod(HttpMethod.PUT);
+        corsConfig.addAllowedMethod(HttpMethod.DELETE);
+        corsConfig.addAllowedMethod(HttpMethod.PATCH);
+        corsConfig.addAllowedMethod(HttpMethod.OPTIONS);
 
-    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    source.registerCorsConfiguration("/**", corsConfig);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", corsConfig);
 
-    return new CorsWebFilter(source);
-  }
+        return new CorsWebFilter(source);
+    }
 
-  @Bean
-  public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-    httpSecurity
-        .csrf(AbstractHttpConfigurer::disable)
-        .authorizeHttpRequests(auth -> auth
-            .requestMatchers(AntPathRequestMatcher.antMatcher("/**")).permitAll()
-        )
-        .cors(Customizer.withDefaults())
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+        httpSecurity
+            .csrf(AbstractHttpConfigurer::disable)
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers(AntPathRequestMatcher.antMatcher("/**")).permitAll()
+            )
+            .cors(Customizer.withDefaults())
 
-    ;
-    return httpSecurity.build();
-  }
+        ;
+        return httpSecurity.build();
+    }
 }
 

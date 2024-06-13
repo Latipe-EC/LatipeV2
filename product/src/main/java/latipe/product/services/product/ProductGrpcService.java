@@ -33,97 +33,98 @@ import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 @RequiredArgsConstructor
 public class ProductGrpcService extends ProductServiceGrpc.ProductServiceImplBase {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(ProductGrpcService.class);
-  private final IProductRepository productRepository;
-  private final SecureInternalProperties secureInternalProperties;
-  private final LoadBalancerClient loadBalancer;
-  private final GsonDecoder gsonDecoder;
-  private final GsonEncoder gsonEncoder;
-  private final OkHttpClient okHttpClient;
-  private final String storeService;
-  private final boolean useEureka;
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProductGrpcService.class);
+    private final IProductRepository productRepository;
+    private final SecureInternalProperties secureInternalProperties;
+    private final LoadBalancerClient loadBalancer;
+    private final GsonDecoder gsonDecoder;
+    private final GsonEncoder gsonEncoder;
+    private final OkHttpClient okHttpClient;
+    private final String storeService;
+    private final boolean useEureka;
 
-  @Override
-  public void checkInStock(GetPurchaseProductRequest request,
-      StreamObserver<GetPurchaseItemResponse> responseObserver) {
+    @Override
+    public void checkInStock(GetPurchaseProductRequest request,
+        StreamObserver<GetPurchaseItemResponse> responseObserver) {
 
-    LOGGER.info("Received request check in stock");
-    var prods = productRepository.findAllByIdsAndStoreId(request.getItemsList().stream().map(
-        GetPurchaseItemRequest::getProductId
-    ).toList(), request.getStoreId());
+        LOGGER.info("Received request check in stock");
+        var prods = productRepository.findAllByIdsAndStoreId(request.getItemsList().stream().map(
+            GetPurchaseItemRequest::getProductId
+        ).toList(), request.getStoreId());
 
-    var classifications = prods.stream()
-        .flatMap(prod -> prod.getProductClassifications().stream()
-            .map(classification -> ItemResponse.newBuilder()
-                .setProductId(prod.getId())
-                .setQuantity(classification.getQuantity())
-                .setImage(prod.getImages().get(0))
-                .setName(prod.getName())
-                .setNameOption(classification.getName())
-                .setPromotionalPrice(classification.getPromotionalPrice().longValue())
-                .setPrice(classification.getPrice().longValue())
-                .setStoreId(prod.getStoreId())
-                .setOptionId(classification.getId())
-                .build()))
-        .toList();
+        var classifications = prods.stream()
+            .flatMap(prod -> prod.getProductClassifications().stream()
+                .map(classification -> ItemResponse.newBuilder()
+                    .setProductId(prod.getId())
+                    .setQuantity(classification.getQuantity())
+                    .setImage(prod.getImages().get(0))
+                    .setName(prod.getName())
+                    .setNameOption(classification.getName())
+                    .setPromotionalPrice(classification.getPromotionalPrice().longValue())
+                    .setPrice(classification.getPrice().longValue())
+                    .setStoreId(prod.getStoreId())
+                    .setOptionId(classification.getId())
+                    .build()))
+            .toList();
 
-    long total = 0L;
+        long total = 0L;
 
-    var classificationMap = classifications.stream()
-        .collect(Collectors.toMap(
-            c -> c.getProductId() + "-" + c.getOptionId(),
-            Function.identity()
-        ));
+        var classificationMap = classifications.stream()
+            .collect(Collectors.toMap(
+                c -> c.getProductId() + "-" + c.getOptionId(),
+                Function.identity()
+            ));
 
-    List<ItemResponse> listItem = new ArrayList<>();
-    for (var item : request.getItemsList()) {
-      String key = item.getProductId() + "-" + item.getOptionId();
-      var classificationOpt = Optional.ofNullable(classificationMap.get(key));
-      if (classificationOpt.isPresent()) {
-        var classification = classificationOpt.get();
-        if (classification.getQuantity() >= item.getQuantity()) {
-          listItem.add(classification);
-          total += item.getQuantity() * (classification.getPromotionalPrice() > 0
-              ? classification.getPromotionalPrice() : classification.getPrice());
-        } else {
-          responseObserver.onError(
-              Status.OUT_OF_RANGE.withDescription("Product out of stock").asRuntimeException());
-          return;
+        List<ItemResponse> listItem = new ArrayList<>();
+        for (var item : request.getItemsList()) {
+            String key = item.getProductId() + "-" + item.getOptionId();
+            var classificationOpt = Optional.ofNullable(classificationMap.get(key));
+            if (classificationOpt.isPresent()) {
+                var classification = classificationOpt.get();
+                if (classification.getQuantity() >= item.getQuantity()) {
+                    listItem.add(classification);
+                    total += item.getQuantity() * (classification.getPromotionalPrice() > 0
+                        ? classification.getPromotionalPrice() : classification.getPrice());
+                } else {
+                    responseObserver.onError(
+                        Status.OUT_OF_RANGE.withDescription("Product out of stock")
+                            .asRuntimeException());
+                    return;
+                }
+            } else {
+                responseObserver.onError(
+                    Status.NOT_FOUND.withDescription("Product not found").asRuntimeException());
+                return;
+            }
         }
-      } else {
-        responseObserver.onError(
-            Status.NOT_FOUND.withDescription("Product not found").asRuntimeException());
-        return;
-      }
-    }
 
-    // get store province code
-    String hash;
-    ProvinceCodeResponse storeProvinceCode;
-    try {
-      var storeClient = Feign.builder().client(okHttpClient).encoder(gsonEncoder)
-          .decoder(gsonDecoder).target(StoreClient.class,
-              useEureka ? String.format("%s/api/v1", GetInstanceServer.get(
-                  loadBalancer, storeService
-              )) : storeService);
+        // get store province code
+        String hash;
+        ProvinceCodeResponse storeProvinceCode;
+        try {
+            var storeClient = Feign.builder().client(okHttpClient).encoder(gsonEncoder)
+                .decoder(gsonDecoder).target(StoreClient.class,
+                    useEureka ? String.format("%s/api/v1", GetInstanceServer.get(
+                        loadBalancer, storeService
+                    )) : storeService);
 
-      hash = generateHash("store-service",
-          getPrivateKey(secureInternalProperties.getPrivateKey()));
-      storeProvinceCode = storeClient.getProvinceCode(request.getStoreId(), hash);
-    } catch (Exception e) {
-      responseObserver.onError(
-          Status.INTERNAL.withDescription(e.getMessage()).asRuntimeException());
-      return;
+            hash = generateHash("store-service",
+                getPrivateKey(secureInternalProperties.getPrivateKey()));
+            storeProvinceCode = storeClient.getProvinceCode(request.getStoreId(), hash);
+        } catch (Exception e) {
+            responseObserver.onError(
+                Status.INTERNAL.withDescription(e.getMessage()).asRuntimeException());
+            return;
+        }
+        LOGGER.info("Check in stock successfully");
+        responseObserver.onNext(
+            GetPurchaseItemResponse.newBuilder()
+                .setTotalPrice(total)
+                .setStoreId(request.getStoreId())
+                .setProvinceCode(storeProvinceCode.code())
+                .addAllItems(listItem).build());
+        responseObserver.onCompleted();
     }
-    LOGGER.info("Check in stock successfully");
-    responseObserver.onNext(
-        GetPurchaseItemResponse.newBuilder()
-            .setTotalPrice(total)
-            .setStoreId(request.getStoreId())
-            .setProvinceCode(storeProvinceCode.code())
-            .addAllItems(listItem).build());
-    responseObserver.onCompleted();
-  }
 
 //  @Override
 //  public void updateQuantity(UpdateProductQuantityRequest request,

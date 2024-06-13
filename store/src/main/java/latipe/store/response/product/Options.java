@@ -7,7 +7,7 @@ import lombok.Setter;
 @Setter
 public class Options {
 
-  String value;
-  String image;
+    String value;
+    String image;
 
 }

@@ -28,54 +28,77 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AttributeCategoryController {
 
-  private final IAttributeCategoryService attributeCategoryService;
+    private final IAttributeCategoryService attributeCategoryService;
 
-  @ResponseStatus(HttpStatus.OK)
-  @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<AttributeCategoryResponse> getAttributeCategories(
-      @PathVariable String id) {
+    /**
+     * @param id
+     * @return AttributeCategoryResponse
+     */
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public CompletableFuture<AttributeCategoryResponse> getAttributeCategories(
+        @PathVariable String id) {
 
-    return attributeCategoryService.getDetail(id);
-  }
+        return attributeCategoryService.getDetail(id);
+    }
 
-  @ResponseStatus(HttpStatus.OK)
-  @GetMapping(value = "/cate/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<AttributeCategoryResponse> getByCate(@PathVariable String id) {
-    return attributeCategoryService.getDetailByCateId(id);
-  }
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "/cate/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public CompletableFuture<AttributeCategoryResponse> getByCate(@PathVariable String id) {
+        return attributeCategoryService.getDetailByCateId(id);
+    }
 
-  @ResponseStatus(HttpStatus.OK)
-  @GetMapping(value = "/paginate", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<PagedResultDto<AttributeCategoryResponse>> getAttributeCategories(
-      @RequestParam(value = "skip", defaultValue = "0") long skip,
-      @RequestParam(value = "limit", defaultValue = "10") int limit) {
+    /**
+     * Get all attribute categories
+     *
+     * @param skip  The number of items to skip
+     * @param limit The number of items to return
+     */
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "/paginate", produces = MediaType.APPLICATION_JSON_VALUE)
+    public CompletableFuture<PagedResultDto<AttributeCategoryResponse>> getAttributeCategories(
+        @RequestParam(value = "skip", defaultValue = "0") long skip,
+        @RequestParam(value = "limit", defaultValue = "10") int limit) {
 
-    return attributeCategoryService.getAttributeCategories(skip, limit);
-  }
+        return attributeCategoryService.getAttributeCategories(skip, limit);
+    }
 
-  @Authenticate
-  @RequiresAuthorization("ADMIN")
-  @ResponseStatus(HttpStatus.CREATED)
-  @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<AttributeCategoryResponse> createStore(
-      @Valid @RequestBody CreateAttributeCategoryRequest input) {
-    return attributeCategoryService.create(input);
-  }
+    /**
+     * Create a new attribute category
+     *
+     * @param input interceptor call get new token from auth service when token call between service
+     *              failThe request body { "name": "string", "description": "string" } name: The
+     *              name of the attribute category description: The description of the attribute
+     *              category The response body { "id": "string", "name": "string", "description":
+     *              "string" } id: The ID of the attribute category name: The name of the attribute
+     *              category description: The description of the attribute category The response
+     *              status 201: The attribute category was created successfully 400: The request
+     *              body is invalid 401: The user is not authenticated 403: The user is not
+     *              authorized 500: An error occurred
+     */
+    @Authenticate
+    @RequiresAuthorization("ADMIN")
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public CompletableFuture<AttributeCategoryResponse> createStore(
+        @Valid @RequestBody CreateAttributeCategoryRequest input) {
+        return attributeCategoryService.create(input);
+    }
 
-  @Authenticate
-  @RequiresAuthorization("ADMIN")
-  @ResponseStatus(HttpStatus.OK)
-  @PatchMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<AttributeCategoryResponse> updateStore(@PathVariable("id") String id,
-      @Valid @RequestBody UpdateAttributeCategoryRequest input) {
-    return attributeCategoryService.update(id, input);
-  }
+    @Authenticate
+    @RequiresAuthorization("ADMIN")
+    @ResponseStatus(HttpStatus.OK)
+    @PatchMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public CompletableFuture<AttributeCategoryResponse> updateStore(@PathVariable("id") String id,
+        @Valid @RequestBody UpdateAttributeCategoryRequest input) {
+        return attributeCategoryService.update(id, input);
+    }
 
-  @Authenticate
-  @RequiresAuthorization("ADMIN")
-  @ResponseStatus(HttpStatus.OK)
-  @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<Void> deleteCategory(@PathVariable("id") String id) {
-    return attributeCategoryService.remove(id);
-  }
+    @Authenticate
+    @RequiresAuthorization("ADMIN")
+    @ResponseStatus(HttpStatus.OK)
+    @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public CompletableFuture<Void> deleteCategory(@PathVariable("id") String id) {
+        return attributeCategoryService.remove(id);
+    }
 }

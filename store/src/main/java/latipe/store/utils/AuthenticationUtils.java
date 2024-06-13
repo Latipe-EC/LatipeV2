@@ -2,17 +2,17 @@ package latipe.store.utils;
 
 public class AuthenticationUtils {
 
-  private AuthenticationUtils() {
-    // Private constructor to prevent instantiation
-  }
-
-  public static String getMethodName() {
-    String methodName = Thread.currentThread().getStackTrace()[2].getMethodName();
-    if (methodName.startsWith("lambda$")) {
-      return methodName.split("\\$")[1];
+    private AuthenticationUtils() {
+        // Private constructor to prevent instantiation
     }
-    return methodName;
-  }
+
+    public static String getMethodName() {
+        String methodName = Thread.currentThread().getStackTrace()[2].getMethodName();
+        if (methodName.startsWith("lambda$")) {
+            return methodName.split("\\$")[1];
+        }
+        return methodName;
+    }
 //    public static String getCurrentUserId() {
 //        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 //

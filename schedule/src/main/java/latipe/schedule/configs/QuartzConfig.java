@@ -11,18 +11,18 @@ import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 @RequiredArgsConstructor
 public class QuartzConfig {
 
-  private final ApplicationContext applicationContext;
-  private final QuartzProperties quartzProperties;
+    private final ApplicationContext applicationContext;
+    private final QuartzProperties quartzProperties;
 
-  @Bean
-  public SchedulerFactoryBean schedulerFactoryBean() {
-    SchedulerFactoryBean factory = new SchedulerFactoryBean();
-    factory.setQuartzProperties(quartzProperties.getProperties());
-    AutowiringSpringBeanJobFactory jobFactory = new AutowiringSpringBeanJobFactory();
-    jobFactory.setApplicationContext(applicationContext);
-    factory.setJobFactory(jobFactory);
-    return factory;
-  }
+    @Bean
+    public SchedulerFactoryBean schedulerFactoryBean() {
+        SchedulerFactoryBean factory = new SchedulerFactoryBean();
+        factory.setQuartzProperties(quartzProperties.getProperties());
+        AutowiringSpringBeanJobFactory jobFactory = new AutowiringSpringBeanJobFactory();
+        jobFactory.setApplicationContext(applicationContext);
+        factory.setJobFactory(jobFactory);
+        return factory;
+    }
 
 
 }

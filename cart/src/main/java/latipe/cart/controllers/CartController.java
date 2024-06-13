@@ -37,87 +37,87 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 public class CartController {
 
-  private final ICartService cartService;
+    private final ICartService cartService;
 
-  public CartController(ICartService cartService) {
-    this.cartService = cartService;
-  }
+    public CartController(ICartService cartService) {
+        this.cartService = cartService;
+    }
 
-  @Authenticate
-  @GetMapping("/my-cart")
-  @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "get cart successfully", content = @Content(schema = @Schema())),
-      @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = UnauthorizedException.class))),
-      @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ForbiddenException.class))),
-      @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = NotFoundException.class))),
-      @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = BadRequestException.class)))})
-  @Operation(summary = "Get my cart.")
-  public CompletableFuture<PagedResultDto<CartGetDetailResponse>> getMyCart(
-      @RequestParam(defaultValue = "0") long skip, @RequestParam(defaultValue = "5") int limit,
-      HttpServletRequest request) {
+    @Authenticate
+    @GetMapping("/my-cart")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "get cart successfully", content = @Content(schema = @Schema())),
+        @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = UnauthorizedException.class))),
+        @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ForbiddenException.class))),
+        @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = NotFoundException.class))),
+        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = BadRequestException.class)))})
+    @Operation(summary = "Get my cart.")
+    public CompletableFuture<PagedResultDto<CartGetDetailResponse>> getMyCart(
+        @RequestParam(defaultValue = "0") long skip, @RequestParam(defaultValue = "5") int limit,
+        HttpServletRequest request) {
 
-    return cartService.getMyCart(skip, limit, request);
-  }
+        return cartService.getMyCart(skip, limit, request);
+    }
 
-  @Authenticate
-  @ResponseStatus(HttpStatus.CREATED)
-  @PostMapping(path = "/add-to-cart")
-  @Operation(summary = "Add product to shopping cart. When no cart exists, this will create a new cart.")
-  @ApiResponses(value = {
-      @ApiResponse(responseCode = "201", description = "Add to cart successfully", content = @Content(schema = @Schema(implementation = CartGetDetailResponse.class))),
-      @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = UnauthorizedException.class))),
-      @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ForbiddenException.class))),
-      @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = NotFoundException.class))),
-      @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = BadRequestException.class)))})
-  public CompletableFuture<CartGetDetailResponse> createCart(
-      @Valid @RequestBody CartItemVm cartItemRequests, HttpServletRequest request) {
-    return cartService.addToCart(cartItemRequests, request);
-  }
+    @Authenticate
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping(path = "/add-to-cart")
+    @Operation(summary = "Add product to shopping cart. When no cart exists, this will create a new cart.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Add to cart successfully", content = @Content(schema = @Schema(implementation = CartGetDetailResponse.class))),
+        @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = UnauthorizedException.class))),
+        @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ForbiddenException.class))),
+        @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = NotFoundException.class))),
+        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = BadRequestException.class)))})
+    public CompletableFuture<CartGetDetailResponse> createCart(
+        @Valid @RequestBody CartItemVm cartItemRequests, HttpServletRequest request) {
+        return cartService.addToCart(cartItemRequests, request);
+    }
 
-  @Authenticate
-  @ResponseStatus(HttpStatus.OK)
-  @PutMapping("/{id}/quantity")
-  @ApiResponses(value = {
-      @ApiResponse(responseCode = "204", description = "Update successfully", content = @Content(schema = @Schema())),
-      @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = UnauthorizedException.class))),
-      @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ForbiddenException.class))),
-      @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = NotFoundException.class))),
-      @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = BadRequestException.class)))})
-  @Operation(summary = "Update quantity cart item")
-  public CompletableFuture<Void> updateQuantity(@Valid @RequestBody UpdateQuantityRequest input,
-      HttpServletRequest request) {
-    return cartService.updateQuantity(input, request);
-  }
+    @Authenticate
+    @ResponseStatus(HttpStatus.OK)
+    @PutMapping("/{id}/quantity")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "204", description = "Update successfully", content = @Content(schema = @Schema())),
+        @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = UnauthorizedException.class))),
+        @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ForbiddenException.class))),
+        @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = NotFoundException.class))),
+        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = BadRequestException.class)))})
+    @Operation(summary = "Update quantity cart item")
+    public CompletableFuture<Void> updateQuantity(@Valid @RequestBody UpdateQuantityRequest input,
+        HttpServletRequest request) {
+        return cartService.updateQuantity(input, request);
+    }
 
-  @Authenticate
-  @ResponseStatus(HttpStatus.OK)
-  @DeleteMapping("/multi-delete")
-  @ApiResponses(value = {
-      @ApiResponse(responseCode = "204", description = "Delete successfully", content = @Content(schema = @Schema())),
-      @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = UnauthorizedException.class))),
-      @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ForbiddenException.class))),
-      @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = NotFoundException.class))),
-      @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = BadRequestException.class)))})
-  @Operation(summary = "delete cart item")
-  public CompletableFuture<Void> deleteCartItem(@Valid @RequestBody DeleteCartItemRequest input,
-      HttpServletRequest request) {
+    @Authenticate
+    @ResponseStatus(HttpStatus.OK)
+    @DeleteMapping("/multi-delete")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "204", description = "Delete successfully", content = @Content(schema = @Schema())),
+        @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = UnauthorizedException.class))),
+        @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ForbiddenException.class))),
+        @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = NotFoundException.class))),
+        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = BadRequestException.class)))})
+    @Operation(summary = "delete cart item")
+    public CompletableFuture<Void> deleteCartItem(@Valid @RequestBody DeleteCartItemRequest input,
+        HttpServletRequest request) {
 
-    return cartService.deleteCartItem(input, request);
-  }
+        return cartService.deleteCartItem(input, request);
+    }
 
-  @Authenticate
-  @GetMapping("/multi-cart")
-  @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "get cart successfully", content = @Content(schema = @Schema())),
-      @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = UnauthorizedException.class))),
-      @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ForbiddenException.class))),
-      @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = NotFoundException.class))),
-      @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = BadRequestException.class)))})
-  @Operation(summary = "Get multi cart.")
-  public CompletableFuture<List<CartGetDetailResponse>> getListCart(
-      @RequestParam() List<String> cartIds
-      , HttpServletRequest request) {
+    @Authenticate
+    @GetMapping("/multi-cart")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "get cart successfully", content = @Content(schema = @Schema())),
+        @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = UnauthorizedException.class))),
+        @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ForbiddenException.class))),
+        @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = NotFoundException.class))),
+        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = BadRequestException.class)))})
+    @Operation(summary = "Get multi cart.")
+    public CompletableFuture<List<CartGetDetailResponse>> getListCart(
+        @RequestParam() List<String> cartIds
+        , HttpServletRequest request) {
 
-    return cartService.getListCart(cartIds, request);
-  }
+        return cartService.getListCart(cartIds, request);
+    }
 }

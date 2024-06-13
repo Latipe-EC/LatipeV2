@@ -17,32 +17,32 @@ import org.springframework.web.bind.annotation.RestController;
 @ApiPrefixController("/search")
 public class ProductController {
 
-  private final ProductService productService;
+    private final ProductService productService;
 
-  public ProductController(ProductService productService) {
-    this.productService = productService;
-  }
+    public ProductController(ProductService productService) {
+        this.productService = productService;
+    }
 
-  @GetMapping("/catalog-search")
-  public CompletableFuture<ProductListGetVm> findProductAdvance(
-      @RequestParam(defaultValue = "") String keyword,
-      @RequestParam(defaultValue = "0") Integer page,
-      @RequestParam(defaultValue = "12") Integer size,
-      @RequestParam(required = false) String category,
-      @RequestParam(required = false) String classification,
-      @RequestParam(required = false) Double minPrice,
-      @RequestParam(required = false) Double maxPrice,
-      @RequestParam(defaultValue = "DEFAULT") ESortType sortType, HttpServletRequest request
+    @GetMapping("/catalog-search")
+    public CompletableFuture<ProductListGetVm> findProductAdvance(
+        @RequestParam(defaultValue = "") String keyword,
+        @RequestParam(defaultValue = "0") Integer page,
+        @RequestParam(defaultValue = "12") Integer size,
+        @RequestParam(required = false) String category,
+        @RequestParam(required = false) String classification,
+        @RequestParam(required = false) Double minPrice,
+        @RequestParam(required = false) Double maxPrice,
+        @RequestParam(defaultValue = "DEFAULT") ESortType sortType, HttpServletRequest request
 
-  ) {
-    return productService.findProductAdvance(keyword, page, size, category, classification,
-        minPrice, maxPrice, sortType, request);
-  }
+    ) {
+        return productService.findProductAdvance(keyword, page, size, category, classification,
+            minPrice, maxPrice, sortType, request);
+    }
 
-  @GetMapping("/search_suggest")
-  public ResponseEntity<ProductNameListVm> productSearchAutoComplete(@RequestParam String keyword,
-      HttpServletRequest request
-  ) {
-    return ResponseEntity.ok(productService.autoCompleteProductName(keyword, request));
-  }
+    @GetMapping("/search_suggest")
+    public ResponseEntity<ProductNameListVm> productSearchAutoComplete(@RequestParam String keyword,
+        HttpServletRequest request
+    ) {
+        return ResponseEntity.ok(productService.autoCompleteProductName(keyword, request));
+    }
 }

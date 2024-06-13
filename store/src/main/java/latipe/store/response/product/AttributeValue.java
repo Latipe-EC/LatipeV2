@@ -8,6 +8,6 @@ import lombok.Setter;
 @Setter
 public class AttributeValue {
 
-  String name;
-  String value;
+    String name;
+    String value;
 }

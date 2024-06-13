@@ -25,25 +25,25 @@ public record UserResponse(
 
 ) {
 
-  public static UserResponse fromUser(User user) {
-    return new UserResponse(
-        user.getId(),
-        user.getFirstName(),
-        user.getLastName(),
-        user.getDisplayName(),
-        user.getPhoneNumber(),
-        user.getEmail(),
-        user.getAvatar(),
-        user.getRole().getName(),
-        user.getEWallet(),
-        user.getPoint(),
-        user.getUsernameReal(),
-        user.getIsChangeUsername(),
-        user.getAddresses(),
-        user.getGender() != null ? user.getGender().name() : Gender.OTHER.name(),
-        new SimpleDateFormat("yyyy-MM-dd").format(
-            user.getBirthday() != null ? user.getBirthday() : new java.util.Date())
-    );
-  }
+    public static UserResponse fromUser(User user) {
+        return new UserResponse(
+            user.getId(),
+            user.getFirstName(),
+            user.getLastName(),
+            user.getDisplayName(),
+            user.getPhoneNumber(),
+            user.getEmail(),
+            user.getAvatar(),
+            user.getRole().getName(),
+            user.getEWallet(),
+            user.getPoint(),
+            user.getUsernameReal(),
+            user.getIsChangeUsername(),
+            user.getAddresses(),
+            user.getGender() != null ? user.getGender().name() : Gender.OTHER.name(),
+            new SimpleDateFormat("yyyy-MM-dd").format(
+                user.getBirthday() != null ? user.getBirthday() : new java.util.Date())
+        );
+    }
 
 }

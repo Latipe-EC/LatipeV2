@@ -25,6 +25,7 @@ public record LoginResponse(@JsonProperty(value = "accessToken", required = true
                             String bio,
                             String role,
                             @JsonProperty(value = "lastActiveAt")
-                            Date lastActiveAt) {
+                            Date lastActiveAt,
+                            String sid) {
 
 }

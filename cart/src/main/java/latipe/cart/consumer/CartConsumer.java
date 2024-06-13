@@ -18,28 +18,29 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class CartConsumer {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(CartConsumer.class);
-  private final ICartService cartService;
-  private final Gson gson;
+    private static final Logger LOGGER = LoggerFactory.getLogger(CartConsumer.class);
+    private final ICartService cartService;
+    private final Gson gson;
 
-  @RabbitListener(bindings = @QueueBinding(
-      value = @Queue(value = "${rabbitmq.queue.name}",
-          durable = "true"),
-      exchange = @Exchange(value = "${rabbitmq.exchange.name}",
-          type = "topic"), key = "${rabbitmq.routing.key}"))
-  public void listen(Message consumerRecord) {
-    try {
-      if (consumerRecord != null) {
-        var cartIdVmList = gson.fromJson(new String(consumerRecord.getBody()),
-            UpdateCartAfterOrderVm.class);
+    @RabbitListener(bindings = @QueueBinding(
+        value = @Queue(value = "${rabbitmq.queue.name}",
+            durable = "true"),
+        exchange = @Exchange(value = "${rabbitmq.exchange.name}",
+            type = "topic"), key = "${rabbitmq.routing.key}"))
+    public void listen(Message consumerRecord) {
+        try {
+            if (consumerRecord != null) {
+                var cartIdVmList = gson.fromJson(new String(consumerRecord.getBody()),
+                    UpdateCartAfterOrderVm.class);
 
-        LOGGER.info(
-            "Remove cart with ids: [%s]".formatted(String.join(", ", cartIdVmList.cartIdVmList())));
+                LOGGER.info(
+                    "Remove cart with ids: [%s]".formatted(
+                        String.join(", ", cartIdVmList.cartIdVmList())));
 
-        cartService.removeCartItemAfterOrder(cartIdVmList).get();
-      }
-    } catch (RuntimeException | ExecutionException | InterruptedException e) {
-      LOGGER.error("Error when remove cart item after order: %s".formatted(e.getMessage()));
+                cartService.removeCartItemAfterOrder(cartIdVmList).get();
+            }
+        } catch (RuntimeException | ExecutionException | InterruptedException e) {
+            LOGGER.error("Error when remove cart item after order: %s".formatted(e.getMessage()));
+        }
     }
-  }
 }

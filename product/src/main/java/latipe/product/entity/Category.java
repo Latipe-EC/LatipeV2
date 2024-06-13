@@ -16,16 +16,16 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "Categories")
 public class Category extends AbstractAuditEntity {
 
-  @Id
-  String id;
-  String name;
-  Boolean isDeleted = false;
-  String parentCategoryId;
-  String image;
-  List<Attribute> attributes;
-  String firstParentCategoryId;
+    @Id
+    String id;
+    String name;
+    Boolean isDeleted = false;
+    String parentCategoryId;
+    String image;
+    List<Attribute> attributes;
+    String firstParentCategoryId;
 
-  public Category(String name) {
-    this.name = name;
-  }
+    public Category(String name) {
+        this.name = name;
+    }
 }

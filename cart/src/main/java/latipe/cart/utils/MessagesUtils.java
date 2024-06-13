@@ -8,22 +8,22 @@ import org.slf4j.helpers.MessageFormatter;
 
 public class MessagesUtils {
 
-  static ResourceBundle messageBundle = ResourceBundle.getBundle("messages.messages",
-      Locale.getDefault());
+    static ResourceBundle messageBundle = ResourceBundle.getBundle("messages.messages",
+        Locale.getDefault());
 
-  private MessagesUtils() {
-    // Private constructor to prevent instantiation
-  }
-
-  public static String getMessage(String errorCode, Object... var2) {
-    String message;
-    try {
-      message = messageBundle.getString(errorCode);
-    } catch (MissingResourceException ex) {
-      // case message_code is not defined.
-      message = errorCode;
+    private MessagesUtils() {
+        // Private constructor to prevent instantiation
     }
-    FormattingTuple formattingTuple = MessageFormatter.arrayFormat(message, var2);
-    return formattingTuple.getMessage();
-  }
+
+    public static String getMessage(String errorCode, Object... var2) {
+        String message;
+        try {
+            message = messageBundle.getString(errorCode);
+        } catch (MissingResourceException ex) {
+            // case message_code is not defined.
+            message = errorCode;
+        }
+        FormattingTuple formattingTuple = MessageFormatter.arrayFormat(message, var2);
+        return formattingTuple.getMessage();
+    }
 }

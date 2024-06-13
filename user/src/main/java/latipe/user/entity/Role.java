@@ -14,17 +14,17 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 public class Role extends AbstractAuditEntity {
 
-  @Id
-  private String id;
-  private String name;
-  private Boolean isDeleted = false;
+    @Id
+    private String id;
+    private String name;
+    private Boolean isDeleted = false;
 
-  public Role(String id, String name) {
-    this.id = id;
-    this.name = name;
-  }
+    public Role(String id, String name) {
+        this.id = id;
+        this.name = name;
+    }
 
-  public Role(String name) {
-    this.name = name;
-  }
+    public Role(String name) {
+        this.name = name;
+    }
 }

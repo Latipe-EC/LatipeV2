@@ -24,36 +24,36 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 @EnableMongoAuditing
 public class MongoConfig extends AbstractMongoClientConfiguration {
 
-  @Value("${spring.data.mongodb.uri}")
-  private String mongoUri;
+    @Value("${spring.data.mongodb.uri}")
+    private String mongoUri;
 
-  @Bean
-  public MongoTransactionManager transactionManager(MongoDatabaseFactory mongoDatabaseFactory) {
-    return new MongoTransactionManager(mongoDatabaseFactory);
-  }
+    @Bean
+    public MongoTransactionManager transactionManager(MongoDatabaseFactory mongoDatabaseFactory) {
+        return new MongoTransactionManager(mongoDatabaseFactory);
+    }
 
-  @Override
-  protected String getDatabaseName() {
-    return "Latipe-Store-DB";
-  }
+    @Override
+    protected String getDatabaseName() {
+        return "Latipe-Store-DB";
+    }
 
-  @Override
-  public MongoClient mongoClient() {
-    var connectionString = new ConnectionString(mongoUri);
-    return MongoClients.create(MongoClientSettings.builder()
-        .applyConnectionString(connectionString)
-        .build());
-  }
+    @Override
+    public MongoClient mongoClient() {
+        var connectionString = new ConnectionString(mongoUri);
+        return MongoClients.create(MongoClientSettings.builder()
+            .applyConnectionString(connectionString)
+            .build());
+    }
 
-  @Override
-  public MappingMongoConverter mappingMongoConverter(MongoDatabaseFactory databaseFactory,
-      MongoCustomConversions customConversions, MongoMappingContext mappingContext) {
-    DbRefResolver dbRefResolver = new DefaultDbRefResolver(databaseFactory);
-    MappingMongoConverter mappingConverter = new MappingMongoConverter(dbRefResolver,
-        mappingContext);
-    mappingConverter.setTypeMapper(new DefaultMongoTypeMapper(null));
-    return mappingConverter;
-  }
+    @Override
+    public MappingMongoConverter mappingMongoConverter(MongoDatabaseFactory databaseFactory,
+        MongoCustomConversions customConversions, MongoMappingContext mappingContext) {
+        DbRefResolver dbRefResolver = new DefaultDbRefResolver(databaseFactory);
+        MappingMongoConverter mappingConverter = new MappingMongoConverter(dbRefResolver,
+            mappingContext);
+        mappingConverter.setTypeMapper(new DefaultMongoTypeMapper(null));
+        return mappingConverter;
+    }
 }
 
 

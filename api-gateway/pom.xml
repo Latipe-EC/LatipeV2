@@ -42,8 +42,8 @@
     </dependency>
 
     <dependency>
-      <groupId>com.google.code.gson</groupId>
       <artifactId>gson</artifactId>
+      <groupId>com.google.code.gson</groupId>
       <version>2.10.1</version>
     </dependency>
 

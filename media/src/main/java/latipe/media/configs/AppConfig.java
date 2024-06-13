@@ -18,52 +18,53 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class AppConfig implements WebMvcConfigurer {
 
-  @Value("${cloudinary.cloud-name}")
-  private String cloudName;
+    @Value("${cloudinary.cloud-name}")
+    private String cloudName;
 
-  @Value("${cloudinary.api-key}")
-  private String apiKey;
+    @Value("${cloudinary.api-key}")
+    private String apiKey;
 
-  @Value("${cloudinary.api-secret}")
-  private String apiSecret;
+    @Value("${cloudinary.api-secret}")
+    private String apiSecret;
 
-  @Bean
-  public Cloudinary cloudinaryConfig() {
-    return new Cloudinary(ObjectUtils.asMap(
-        "cloud_name", cloudName,
-        "api_key", apiKey,
-        "api_secret", apiSecret
-    ));
-  }
+    @Bean
+    public Cloudinary cloudinaryConfig() {
+        return new Cloudinary(ObjectUtils.asMap(
+            "cloud_name", cloudName,
+            "api_key", apiKey,
+            "api_secret", apiSecret
+        ));
+    }
 
-  @Override
-  public void configurePathMatch(PathMatchConfigurer configurer) {
-    configurer.addPathPrefix("/api/v1",
-        HandlerTypePredicate.forAnnotation(ApiPrefixController.class));
-  }
+    @Override
+    public void configurePathMatch(PathMatchConfigurer configurer) {
+        configurer.addPathPrefix("/api/v1",
+            HandlerTypePredicate.forAnnotation(ApiPrefixController.class));
+    }
 
-  @Bean
-  public Gson getGson() {
-    return new Gson();
-  }
+    @Bean
+    public Gson getGson() {
+        return new Gson();
+    }
 
-  @Bean
-  public GsonDecoder getGsonDecoder() {
-    return new GsonDecoder();
-  }
+    @Bean
+    public GsonDecoder getGsonDecoder() {
+        return new GsonDecoder();
+    }
 
-  @Bean
-  public GsonEncoder getGsonEncoder() {
-    return new GsonEncoder();
-  }
+    @Bean
+    public GsonEncoder getGsonEncoder() {
+        return new GsonEncoder();
+    }
 
-  @Bean
-  public OkHttpClient okHttpClient() {
-    return new OkHttpClient();
-  }
+    @Bean
+    public OkHttpClient okHttpClient() {
+        return new OkHttpClient();
+    }
 
-  @Bean
-  public RequestContextListener requestContextListener() {
-    return new RequestContextListener();
-  }
+    @Bean
+    public RequestContextListener requestContextListener() {
+        return new RequestContextListener();
+    }
+
 }

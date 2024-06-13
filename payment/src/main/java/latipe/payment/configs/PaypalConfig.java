@@ -16,22 +16,22 @@ import org.springframework.context.annotation.Configuration;
 @Slf4j
 public class PaypalConfig {
 
-  private final PaymentProviderRepository paymentProviderRepository;
+    private final PaymentProviderRepository paymentProviderRepository;
 
-  @Bean
-  public PayPalHttpClient getPaypalClient() {
-    var paymentProvider = paymentProviderRepository.findById("PaypalPayment")
-        .orElseThrow(()
-            -> new NotFoundException("PAYMENT_PROVIDER_NOT_FOUND", "PaypalPayment"));
-    // Parse the additionalSettings field to extract clientId and clientSecret
-    log.info("config paypal success");
+    @Bean
+    public PayPalHttpClient getPaypalClient() {
+        var paymentProvider = paymentProviderRepository.findById("PaypalPayment")
+            .orElseThrow(()
+                -> new NotFoundException("PAYMENT_PROVIDER_NOT_FOUND", "PaypalPayment"));
+        // Parse the additionalSettings field to extract clientId and clientSecret
+        log.info("config paypal success");
 
-    JsonObject settingsJson = JsonParser.parseString(paymentProvider.getAdditionalSettings())
-        .getAsJsonObject();
-    String clientId = settingsJson.get("clientId").getAsString();
-    String clientSecret = settingsJson.get("clientSecret").getAsString();
-    String mode = settingsJson.get("mode").getAsString();
-    // Create PayPalHttpClient with the retrieved clientId and clientSecret
-    return new PayPalHttpClient(new PayPalEnvironment.Sandbox(clientId, clientSecret));
-  }
+        JsonObject settingsJson = JsonParser.parseString(paymentProvider.getAdditionalSettings())
+            .getAsJsonObject();
+        String clientId = settingsJson.get("clientId").getAsString();
+        String clientSecret = settingsJson.get("clientSecret").getAsString();
+        String mode = settingsJson.get("mode").getAsString();
+        // Create PayPalHttpClient with the retrieved clientId and clientSecret
+        return new PayPalHttpClient(new PayPalEnvironment.Sandbox(clientId, clientSecret));
+    }
 }

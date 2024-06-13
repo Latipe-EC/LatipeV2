@@ -29,62 +29,63 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 public class RatingController {
 
-  private final IRatingService ratingService;
+    private final IRatingService ratingService;
 
-  @Authenticate
-  @ResponseStatus(HttpStatus.CREATED)
-  @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<RatingResponse> create(@Valid @RequestBody CreateRatingRequest input,
-      HttpServletRequest request) {
+    @Authenticate
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public CompletableFuture<RatingResponse> create(@Valid @RequestBody CreateRatingRequest input,
+        HttpServletRequest request) {
 
-    return ratingService.create(input, request);
-  }
+        return ratingService.create(input, request);
+    }
 
-  @Authenticate
-  @ResponseStatus(HttpStatus.OK)
-  @PutMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<RatingResponse> update(@PathVariable("id") String id,
-      @Valid @RequestBody UpdateRatingRequest input, HttpServletRequest request) {
-    return ratingService.update(id, input, request);
-  }
+    @Authenticate
+    @ResponseStatus(HttpStatus.OK)
+    @PutMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public CompletableFuture<RatingResponse> update(@PathVariable("id") String id,
+        @Valid @RequestBody UpdateRatingRequest input, HttpServletRequest request) {
+        return ratingService.update(id, input, request);
+    }
 
-  @Authenticate
-  @ResponseStatus(HttpStatus.OK)
-  @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<Void> delete(@PathVariable("id") String id, HttpServletRequest request) {
-    return ratingService.delete(id, request);
-  }
+    @Authenticate
+    @ResponseStatus(HttpStatus.OK)
+    @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public CompletableFuture<Void> delete(@PathVariable("id") String id,
+        HttpServletRequest request) {
+        return ratingService.delete(id, request);
+    }
 
-  @ResponseStatus(HttpStatus.OK)
-  @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<RatingResponse> getDetailRating(@PathVariable("id") String id,
-      HttpServletRequest request) {
-    return ratingService.getDetailRating(id, request);
-  }
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public CompletableFuture<RatingResponse> getDetailRating(@PathVariable("id") String id,
+        HttpServletRequest request) {
+        return ratingService.getDetailRating(id, request);
+    }
 
-  @ResponseStatus(HttpStatus.OK)
-  @GetMapping(value = "rating-product", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<PagedResultDto<RatingResponse>> getRatingProduct(
-      @RequestParam String productId,
-      @RequestParam(defaultValue = "0") long skip,
-      @RequestParam(defaultValue = "5") int size,
-      @RequestParam(defaultValue = "createdDate") String orderBy,
-      Star filterStar, HttpServletRequest request) {
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "rating-product", produces = MediaType.APPLICATION_JSON_VALUE)
+    public CompletableFuture<PagedResultDto<RatingResponse>> getRatingProduct(
+        @RequestParam String productId,
+        @RequestParam(defaultValue = "0") long skip,
+        @RequestParam(defaultValue = "5") int size,
+        @RequestParam(defaultValue = "createdDate") String orderBy,
+        Star filterStar, HttpServletRequest request) {
 
-    return ratingService.getRatingProduct(productId, skip, size, orderBy, filterStar, request);
-  }
+        return ratingService.getRatingProduct(productId, skip, size, orderBy, filterStar, request);
+    }
 
 
-  @ResponseStatus(HttpStatus.OK)
-  @GetMapping(value = "rating-store", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<PagedResultDto<RatingResponse>> getRatingStore(
-      @RequestParam String storeId, @RequestParam(defaultValue = "0") long skip,
-      @RequestParam(defaultValue = "5") int size,
-      @RequestParam(defaultValue = "createdDate") String orderBy, Star filterStar,
-      HttpServletRequest request) {
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "rating-store", produces = MediaType.APPLICATION_JSON_VALUE)
+    public CompletableFuture<PagedResultDto<RatingResponse>> getRatingStore(
+        @RequestParam String storeId, @RequestParam(defaultValue = "0") long skip,
+        @RequestParam(defaultValue = "5") int size,
+        @RequestParam(defaultValue = "createdDate") String orderBy, Star filterStar,
+        HttpServletRequest request) {
 
-    return ratingService.getRatingStore(storeId, skip, size, orderBy, filterStar, request);
-  }
+        return ratingService.getRatingStore(storeId, skip, size, orderBy, filterStar, request);
+    }
 
 
 }

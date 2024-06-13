@@ -12,10 +12,10 @@ import org.mapstruct.ReportingPolicy;
 
 public interface IRoleMapper {
 
-  @Mappings({
-      @Mapping(target = "id", ignore = true),
-  })
-  public abstract Role mapBeforeCreate(CreateRoleRequest role);
+    @Mappings({
+        @Mapping(target = "id", ignore = true),
+    })
+    public abstract Role mapBeforeCreate(CreateRoleRequest role);
 
-  public abstract RoleResponse mapToResponse(Role role);
+    public abstract RoleResponse mapToResponse(Role role);
 }

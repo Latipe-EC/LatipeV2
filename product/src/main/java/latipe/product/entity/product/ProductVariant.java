@@ -14,8 +14,8 @@ import org.springframework.data.annotation.Id;
 @AllArgsConstructor
 public class ProductVariant {
 
-  @Id
-  String id = new ObjectId().toString();
-  String name;
-  List<Options> options;
+    @Id
+    String id = new ObjectId().toString();
+    String name;
+    List<Options> options;
 }

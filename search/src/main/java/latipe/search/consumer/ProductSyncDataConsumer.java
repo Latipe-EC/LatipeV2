@@ -15,34 +15,35 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class ProductSyncDataConsumer {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(ProductSyncDataConsumer.class);
-  private ProductSyncDataService productSyncDataService;
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProductSyncDataConsumer.class);
+    private ProductSyncDataService productSyncDataService;
 
-  @RabbitListener(queues = {"${rabbitmq.queue.name}"})
-  public void listen(Message consumerRecord) {
-    try {
-      if (consumerRecord != null) {
-        Gson gson = new Gson();
-        var productMessage = gson.fromJson(new String(consumerRecord.getBody()),
-            ProductMessageVm.class);
-        String id = productMessage.id();
-        if (id != null) {
-          String op = productMessage.op();
-          LOGGER.info("Received action [%s] with id [%s]".formatted(op, id));
-          if (op != null) {
-            switch (op) {
-              case Action.CREATE -> productSyncDataService.createProduct(id);
-              case Action.UPDATE -> productSyncDataService.updateProduct(id);
-              case Action.DELETE -> productSyncDataService.deleteProduct(id);
-              case Action.BAN -> productSyncDataService.banProduct(id, productMessage.isBanned());
-              default -> LOGGER.warn("Unknown action received");
+    @RabbitListener(queues = {"${rabbitmq.queue.name}"})
+    public void listen(Message consumerRecord) {
+        try {
+            if (consumerRecord != null) {
+                Gson gson = new Gson();
+                var productMessage = gson.fromJson(new String(consumerRecord.getBody()),
+                    ProductMessageVm.class);
+                String id = productMessage.id();
+                if (id != null) {
+                    String op = productMessage.op();
+                    LOGGER.info("Received action [%s] with id [%s]".formatted(op, id));
+                    if (op != null) {
+                        switch (op) {
+                            case Action.CREATE -> productSyncDataService.createProduct(id);
+                            case Action.UPDATE -> productSyncDataService.updateProduct(id);
+                            case Action.DELETE -> productSyncDataService.deleteProduct(id);
+                            case Action.BAN ->
+                                productSyncDataService.banProduct(id, productMessage.isBanned());
+                            default -> LOGGER.warn("Unknown action received");
+                        }
+                    }
+                }
             }
-          }
+        } catch (RuntimeException e) {
+            LOGGER.warn(e.getMessage());
         }
-      }
-    } catch (RuntimeException e) {
-      LOGGER.warn(e.getMessage());
-    }
 
-  }
+    }
 }

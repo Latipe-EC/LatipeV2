@@ -9,19 +9,19 @@ import org.springframework.stereotype.Service;
 @Service
 public class RabbitMQProducer {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(RabbitMQProducer.class);
-  private final RabbitTemplate rabbitTemplate;
-  @Value("${rabbitmq.exchange.name}")
-  private String exchange;
-  @Value("${rabbitmq.routing.key}")
-  private String routingKey;
+    private static final Logger LOGGER = LoggerFactory.getLogger(RabbitMQProducer.class);
+    private final RabbitTemplate rabbitTemplate;
+    @Value("${rabbitmq.exchange.name}")
+    private String exchange;
+    @Value("${rabbitmq.routing.key}")
+    private String routingKey;
 
-  public RabbitMQProducer(RabbitTemplate rabbitTemplate) {
-    this.rabbitTemplate = rabbitTemplate;
-  }
+    public RabbitMQProducer(RabbitTemplate rabbitTemplate) {
+        this.rabbitTemplate = rabbitTemplate;
+    }
 
-  public void sendMessage(String message) {
-    LOGGER.info(String.format("Message sent -> %s", message));
-    rabbitTemplate.convertAndSend(exchange, routingKey, message);
-  }
+    public void sendMessage(String message) {
+        LOGGER.info(String.format("Message sent -> %s", message));
+        rabbitTemplate.convertAndSend(exchange, routingKey, message);
+    }
 }

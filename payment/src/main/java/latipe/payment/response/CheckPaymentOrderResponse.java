@@ -14,13 +14,13 @@ public record CheckPaymentOrderResponse(
 ) {
 
 
-  public static CheckPaymentOrderResponse fromModel(Payment payment) {
-    return new CheckPaymentOrderResponse(
-        payment.getCheckoutId(),
-        payment.getAmount(),
-        payment.getPaymentFee(),
-        payment.getPaymentMethod(),
-        payment.getPaymentStatus()
-    );
-  }
+    public static CheckPaymentOrderResponse fromModel(Payment payment) {
+        return new CheckPaymentOrderResponse(
+            payment.getCheckoutId(),
+            payment.getAmount(),
+            payment.getPaymentFee(),
+            payment.getPaymentMethod(),
+            payment.getPaymentStatus()
+        );
+    }
 }

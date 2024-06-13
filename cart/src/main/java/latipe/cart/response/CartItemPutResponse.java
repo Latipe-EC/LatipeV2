@@ -8,10 +8,10 @@ public record CartItemPutResponse(String cartItemId, String userId, String produ
                                   String productOptionId,
                                   Integer quantity, String status) {
 
-  public static CartItemPutResponse fromModel(CartItem cartItem, String status) {
-    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    String customerId = auth.getName();
-    return new CartItemPutResponse(cartItem.getId(), customerId, cartItem.getProductId(),
-        cartItem.getProductOptionId(), cartItem.getQuantity(), status);
-  }
+    public static CartItemPutResponse fromModel(CartItem cartItem, String status) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String customerId = auth.getName();
+        return new CartItemPutResponse(cartItem.getId(), customerId, cartItem.getProductId(),
+            cartItem.getProductOptionId(), cartItem.getQuantity(), status);
+    }
 }

@@ -16,42 +16,42 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class AppConfig implements WebMvcConfigurer {
 
-  @Value("${service.auth}")
-  private String authService;
+    @Value("${service.auth}")
+    private String authService;
 
-  @Value("${service.product}")
-  private String productService;
+    @Value("${service.product}")
+    private String productService;
 
 
-  @Override
-  public void addCorsMappings(CorsRegistry registry) {
-    registry.addMapping("/**").allowedMethods("*").allowedOrigins("*").allowedHeaders("*");
-  }
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**").allowedMethods("*").allowedOrigins("*").allowedHeaders("*");
+    }
 
-  @Override
-  public void configurePathMatch(PathMatchConfigurer configurer) {
-    configurer.addPathPrefix("/api/v1",
-        HandlerTypePredicate.forAnnotation(ApiPrefixController.class));
-  }
+    @Override
+    public void configurePathMatch(PathMatchConfigurer configurer) {
+        configurer.addPathPrefix("/api/v1",
+            HandlerTypePredicate.forAnnotation(ApiPrefixController.class));
+    }
 
-  @Bean
-  public RequestContextListener requestContextListener() {
-    return new RequestContextListener();
-  }
+    @Bean
+    public RequestContextListener requestContextListener() {
+        return new RequestContextListener();
+    }
 
-  @Bean
-  public GsonDecoder getGsonDecoder() {
-    return new GsonDecoder();
-  }
+    @Bean
+    public GsonDecoder getGsonDecoder() {
+        return new GsonDecoder();
+    }
 
-  @Bean
-  public GsonEncoder getGsonEncoder() {
-    return new GsonEncoder();
-  }
+    @Bean
+    public GsonEncoder getGsonEncoder() {
+        return new GsonEncoder();
+    }
 
-  @Bean
-  public OkHttpClient okHttpClient() {
-    return new OkHttpClient();
-  }
+    @Bean
+    public OkHttpClient okHttpClient() {
+        return new OkHttpClient();
+    }
 
 }

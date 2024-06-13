@@ -9,13 +9,13 @@ import org.springframework.data.mongodb.repository.Query;
 
 public interface IStoreRepository extends MongoRepository<Store, String> {
 
-  @Query("{'ownerId' : ?0, 'isDeleted' : false}")
-  Optional<Store> findByOwnerId(String ownerId);
+    @Query("{'ownerId' : ?0, 'isDeleted' : false}")
+    Optional<Store> findByOwnerId(String ownerId);
 
-  List<Store> findByIdIn(List<String> ids);
+    List<Store> findByIdIn(List<String> ids);
 
-  Boolean existsByName(String name);
+    Boolean existsByName(String name);
 
-  @Query(value = "{ 'isBan': { $in: ?0 }, 'name': { $regex: ?1, $options: 'i' }}", count = true)
-  long countStoreAdmin(List<Boolean> isBanned, String keyword);
+    @Query(value = "{ 'isBan': { $in: ?0 }, 'name': { $regex: ?1, $options: 'i' }}", count = true)
+    long countStoreAdmin(List<Boolean> isBanned, String keyword);
 }

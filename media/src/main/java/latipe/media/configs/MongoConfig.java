@@ -18,26 +18,26 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 @EnableMongoAuditing
 public class MongoConfig extends AbstractMongoClientConfiguration {
 
-  @Value("${spring.data.mongodb.uri}")
-  private String mongoUri;
+    @Value("${spring.data.mongodb.uri}")
+    private String mongoUri;
 
-  @Bean
-  public MongoTransactionManager transactionManager(MongoDatabaseFactory mongoDatabaseFactory) {
-    return new MongoTransactionManager(mongoDatabaseFactory);
-  }
+    @Bean
+    public MongoTransactionManager transactionManager(MongoDatabaseFactory mongoDatabaseFactory) {
+        return new MongoTransactionManager(mongoDatabaseFactory);
+    }
 
-  @Override
-  protected String getDatabaseName() {
-    return "Latipe-Media-DB";
-  }
+    @Override
+    protected String getDatabaseName() {
+        return "Latipe-Media-DB";
+    }
 
-  @Override
-  public MongoClient mongoClient() {
-    var connectionString = new ConnectionString(mongoUri);
-    return MongoClients.create(MongoClientSettings.builder()
-        .applyConnectionString(connectionString)
-        .build());
-  }
+    @Override
+    public MongoClient mongoClient() {
+        var connectionString = new ConnectionString(mongoUri);
+        return MongoClients.create(MongoClientSettings.builder()
+            .applyConnectionString(connectionString)
+            .build());
+    }
 
 }
 

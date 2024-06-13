@@ -13,13 +13,13 @@ import org.springframework.data.annotation.Id;
 @AllArgsConstructor
 public class ProductClassification {
 
-  @Id
-  String id = new ObjectId().toString();
-  String image;
-  String name;
-  int quantity;
-  Double price;
-  Double promotionalPrice;
-  String sku;
-  String code;
+    @Id
+    String id = new ObjectId().toString();
+    String image;
+    String name;
+    int quantity;
+    Double price;
+    Double promotionalPrice;
+    String sku;
+    String code;
 }

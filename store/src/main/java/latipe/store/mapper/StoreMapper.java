@@ -16,21 +16,21 @@ import org.mapstruct.ReportingPolicy;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface StoreMapper {
 
-  @Mapping(target = "id", ignore = true)
-  Store mapToStoreBeforeCreate(CreateStoreRequest user, String ownerId);
+    @Mapping(target = "id", ignore = true)
+    Store mapToStoreBeforeCreate(CreateStoreRequest user, String ownerId);
 
-  void mapToStoreBeforeUpdate(@MappingTarget Store category, UpdateStoreRequest input);
+    void mapToStoreBeforeUpdate(@MappingTarget Store category, UpdateStoreRequest input);
 
-  @Mapping(target = "feePerOrder", source = "percent")
-  StoreResponse mapToStoreResponse(Store store, Double percent);
+    @Mapping(target = "feePerOrder", source = "percent")
+    StoreResponse mapToStoreResponse(Store store, Double percent);
 
 
-  @Mappings({
-      @Mapping(target = "feePerOrder", source = "percent"),
-  })
-  StoreDetailResponse mapToStoreDetailResponse(Store store, Double percent, Double eWallet);
+    @Mappings({
+        @Mapping(target = "feePerOrder", source = "percent"),
+    })
+    StoreDetailResponse mapToStoreDetailResponse(Store store, Double percent, Double eWallet);
 
-  @Mapping(target = "cityOrProvinceId", source = "store.address.cityOrProvinceId")
-  StoreSimplifyResponse mapToStoreSimplifyResponse(Store store);
+    @Mapping(target = "cityOrProvinceId", source = "store.address.cityOrProvinceId")
+    StoreSimplifyResponse mapToStoreSimplifyResponse(Store store);
 
 }

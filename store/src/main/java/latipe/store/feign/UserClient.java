@@ -6,7 +6,7 @@ import feign.RequestLine;
 
 public interface UserClient {
 
-  @RequestLine("PUT /users/upgrade-to-vendor")
-  @Headers("Authorization: {requester}")
-  void upgradeVendor(@Param("requester") String requester);
+    @RequestLine("PUT /users/upgrade-to-vendor")
+    @Headers("Authorization: {requester}")
+    void upgradeVendor(@Param("requester") String requester);
 }

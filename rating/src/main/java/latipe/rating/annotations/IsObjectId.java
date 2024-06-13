@@ -13,10 +13,10 @@ import latipe.rating.validator.IsObjectIdValidator;
 @Constraint(validatedBy = {IsObjectIdValidator.class})
 public @interface IsObjectId {
 
-  String message() default "field-value-should-be-object-id";
+    String message() default "field-value-should-be-object-id";
 
-  Class<?>[] groups() default {};
+    Class<?>[] groups() default {};
 
-  Class<? extends Payload>[] payload() default {};
+    Class<? extends Payload>[] payload() default {};
 
 }

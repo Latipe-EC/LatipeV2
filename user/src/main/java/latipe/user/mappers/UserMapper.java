@@ -21,36 +21,37 @@ import org.mapstruct.ReportingPolicy;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public abstract class UserMapper {
 
-  public abstract void mapBeforeUpdateUserAddress(@MappingTarget UserAddress address,
-      UpdateUserAddressRequest input);
+    public abstract void mapBeforeUpdateUserAddress(@MappingTarget UserAddress address,
+        UpdateUserAddressRequest input);
 
-  public abstract void mapBeforeUpdateUser(@MappingTarget User user, UpdateUserRequest input);
+    public abstract void mapBeforeUpdateUser(@MappingTarget User user, UpdateUserRequest input);
 
-  @Mappings({@Mapping(target = "role", ignore = true),
-      @Mapping(target = "roleId", source = "roleId"),
-      @Mapping(target = "hashedPassword", source = "password"),
-      @Mapping(target = "displayName", source = "displayName"),})
-  public abstract User mapBeforeCreate(CreateUserRequest input, String displayName, String password,
-      String roleId, String username);
+    @Mappings({@Mapping(target = "role", ignore = true),
+        @Mapping(target = "roleId", source = "roleId"),
+        @Mapping(target = "hashedPassword", source = "password"),
+        @Mapping(target = "displayName", source = "displayName"),})
+    public abstract User mapBeforeCreate(CreateUserRequest input, String displayName,
+        String password,
+        String roleId, String username);
 
-  @Mappings({@Mapping(target = "roleId", source = "roleId"),
-      @Mapping(target = "displayName", source = "displayName"),
-      @Mapping(target = "hashedPassword", source = "password"),})
-  public abstract User mapBeforeCreate(RegisterRequest input, String roleId, String displayName,
-      String password, String username);
+    @Mappings({@Mapping(target = "roleId", source = "roleId"),
+        @Mapping(target = "displayName", source = "displayName"),
+        @Mapping(target = "hashedPassword", source = "password"),})
+    public abstract User mapBeforeCreate(RegisterRequest input, String roleId, String displayName,
+        String password, String username);
 
-  @Mappings({@Mapping(target = "role", source = "user.role.name"),
-      @Mapping(target = "username", expression = "java(user.getUsernameReal())"),
-      @Mapping(target = "birthday", source = "user.birthday", dateFormat = "yyyy-MM-dd")
-  }
-  )
-  public abstract UserResponse mapToResponse(User user);
+    @Mappings({@Mapping(target = "role", source = "user.role.name"),
+        @Mapping(target = "username", expression = "java(user.getUsernameReal())"),
+        @Mapping(target = "birthday", source = "user.birthday", dateFormat = "yyyy-MM-dd")
+    }
+    )
+    public abstract UserResponse mapToResponse(User user);
 
-  public abstract UserAddress mapToUserAddress(String id, CreateUserAddressRequest address);
+    public abstract UserAddress mapToUserAddress(String id, CreateUserAddressRequest address);
 
-  public abstract RegisterMessage mapToMessage(String userId, String type, String name,
-      String email, String password, String token);
+    public abstract RegisterMessage mapToMessage(String userId, String type, String name,
+        String email, String password, String token);
 
 
-  public abstract Token mapToToken(String userId, KeyType type, ZonedDateTime expiredAt);
+    public abstract Token mapToToken(String userId, KeyType type, ZonedDateTime expiredAt);
 }

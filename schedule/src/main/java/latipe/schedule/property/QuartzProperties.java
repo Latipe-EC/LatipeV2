@@ -10,9 +10,9 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "spring.quartz")
 public class QuartzProperties {
 
-  private Properties properties;
+    private Properties properties;
 
-  public void setProperties(Properties properties) {
-    this.properties = properties;
-  }
+    public void setProperties(Properties properties) {
+        this.properties = properties;
+    }
 }

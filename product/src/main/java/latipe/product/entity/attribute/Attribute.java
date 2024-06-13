@@ -13,10 +13,10 @@ import lombok.Setter;
 @Setter
 public class Attribute {
 
-  String name;
-  @ValuesAllow(values = {NUMBER, TEXT, DATE})
-  String type;
-  String prefixUnit;
-  String options;
-  Boolean isRequired;
+    String name;
+    @ValuesAllow(values = {NUMBER, TEXT, DATE})
+    String type;
+    String prefixUnit;
+    String options;
+    Boolean isRequired;
 }

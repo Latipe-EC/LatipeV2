@@ -23,33 +23,33 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ProductService {
 
-  private final SecureInternalProperties secureInternalProperties;
-  private final LoadBalancerClient loadBalancer;
-  private final GsonDecoder gsonDecoder;
-  private final GsonEncoder gsonEncoder;
-  private final OkHttpClient okHttpClient;
+    private final SecureInternalProperties secureInternalProperties;
+    private final LoadBalancerClient loadBalancer;
+    private final GsonDecoder gsonDecoder;
+    private final GsonEncoder gsonEncoder;
+    private final OkHttpClient okHttpClient;
 
-  @Value("${service.product}")
-  private String productService;
+    @Value("${service.product}")
+    private String productService;
 
-  @Value("${eureka.client.enabled}")
-  private boolean useEureka;
+    @Value("${eureka.client.enabled}")
+    private boolean useEureka;
 
-  public List<ProductThumbnailResponse> getProducts(
-      List<ProductFeatureRequest> ids) {
+    public List<ProductThumbnailResponse> getProducts(
+        List<ProductFeatureRequest> ids) {
 
-    String hash;
-    var productClient = Feign.builder().client(okHttpClient).encoder(gsonEncoder)
-        .decoder(gsonDecoder).target(ProductClient.class,
-            useEureka ? String.format("%s/api/v1", GetInstanceServer.get(
-                loadBalancer, productService
-            )) : productService);
-    try {
-      hash = generateHash(PRODUCT_SERVICE,
-          getPrivateKey(secureInternalProperties.getPrivateKey()));
-    } catch (Exception e) {
-      throw new RuntimeException(e);
+        String hash;
+        var productClient = Feign.builder().client(okHttpClient).encoder(gsonEncoder)
+            .decoder(gsonDecoder).target(ProductClient.class,
+                useEureka ? String.format("%s/api/v1", GetInstanceServer.get(
+                    loadBalancer, productService
+                )) : productService);
+        try {
+            hash = generateHash(PRODUCT_SERVICE,
+                getPrivateKey(secureInternalProperties.getPrivateKey()));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return productClient.getProducts(hash, ids);
     }
-    return productClient.getProducts(hash, ids);
-  }
 }

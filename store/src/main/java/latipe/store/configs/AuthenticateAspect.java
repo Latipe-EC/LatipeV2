@@ -27,53 +27,53 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @RequiredArgsConstructor
 public class AuthenticateAspect {
 
-  private final LoadBalancerClient loadBalancer;
-  private final GsonDecoder gsonDecoder;
-  private final GsonEncoder gsonEncoder;
-  private final OkHttpClient okHttpClient;
+    private final LoadBalancerClient loadBalancer;
+    private final GsonDecoder gsonDecoder;
+    private final GsonEncoder gsonEncoder;
+    private final OkHttpClient okHttpClient;
 
-  @Value("${service.auth}")
-  private String authService;
+    @Value("${service.auth}")
+    private String authService;
 
-  @Value("${eureka.client.enabled}")
-  private boolean useEureka;
+    @Value("${eureka.client.enabled}")
+    private boolean useEureka;
 
-  @Before("@annotation(latipe.store.annotations.Authenticate)")
-  public void authenticate() throws UnauthorizedException {
-    var authClient = Feign.builder()
-        .client(okHttpClient)
-        .encoder(gsonEncoder)
-        .decoder(gsonDecoder)
-        .logLevel(Logger.Level.FULL)
-        .target(AuthClient.class,
-            useEureka ? String.format("%s/api/v1", GetInstanceServer.get(
-                loadBalancer, authService
-            )) : authService);
+    @Before("@annotation(latipe.store.annotations.Authenticate)")
+    public void authenticate() throws UnauthorizedException {
+        var authClient = Feign.builder()
+            .client(okHttpClient)
+            .encoder(gsonEncoder)
+            .decoder(gsonDecoder)
+            .logLevel(Logger.Level.FULL)
+            .target(AuthClient.class,
+                useEureka ? String.format("%s/api/v1", GetInstanceServer.get(
+                    loadBalancer, authService
+                )) : authService);
 
-    String token = getTokenFromRequest();
-    if (token == null) {
-      throw new UnauthorizedException("Unauthorized");
+        String token = getTokenFromRequest();
+        if (token == null) {
+            throw new UnauthorizedException("Unauthorized");
+        }
+        try {
+            UserCredentialResponse credential = authClient.getCredential(new TokenRequest(token));
+            if (credential == null) {
+                throw new UnauthorizedException("Unauthorized");
+            }
+            HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+            request.setAttribute("user", credential);
+        } catch (FeignException e) {
+            throw new UnauthorizedException(e.getMessage());
+        }
     }
-    try {
-      UserCredentialResponse credential = authClient.getCredential(new TokenRequest(token));
-      if (credential == null) {
-        throw new UnauthorizedException("Unauthorized");
-      }
-      HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-      request.setAttribute("user", credential);
-    } catch (FeignException e) {
-      throw new UnauthorizedException(e.getMessage());
-    }
-  }
 
-  private String getTokenFromRequest() {
-    // Get token from request headers
-    HttpServletRequest request = ((ServletRequestAttributes) (Objects.requireNonNull(
-        RequestContextHolder.getRequestAttributes()))).getRequest();
-    final String requestTokenHeader = request.getHeader("Authorization");
-    if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer ")) {
-      return requestTokenHeader.substring(7);
+    private String getTokenFromRequest() {
+        // Get token from request headers
+        HttpServletRequest request = ((ServletRequestAttributes) (Objects.requireNonNull(
+            RequestContextHolder.getRequestAttributes()))).getRequest();
+        final String requestTokenHeader = request.getHeader("Authorization");
+        if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer ")) {
+            return requestTokenHeader.substring(7);
+        }
+        return null;
     }
-    return null;
-  }
 }

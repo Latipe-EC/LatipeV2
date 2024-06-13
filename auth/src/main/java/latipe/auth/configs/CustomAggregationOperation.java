@@ -6,14 +6,14 @@ import org.springframework.data.mongodb.core.aggregation.AggregationOperationCon
 
 public class CustomAggregationOperation implements AggregationOperation {
 
-  private final String jsonOperation;
+    private final String jsonOperation;
 
-  public CustomAggregationOperation(String jsonOperation) {
-    this.jsonOperation = jsonOperation;
-  }
+    public CustomAggregationOperation(String jsonOperation) {
+        this.jsonOperation = jsonOperation;
+    }
 
-  @Override
-  public Document toDocument(AggregationOperationContext aggregationOperationContext) {
-    return aggregationOperationContext.getMappedObject(Document.parse(jsonOperation));
-  }
+    @Override
+    public Document toDocument(AggregationOperationContext aggregationOperationContext) {
+        return aggregationOperationContext.getMappedObject(Document.parse(jsonOperation));
+    }
 }

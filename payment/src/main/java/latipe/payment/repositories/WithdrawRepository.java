@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface WithdrawRepository extends MongoRepository<Withdraw, String> {
 
-  Optional<Withdraw> findByUserIdAndWithdrawStatus(String userId, EWithdrawStatus withdrawStatus);
+    Optional<Withdraw> findByUserIdAndWithdrawStatus(String userId, EWithdrawStatus withdrawStatus);
 
-  Optional<Withdraw> findByOrderId(String orderId);
+    Optional<Withdraw> findByOrderId(String orderId);
 }

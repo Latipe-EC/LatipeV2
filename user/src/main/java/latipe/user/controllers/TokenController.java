@@ -23,40 +23,40 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class TokenController {
 
-  private final ITokenService tokenService;
+    private final ITokenService tokenService;
 
-  @SecureInternalPhase
-  @PostMapping(value = "/finish-verify-account", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<?> validateVerify(
-      @RequestBody @Valid VerifyAccountRequest input, HttpServletRequest request
-  ) {
-    return tokenService.validateVerify(input, request);
-  }
+    @SecureInternalPhase
+    @PostMapping(value = "/finish-verify-account", produces = MediaType.APPLICATION_JSON_VALUE)
+    public CompletableFuture<?> validateVerify(
+        @RequestBody @Valid VerifyAccountRequest input, HttpServletRequest request
+    ) {
+        return tokenService.validateVerify(input, request);
+    }
 
-  @SecureInternalPhase
-  @PostMapping(value = "/verify-account", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<?> verifyAccount(
-      @RequestBody RequestVerifyAccountRequest input, HttpServletRequest request
-  ) {
-    return tokenService.verifyAccount(input, request);
-  }
+    @SecureInternalPhase
+    @PostMapping(value = "/verify-account", produces = MediaType.APPLICATION_JSON_VALUE)
+    public CompletableFuture<?> verifyAccount(
+        @RequestBody RequestVerifyAccountRequest input, HttpServletRequest request
+    ) {
+        return tokenService.verifyAccount(input, request);
+    }
 
-  @SecureInternalPhase
-  @PostMapping(value = "/forgot-password", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<?> forgotPassword(
-      @RequestBody ForgotPasswordRequest input, HttpServletRequest request
-  ) {
-    return tokenService.forgotPassword(input, request);
-  }
+    @SecureInternalPhase
+    @PostMapping(value = "/forgot-password", produces = MediaType.APPLICATION_JSON_VALUE)
+    public CompletableFuture<?> forgotPassword(
+        @RequestBody ForgotPasswordRequest input, HttpServletRequest request
+    ) {
+        return tokenService.forgotPassword(input, request);
+    }
 
 
-  @SecureInternalPhase
-  @PostMapping(value = "/reset-password", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<?> resetPassword(
-      @RequestBody ResetPasswordRequest input, HttpServletRequest request
-  ) {
-    return tokenService.resetPassword(input, request);
-  }
+    @SecureInternalPhase
+    @PostMapping(value = "/reset-password", produces = MediaType.APPLICATION_JSON_VALUE)
+    public CompletableFuture<?> resetPassword(
+        @RequestBody ResetPasswordRequest input, HttpServletRequest request
+    ) {
+        return tokenService.resetPassword(input, request);
+    }
 
 
 }

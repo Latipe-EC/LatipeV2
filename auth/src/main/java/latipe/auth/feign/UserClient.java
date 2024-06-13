@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 public interface UserClient {
 
-  @RequestLine("POST /users/register")
-  @Headers({"X-API-KEY: {requester}", "Content-Type: application/json"})
-  UserResponse register(@Param("requester") String requester,
-      @RequestBody RegisterRequest request);
+    @RequestLine("POST /users/register")
+    @Headers({"X-API-KEY: {requester}", "Content-Type: application/json"})
+    UserResponse register(@Param("requester") String requester,
+        @RequestBody RegisterRequest request);
 
 }

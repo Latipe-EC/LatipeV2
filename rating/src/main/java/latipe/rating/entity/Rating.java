@@ -13,24 +13,24 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @AllArgsConstructor
 public class Rating extends AbstractAuditEntity {
 
-  private String id;
+    private String id;
 
-  private String content;
+    private String content;
 
-  private int rating;
+    private int rating;
 
-  private String productId;
+    private String productId;
 
-  private String orderId;
+    private String orderId;
 
-  private String storeId;
+    private String storeId;
 
-  private String userId;
+    private String userId;
 
-  private String username;
-  private String avatar;
+    private String username;
+    private String avatar;
 
-  private String orderItemId;
+    private String orderItemId;
 
-  private Boolean isChange = false;
+    private Boolean isChange = false;
 }

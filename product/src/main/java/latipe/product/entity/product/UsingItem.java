@@ -10,7 +10,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class UsingItem {
 
-  private String productId;
-  private String optionId;
-  private Integer quantity;
+    private String productId;
+    private String optionId;
+    private Integer quantity;
 }

@@ -7,8 +7,8 @@ import org.springframework.data.mongodb.repository.Query;
 
 public interface IRoleRepository extends MongoRepository<Role, String> {
 
-  @Query("{'name': ?0}")
-  Optional<Role> findRoleByName(String name);
+    @Query("{'name': ?0}")
+    Optional<Role> findRoleByName(String name);
 
-  Boolean existsByName(String name);
+    Boolean existsByName(String name);
 }

@@ -10,20 +10,20 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @AllArgsConstructor
 public class Media {
 
-  @Id
-  private String id;
-  private String fileName;
-  private String mediaType;
-  private String url;
-  private double fileSize;
+    @Id
+    private String id;
+    private String fileName;
+    private String mediaType;
+    private String url;
+    private double fileSize;
 
-  public Media(String fileName,
-      String mediaType,
-      String url,
-      double fileSize) {
-    this.fileName = fileName;
-    this.mediaType = mediaType;
-    this.url = url;
-    this.fileSize = fileSize;
-  }
+    public Media(String fileName,
+        String mediaType,
+        String url,
+        double fileSize) {
+        this.fileName = fileName;
+        this.mediaType = mediaType;
+        this.url = url;
+        this.fileSize = fileSize;
+    }
 }

@@ -9,6 +9,6 @@ import org.mapstruct.ReportingPolicy;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface MediaMapper {
 
-  MediaVm mapToMediaResponse(Media media);
+    MediaVm mapToMediaResponse(Media media);
 
 }

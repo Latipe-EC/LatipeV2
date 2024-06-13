@@ -7,19 +7,19 @@ import latipe.product.request.UpdateCategoryRequest;
 
 public interface ICategoryService {
 
-  CompletableFuture<?> getListChildrenCategory(String parentId, HttpServletRequest request);
+    CompletableFuture<?> getListChildrenCategory(String parentId, HttpServletRequest request);
 
-  CompletableFuture<?> searchNameCate(String name, HttpServletRequest request);
+    CompletableFuture<?> searchNameCate(String name, HttpServletRequest request);
 
-  CompletableFuture<?> getPaginateCategory(long skip,
-      int limit, String name, HttpServletRequest request);
+    CompletableFuture<?> getPaginateCategory(long skip,
+        int limit, String name, HttpServletRequest request);
 
-  CompletableFuture<?> update(String id, UpdateCategoryRequest input, HttpServletRequest request);
+    CompletableFuture<?> update(String id, UpdateCategoryRequest input, HttpServletRequest request);
 
-  CompletableFuture<?> get(String id, HttpServletRequest request);
+    CompletableFuture<?> get(String id, HttpServletRequest request);
 
-  CompletableFuture<?> remove(String id, HttpServletRequest request);
+    CompletableFuture<?> remove(String id, HttpServletRequest request);
 
-  CompletableFuture<?> create(CreateCategoryRequest input, HttpServletRequest request);
+    CompletableFuture<?> create(CreateCategoryRequest input, HttpServletRequest request);
 
 }

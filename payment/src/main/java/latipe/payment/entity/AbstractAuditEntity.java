@@ -13,19 +13,19 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @Setter
 public class AbstractAuditEntity {
 
-  @CreatedBy
-  @Field("created_by")
-  private String createdBy;
+    @CreatedBy
+    @Field("created_by")
+    private String createdBy;
 
-  @CreatedDate
-  @Field("created_date")
-  private Date createdDate;
+    @CreatedDate
+    @Field("created_date")
+    private Date createdDate;
 
-  @LastModifiedBy
-  @Field("last_modified_by")
-  private String lastModifiedBy;
+    @LastModifiedBy
+    @Field("last_modified_by")
+    private String lastModifiedBy;
 
-  @LastModifiedDate
-  @Field("last_modified_date")
-  private Date lastModifiedDate;
+    @LastModifiedDate
+    @Field("last_modified_date")
+    private Date lastModifiedDate;
 }

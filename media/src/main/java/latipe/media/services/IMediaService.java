@@ -9,12 +9,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface IMediaService {
 
-  CompletableFuture<MediaVm> saveMedia(MultipartFile file, HttpServletRequest request);
+    CompletableFuture<MediaVm> saveMedia(MultipartFile file, HttpServletRequest request);
 
-  CompletableFuture<Void> remove(String id, HttpServletRequest request);
+    CompletableFuture<Void> remove(String id, HttpServletRequest request);
 
-  CompletableFuture<Page<MediaVm>> findAllPaginate(String fileName, Pageable pageable,
-      HttpServletRequest request);
+    CompletableFuture<Page<MediaVm>> findAllPaginate(String fileName, Pageable pageable,
+        HttpServletRequest request);
 
-  CompletableFuture<MediaVm> saveMediaToCloud(MultipartFile file, HttpServletRequest request);
+    CompletableFuture<MediaVm> saveMediaToCloud(MultipartFile file, HttpServletRequest request);
 }

@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 public interface ProductClient {
 
-  @RequestLine("POST /products/list-featured")
-  @Headers({"X-API-KEY: {requester}", "Content-Type: application/json"})
-  List<ProductThumbnailResponse> getProducts(@Param("requester") String requester,
-      @RequestBody List<@Valid ProductFeatureRequest> request);
+    @RequestLine("POST /products/list-featured")
+    @Headers({"X-API-KEY: {requester}", "Content-Type: application/json"})
+    List<ProductThumbnailResponse> getProducts(@Param("requester") String requester,
+        @RequestBody List<@Valid ProductFeatureRequest> request);
 
 }

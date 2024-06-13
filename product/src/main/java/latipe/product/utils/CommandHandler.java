@@ -4,13 +4,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.List;
 import latipe.product.entity.Category;
+import latipe.product.entity.Product;
 import latipe.product.entity.attribute.Attribute;
 import latipe.product.repositories.ICategoryRepository;
 import latipe.product.repositories.IProductRepository;
@@ -23,20 +19,22 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class CommandHandler {
 
-  private final ICategoryRepository categoryRepository;
-  private final IProductRepository productRepository;
+    private final ICategoryRepository categoryRepository;
+    private final IProductRepository productRepository;
 
 
-  @PostConstruct
-  public void init() {
-    var products = productRepository.findAll();
+    @PostConstruct
+    public void init() {
+        var products = productRepository.findAll();
+        System.out.println("Total images: " + products.stream().map(Product::getImages).flatMap(
+            List::stream).toList().size());
 
-    List<String> uniqueImages = products.stream()
-        .flatMap(product -> product.getImages().stream())
-        .distinct()
-        .toList();
+        List<String> uniqueImages = products.stream()
+            .flatMap(product -> product.getImages().stream())
+            .distinct()
+            .toList();
 
-    System.out.println("Total unique images: " + uniqueImages.size());
+        System.out.println("Total unique images: " + uniqueImages.size());
 //    String imageFolder = "/home/cozark/Pictures/test_dl";
 //    uniqueImages = uniqueImages.subList(2625, uniqueImages.size());
 //    for (String imageUrl : uniqueImages) {
@@ -75,69 +73,69 @@ public class CommandHandler {
 //    productRepository.saveAll(products);
 //        handleCommand(categoryRepository);
 //    addAttribute(categoryRepository);
-  }
-
-  public void addAttribute(ICategoryRepository categoryRepository) throws IOException {
-    ObjectMapper objectMapper = new ObjectMapper();
-    List<Category> categories = categoryRepository.findAll();
-    ClassPathResource resource = new ClassPathResource("attribute.json");
-
-    List<Attribute> attributes = objectMapper.readValue(resource.getInputStream(),
-        new TypeReference<List<Attribute>>() {
-        });
-    for (Category category : categories) {
-      if (category.getParentCategoryId() != null) {
-        category.setAttributes(attributes);
-        categoryRepository.save(category);
-      }
     }
-  }
 
-  public void handleCommand(ICategoryRepository categoryRepository) throws IOException {
-    ClassPathResource resource = new ClassPathResource("parent.json");
+    public void addAttribute(ICategoryRepository categoryRepository) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        List<Category> categories = categoryRepository.findAll();
+        ClassPathResource resource = new ClassPathResource("attribute.json");
 
-    // Read the file content and map it to a list of strings
-    ObjectMapper objectMapper = new ObjectMapper();
-    List<cateobj> categories = objectMapper.readValue(resource.getInputStream(),
-        new TypeReference<List<cateobj>>() {
-        });
-
-    for (cateobj category : categories) {
-      // default data
-      if (category.getName().contains("deda")) {
-        for (String data : category.getData()) {
-          if (categoryRepository.findByName(data) == null) {
-            Category cate = new Category(data);
-            categoryRepository.save(cate);
-          }
-        }
-        ;
-      } else {
-        Category parCate = categoryRepository.findByName(category.getName());
-        if (categoryRepository.findByName(category.getName()) == null) {
-          parCate = new Category(category.getName());
-          parCate = categoryRepository.save(parCate);
-          for (String data : category.getData()) {
-            Category cate = categoryRepository.findByName(data);
-            if (cate == null) {
-              cate = new Category(data);
+        List<Attribute> attributes = objectMapper.readValue(resource.getInputStream(),
+            new TypeReference<List<Attribute>>() {
+            });
+        for (Category category : categories) {
+            if (category.getParentCategoryId() != null) {
+                category.setAttributes(attributes);
+                categoryRepository.save(category);
             }
-            cate.setParentCategoryId(parCate.getId());
-            categoryRepository.save(cate);
-          }
-        } else {
-          for (String data : category.getData()) {
-            Category cate = categoryRepository.findByName(data);
-            if (cate == null) {
-              cate = new Category(data);
-            }
-            cate.setParentCategoryId(parCate.getId());
-            categoryRepository.save(cate);
-          }
         }
-      }
     }
-  }
+
+    public void handleCommand(ICategoryRepository categoryRepository) throws IOException {
+        ClassPathResource resource = new ClassPathResource("parent.json");
+
+        // Read the file content and map it to a list of strings
+        ObjectMapper objectMapper = new ObjectMapper();
+        List<cateobj> categories = objectMapper.readValue(resource.getInputStream(),
+            new TypeReference<List<cateobj>>() {
+            });
+
+        for (cateobj category : categories) {
+            // default data
+            if (category.getName().contains("deda")) {
+                for (String data : category.getData()) {
+                    if (categoryRepository.findByName(data) == null) {
+                        Category cate = new Category(data);
+                        categoryRepository.save(cate);
+                    }
+                }
+                ;
+            } else {
+                Category parCate = categoryRepository.findByName(category.getName());
+                if (categoryRepository.findByName(category.getName()) == null) {
+                    parCate = new Category(category.getName());
+                    parCate = categoryRepository.save(parCate);
+                    for (String data : category.getData()) {
+                        Category cate = categoryRepository.findByName(data);
+                        if (cate == null) {
+                            cate = new Category(data);
+                        }
+                        cate.setParentCategoryId(parCate.getId());
+                        categoryRepository.save(cate);
+                    }
+                } else {
+                    for (String data : category.getData()) {
+                        Category cate = categoryRepository.findByName(data);
+                        if (cate == null) {
+                            cate = new Category(data);
+                        }
+                        cate.setParentCategoryId(parCate.getId());
+                        categoryRepository.save(cate);
+                    }
+                }
+            }
+        }
+    }
 }
 
 //{       $or: [         { parentCategoryId: null },         { parentCategoryId: { $exists: false } }       ]     }

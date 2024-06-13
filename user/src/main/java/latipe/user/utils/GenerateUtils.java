@@ -5,8 +5,8 @@ import org.apache.commons.lang3.RandomStringUtils;
 
 public class GenerateUtils {
 
-  public static String generateRandomUsername() {
-    return RandomStringUtils.randomAlphanumeric(9);
-  }
+    public static String generateRandomUsername() {
+        return RandomStringUtils.randomAlphanumeric(9);
+    }
 
 }

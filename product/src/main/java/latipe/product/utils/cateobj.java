@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 public class cateobj {
 
-  String name;
-  List<String> data;
+    String name;
+    List<String> data;
 
 }

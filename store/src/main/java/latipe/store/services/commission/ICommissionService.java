@@ -10,19 +10,19 @@ import latipe.store.response.CommissionResponse;
 
 public interface ICommissionService {
 
-  CompletableFuture<CommissionResponse> create(CreateCommissionRequest input,
-      HttpServletRequest request);
+    CompletableFuture<CommissionResponse> create(CreateCommissionRequest input,
+        HttpServletRequest request);
 
-  CompletableFuture<Void> delete(String commissionId, HttpServletRequest request);
+    CompletableFuture<Void> delete(String commissionId, HttpServletRequest request);
 
-  CompletableFuture<CommissionResponse> update(String commissionId,
-      UpdateCommissionRequest input, HttpServletRequest request);
+    CompletableFuture<CommissionResponse> update(String commissionId,
+        UpdateCommissionRequest input, HttpServletRequest request);
 
-  Double calcPercentStore(Integer point, HttpServletRequest request);
+    Double calcPercentStore(Integer point, HttpServletRequest request);
 
-  CompletableFuture<PagedResultDto<CommissionResponse>> getPaginate(
-      String keyword,
-      Long skip,
-      Integer size, HttpServletRequest request
-  );
+    CompletableFuture<PagedResultDto<CommissionResponse>> getPaginate(
+        String keyword,
+        Long skip,
+        Integer size, HttpServletRequest request
+    );
 }

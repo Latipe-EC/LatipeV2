@@ -9,15 +9,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 public interface UserClient {
 
-  @RequestLine("POST /users/check-balance")
-  @Headers({"X-API-KEY: {requester}", "Content-Type: application/json"})
-  void checkBalance(@Param("requester") String requester,
-      @RequestBody CheckBalanceRequest request);
+    @RequestLine("POST /users/check-balance")
+    @Headers({"X-API-KEY: {requester}", "Content-Type: application/json"})
+    void checkBalance(@Param("requester") String requester,
+        @RequestBody CheckBalanceRequest request);
 
 
-  @RequestLine("POST /users/cancel-order")
-  @Headers({"X-API-KEY: {requester}", "Content-Type: application/json"})
-  void cancelOrder(@Param("requester") String requester,
-      @RequestBody CancelOrderRequest request);
+    @RequestLine("POST /users/cancel-order")
+    @Headers({"X-API-KEY: {requester}", "Content-Type: application/json"})
+    void cancelOrder(@Param("requester") String requester,
+        @RequestBody CancelOrderRequest request);
 
 }

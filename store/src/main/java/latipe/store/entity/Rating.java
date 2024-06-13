@@ -15,17 +15,17 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Builder
 public class Rating extends AbstractAuditEntity {
 
-  private String id;
+    private String id;
 
-  private String content;
+    private String content;
 
-  private int ratingStar;
+    private int ratingStar;
 
-  private String productId;
+    private String productId;
 
-  private String userId;
+    private String userId;
 
-  private String productName;
+    private String productName;
 
-  private String userName;
+    private String userName;
 }

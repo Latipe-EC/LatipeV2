@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 @Data
 public class ElasticsearchDataConfig {
 
-  private String url;
-  private String username;
-  private String password;
+    private String url;
+    private String username;
+    private String password;
 }

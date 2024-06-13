@@ -12,12 +12,12 @@ import org.mapstruct.ReportingPolicy;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface CategoryMapper {
 
-  @Mapping(target = "id", ignore = true)
-  Category mapToCategoryBeforeCreate(CreateCategoryRequest user);
+    @Mapping(target = "id", ignore = true)
+    Category mapToCategoryBeforeCreate(CreateCategoryRequest user);
 
-  void mapToCategoryBeforeUpdate(@MappingTarget Category category, UpdateCategoryRequest input);
+    void mapToCategoryBeforeUpdate(@MappingTarget Category category, UpdateCategoryRequest input);
 
-  //  @Mappings({
+    //  @Mappings({
 //      @Mapping(target = "id", source = "id"),
 //      @Mapping(target = "name", source = "name"),
 //      @Mapping(target = "isDeleted", source = "isDeleted"),
@@ -25,6 +25,6 @@ public interface CategoryMapper {
 //      @Mapping(target = "image", source = "image"),
 //      @Mapping(target = "attributes", source = "attributes"),
 //  })
-  CategoryResponse mapToCategoryResponse(Category category);
+    CategoryResponse mapToCategoryResponse(Category category);
 
 }

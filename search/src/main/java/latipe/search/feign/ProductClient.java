@@ -6,6 +6,6 @@ import latipe.search.viewmodel.ProductESDetailVm;
 
 public interface ProductClient {
 
-  @RequestLine("GET /products/products-es/{productId}")
-  ProductESDetailVm getProductESDetailById(@Param("productId") String productId);
+    @RequestLine("GET /products/products-es/{productId}")
+    ProductESDetailVm getProductESDetailById(@Param("productId") String productId);
 }

@@ -25,162 +25,173 @@ import org.springframework.web.context.request.WebRequest;
 @Slf4j
 public class ApiExceptionHandler {
 
-  private static final String ERROR_LOG_FORMAT = "[Error] ID: {} URI: {}, ErrorCode: {}, Message: {}";
+    private static final String ERROR_LOG_FORMAT = "[Error] ID: {} URI: {}, ErrorCode: {}, Message: {}";
 
-  @ExceptionHandler(NotFoundException.class)
-  public ResponseEntity<ExceptionResponse> handleNotFoundException(NotFoundException ex,
-      WebRequest request) {
-    String message = ex.getMessage();
-    ExceptionResponse ExceptionResponse = new ExceptionResponse(HttpStatus.NOT_FOUND.toString(),
-        "NotFound", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss yyyy-MM-dd")),
-        message, request.getContextPath());
-    log.warn(ERROR_LOG_FORMAT, request.getAttribute(REQUEST_ID, 0), this.getServletPath(request),
-        404, message);
-    log.debug(ex.toString());
-    return new ResponseEntity<>(ExceptionResponse, HttpStatus.NOT_FOUND);
-  }
-
-  @ExceptionHandler(UnauthorizedException.class)
-  public ResponseEntity<ExceptionResponse> handleUnauthorizedException(UnauthorizedException ex,
-      WebRequest request) {
-    String message = ex.getMessage();
-    ExceptionResponse ExceptionResponse = new ExceptionResponse(HttpStatus.UNAUTHORIZED.toString(),
-        "Unauthorized ",
-        LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss yyyy-MM-dd")), message,
-        request.getContextPath());
-    log.warn(ERROR_LOG_FORMAT, request.getAttribute(REQUEST_ID, 0), this.getServletPath(request),
-        401, message);
-    log.debug(ex.toString());
-    return new ResponseEntity<>(ExceptionResponse, HttpStatus.UNAUTHORIZED);
-  }
-
-  @ExceptionHandler(BadRequestException.class)
-  public ResponseEntity<ExceptionResponse> handleBadRequestException(BadRequestException ex,
-      WebRequest request) {
-    String message = ex.getMessage();
-    var ExceptionResponse = new ExceptionResponse(HttpStatus.BAD_REQUEST.toString(),
-        "Bad request",
-        LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss yyyy-MM-dd")), message,
-        request.getContextPath());
-    log.warn(ERROR_LOG_FORMAT, request.getAttribute(REQUEST_ID, 0), this.getServletPath(request),
-        400, message);
-    return ResponseEntity.badRequest().body(ExceptionResponse);
-  }
-
-  @ExceptionHandler(MethodArgumentNotValidException.class)
-  protected ResponseEntity<Object> handleMethodArgumentNotValid(
-      MethodArgumentNotValidException ex, WebRequest request) {
-    List<String> errors = ex.getBindingResult()
-        .getFieldErrors()
-        .stream()
-        .map(error -> error.getField() + " " + error.getDefaultMessage())
-        .toList();
-
-    ExceptionResponse ExceptionResponse = new ExceptionResponse("400", "Bad Request",
-        LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss yyyy-MM-dd")),
-        "Request information is not valid", "", errors);
-    return ResponseEntity.badRequest().body(ExceptionResponse);
-  }
-
-  @ExceptionHandler({ConstraintViolationException.class})
-  public ResponseEntity<Object> handleConstraintViolation(ConstraintViolationException ex) {
-    List<String> errors = new ArrayList<>();
-    for (ConstraintViolation<?> violation : ex.getConstraintViolations()) {
-      errors.add(violation.getRootBeanClass().getName() + " " +
-          violation.getPropertyPath() + ": " + violation.getMessage());
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<ExceptionResponse> handleNotFoundException(NotFoundException ex,
+        WebRequest request) {
+        String message = ex.getMessage();
+        ExceptionResponse ExceptionResponse = new ExceptionResponse(HttpStatus.NOT_FOUND.toString(),
+            "NotFound",
+            LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss yyyy-MM-dd")),
+            message, request.getContextPath());
+        log.warn(ERROR_LOG_FORMAT, request.getAttribute(REQUEST_ID, 0),
+            this.getServletPath(request),
+            404, message);
+        log.debug(ex.toString());
+        return new ResponseEntity<>(ExceptionResponse, HttpStatus.NOT_FOUND);
     }
-    var ExceptionResponse = new ExceptionResponse("400", "Bad Request",
-        LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss yyyy-MM-dd")),
-        "Request information is not valid", "", errors);
-    return ResponseEntity.badRequest().body(ExceptionResponse);
-  }
 
-  @ExceptionHandler(MissingServletRequestParameterException.class)
-  public ResponseEntity<ExceptionResponse> handleMissingServletRequestParameter(
-      MissingServletRequestParameterException ex, WebRequest request) {
-    String paramName = ex.getParameterName();
-    String message = "Required parameter '" + paramName + "' is missing";
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ExceptionResponse> handleUnauthorizedException(UnauthorizedException ex,
+        WebRequest request) {
+        String message = ex.getMessage();
+        ExceptionResponse ExceptionResponse = new ExceptionResponse(
+            HttpStatus.UNAUTHORIZED.toString(),
+            "Unauthorized ",
+            LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss yyyy-MM-dd")), message,
+            request.getContextPath());
+        log.warn(ERROR_LOG_FORMAT, request.getAttribute(REQUEST_ID, 0),
+            this.getServletPath(request),
+            401, message);
+        log.debug(ex.toString());
+        return new ResponseEntity<>(ExceptionResponse, HttpStatus.UNAUTHORIZED);
+    }
 
-    ExceptionResponse exceptionResponse = new ExceptionResponse(
-        HttpStatus.BAD_REQUEST.toString(),
-        "Bad Request",
-        LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss yyyy-MM-dd")),
-        message,
-        request.getContextPath()
-    );
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<ExceptionResponse> handleBadRequestException(BadRequestException ex,
+        WebRequest request) {
+        String message = ex.getMessage();
+        var ExceptionResponse = new ExceptionResponse(HttpStatus.BAD_REQUEST.toString(),
+            "Bad request",
+            LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss yyyy-MM-dd")), message,
+            request.getContextPath());
+        log.warn(ERROR_LOG_FORMAT, request.getAttribute(REQUEST_ID, 0),
+            this.getServletPath(request),
+            400, message);
+        return ResponseEntity.badRequest().body(ExceptionResponse);
+    }
 
-    log.warn(ERROR_LOG_FORMAT, request.getAttribute(REQUEST_ID, 0), this.getServletPath(request),
-        400, message);
-    log.debug(ex.toString());
-    return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
-  }
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(
+        MethodArgumentNotValidException ex, WebRequest request) {
+        List<String> errors = ex.getBindingResult()
+            .getFieldErrors()
+            .stream()
+            .map(error -> error.getField() + " " + error.getDefaultMessage())
+            .toList();
 
-  @ExceptionHandler(ServletRequestBindingException.class)
-  public ResponseEntity<ExceptionResponse> handleMissingServletRequestParameter(
-      ServletRequestBindingException ex, WebRequest request) {
-    String message = ex.getMessage();
-    ExceptionResponse exceptionResponse = new ExceptionResponse(
-        HttpStatus.UNAUTHORIZED.toString(),
-        "Unauthorized",
-        LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss yyyy-MM-dd")),
-        "Missing authentication header",
-        request.getContextPath()
-    );
+        ExceptionResponse ExceptionResponse = new ExceptionResponse("400", "Bad Request",
+            LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss yyyy-MM-dd")),
+            "Request information is not valid", "", errors);
+        return ResponseEntity.badRequest().body(ExceptionResponse);
+    }
 
-    log.warn(ERROR_LOG_FORMAT, request.getAttribute(REQUEST_ID, 0), this.getServletPath(request),
-        400, message);
-    log.debug(ex.toString());
-    return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
-  }
+    @ExceptionHandler({ConstraintViolationException.class})
+    public ResponseEntity<Object> handleConstraintViolation(ConstraintViolationException ex) {
+        List<String> errors = new ArrayList<>();
+        for (ConstraintViolation<?> violation : ex.getConstraintViolations()) {
+            errors.add(violation.getRootBeanClass().getName() + " " +
+                violation.getPropertyPath() + ": " + violation.getMessage());
+        }
+        var ExceptionResponse = new ExceptionResponse("400", "Bad Request",
+            LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss yyyy-MM-dd")),
+            "Request information is not valid", "", errors);
+        return ResponseEntity.badRequest().body(ExceptionResponse);
+    }
 
-  @ExceptionHandler(JsonParseException.class)
-  public ResponseEntity<ExceptionResponse> handleJsonParseException(
-      JsonParseException ex, WebRequest request) {
-    String message = "Invalid JSON format";
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ExceptionResponse> handleMissingServletRequestParameter(
+        MissingServletRequestParameterException ex, WebRequest request) {
+        String paramName = ex.getParameterName();
+        String message = "Required parameter '" + paramName + "' is missing";
 
-    ExceptionResponse exceptionResponse = new ExceptionResponse(
-        HttpStatus.BAD_REQUEST.toString(),
-        "Bad Request",
-        LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss yyyy-MM-dd")),
-        message,
-        request.getContextPath()
-    );
+        ExceptionResponse exceptionResponse = new ExceptionResponse(
+            HttpStatus.BAD_REQUEST.toString(),
+            "Bad Request",
+            LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss yyyy-MM-dd")),
+            message,
+            request.getContextPath()
+        );
 
-    log.warn(ERROR_LOG_FORMAT, request.getAttribute(REQUEST_ID, 0), this.getServletPath(request),
-        400, message);
-    log.debug(ex.toString());
-    return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
-  }
+        log.warn(ERROR_LOG_FORMAT, request.getAttribute(REQUEST_ID, 0),
+            this.getServletPath(request),
+            400, message);
+        log.debug(ex.toString());
+        return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
+    }
 
-  @ExceptionHandler({SignInRequiredException.class})
-  public ResponseEntity<Object> handleSignInRequired(SignInRequiredException ex,
-      WebRequest request) {
-    String message = ex.getMessage();
-    var ExceptionResponse = new ExceptionResponse("403", "Authentication required",
-        LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss yyyy-MM-dd")), message,
-        "");
+    @ExceptionHandler(ServletRequestBindingException.class)
+    public ResponseEntity<ExceptionResponse> handleMissingServletRequestParameter(
+        ServletRequestBindingException ex, WebRequest request) {
+        String message = ex.getMessage();
+        ExceptionResponse exceptionResponse = new ExceptionResponse(
+            HttpStatus.UNAUTHORIZED.toString(),
+            "Unauthorized",
+            LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss yyyy-MM-dd")),
+            "Missing authentication header",
+            request.getContextPath()
+        );
 
-    log.warn(ERROR_LOG_FORMAT, request.getAttribute(REQUEST_ID, 0), this.getServletPath(request),
-        403, message);
-    log.debug(ex.toString());
-    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ExceptionResponse);
-  }
+        log.warn(ERROR_LOG_FORMAT, request.getAttribute(REQUEST_ID, 0),
+            this.getServletPath(request),
+            400, message);
+        log.debug(ex.toString());
+        return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
+    }
 
-  @ExceptionHandler({ForbiddenException.class})
-  public ResponseEntity<Object> handleForbidden(NotFoundException ex, WebRequest request) {
-    String message = ex.getMessage();
-    ExceptionResponse ExceptionResponse = new ExceptionResponse(HttpStatus.FORBIDDEN.toString(),
-        "Forbidden", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss yyyy-MM-dd")),
-        message, request.getContextPath());
+    @ExceptionHandler(JsonParseException.class)
+    public ResponseEntity<ExceptionResponse> handleJsonParseException(
+        JsonParseException ex, WebRequest request) {
+        String message = "Invalid JSON format";
 
-    log.warn(ERROR_LOG_FORMAT, request.getAttribute(REQUEST_ID, 0), this.getServletPath(request),
-        403, message);
-    log.debug(ex.toString());
-    return new ResponseEntity<>(ExceptionResponse, HttpStatus.FORBIDDEN);
-  }
+        ExceptionResponse exceptionResponse = new ExceptionResponse(
+            HttpStatus.BAD_REQUEST.toString(),
+            "Bad Request",
+            LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss yyyy-MM-dd")),
+            message,
+            request.getContextPath()
+        );
 
-  private String getServletPath(WebRequest webRequest) {
-    ServletWebRequest servletRequest = (ServletWebRequest) webRequest;
-    return servletRequest.getRequest().getServletPath();
-  }
+        log.warn(ERROR_LOG_FORMAT, request.getAttribute(REQUEST_ID, 0),
+            this.getServletPath(request),
+            400, message);
+        log.debug(ex.toString());
+        return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler({SignInRequiredException.class})
+    public ResponseEntity<Object> handleSignInRequired(SignInRequiredException ex,
+        WebRequest request) {
+        String message = ex.getMessage();
+        var ExceptionResponse = new ExceptionResponse("403", "Authentication required",
+            LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss yyyy-MM-dd")), message,
+            "");
+
+        log.warn(ERROR_LOG_FORMAT, request.getAttribute(REQUEST_ID, 0),
+            this.getServletPath(request),
+            403, message);
+        log.debug(ex.toString());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ExceptionResponse);
+    }
+
+    @ExceptionHandler({ForbiddenException.class})
+    public ResponseEntity<Object> handleForbidden(NotFoundException ex, WebRequest request) {
+        String message = ex.getMessage();
+        ExceptionResponse ExceptionResponse = new ExceptionResponse(HttpStatus.FORBIDDEN.toString(),
+            "Forbidden",
+            LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss yyyy-MM-dd")),
+            message, request.getContextPath());
+
+        log.warn(ERROR_LOG_FORMAT, request.getAttribute(REQUEST_ID, 0),
+            this.getServletPath(request),
+            403, message);
+        log.debug(ex.toString());
+        return new ResponseEntity<>(ExceptionResponse, HttpStatus.FORBIDDEN);
+    }
+
+    private String getServletPath(WebRequest webRequest) {
+        ServletWebRequest servletRequest = (ServletWebRequest) webRequest;
+        return servletRequest.getRequest().getServletPath();
+    }
 }

@@ -13,11 +13,11 @@ import org.mapstruct.ReportingPolicy;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface CommissionMapper {
 
-  @Mapping(target = "id", ignore = true)
-  Commission mapToStoreBeforeCreate(CreateCommissionRequest request);
+    @Mapping(target = "id", ignore = true)
+    Commission mapToStoreBeforeCreate(CreateCommissionRequest request);
 
-  CommissionResponse mapToResponse(Commission input);
+    CommissionResponse mapToResponse(Commission input);
 
-  void mapToStoreBeforeUpdate(@MappingTarget Commission commission,
-      UpdateCommissionRequest request);
+    void mapToStoreBeforeUpdate(@MappingTarget Commission commission,
+        UpdateCommissionRequest request);
 }

@@ -9,9 +9,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "Commissions")
 public class Commission {
 
-  @Id
-  String id;
-  String name;
-  Double feeOrder;
-  Integer minPoint;
+    @Id
+    String id;
+    String name;
+    Double feeOrder;
+    Integer minPoint;
 }

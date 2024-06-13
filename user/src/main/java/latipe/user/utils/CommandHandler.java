@@ -12,34 +12,34 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class CommandHandler {
 
-  private final IRoleRepository roleRepository;
+    private final IRoleRepository roleRepository;
 
-  @PostConstruct
-  public void init() {
+    @PostConstruct
+    public void init() {
 //    var users = userRepository.findAll();
 //    for (var user : users) {
 //      user.setIsBanned(false);
 //    }
 //    userRepository.saveAll(users);
 
-    // Check if role exists and create role if it does not exist
+        // Check if role exists and create role if it does not exist
 
-    if (!roleRepository.existsByName(CONSTANTS.USER)) {
-      Role role = new Role(CONSTANTS.USER);
-      roleRepository.save(role);
+        if (!roleRepository.existsByName(CONSTANTS.USER)) {
+            Role role = new Role(CONSTANTS.USER);
+            roleRepository.save(role);
+        }
+        if (!roleRepository.existsByName(CONSTANTS.VENDOR)) {
+            Role role = new Role(CONSTANTS.VENDOR);
+            roleRepository.save(role);
+        }
+        if (!roleRepository.existsByName(CONSTANTS.DELIVERY)) {
+            Role role = new Role(CONSTANTS.DELIVERY);
+            roleRepository.save(role);
+        }
+        if (!roleRepository.existsByName(CONSTANTS.ADMIN)) {
+            Role role = new Role(CONSTANTS.ADMIN);
+            roleRepository.save(role);
+        }
     }
-    if (!roleRepository.existsByName(CONSTANTS.VENDOR)) {
-      Role role = new Role(CONSTANTS.VENDOR);
-      roleRepository.save(role);
-    }
-    if (!roleRepository.existsByName(CONSTANTS.DELIVERY)) {
-      Role role = new Role(CONSTANTS.DELIVERY);
-      roleRepository.save(role);
-    }
-    if (!roleRepository.existsByName(CONSTANTS.ADMIN)) {
-      Role role = new Role(CONSTANTS.ADMIN);
-      roleRepository.save(role);
-    }
-  }
 
 }

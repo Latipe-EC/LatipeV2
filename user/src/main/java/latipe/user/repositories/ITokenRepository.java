@@ -8,10 +8,10 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface ITokenRepository extends MongoRepository<Token, String> {
 
-  Optional<Token> findByIdAndUsedFalseAndExpiredAtAfterAndType(String key, ZonedDateTime now,
-      KeyType action);
+    Optional<Token> findByIdAndUsedFalseAndExpiredAtAfterAndType(String key, ZonedDateTime now,
+        KeyType action);
 
-  Optional<Token> findByUserIdAndUsedFalseAndExpiredAtAfterAndType(String userId,
-      ZonedDateTime now, KeyType action);
+    Optional<Token> findByUserIdAndUsedFalseAndExpiredAtAfterAndType(String userId,
+        ZonedDateTime now, KeyType action);
 
 }

@@ -14,26 +14,26 @@ import org.springframework.data.redis.cache.RedisCacheConfiguration;
 @EnableCaching
 public class CacheConfig {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(CacheConfig.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CacheConfig.class);
 
-  @Value("${spring.cache.config.entryTtl-access-token:60}")
-  private int entryTokenTtl;
+    @Value("${spring.cache.config.entryTtl-access-token:60}")
+    private int entryTokenTtl;
 
-  @Value("${spring.cache.config.entryTtl-data:60}")
-  private int entryDataTtl;
+    @Value("${spring.cache.config.entryTtl-data:60}")
+    private int entryDataTtl;
 
-  @Bean
-  public RedisCacheManagerBuilderCustomizer redisCacheManagerBuilderCustomizer() {
-    LOGGER.info("Start redis in [Auth service]");
+    @Bean
+    public RedisCacheManagerBuilderCustomizer redisCacheManagerBuilderCustomizer() {
+        LOGGER.info("Start redis in [Auth service]");
 
-    return (builder) -> builder
-        .withCacheConfiguration("token",
-            RedisCacheConfiguration
-                .defaultCacheConfig()
-                .entryTtl(Duration.ofMinutes(entryTokenTtl)))
-        .withCacheConfiguration("dataCache",
-            RedisCacheConfiguration
-                .defaultCacheConfig()
-                .entryTtl(Duration.ofMinutes(entryDataTtl)));
-  }
+        return (builder) -> builder
+            .withCacheConfiguration("token",
+                RedisCacheConfiguration
+                    .defaultCacheConfig()
+                    .entryTtl(Duration.ofMinutes(entryTokenTtl)))
+            .withCacheConfiguration("dataCache",
+                RedisCacheConfiguration
+                    .defaultCacheConfig()
+                    .entryTtl(Duration.ofMinutes(entryDataTtl)));
+    }
 }

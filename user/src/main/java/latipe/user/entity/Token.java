@@ -16,11 +16,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 public class Token extends AbstractAuditEntity {
 
-  @Id
-  private String id;
-  private String userId;
-  private KeyType type;
-  private Boolean used = false;
-  private ZonedDateTime expiredAt;
+    @Id
+    private String id;
+    private String userId;
+    private KeyType type;
+    private Boolean used = false;
+    private ZonedDateTime expiredAt;
 
 }

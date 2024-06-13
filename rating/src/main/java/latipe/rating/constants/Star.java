@@ -1,5 +1,5 @@
 package latipe.rating.constants;
 
 public enum Star {
-  ALL, ONE, TWO, THREE, FOUR, FIVE
+    ALL, ONE, TWO, THREE, FOUR, FIVE
 }

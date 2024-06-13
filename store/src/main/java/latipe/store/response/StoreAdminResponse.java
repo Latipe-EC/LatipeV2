@@ -12,19 +12,19 @@ public record StoreAdminResponse(
     List<Integer> ratings
 ) {
 
-  public static StoreAdminResponse setId(StoreAdminResponse storeAdminResponse,
-      String id) {
-    return new StoreAdminResponse(
-        id,
-        storeAdminResponse.name(),
-        storeAdminResponse.point(),
-        storeAdminResponse.eWallet(),
-        storeAdminResponse.isDeleted(),
-        storeAdminResponse.isBan(),
-        storeAdminResponse.reasonBan(),
-        storeAdminResponse.ratings()
-    );
-  }
+    public static StoreAdminResponse setId(StoreAdminResponse storeAdminResponse,
+        String id) {
+        return new StoreAdminResponse(
+            id,
+            storeAdminResponse.name(),
+            storeAdminResponse.point(),
+            storeAdminResponse.eWallet(),
+            storeAdminResponse.isDeleted(),
+            storeAdminResponse.isBan(),
+            storeAdminResponse.reasonBan(),
+            storeAdminResponse.ratings()
+        );
+    }
 
 
 }

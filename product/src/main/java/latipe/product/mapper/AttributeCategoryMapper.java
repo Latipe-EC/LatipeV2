@@ -12,12 +12,12 @@ import org.mapstruct.ReportingPolicy;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface AttributeCategoryMapper {
 
-  @Mapping(target = "id", ignore = true)
-  AttributeCategory mapToAttributeCategoryBeforeCreate(CreateAttributeCategoryRequest user);
+    @Mapping(target = "id", ignore = true)
+    AttributeCategory mapToAttributeCategoryBeforeCreate(CreateAttributeCategoryRequest user);
 
-  void mapToAttributeCategoryBeforeUpdate(@MappingTarget AttributeCategory category,
-      UpdateAttributeCategoryRequest input);
+    void mapToAttributeCategoryBeforeUpdate(@MappingTarget AttributeCategory category,
+        UpdateAttributeCategoryRequest input);
 
-  AttributeCategoryResponse mapToResponse(AttributeCategory category);
+    AttributeCategoryResponse mapToResponse(AttributeCategory category);
 
 }

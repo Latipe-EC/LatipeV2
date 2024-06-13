@@ -16,9 +16,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @RequestMapping("/api${path}")
 public @interface ApiPrefixController {
 
-  @AliasFor(annotation = RequestMapping.class, attribute = "path")
-  String[] value() default {};
+    @AliasFor(annotation = RequestMapping.class, attribute = "path")
+    String[] value() default {};
 
-  @AliasFor(annotation = RequestMapping.class, attribute = "method")
-  RequestMethod[] method() default {};
+    @AliasFor(annotation = RequestMapping.class, attribute = "method")
+    RequestMethod[] method() default {};
 }

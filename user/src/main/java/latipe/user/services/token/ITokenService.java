@@ -10,13 +10,14 @@ import latipe.user.request.VerifyAccountRequest;
 
 public interface ITokenService {
 
-  CompletableFuture<?> validateVerify(VerifyAccountRequest token, HttpServletRequest request);
+    CompletableFuture<?> validateVerify(VerifyAccountRequest token, HttpServletRequest request);
 
-  CompletableFuture<?> forgotPassword(ForgotPasswordRequest token, HttpServletRequest request);
+    CompletableFuture<?> forgotPassword(ForgotPasswordRequest token, HttpServletRequest request);
 
-  CompletableFuture<?> verifyAccount(RequestVerifyAccountRequest token, HttpServletRequest request);
+    CompletableFuture<?> verifyAccount(RequestVerifyAccountRequest token,
+        HttpServletRequest request);
 
-  CompletableFuture<?> resetPassword(ResetPasswordRequest token, HttpServletRequest request);
+    CompletableFuture<?> resetPassword(ResetPasswordRequest token, HttpServletRequest request);
 
 }
 

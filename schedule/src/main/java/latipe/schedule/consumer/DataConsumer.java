@@ -28,63 +28,68 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class DataConsumer {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(DataConsumer.class);
-  private final Scheduler scheduler;
+    private static final Logger LOGGER = LoggerFactory.getLogger(DataConsumer.class);
+    private final Scheduler scheduler;
 
-  @RabbitListener(bindings = @QueueBinding(value = @Queue(value = "${rabbitmq.queue.name}", durable = "true"),
-      exchange = @Exchange(value = "${rabbitmq.exchange.name}"), key = "${rabbitmq.routing.key}"))
-  public void listen(Message consumerRecord) {
-    try {
-      if (consumerRecord != null) {
-        Gson gson = new Gson();
-        var baseMessage = gson.fromJson(new String(consumerRecord.getBody()),
-            BaseMessage.class);
-        if (baseMessage != null) {
-          switch (baseMessage.type()) {
-            case "ORDER_CREATED" -> {
-              var message = gson.fromJson(baseMessage.message(),
-                  OrderCreatedEvent.class);
+    @RabbitListener(bindings = @QueueBinding(value = @Queue(value = "${rabbitmq.queue.name}", durable = "true"),
+        exchange = @Exchange(value = "${rabbitmq.exchange.name}"), key = "${rabbitmq.routing.key}"))
+    public void listen(Message consumerRecord) {
+        try {
+            if (consumerRecord != null) {
+                Gson gson = new Gson();
+                var baseMessage = gson.fromJson(new String(consumerRecord.getBody()),
+                    BaseMessage.class);
+                if (baseMessage != null) {
+                    switch (baseMessage.type()) {
+                        case "ORDER_CREATED" -> {
+                            var message = gson.fromJson(baseMessage.message(),
+                                OrderCreatedEvent.class);
 
-              var job = JobBuilder.newJob(CreateOrderJob.class)
-                  .withIdentity(
-                      BuildKeyQuartz.buildJobKey(BuildKeyQuartz.CANCEL_ORDER, message.orderId()))
-                  .usingJobData("orderId", message.orderId()).build();
+                            var job = JobBuilder.newJob(CreateOrderJob.class)
+                                .withIdentity(
+                                    BuildKeyQuartz.buildJobKey(BuildKeyQuartz.CANCEL_ORDER,
+                                        message.orderId()))
+                                .usingJobData("orderId", message.orderId()).build();
 
-              var triggerDate = DateBuilder.futureDate(2, IntervalUnit.DAY);
-              var trigger = TriggerBuilder.newTrigger()
-                  .withIdentity(BuildKeyQuartz.buildTriggerKey(BuildKeyQuartz.CANCEL_ORDER,
-                      message.orderId())).startAt(triggerDate)
-                  .build();
-              scheduler.scheduleJob(job, trigger);
-              LOGGER.info("Order created: {}", message.orderId());
+                            var triggerDate = DateBuilder.futureDate(2, IntervalUnit.DAY);
+                            var trigger = TriggerBuilder.newTrigger()
+                                .withIdentity(
+                                    BuildKeyQuartz.buildTriggerKey(BuildKeyQuartz.CANCEL_ORDER,
+                                        message.orderId())).startAt(triggerDate)
+                                .build();
+                            scheduler.scheduleJob(job, trigger);
+                            LOGGER.info("Order created: {}", message.orderId());
+                        }
+                        case "ORDER_PAYMENT", "ORDER_CANCEL" -> {
+                            var message = gson.fromJson(baseMessage.message(),
+                                OrderCanceledEvent.class);
+
+                            var jobKey = JobKey.jobKey(
+                                BuildKeyQuartz.buildJobKey(BuildKeyQuartz.CANCEL_ORDER,
+                                    message.orderId()));
+                            var triggerKey = TriggerKey.triggerKey(
+                                BuildKeyQuartz.buildTriggerKey(BuildKeyQuartz.CANCEL_ORDER,
+                                    message.orderId()));
+
+                            if (scheduler.checkExists(jobKey) && scheduler.checkExists(
+                                triggerKey)) {
+                                scheduler.unscheduleJob(triggerKey);
+                                scheduler.deleteJob(jobKey);
+                                LOGGER.info("Cancel job delete successfully");
+                            } else {
+                                LOGGER.error("Cannot find job or trigger");
+                                throw new RuntimeException("cannot-find-job-or-trigger");
+                            }
+
+                        }
+                        default -> LOGGER.warn("Unknown action received");
+                    }
+                }
             }
-            case "ORDER_PAYMENT", "ORDER_CANCEL" -> {
-              var message = gson.fromJson(baseMessage.message(),
-                  OrderCanceledEvent.class);
-
-              var jobKey = JobKey.jobKey(
-                  BuildKeyQuartz.buildJobKey(BuildKeyQuartz.CANCEL_ORDER, message.orderId()));
-              var triggerKey = TriggerKey.triggerKey(
-                  BuildKeyQuartz.buildTriggerKey(BuildKeyQuartz.CANCEL_ORDER, message.orderId()));
-
-              if (scheduler.checkExists(jobKey) && scheduler.checkExists(triggerKey)) {
-                scheduler.unscheduleJob(triggerKey);
-                scheduler.deleteJob(jobKey);
-                LOGGER.info("Cancel job delete successfully");
-              } else {
-                LOGGER.error("Cannot find job or trigger");
-                throw new RuntimeException("cannot-find-job-or-trigger");
-              }
-
-            }
-            default -> LOGGER.warn("Unknown action received");
-          }
+        } catch (RuntimeException | SchedulerException e) {
+            LOGGER.warn(e.getMessage());
         }
-      }
-    } catch (RuntimeException | SchedulerException e) {
-      LOGGER.warn(e.getMessage());
     }
-  }
 
 
 }

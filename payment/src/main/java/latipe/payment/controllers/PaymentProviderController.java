@@ -13,10 +13,10 @@ import org.springframework.web.bind.annotation.RestController;
 @ApiPrefixController("/payment-providers")
 public class PaymentProviderController {
 
-  private final PaymentProviderService paymentProviderService;
+    private final PaymentProviderService paymentProviderService;
 
-  @GetMapping("/{id}/additional-settings")
-  public CompletableFuture<String> getAdditionalSettings(@PathVariable("id") String id) {
-    return paymentProviderService.getAdditionalSettingsByPaymentProviderId(id);
-  }
+    @GetMapping("/{id}/additional-settings")
+    public CompletableFuture<String> getAdditionalSettings(@PathVariable("id") String id) {
+        return paymentProviderService.getAdditionalSettingsByPaymentProviderId(id);
+    }
 }

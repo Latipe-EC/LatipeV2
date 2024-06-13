@@ -9,9 +9,9 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class GsonConfig {
 
-  @Bean
-  public Gson gson() {
-    return new GsonBuilder().registerTypeAdapter(ZonedDateTime.class,
-        new ZonedDateTimeTypeAdapter()).setPrettyPrinting().create();
-  }
+    @Bean
+    public Gson gson() {
+        return new GsonBuilder().registerTypeAdapter(ZonedDateTime.class,
+            new ZonedDateTimeTypeAdapter()).setPrettyPrinting().create();
+    }
 }

@@ -19,38 +19,38 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @AllArgsConstructor
 public class Product extends AbstractAuditEntity {
 
-  private Boolean isBanned = false;
-  private Boolean isDeleted = false;
-  private Boolean isPublished = true;
-  private List<AttributeValue> detailsProduct;
-  private List<Integer> ratings = List.of(0, 0, 0, 0, 0);
-  @Id
-  private String id;
-  private String name;
-  private String description;
-  private List<String> categories;
-  private String slug;
-  private int countSale = 0;
-  private String storeId;
-  private List<String> images = new ArrayList<>();
-  private List<ProductClassification> productClassifications = new ArrayList<>();
-  private List<ProductVariant> productVariants = new ArrayList<>();
-  private String reasonBan;
+    @Id
+    private String id;
+    private Boolean isBanned = false;
+    private Boolean isDeleted = false;
+    private Boolean isPublished = true;
+    private List<AttributeValue> detailsProduct;
+    private List<Integer> ratings = List.of(0, 0, 0, 0, 0);
+    private String name;
+    private String description;
+    private List<String> categories;
+    private String slug;
+    private int countSale = 0;
+    private String storeId;
+    private List<String> images = new ArrayList<>();
+    private List<ProductClassification> productClassifications = new ArrayList<>();
+    private List<ProductVariant> productVariants = new ArrayList<>();
+    private String reasonBan;
 
-  public Product(String prodId) {
-    this.id = prodId;
-  }
+    public Product(String prodId) {
+        this.id = prodId;
+    }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Product product = (Product) o;
+        return id.equals(product.getId());
     }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    Product product = (Product) o;
-    return id.equals(product.getId());
-  }
 
 }

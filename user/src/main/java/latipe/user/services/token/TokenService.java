@@ -34,173 +34,175 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class TokenService implements ITokenService {
 
-  private final ITokenRepository tokenRepository;
-  private final IUserRepository userRepository;
-  private final UserMapper userMapper;
-  private final PasswordEncoder passwordEncoder;
-  private final RabbitMQProducer rabbitMQProducer;
-  private final Gson gson;
+    private final ITokenRepository tokenRepository;
+    private final IUserRepository userRepository;
+    private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
+    private final RabbitMQProducer rabbitMQProducer;
+    private final Gson gson;
 
-  @Value("${rabbitmq.email.exchange.name}")
-  private String exchange;
-  @Value("${encryption.key}")
-  private String ENCRYPTION_KEY;
-  @Value("${rabbitmq.email.forgot-password-topic.routing.key}")
-  private String routingForgotPasswordKey;
-  @Value("${rabbitmq.email.user-register-topic.routing.key}")
-  private String routingUserRegisterKey;
-  @Value("${expiration.password-reset}")
-  private Long expirationPasswordReset;
+    @Value("${rabbitmq.email.exchange.name}")
+    private String exchange;
+    @Value("${encryption.key}")
+    private String ENCRYPTION_KEY;
+    @Value("${rabbitmq.email.forgot-password-topic.routing.key}")
+    private String routingForgotPasswordKey;
+    @Value("${rabbitmq.email.user-register-topic.routing.key}")
+    private String routingUserRegisterKey;
+    @Value("${expiration.password-reset}")
+    private Long expirationPasswordReset;
 
-  @Async
-  @Override
-  @Transactional
-  public CompletableFuture<?> validateVerify(VerifyAccountRequest input,
-      HttpServletRequest request) {
-    log.info(gson.toJson(LogMessage.create("Verify account", request, getMethodName())));
+    @Async
+    @Override
+    @Transactional
+    public CompletableFuture<?> validateVerify(VerifyAccountRequest input,
+        HttpServletRequest request) {
+        log.info(gson.toJson(LogMessage.create("Verify account", request, getMethodName())));
 
-    return CompletableFuture.supplyAsync(
-        () -> {
-          var id = TokenUtils.decodeToken(input.token(), ENCRYPTION_KEY);
+        return CompletableFuture.supplyAsync(
+            () -> {
+                var id = TokenUtils.decodeToken(input.token(), ENCRYPTION_KEY);
 
-          var tokenEntity = tokenRepository.findByIdAndUsedFalseAndExpiredAtAfterAndType(id,
-                  ZonedDateTime.now(), KeyType.VERIFY_ACCOUNT)
-              .orElseThrow(() -> new NotFoundException("Token invalid"));
+                var tokenEntity = tokenRepository.findByIdAndUsedFalseAndExpiredAtAfterAndType(id,
+                        ZonedDateTime.now(), KeyType.VERIFY_ACCOUNT)
+                    .orElseThrow(() -> new NotFoundException("Token invalid"));
 
-          var user = userRepository.findById(tokenEntity.getUserId())
-              .orElseThrow(() -> new NotFoundException("User not found"));
-          user.setVerifiedAt(ZonedDateTime.now());
-          tokenEntity.setUsed(true);
-          tokenRepository.save(tokenEntity);
-          userRepository.save(user);
+                var user = userRepository.findById(tokenEntity.getUserId())
+                    .orElseThrow(() -> new NotFoundException("User not found"));
+                user.setVerifiedAt(ZonedDateTime.now());
+                tokenEntity.setUsed(true);
+                tokenRepository.save(tokenEntity);
+                userRepository.save(user);
 
-          log.info("User verified account: " + user.getEmail());
-          return null;
-        }
-    );
-  }
+                log.info("User verified account: " + user.getEmail());
+                return null;
+            }
+        );
+    }
 
-  @Async
-  @Override
-  public CompletableFuture<?> verifyAccount(RequestVerifyAccountRequest input,
-      HttpServletRequest request) {
-    log.info(gson.toJson(
-        LogMessage.create("Request verify account: [email: %s]".formatted(input.email()), request,
-            getMethodName())));
-    return CompletableFuture.supplyAsync(
-        () -> {
-          var user = userRepository.findByEmail(input.email())
-              .orElseThrow(() -> new NotFoundException("User not found"));
+    @Async
+    @Override
+    public CompletableFuture<?> verifyAccount(RequestVerifyAccountRequest input,
+        HttpServletRequest request) {
+        log.info(gson.toJson(
+            LogMessage.create("Request verify account: [email: %s]".formatted(input.email()),
+                request,
+                getMethodName())));
+        return CompletableFuture.supplyAsync(
+            () -> {
+                var user = userRepository.findByEmail(input.email())
+                    .orElseThrow(() -> new NotFoundException("User not found"));
 
-          if (user.getIsDeleted()) {
-            throw new NotFoundException("User not found");
-          }
+                if (user.getIsDeleted()) {
+                    throw new NotFoundException("User not found");
+                }
 
-          if (user.getVerifiedAt() != null) {
-            throw new BadRequestException("User already verified");
-          }
+                if (user.getVerifiedAt() != null) {
+                    throw new BadRequestException("User already verified");
+                }
 
-          var token = tokenRepository.findByUserIdAndUsedFalseAndExpiredAtAfterAndType(
-                  user.getId(),
-                  ZonedDateTime.now(), KeyType.VERIFY_ACCOUNT)
-              .orElse(null);
+                var token = tokenRepository.findByUserIdAndUsedFalseAndExpiredAtAfterAndType(
+                        user.getId(),
+                        ZonedDateTime.now(), KeyType.VERIFY_ACCOUNT)
+                    .orElse(null);
 
-          if (token != null) {
-            token.setUsed(true);
-            tokenRepository.save(token);
-          }
+                if (token != null) {
+                    token.setUsed(true);
+                    tokenRepository.save(token);
+                }
 
-          token = userMapper.mapToToken(user.getId(), KeyType.VERIFY_ACCOUNT,
-              ZonedDateTime.now().plusSeconds(expirationPasswordReset));
+                token = userMapper.mapToToken(user.getId(), KeyType.VERIFY_ACCOUNT,
+                    ZonedDateTime.now().plusSeconds(expirationPasswordReset));
 
-          token = tokenRepository.save(token);
+                token = tokenRepository.save(token);
 
-          var tokenHash = TokenUtils.encodeToken(token.getId(), ENCRYPTION_KEY);
+                var tokenHash = TokenUtils.encodeToken(token.getId(), ENCRYPTION_KEY);
 
-          // send mail verify account
-          String message = gson.toJson(userMapper.mapToMessage(
-              token.getUserId(), CONSTANTS.USER, user.getDisplayName(), user.getEmail(),
-              null, tokenHash));
-          rabbitMQProducer.sendMessage(message, exchange, routingUserRegisterKey);
+                // send mail verify account
+                String message = gson.toJson(userMapper.mapToMessage(
+                    token.getUserId(), CONSTANTS.USER, user.getDisplayName(), user.getEmail(),
+                    null, tokenHash));
+                rabbitMQProducer.sendMessage(message, exchange, routingUserRegisterKey);
 
-          log.info("Send mail verify account: " + user.getEmail());
-          return null;
-        }
-    );
-  }
+                log.info("Send mail verify account: " + user.getEmail());
+                return null;
+            }
+        );
+    }
 
-  @Async
-  @Override
-  public CompletableFuture<?> forgotPassword(ForgotPasswordRequest input,
-      HttpServletRequest request) {
-    log.info(gson.toJson(
-        LogMessage.create("Request forgot password: [email: %s]".formatted(input.email()), request,
-            getMethodName())));
-    return CompletableFuture.supplyAsync(
-        () -> {
-          var user = userRepository.findByEmail(input.email())
-              .orElseThrow(() -> new NotFoundException("User not found"));
+    @Async
+    @Override
+    public CompletableFuture<?> forgotPassword(ForgotPasswordRequest input,
+        HttpServletRequest request) {
+        log.info(gson.toJson(
+            LogMessage.create("Request forgot password: [email: %s]".formatted(input.email()),
+                request,
+                getMethodName())));
+        return CompletableFuture.supplyAsync(
+            () -> {
+                var user = userRepository.findByEmail(input.email())
+                    .orElseThrow(() -> new NotFoundException("User not found"));
 
-          if (user.getIsDeleted()) {
-            throw new NotFoundException("User not found");
-          }
-          if (user.getVerifiedAt() == null) {
-            throw new NotFoundException("User not verified");
-          }
+                if (user.getIsDeleted()) {
+                    throw new NotFoundException("User not found");
+                }
+                if (user.getVerifiedAt() == null) {
+                    throw new NotFoundException("User not verified");
+                }
 
-          var token = tokenRepository.findByUserIdAndUsedFalseAndExpiredAtAfterAndType(
-                  user.getId(),
-                  ZonedDateTime.now(), KeyType.FORGOT_PASSWORD)
-              .orElse(null);
+                var token = tokenRepository.findByUserIdAndUsedFalseAndExpiredAtAfterAndType(
+                        user.getId(),
+                        ZonedDateTime.now(), KeyType.FORGOT_PASSWORD)
+                    .orElse(null);
 
-          if (token != null) {
-            token.setUsed(true);
-            tokenRepository.save(token);
-          }
+                if (token != null) {
+                    token.setUsed(true);
+                    tokenRepository.save(token);
+                }
 
-          token = userMapper.mapToToken(user.getId(), KeyType.FORGOT_PASSWORD,
-              ZonedDateTime.now().plusSeconds(expirationPasswordReset));
+                token = userMapper.mapToToken(user.getId(), KeyType.FORGOT_PASSWORD,
+                    ZonedDateTime.now().plusSeconds(expirationPasswordReset));
 
-          token = tokenRepository.save(token);
+                token = tokenRepository.save(token);
 
-          var message = gson.toJson(new ForgotPasswordMessage(
-              user.getDisplayName(),
-              user.getEmail(),
-              TokenUtils.encodeToken(token.getId(), ENCRYPTION_KEY)
-          ));
+                var message = gson.toJson(new ForgotPasswordMessage(
+                    user.getDisplayName(),
+                    user.getEmail(),
+                    TokenUtils.encodeToken(token.getId(), ENCRYPTION_KEY)
+                ));
 
-          rabbitMQProducer.sendMessage(message, exchange,
-              routingForgotPasswordKey);
-          log.info("Send mail forgot password: " + user.getEmail());
-          return null;
-        }
-    );
-  }
+                rabbitMQProducer.sendMessage(message, exchange,
+                    routingForgotPasswordKey);
+                log.info("Send mail forgot password: " + user.getEmail());
+                return null;
+            }
+        );
+    }
 
-  @Async
-  @Override
-  public CompletableFuture<?> resetPassword(ResetPasswordRequest input,
-      HttpServletRequest request) {
-    log.info(gson.toJson(LogMessage.create("Reset password", request, getMethodName())));
-    return CompletableFuture.supplyAsync(
-        () -> {
-          var id = TokenUtils.decodeToken(input.token(), ENCRYPTION_KEY);
-          var tokenEntity = tokenRepository.findByIdAndUsedFalseAndExpiredAtAfterAndType(id,
-                  ZonedDateTime.now(), KeyType.FORGOT_PASSWORD)
-              .orElseThrow(() -> new NotFoundException("Token invalid"));
+    @Async
+    @Override
+    public CompletableFuture<?> resetPassword(ResetPasswordRequest input,
+        HttpServletRequest request) {
+        log.info(gson.toJson(LogMessage.create("Reset password", request, getMethodName())));
+        return CompletableFuture.supplyAsync(
+            () -> {
+                var id = TokenUtils.decodeToken(input.token(), ENCRYPTION_KEY);
+                var tokenEntity = tokenRepository.findByIdAndUsedFalseAndExpiredAtAfterAndType(id,
+                        ZonedDateTime.now(), KeyType.FORGOT_PASSWORD)
+                    .orElseThrow(() -> new NotFoundException("Token invalid"));
 
-          var user = userRepository.findById(tokenEntity.getUserId())
-              .orElseThrow(() -> new NotFoundException("User not found"));
+                var user = userRepository.findById(tokenEntity.getUserId())
+                    .orElseThrow(() -> new NotFoundException("User not found"));
 
-          user.setHashedPassword(passwordEncoder.encode(input.password()));
-          tokenEntity.setUsed(true);
-          tokenRepository.save(tokenEntity);
-          userRepository.save(user);
+                user.setHashedPassword(passwordEncoder.encode(input.password()));
+                tokenEntity.setUsed(true);
+                tokenRepository.save(tokenEntity);
+                userRepository.save(user);
 
-          log.info("User [%s] has reset password".formatted(user.getEmail()));
-          return null;
-        }
-    );
-  }
+                log.info("User [%s] has reset password".formatted(user.getEmail()));
+                return null;
+            }
+        );
+    }
 
 }

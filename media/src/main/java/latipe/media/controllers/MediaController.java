@@ -25,36 +25,36 @@ import org.springframework.web.multipart.MultipartFile;
 @ApiPrefixController("medias")
 public class MediaController {
 
-  private final IMediaService mediaService;
+    private final IMediaService mediaService;
 
-  public MediaController(IMediaService mediaService) {
-    this.mediaService = mediaService;
-  }
+    public MediaController(IMediaService mediaService) {
+        this.mediaService = mediaService;
+    }
 
-  @RequiresAuthorization("ADMIN")
-  @ResponseStatus(HttpStatus.OK)
-  @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<Page<MediaVm>> getPaginateCategory(
-      @RequestParam(name = "name", defaultValue = "") String content, Pageable pageable,
-      HttpServletRequest request) {
-    return mediaService.findAllPaginate(content, pageable, request);
-  }
+    @RequiresAuthorization("ADMIN")
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public CompletableFuture<Page<MediaVm>> getPaginateCategory(
+        @RequestParam(name = "name", defaultValue = "") String content, Pageable pageable,
+        HttpServletRequest request) {
+        return mediaService.findAllPaginate(content, pageable, request);
+    }
 
-  @Authenticate
-  @ResponseStatus(HttpStatus.CREATED)
-  @PostMapping(consumes = "multipart/form-data")
-  public CompletableFuture<MediaVm> uploadFile(@RequestPart("file") MultipartFile file,
-      HttpServletRequest request) {
+    @Authenticate
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping(consumes = "multipart/form-data")
+    public CompletableFuture<MediaVm> uploadFile(@RequestPart("file") MultipartFile file,
+        HttpServletRequest request) {
 
-    return mediaService.saveMediaToCloud(file, request);
-  }
+        return mediaService.saveMediaToCloud(file, request);
+    }
 
-  @RequiresAuthorization("ADMIN")
-  @ResponseStatus(HttpStatus.CREATED)
-  @DeleteMapping(value = "{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public CompletableFuture<Void> delete(@PathVariable String id, HttpServletRequest request) {
-    return mediaService.remove(id, request);
-  }
+    @RequiresAuthorization("ADMIN")
+    @ResponseStatus(HttpStatus.OK)
+    @DeleteMapping(value = "{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public CompletableFuture<Void> delete(@PathVariable String id, HttpServletRequest request) {
+        return mediaService.remove(id, request);
+    }
 
 
 }

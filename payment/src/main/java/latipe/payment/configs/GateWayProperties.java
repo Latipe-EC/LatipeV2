@@ -11,6 +11,6 @@ import org.springframework.context.annotation.Configuration;
 @Setter
 public class GateWayProperties {
 
-  private String host;
-  private String port;
+    private String host;
+    private String port;
 }

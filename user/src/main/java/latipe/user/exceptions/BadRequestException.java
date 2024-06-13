@@ -4,14 +4,14 @@ import latipe.user.utils.MessagesUtils;
 
 public class BadRequestException extends RuntimeException {
 
-  private final String message;
+    private final String message;
 
-  public BadRequestException(String errorCode, Object... var2) {
-    this.message = MessagesUtils.getMessage(errorCode, var2);
-  }
+    public BadRequestException(String errorCode, Object... var2) {
+        this.message = MessagesUtils.getMessage(errorCode, var2);
+    }
 
-  @Override
-  public String getMessage() {
-    return message;
-  }
+    @Override
+    public String getMessage() {
+        return message;
+    }
 }

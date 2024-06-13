@@ -8,17 +8,17 @@ import org.springframework.stereotype.Service;
 @Service
 public class RabbitMQProducer {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(RabbitMQProducer.class);
-  private final RabbitTemplate rabbitTemplate;
+    private static final Logger LOGGER = LoggerFactory.getLogger(RabbitMQProducer.class);
+    private final RabbitTemplate rabbitTemplate;
 
 
-  public RabbitMQProducer(RabbitTemplate rabbitTemplate) {
-    this.rabbitTemplate = rabbitTemplate;
-  }
+    public RabbitMQProducer(RabbitTemplate rabbitTemplate) {
+        this.rabbitTemplate = rabbitTemplate;
+    }
 
-  public void sendMessage(String message, String exchange, String routingKey) {
-    LOGGER.info(String.format("Message sent -> %s", message));
-    rabbitTemplate.convertAndSend(exchange, routingKey, message);
-  }
+    public void sendMessage(String message, String exchange, String routingKey) {
+        LOGGER.info(String.format("Message sent -> %s", message));
+        rabbitTemplate.convertAndSend(exchange, routingKey, message);
+    }
 
 }

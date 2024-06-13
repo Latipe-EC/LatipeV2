@@ -13,11 +13,11 @@ import latipe.product.validator.ValuesAllowedValidator;
 @Constraint(validatedBy = {ValuesAllowedValidator.class})
 public @interface ValuesAllow {
 
-  String message() default "field-value-should-be-from-list-of-";
+    String message() default "field-value-should-be-from-list-of-";
 
-  Class<?>[] groups() default {};
+    Class<?>[] groups() default {};
 
-  Class<? extends Payload>[] payload() default {};
+    Class<? extends Payload>[] payload() default {};
 
-  String[] values();
+    String[] values();
 }
