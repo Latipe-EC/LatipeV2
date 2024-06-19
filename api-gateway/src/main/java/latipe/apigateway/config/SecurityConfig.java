@@ -1,5 +1,7 @@
 package latipe.apigateway.config;
 
+import latipe.apigateway.Utils.Utils;
+import latipe.apigateway.constants.Const;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
@@ -32,6 +34,14 @@ public class SecurityConfig {
             if (CorsUtils.isCorsRequest(request)) {
                 ServerHttpResponse response = ctx.getResponse();
                 HttpHeaders headers = response.getHeaders();
+                if (headers.get(Const.SESSION_ID) == null) {
+                    // Post-processing logic here
+                    headers.add(Const.SESSION_ID,
+                        Utils.encodeSession(Utils.getRealIp(ctx.getRequest())));
+
+                    headers.add(Const.ANONYMOUS, "true");
+
+                }
                 headers.add("Access-Control-Allow-Origin", ALLOWED_ORIGIN);
                 headers.add("Access-Control-Allow-Methods", ALLOWED_METHODS);
                 headers.add("Access-Control-Expose-Headers", "response-time");
@@ -54,9 +64,7 @@ public class SecurityConfig {
 
         return http
             //.addFilterAt(corsFilter(), SecurityWebFiltersOrder.CORS)
-            .authorizeExchange(auth -> auth
-                .anyExchange().permitAll())
-            .csrf(ServerHttpSecurity.CsrfSpec::disable)
-            .build();
+            .authorizeExchange(auth -> auth.anyExchange().permitAll())
+            .csrf(ServerHttpSecurity.CsrfSpec::disable).build();
     }
 }

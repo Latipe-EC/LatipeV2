@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "latipe.schedule.grpc";
+option java_outer_classname = "ScheduleProto";
+
+//package protobuf;
+
+service ScheduleService {
+  rpc CreatSchedule(CreatScheduleRequest) returns (CreatScheduleResponse) {}
+}
+
+message CreatScheduleRequest {
+  string from = 1;
+  string type = 2;
+  string cron_expression = 3;
+  string deadline = 4;
+  string reply_on = 5;
+  string x_api_key = 6;
+  string data = 7;
+}
+
+message CreatScheduleResponse {
+  bool isSuccess = 1;
+}

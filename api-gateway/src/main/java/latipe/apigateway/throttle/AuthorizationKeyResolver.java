@@ -14,6 +14,7 @@ import reactor.core.publisher.Mono;
 
 @Component
 @Primary
+
 public class AuthorizationKeyResolver implements KeyResolver {
 
     /* (non-Javadoc)

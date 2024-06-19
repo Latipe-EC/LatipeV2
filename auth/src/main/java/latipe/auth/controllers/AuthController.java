@@ -16,6 +16,7 @@ import feign.gson.GsonEncoder;
 import feign.okhttp.OkHttpClient;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
@@ -197,7 +198,7 @@ public class AuthController {
 
     @PostMapping("/validate-token")
     public CompletableFuture<UserCredentialResponse> validateToken(
-        @Valid @RequestBody TokenRequest accessToken, HttpServletRequest request) {
+        @Valid @RequestBody TokenRequest accessToken, HttpServletRequest request, HttpServletResponse response) {
 
         LOGGER.info(
             gson.toJson(LogMessage.create("Validate token request", request, getMethodName())));
@@ -209,11 +210,14 @@ public class AuthController {
         if (userCache != null) {
             LOGGER.info("Validate token success for user {}", username);
             var user = gson.fromJson(userCache, UserCredentialResponse.class);
-            var sessionData = tokenCache.getSid(sid);
 
-            if (sessionData != null) {
-                if (!sessionData.equals(user.id())) {
-                    throw new UnauthorizedException("Invalid session");
+            if (sid != null) {
+                var sessionData = tokenCache.getSid(sid);
+
+                if (sessionData != null) {
+                    if (!sessionData.equals(user.id())) {
+                        throw new UnauthorizedException("Invalid session");
+                    }
                 }
             }
 

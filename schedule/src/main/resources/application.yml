@@ -8,22 +8,24 @@ gate-way:
   host: ${GATE_WAY_HOST:http://localhost}
   port: ${GATE_WAY_PORT:8181}
 
+grpc:
+  port: ${GRPC_PRODUCT_PORT:9665}
+
+secure-internal:
+  public-key: "MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAKl5SroD9NuxQ955qCcCMERMAMJz2/CZfx3WTHkQa8cvf13FBkRFvRkLD7U1MRCNylxe+oebmy/OF4GzuSxcDl8CAwEAAQ=="
+  private-key: "MIIBUwIBADANBgkqhkiG9w0BAQEFAASCAT0wggE5AgEAAkEAqXlKugP027FD3nmoJwIwREwAwnPb8Jl/HdZMeRBrxy9/XcUGREW9GQsPtTUxEI3KXF76h5ubL84XgbO5LFwOXwIDAQABAkB7y8dDZFp8FNwv6oxjmlyptx8i7EEwWuAZao5ILS+duqnmZLLdSVpTF/tc58bFoBsZyWFru6sxmommxDipxwMBAiEA5FhOxbJeo8zn4OyASEzBuzWNv2QpEX7hpn5H9wlTVoECIQC9/7iLKBzB7YiS6+tKHRROHQt9n4OMcDGau5gfxXG03wIgRmGRpg3cbdByiDldMOu3quRO1Hci0WmyU4cI13PgZAECIEMMNbxtqFBLGXH3bO2Xe23hVAe9vbdWdDrNTm6Px4NzAiBjaQjKKLaSlP24wdaYe0cQxWuC0UlwAu5vHk0twRzV/g=="
+
 spring:
-  jpa:
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.MySQL5Dialect
-        jdbc:
-          lob:
-            non_contextual_creation: 'true'
-    hibernate:
-      ddl-auto: create
   application:
     name: schedule-service
   datasource:
     username: ${username:root}
-    url: jdbc:mysql://${HOST_DB:localhost}:${PORT_DB:3306}/${NAME_DB:Latipe_Schedule_DB}
+    url: jdbc:mysql://${HOST_DB:localhost}:${PORT_DB:3306}/${NAME_DB:Latipe_Schedule_DB}?createDatabaseIfNotExist=true
     password: ${password:123123}@Dat
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL5Dialect
   main:
     allow-bean-definition-overriding: true
   quartz:
@@ -53,6 +55,9 @@ spring:
               user: ${username:root}
               driver: com.mysql.cj.jdbc.Driver
               password: ${password:123123}@Dat
+  sql:
+    init:
+      schema-locations: classpath:schema.sql
 
 
 rabbitmq:

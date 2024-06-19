@@ -47,7 +47,19 @@ public class ProductService {
     private final ElasticsearchOperations elasticsearchOperations;
     private final Gson gson;
 
-
+    /**
+     * This method is used to find products based on various parameters.
+     * @param keyword The keyword to search for in the product name and classifications.
+     * @param page The page number for pagination.
+     * @param size The number of items per page for pagination.
+     * @param category The category of the product.
+     * @param classification The classification of the product.
+     * @param minPrice The minimum price of the product.
+     * @param maxPrice The maximum price of the product.
+     * @param sortType The type of sorting to be applied.
+     * @param request The HttpServletRequest object.
+     * @return A CompletableFuture that contains a ProductListGetVm object.
+     */
     public CompletableFuture<ProductListGetVm> findProductAdvance(
         String keyword,
         Integer page,

@@ -2,7 +2,6 @@ package latipe.schedule.jobs;
 
 import com.google.gson.Gson;
 import latipe.schedule.message.PublishMessage;
-import latipe.schedule.producer.RabbitMQProducer;
 import lombok.RequiredArgsConstructor;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
@@ -16,7 +15,6 @@ import org.springframework.stereotype.Component;
 public class CreateOrderJob implements Job {
 
     private static final Logger log = LoggerFactory.getLogger(CreateOrderJob.class);
-    private final RabbitMQProducer publish;
     private final Gson gson;
 
     @Override
@@ -26,7 +24,6 @@ public class CreateOrderJob implements Job {
             "CANCEL_ORDER",
             orderId
         ), PublishMessage.class);
-        publish.sendMessage(publishMessage);
         log.info("Create Order with id {} executed", orderId);
     }
 }

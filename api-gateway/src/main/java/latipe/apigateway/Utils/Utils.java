@@ -7,9 +7,11 @@ import java.security.Key;
 import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Enumeration;
+import java.util.List;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import latipe.apigateway.constants.Const;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 
 public class Utils {
 
@@ -50,13 +52,13 @@ public class Utils {
         }
     }
 
-    public static String getRealIp(HttpServletRequest request) {
-        var ipAddress = request.getRemoteAddr();
+    public static String getRealIp(ServerHttpRequest request) {
+        String ipAddress = request.getRemoteAddress().getAddress().getHostAddress();
 
-        Enumeration<String> xForwardedFor = request.getHeaders("X-Forwarded-For");
+        List<String> xForwardedFor = request.getHeaders().get("X-Forwarded-For");
 
-        if (xForwardedFor.hasMoreElements()) {
-            ipAddress = xForwardedFor.nextElement(); // The real IP address is usually the first one in the list
+        if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
+            ipAddress = xForwardedFor.get(0); // The real IP address is usually the first one in the list
         }
 
         return ipAddress;

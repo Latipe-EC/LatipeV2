@@ -11,6 +11,8 @@
                 <argument>-jar</argument>
                 <argument>discovery-server/target/discovery-server-1.0.0-SNAPSHOT.jar</argument>
                 <argument>-jar</argument>
+                <argument>schedule/target/schedule-1.0.0-SNAPSHOT.jar</argument>
+                <argument>-jar</argument>
                 <argument>api-gateway/target/api-gateway-1.0.0-SNAPSHOT.jar</argument>
                 <argument>-jar</argument>
                 <argument>auth/target/auth-1.0.0-SNAPSHOT.jar</argument>
@@ -57,7 +59,7 @@
     <module>cart</module>
     <module>discovery-server</module>
     <module>payment</module>
-    <!--    <module>schedule</module>-->
+    <module>schedule</module>
     <module>product</module>
     <module>user</module>
     <module>store</module>
