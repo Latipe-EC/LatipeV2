@@ -7,10 +7,10 @@ option java_outer_classname = "ScheduleProto";
 //package protobuf;
 
 service ScheduleService {
-  rpc CreatSchedule(CreatScheduleRequest) returns (CreatScheduleResponse) {}
+  rpc CreateSchedule(CreateScheduleRequest) returns (CreateScheduleResponse) {}
 }
 
-message CreatScheduleRequest {
+message CreateScheduleRequest {
   string from = 1;
   string type = 2;
   string cron_expression = 3;
@@ -20,6 +20,6 @@ message CreatScheduleRequest {
   string data = 7;
 }
 
-message CreatScheduleResponse {
+message CreateScheduleResponse {
   bool isSuccess = 1;
 }

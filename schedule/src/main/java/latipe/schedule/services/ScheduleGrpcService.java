@@ -5,8 +5,8 @@ import io.grpc.stub.StreamObserver;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
-import latipe.schedule.grpc.CreatScheduleRequest;
-import latipe.schedule.grpc.CreatScheduleResponse;
+import latipe.schedule.grpc.CreateScheduleRequest;
+import latipe.schedule.grpc.CreateScheduleResponse;
 import latipe.schedule.grpc.ScheduleServiceGrpc;
 import latipe.schedule.jobs.CreateScheduleJob;
 import latipe.schedule.utils.BuildKeyQuartz;
@@ -25,8 +25,8 @@ public class ScheduleGrpcService extends ScheduleServiceGrpc.ScheduleServiceImpl
     private final Scheduler scheduler;
 
     @Override
-    public void creatSchedule(CreatScheduleRequest request,
-        StreamObserver<CreatScheduleResponse> responseObserver) {
+    public void createSchedule(CreateScheduleRequest request,
+        StreamObserver<CreateScheduleResponse> responseObserver) {
         try {
             var randomId = UUID.randomUUID().toString();
             var dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -37,7 +37,7 @@ public class ScheduleGrpcService extends ScheduleServiceGrpc.ScheduleServiceImpl
                 log.error("The provided date {} is not later than the current date",
                     request.getDeadline());
                 responseObserver.onNext(
-                    CreatScheduleResponse.newBuilder()
+                    CreateScheduleResponse.newBuilder()
                         .setIsSuccess(false).build());
                 responseObserver.onCompleted();
                 return;
@@ -64,7 +64,7 @@ public class ScheduleGrpcService extends ScheduleServiceGrpc.ScheduleServiceImpl
             }
 
             responseObserver.onNext(
-                CreatScheduleResponse.newBuilder()
+                CreateScheduleResponse.newBuilder()
                     .setIsSuccess(true).build());
             responseObserver.onCompleted();
         } catch (Exception e) {
