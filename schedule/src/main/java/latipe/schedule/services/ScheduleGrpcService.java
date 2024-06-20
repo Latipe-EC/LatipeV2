@@ -45,9 +45,9 @@ public class ScheduleGrpcService extends ScheduleServiceGrpc.ScheduleServiceImpl
             if (request.getType().equals(Const.ONE_TIME)) {
                 var job = JobBuilder.newJob(CreateScheduleJob.class)
                     .withIdentity(BuildKeyQuartz.buildJobKey(request.getFrom(), randomId))
-                    .usingJobData("data", request.getData())
-                    .usingJobData("header_key", request.getXApiKey())
-                    .usingJobData("call_back_url", request.getReplyOn()).build();
+                    .usingJobData(Const.PRE_DATA, request.getData())
+                    .usingJobData(Const.X_API_KEY, request.getXApiKey())
+                    .usingJobData(Const.CALL_BACK_URL, request.getReplyOn()).build();
 
                 var triggerDate = dateFormat.parse(request.getDeadline());
 
