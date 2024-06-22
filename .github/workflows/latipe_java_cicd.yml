@@ -32,7 +32,7 @@ jobs:
           - service: latipe-auth-service
             directory: auth
           - service: latipe-payment-service
-            directory: auth
+            directory: payment
 
     steps:
       - name: Checkout code
@@ -61,12 +61,9 @@ jobs:
         run: mvn clean package -DskipTests
         working-directory: ./${{ matrix.directory }}
 
-      - name: Build Docker image
+      - name: Build and Push Docker image
+        env:
+          VERSION: ${GITHUB_SHA::7}
         run: |
-          VERSION=$(echo ${GITHUB_SHA::7})
           docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/${{ matrix.service }}:$VERSION ./${{ matrix.directory }}
-
-      - name: Push Docker image to Docker Hub
-        run: |
-          VERSION=$(echo ${GITHUB_SHA::7})
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/${{ matrix.service }}:$VERSION
