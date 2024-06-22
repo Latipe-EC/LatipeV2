@@ -63,7 +63,8 @@ jobs:
 
       - name: Build and Push Docker image
         env:
-          VERSION: ${GITHUB_SHA::7}
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
         run: |
-          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/${{ matrix.service }}:$VERSION ./${{ matrix.directory }}
-          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/${{ matrix.service }}:$VERSION
+          VERSION=$(echo ${GITHUB_SHA::7})
+          docker build -t $DOCKER_HUB_USERNAME/${{ matrix.service }}:$VERSION ./${{ matrix.directory }}
+          docker push $DOCKER_HUB_USERNAME/${{ matrix.service }}:$VERSION
