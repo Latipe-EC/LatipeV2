@@ -138,8 +138,8 @@
     </dependency>
 
     <dependency>
-      <artifactId>mysql-connector-java</artifactId>
       <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
       <version>8.0.33</version>
     </dependency>
 
@@ -167,12 +167,6 @@
 
     <dependency>
       <artifactId>feign-okhttp</artifactId>
-      <groupId>io.github.openfeign</groupId>
-      <version>10.11</version>
-    </dependency>
-
-    <dependency>
-      <artifactId>feign-gson</artifactId>
       <groupId>io.github.openfeign</groupId>
       <version>10.11</version>
     </dependency>
