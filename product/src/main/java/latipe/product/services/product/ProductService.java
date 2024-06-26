@@ -18,6 +18,7 @@ import java.util.concurrent.CompletableFuture;
 import latipe.product.configs.CustomAggregationOperation;
 import latipe.product.configs.SecureInternalProperties;
 import latipe.product.constants.Action;
+import latipe.product.constants.CONSTANTS;
 import latipe.product.constants.EStatusBan;
 import latipe.product.dtos.PagedResultDto;
 import latipe.product.dtos.Pagination;
@@ -44,10 +45,10 @@ import latipe.product.request.UpdateProductRequest;
 import latipe.product.response.OrderProductResponse;
 import latipe.product.response.ProductAdminResponse;
 import latipe.product.response.ProductDetailResponse;
-import latipe.product.response.ProductESDetailsResponse;
 import latipe.product.response.ProductListGetResponse;
 import latipe.product.response.ProductNameListResponse;
 import latipe.product.response.ProductResponse;
+import latipe.product.response.ProductSIEResponse;
 import latipe.product.response.ProductStoreResponse;
 import latipe.product.response.UserCredentialResponse;
 import latipe.product.utils.AvgRating;
@@ -504,7 +505,7 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public CompletableFuture<List<ProductESDetailsResponse>> getProductESDetails(
+    public CompletableFuture<List<ProductSIEResponse>> getProductESDetails(
         ProductESDetailsRequest input, HttpServletRequest request) {
         log.info(gson.toJson(
             LogMessage.create("Get product es detail for AI service", request,
@@ -513,9 +514,9 @@ public class ProductService implements IProductService {
             var products = productRepository.getProductForTrain(input.product_ids());
 
             log.info("Get product es detail for AI service successfully");
-            return products.stream().map(
-                product -> new ProductESDetailsResponse(product.getId(), product.getImages(),
-                    product.getCountSale())).toList();
+            return products.stream()
+                .filter(product -> product.getIsPublished() && !product.getIsBanned() && product.getCountSale() > CONSTANTS.REQUIRE_AMOUNT_TO_TRAIN)
+                .map(product -> new ProductSIEResponse(product.getId(), product.getName(), product.getImages())).toList();
         });
     }
 

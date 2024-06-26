@@ -16,10 +16,10 @@ import latipe.product.request.UpdateProductRequest;
 import latipe.product.response.OrderProductResponse;
 import latipe.product.response.ProductAdminResponse;
 import latipe.product.response.ProductDetailResponse;
-import latipe.product.response.ProductESDetailsResponse;
 import latipe.product.response.ProductListGetResponse;
 import latipe.product.response.ProductNameListResponse;
 import latipe.product.response.ProductResponse;
+import latipe.product.response.ProductSIEResponse;
 import latipe.product.response.ProductStoreResponse;
 import latipe.product.viewmodel.ProductESDetailVm;
 import latipe.product.viewmodel.ProductPriceVm;
@@ -80,7 +80,7 @@ public interface IProductService {
     CompletableFuture<ProductNameListResponse> autoCompleteProductName(String keyword,
         HttpServletRequest request);
 
-    CompletableFuture<List<ProductESDetailsResponse>> getProductESDetails(
+    CompletableFuture<List<ProductSIEResponse>> getProductESDetails(
         ProductESDetailsRequest input,
         HttpServletRequest request);
 }

@@ -20,10 +20,10 @@ import latipe.product.request.UpdateProductRequest;
 import latipe.product.response.OrderProductResponse;
 import latipe.product.response.ProductAdminResponse;
 import latipe.product.response.ProductDetailResponse;
-import latipe.product.response.ProductESDetailsResponse;
 import latipe.product.response.ProductListGetResponse;
 import latipe.product.response.ProductNameListResponse;
 import latipe.product.response.ProductResponse;
+import latipe.product.response.ProductSIEResponse;
 import latipe.product.response.ProductStoreResponse;
 import latipe.product.services.product.IProductService;
 import latipe.product.viewmodel.ProductESDetailVm;
@@ -137,7 +137,7 @@ public class ProductController {
 
     @ResponseStatus(HttpStatus.OK)
     @PostMapping(value = "/products-es-multiple", produces = MediaType.APPLICATION_JSON_VALUE)
-    public CompletableFuture<List<ProductESDetailsResponse>> getProductESDetailForAI(
+    public CompletableFuture<List<ProductSIEResponse>> getProductESDetailForAI(
         @RequestBody ProductESDetailsRequest input,
         HttpServletRequest request) {
         return productService.getProductESDetails(input, request);
