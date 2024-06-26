@@ -4,7 +4,6 @@ import static latipe.product.utils.AuthenticationUtils.getMethodName;
 import static latipe.product.utils.GenTokenInternal.generateHash;
 import static latipe.product.utils.GenTokenInternal.getPrivateKey;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.Gson;
 import feign.Feign;
 import feign.gson.GsonDecoder;
@@ -53,7 +52,6 @@ import latipe.product.response.ProductStoreResponse;
 import latipe.product.response.UserCredentialResponse;
 import latipe.product.utils.AvgRating;
 import latipe.product.utils.GetInstanceServer;
-import latipe.product.utils.ParseObjectToString;
 import latipe.product.viewmodel.LogMessage;
 import latipe.product.viewmodel.ProductClassificationVm;
 import latipe.product.viewmodel.ProductESDetailVm;
@@ -258,13 +256,8 @@ public class ProductService implements IProductService {
             var savedProd = productRepository.save(prod);
 
             // send message create message
-            String message;
-            try {
-                message = ParseObjectToString.parse(
-                    new ProductMessageVm(savedProd.getId(), Action.CREATE, null));
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
+            String message = gson.toJson(
+                new ProductMessageVm(savedProd.getId(), Action.CREATE, null, null));
 
             rabbitMQProducer.sendMessage(exchange, routingKey, message);
             // send message to AI service
@@ -636,14 +629,8 @@ public class ProductService implements IProductService {
 
             products = productRepository.saveAll(products);
             for (var prod : products) {
-                String message;
-                try {
-                    message = ParseObjectToString.parse(
-                        new ProductMessageVm(prod.getId(), Action.UPDATE, null));
-                } catch (JsonProcessingException e) {
-                    throw new RuntimeException(e);
-                }
-                rabbitMQProducer.sendMessage(exchange, routingKey, message);
+                rabbitMQProducer.sendMessage(exchange, routingKey,
+                    gson.toJson(new ProductMessageVm(prod.getId(), Action.UPDATE, null, null)));
             }
             log.info("Update quantity product successfully");
             return null;
@@ -694,16 +681,13 @@ public class ProductService implements IProductService {
         savedProd = productRepository.save(savedProd);
 
         // send message create message
-        String message;
-        try {
-            message = ParseObjectToString.parse(
-                new ProductMessageVm(savedProd.getId(), Action.UPDATE, null));
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-        rabbitMQProducer.sendMessage(exchange, routingKey, message);
+
+        rabbitMQProducer.sendMessage(exchange, routingKey,
+            gson.toJson(new ProductMessageVm(savedProd.getId(), Action.UPDATE, null, null)));
 // send message to AI service
-        rabbitMQProducer.sendMessage(exchange, "ai_routing_key", message);
+        rabbitMQProducer.sendMessage(exchange, "ai_routing_key", gson.toJson(
+            new ProductMessageVm(savedProd.getId(), Action.UPDATE, null,
+                savedProd.getImages().subList(1, 3))));
         log.info("Update product successfully");
         return CompletableFuture.completedFuture(
             productMapper.mapToProductToResponse(savedProd, null));
@@ -730,13 +714,9 @@ public class ProductService implements IProductService {
             var savedProduct = productRepository.save(product);
 
             // send message create message
-            String message;
-            try {
-                message = ParseObjectToString.parse(
-                    new ProductMessageVm(savedProduct.getId(), Action.DELETE, null));
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
+            String message = gson.toJson(
+                new ProductMessageVm(savedProduct.getId(), Action.DELETE, null, null));
+
             rabbitMQProducer.sendMessage(exchange, routingKey, message);
             // send message to AI service
             rabbitMQProducer.sendMessage(exchange, "ai_routing_key", message);
@@ -770,14 +750,8 @@ public class ProductService implements IProductService {
             productRepository.save(product);
 
             // send message create message
-            try {
-                String message = ParseObjectToString.parse(
-                    new ProductMessageVm(id, Action.BAN, input.isBanned()));
-                rabbitMQProducer.sendMessage(exchange, routingKey, message);
-            } catch (JsonProcessingException e) {
-                log.error("Error when send message to rabbitmq", e);
-                throw new RuntimeException(e);
-            }
+            rabbitMQProducer.sendMessage(exchange, routingKey,
+                gson.toJson(new ProductMessageVm(id, Action.BAN, input.isBanned(), null)));
             log.info("Ban product successfully");
             return null;
         });
