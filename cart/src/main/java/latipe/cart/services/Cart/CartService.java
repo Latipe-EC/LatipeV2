@@ -214,7 +214,7 @@ public class CartService implements ICartService {
 
             return carts.stream().map(x -> {
                 var productDetail = productThumbnailResponseList.stream()
-                    .filter(y -> y.id().equals(x.getProductId())).findFirst().orElseThrow();
+                    .filter(y -> y.id().equals(x.getProductId()) && y.optionId().equals(x.getProductOptionId())).findFirst().orElseThrow();
                 return CartGetDetailResponse.fromModel(x, productDetail);
             }).toList();
 

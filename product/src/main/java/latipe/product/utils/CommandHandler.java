@@ -11,6 +11,8 @@ import latipe.product.entity.attribute.Attribute;
 import latipe.product.repositories.ICategoryRepository;
 import latipe.product.repositories.IProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
+import org.bson.types.ObjectId;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
@@ -25,16 +27,26 @@ public class CommandHandler {
 
     @PostConstruct
     public void init() {
-        var products = productRepository.findAll();
-        System.out.println("Total images: " + products.stream().map(Product::getImages).flatMap(
-            List::stream).toList().size());
+//        var products = productRepository.findAll();
+//
+//        for (var product : products) {
+//            for (var classify : product.getProductClassifications()) {
+//                if (StringUtils.isBlank(classify.getId())) {
+//                    classify.setId(new ObjectId().toString());
+//                }
+//            }
+//        }
+//    productRepository.saveAll(products);
 
-        List<String> uniqueImages = products.stream()
-            .flatMap(product -> product.getImages().stream())
-            .distinct()
-            .toList();
-
-        System.out.println("Total unique images: " + uniqueImages.size());
+//        System.out.println("Total images: " + products.stream().map(Product::getImages).flatMap(
+//            List::stream).toList().size());
+//
+//        List<String> uniqueImages = products.stream()
+//            .flatMap(product -> product.getImages().stream())
+//            .distinct()
+//            .toList();
+//
+//        System.out.println("Total unique images: " + uniqueImages.size());
 //    String imageFolder = "/home/cozark/Pictures/test_dl";
 //    uniqueImages = uniqueImages.subList(2625, uniqueImages.size());
 //    for (String imageUrl : uniqueImages) {

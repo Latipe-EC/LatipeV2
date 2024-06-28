@@ -576,6 +576,7 @@ public class ProductService implements IProductService {
                     .orElseThrow();
                 log.info("Get feature product successfully");
                 return new ProductThumbnailVm(doc.getObjectId("_id").toString(),
+                    productClassificationsDoc.getObjectId("_id").toString(),
                     doc.getString("name"),
                     productClassificationsDoc.getString("name"),
                     Double.parseDouble(productClassificationsDoc.get("price").toString()),

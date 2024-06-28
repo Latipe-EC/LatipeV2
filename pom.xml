@@ -32,10 +32,6 @@
                 <argument>media/target/media-1.0.0-SNAPSHOT.jar</argument>
                 <argument>-jar</argument>
                 <argument>rating/target/rating-1.0.0-SNAPSHOT.jar</argument>
-<!--                <argument>-jar</argument>-->
-<!--                <argument>rating/target/notification-1.0.0-SNAPSHOT.jar</argument>-->
-<!--                <argument>-jar</argument>-->
-<!--                <argument>rating/target/websocket-1.0.0-SNAPSHOT.jar</argument>-->
               </arguments>
               <executable>java</executable>
             </configuration>
@@ -66,8 +62,6 @@
     <module>search</module>
     <module>media</module>
     <module>rating</module>
-<!--    <module>notification</module>-->
-<!--    <module>websocket</module>-->
   </modules>
 
   <packaging>pom</packaging>
