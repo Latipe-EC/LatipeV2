@@ -37,7 +37,7 @@ public class DataConsumer {
     @Value("${rabbitmq.order.exchange}")
     private String exchange;
 
-    @RabbitListener(bindings = @QueueBinding(value = @Queue(value = "${rabbitmq.order.queue}", durable = "true"),
+    @RabbitListener(bindings = @QueueBinding(value = @Queue(value = "${rabbitmq.order.queue-commit}", durable = "true"),
         exchange = @Exchange(value = "${rabbitmq.order.exchange}", type = "topic"), key = "${rabbitmq.order.commit}"))
     public void listenCommitOrder(Message consumerRecord) {
         LOGGER.info("Receive message ");
@@ -80,7 +80,7 @@ public class DataConsumer {
         }
     }
 
-    @RabbitListener(bindings = @QueueBinding(value = @Queue(value = "${rabbitmq.order.queue}", durable = "true"),
+    @RabbitListener(bindings = @QueueBinding(value = @Queue(value = "${rabbitmq.order.queue-rollback}", durable = "true"),
         exchange = @Exchange(value = "${rabbitmq.order.exchange}", type = "topic"), key = "${rabbitmq.order.rollback}"))
     public void listenRollbackOrder(Message consumerRecord) {
         String orderId;
