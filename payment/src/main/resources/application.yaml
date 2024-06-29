@@ -83,8 +83,8 @@ rabbitmq:
     commit: order.payment.event
     rollback: order.payment.rollback
     reply: product.payment.reply
-    queue-commit: internal.order.update
-    queue-rollback: internal.order.rollback
+    queue-commit: payment.order.update
+    queue-rollback: payment.order.rollback
 
 expiration:
   withdraw-exps: 900

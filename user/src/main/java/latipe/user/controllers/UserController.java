@@ -115,7 +115,6 @@ public class UserController {
     }
 
     @Authenticate
-    @ResponseStatus(HttpStatus.CREATED)
     @GetMapping(value = "/count-my-address", produces = MediaType.APPLICATION_JSON_VALUE)
     public CompletableFuture<Integer> countMyUserAddress(HttpServletRequest request) {
         return userService.countMyAddress(request);
