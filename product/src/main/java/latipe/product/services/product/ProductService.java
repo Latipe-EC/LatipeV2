@@ -516,7 +516,7 @@ public class ProductService implements IProductService {
             log.info("Get product es detail for AI service successfully");
             return products.stream()
                 .filter(product -> product.getIsPublished() && !product.getIsBanned() && product.getCountSale() > CONSTANTS.REQUIRE_AMOUNT_TO_TRAIN)
-                .map(product -> new ProductSIEResponse(product.getId(), product.getName(), product.getImages())).toList();
+                .map(product -> new ProductSIEResponse(product.getId(), product.getName(), product.getImages().stream().limit(2).toList())).toList();
         });
     }
 

@@ -1,10 +1,15 @@
 package latipe.product.utils;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import jakarta.annotation.PostConstruct;
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 import latipe.product.entity.Category;
 import latipe.product.entity.Product;
 import latipe.product.entity.attribute.Attribute;
@@ -28,6 +33,29 @@ public class CommandHandler {
     @PostConstruct
     public void init() {
 //        var products = productRepository.findAll();
+//
+//        var sortedProducts = products.stream()
+//            .limit(200)
+//            .sorted(Comparator.comparing(Product::getCountSale).reversed())
+//            .map(product -> {
+//                ObjectMapper mapper = new ObjectMapper();
+//                ObjectNode json = mapper.createObjectNode();
+//
+//                json.put("product_id", product.getId());
+//                var imageNodes = product.getImages().stream()
+//                    .limit(2)
+//                    .map(TextNode::new)
+//                    .collect(Collectors.toList());
+//
+//                json.withArray("image_urls").addAll(imageNodes);
+//
+//                json.put("product_name", product.getName());
+//
+//                return json;
+//            })
+//            .toList();
+//
+//        sortedProducts.size();
 //
 //        for (var product : products) {
 //            for (var classify : product.getProductClassifications()) {
