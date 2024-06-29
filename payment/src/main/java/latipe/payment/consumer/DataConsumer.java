@@ -94,11 +94,11 @@ public class DataConsumer {
         } catch (RuntimeException e) {
             // TODO if fail send message to scheduler to rollback order later
 
-            if (e.getMessage().contains("Withdraw")) {
-                // send message to scheduler to create withdraw
-            } else {
-                // send message to scheduler to re-refund
-            }
+//            if (e.getMessage().contains("Withdraw")) {
+//                // send message to scheduler to create withdraw
+//            } else {
+//                // send message to scheduler to re-refund
+//            }
             LOGGER.warn(e.getMessage());
         }
     }

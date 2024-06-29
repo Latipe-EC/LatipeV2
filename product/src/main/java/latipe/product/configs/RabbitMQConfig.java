@@ -11,8 +11,11 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitMQConfig {
 
-    @Value("${rabbitmq.order.queue}")
-    private String queueOrder;
+    @Value("${rabbitmq.order.queue-commit}")
+    private String queueOrderCommit;
+
+    @Value("${rabbitmq.order.queue-rollback}")
+    private String queueOrderRollback;
 
     @Value("${rabbitmq.order.exchange}")
     private String exchangeOrder;
@@ -33,8 +36,13 @@ public class RabbitMQConfig {
     private String routingKey;
 
     @Bean
-    public Queue queueOrder() {
-        return new Queue(queueOrder);
+    public Queue queueOrderCommit() {
+        return new Queue(queueOrderCommit);
+    }
+
+    @Bean
+    public Queue queueOrderRollback() {
+        return new Queue(queueOrderRollback);
     }
 
     @Bean
@@ -63,7 +71,7 @@ public class RabbitMQConfig {
     @Bean
     public Binding bindingOrderCommit() {
         return BindingBuilder
-            .bind(queueOrder())
+            .bind(queueOrderCommit())
             .to(exchangeOrder())
             .with(routingKeyCommit);
     }
@@ -71,7 +79,7 @@ public class RabbitMQConfig {
     @Bean
     public Binding bindingOrderRollback() {
         return BindingBuilder
-            .bind(queueOrder())
+            .bind(queueOrderRollback())
             .to(exchangeOrder())
             .with(routingKeyRollback);
     }
