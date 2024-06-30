@@ -3,7 +3,7 @@ spring:
     name: media-service
   data:
     mongodb:
-      uri: ${SPRING_DATA_MONGODB_URI:mongodb://localhost:27017/Latipe-Media-DB}
+      uri: ${SPRING_DATA_MONGODB_URI:mongodb://localhost:27017}
   servlet:
     multipart:
       enabled: "true"

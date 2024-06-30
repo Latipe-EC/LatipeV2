@@ -514,9 +514,10 @@ public class ProductService implements IProductService {
             var products = productRepository.getProductForTrain(input.product_ids());
 
             log.info("Get product es detail for AI service successfully");
+
             return products.stream()
                 .filter(product -> product.getIsPublished() && !product.getIsBanned() && product.getCountSale() > CONSTANTS.REQUIRE_AMOUNT_TO_TRAIN)
-                .map(product -> new ProductSIEResponse(product.getId(), product.getName(), product.getImages().stream().limit(2).toList())).toList();
+                .map(product -> new ProductSIEResponse(product.getId(), product.getName(),getImagesByIndex(product))).toList();
         });
     }
 
@@ -901,4 +902,13 @@ public class ProductService implements IProductService {
         return ((UserCredentialResponse) request.getAttribute("user")).id();
     }
 
+    public List<String> getImagesByIndex(Product product) {
+        List<String> images = new ArrayList<>();
+        for (Integer index : product.getIndexFeatures()) {
+            if (index < product.getImages().size()) {
+                images.add(product.getImages().get(index));
+            }
+        }
+        return images;
+    }
 }
