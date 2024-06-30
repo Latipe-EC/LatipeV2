@@ -27,3 +27,9 @@ hs_err_pid*
 /docker/tempo-data/**
 /docker/tempo-data/
 .idea
+
+/*-dev.yaml
+/*-dev.yml
+
+**/src/main/resources/application-dev.yaml
+

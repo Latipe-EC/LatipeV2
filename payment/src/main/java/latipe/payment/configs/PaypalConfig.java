@@ -1,5 +1,7 @@
 package latipe.payment.configs;
 
+import static latipe.payment.constants.CONSTANTS.PAYPAL_CONFIG_CODE;
+
 import com.nimbusds.jose.shaded.gson.JsonObject;
 import com.nimbusds.jose.shaded.gson.JsonParser;
 import com.paypal.core.PayPalEnvironment;
@@ -20,9 +22,9 @@ public class PaypalConfig {
 
     @Bean
     public PayPalHttpClient getPaypalClient() {
-        var paymentProvider = paymentProviderRepository.findById("PaypalPayment")
+        var paymentProvider = paymentProviderRepository.findByCode("PaypalPayment")
             .orElseThrow(()
-                -> new NotFoundException("PAYMENT_PROVIDER_NOT_FOUND", "PaypalPayment"));
+                -> new NotFoundException("PAYMENT_PROVIDER_NOT_FOUND", PAYPAL_CONFIG_CODE));
         // Parse the additionalSettings field to extract clientId and clientSecret
         log.info("config paypal success");
 

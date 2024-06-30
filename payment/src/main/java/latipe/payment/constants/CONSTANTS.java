@@ -18,4 +18,6 @@ public class CONSTANTS {
     public static final int ORDER_CANCEL_BY_DELI = -5;
     public static final int ORDER_CANCEL_USER_REJECT = -7;
     public static final int ORDER_FAILED = -1;
+
+    public static final String PAYPAL_CONFIG_CODE = "PaypalPayment";
 }

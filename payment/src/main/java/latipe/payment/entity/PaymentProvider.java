@@ -25,4 +25,5 @@ public class PaymentProvider {
     @Field("additional_settings")
     private String additionalSettings;
     private String mode;
+    private String code;
 }
