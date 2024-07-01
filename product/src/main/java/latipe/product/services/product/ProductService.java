@@ -231,8 +231,22 @@ public class ProductService implements IProductService {
             if (input.images().isEmpty()) {
                 throw new BadRequestException("Product must have at least 1 image");
             }
+
             if (input.images().stream().anyMatch(String::isBlank)) {
                 throw new BadRequestException("Image is required");
+            }
+
+            if (input.images().size() == 1) {
+                if (input.indexFeatures().isEmpty()) {
+                    throw new BadRequestException("Index feature is required");
+                }
+            } else if (input.indexFeatures().size() != 2) {
+                throw new BadRequestException("Index feature must be 2");
+            }
+
+            if (input.indexFeatures().stream()
+                .allMatch(x -> x < 0 || x > input.images().size() - 1)) {
+                throw new BadRequestException("Index feature is invalid");
             }
 
             if (input.productVariants().isEmpty()) {
@@ -464,7 +478,8 @@ public class ProductService implements IProductService {
                 product.getProductVariants(),
                 categories.stream().map(categoryMapper::mapToCategoryResponse).toList(),
                 product.getDetailsProduct(), product.getIsBanned(), product.getIsDeleted(),
-                product.getCreatedDate(), store, product.getRatings());
+                product.getCreatedDate(), store, product.getRatings(),
+                product.getIndexFeatures());
         });
     }
 
@@ -516,8 +531,10 @@ public class ProductService implements IProductService {
             log.info("Get product es detail for AI service successfully");
 
             return products.stream()
-                .filter(product -> product.getIsPublished() && !product.getIsBanned() && product.getCountSale() > CONSTANTS.REQUIRE_AMOUNT_TO_TRAIN)
-                .map(product -> new ProductSIEResponse(product.getId(), product.getName(),getImagesByIndex(product))).toList();
+                .filter(product -> product.getIsPublished() && !product.getIsBanned()
+                    && product.getCountSale() > CONSTANTS.REQUIRE_AMOUNT_TO_TRAIN)
+                .map(product -> new ProductSIEResponse(product.getId(), product.getName(),
+                    getImagesByIndex(product))).toList();
         });
     }
 
@@ -665,6 +682,18 @@ public class ProductService implements IProductService {
 
         if (input.images().stream().anyMatch(String::isBlank)) {
             throw new BadRequestException("Image is required");
+        }
+
+        if (input.images().size() == 1) {
+            if (input.indexFeatures().isEmpty()) {
+                throw new BadRequestException("Index feature is required");
+            }
+        } else if (input.indexFeatures().size() != 2) {
+            throw new BadRequestException("Index feature must be 2");
+        }
+
+        if (input.indexFeatures().stream().allMatch(x -> x < 0 || x > input.images().size() - 1)) {
+            throw new BadRequestException("Index feature is invalid");
         }
 
         if (input.productVariants().isEmpty()) {

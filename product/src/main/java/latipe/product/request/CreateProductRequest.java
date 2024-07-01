@@ -18,6 +18,7 @@ public record CreateProductRequest(
     @NotEmpty(message = "Product Categories is required")
     List<String> categories,
     List<String> images,
+    List<Integer> indexFeatures,
     int quantity,
     List<ProductVariantVm> productVariants,
     Boolean isPublished,

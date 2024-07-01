@@ -29,7 +29,8 @@ public record ProductResponse(
     boolean isBanned,
     boolean isPublished,
     int countSale,
-    List<AttributeValue> detailsProduct
+    List<AttributeValue> detailsProduct,
+    List<Integer> indexFeatures
 ) {
 
 }
