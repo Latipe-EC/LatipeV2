@@ -532,7 +532,7 @@ public class ProductService implements IProductService {
 
             return products.stream()
                 .filter(product -> product.getIsPublished() && !product.getIsBanned()
-                    && product.getCountSale() > CONSTANTS.REQUIRE_AMOUNT_TO_TRAIN)
+                    && product.getCountSale() >= CONSTANTS.REQUIRE_AMOUNT_TO_TRAIN)
                 .map(product -> new ProductSIEResponse(product.getId(), product.getName(),
                     getImagesByIndex(product))).toList();
         });

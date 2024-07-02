@@ -29,6 +29,6 @@ public interface IProductRepository extends MongoRepository<Product, String> {
     List<Product> searchProductTemp(String keyword, String category, long skip,
         Integer limit);
 
-    @Query(value = "{_id:  { $in: ?0 },  countSale:{ $gt: 20} }")
+    @Query(value = "{_id:  { $in: ?0 }}")
     List<Product> getProductForTrain(List<String> ids);
 }
