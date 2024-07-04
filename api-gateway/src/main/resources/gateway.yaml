@@ -132,21 +132,33 @@ routes:
     paths:
       - /eureka/**
     uri: https://eureka:password@localhost:8761
+
+  # Orders Service
   - id: orders_service
     paths:
       - /api/v1/orders/**
       - /api/v2/orders/**
     filter:
       responseHeaders:
+        - Access-Control-Allow-Origisn: "*"
+        - Access-Control-Allow-Methods: "*"
+        - Access-Control-Allow-Headers: "*"
+        - Access-Control-Max-Age: "30"
+    uri: http://206.189.32.247:5000
+
+  # Delivery Service
+  - id: delivery_service
+    paths:
+      - /api/v1/delivery/**
+    filter:
+      responseHeaders:
         - Access-Control-Allow-Origin: "*"
         - Access-Control-Allow-Methods: "*"
         - Access-Control-Allow-Headers: "*"
         - Access-Control-Max-Age: "30"
-    uri: http://localhost:5000
-  - id: delivery_service
-    paths:
-      - /api/v1/delivery/**
-    uri: http://localhost:5005
+    uri: http://206.189.32.247:5005
+
+  #Vouchers Service
   - id: vouchers_service
     paths:
       - /api/v1/vouchers/**
@@ -156,4 +168,30 @@ routes:
         - Access-Control-Allow-Methods: "*"
         - Access-Control-Allow-Headers: "*"
         - Access-Control-Max-Age: "30"
-    uri: http://localhost:5010
+    uri: http://206.189.32.247:5010
+
+  # Notificaiton Service
+  - id: notification_service
+    paths:
+      - /api/v1/products/grpc/**
+    filter:
+      responseHeaders:
+        - Access-Control-Allow-Origin: "*"
+        - Access-Control-Allow-Methods: "*"
+        - Access-Control-Allow-Headers: "*"
+        - Access-Control-Max-Age: "30"
+    uri: http://206.189.32.247:5050
+
+  # Transaction Service
+  - id: transaction_service
+    paths:
+      - /api/v1/transactions/**
+    filter:
+      responseHeaders:
+        - Access-Control-Allow-Origin: "*"
+        - Access-Control-Allow-Methods: "*"
+        - Access-Control-Allow-Headers: "*"
+        - Access-Control-Max-Age: "30"
+    uri: http://206.189.32.247:5020
+
+  
