@@ -7,6 +7,8 @@ spring:
   rabbitmq:
     port: ${RABBIT_MQ_PORT:5672}
     host: ${RABBIT_MQ_HOST:localhost}
+    username: ${RABBIT_MQ_USERNAME:guess}
+    password: ${RABBIT_MQ_PASSWORD:guess}
 
 rabbitmq:
   routing:
