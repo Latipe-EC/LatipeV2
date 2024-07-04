@@ -1,0 +1,46 @@
+server:
+  port: ${API_GATEWAY_PORT:8181}
+#  max-http-header-size: 480000
+
+eureka:
+  client:
+    enabled: ${EUREKA_ENABLED:true}
+    serviceUrl:
+      defaultZone: http://eureka:password@${EUREKA_HOST:localhost}:${EUREKA_PORT:8761}/eureka
+
+gateway_routes: "${GATEWAY_ROUTES:/home/cozark/Downloads/LatipeV2/api-gateway/src/main/resources/gateway.yaml}"
+
+spring:
+  application:
+    name: api-gateway
+  main:
+    lazy-initialization: true
+    allow-bean-definition-overriding: true
+
+  cloud:
+    gateway:
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+      globalcors:
+        add-to-simple-url-handler-mapping: true
+        corsConfigurations:
+          '[/**]':
+            allowedHeaders: '*'
+            allowedMethods: '*'
+            allowedOrigins: '*'
+
+logging:
+  pattern:
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus, health
+  endpoint:
+    health:
+      show-details: always
+  tracing:
+    sampling:
+      probability: "1.0"

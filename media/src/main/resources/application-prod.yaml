@@ -1,0 +1,73 @@
+spring:
+  application:
+    name: media-service
+  data:
+    mongodb:
+      uri: ${SPRING_DATA_MONGODB_URI:mongodb://localhost:27017}
+  servlet:
+    multipart:
+      enabled: "true"
+      max-request-size: 125MB
+      max-file-size: 125MB
+server:
+  port: ${MEDIA_PORT:7657}
+
+service:
+  auth: ${AUTH_SERVICE:auth-service}
+
+loki:
+  url: ${LOKI_URL:http://localhost:3100/loki/api/v1/push}
+
+context:
+  initializer:
+    classes: latipe.media.configs.PortInitializer
+
+gate-way:
+  host: ${GATE_WAY_HOST:http://localhost}
+  port: ${GATE_WAY_PORT:8181}
+
+  #  servlet:
+#    context-path: /api/v1
+
+# Cloudiary
+cloudinary:
+  api-key: ${API_KEY:874849675994347}
+  api-secret: ${API_SECRET:ub3xaoO8-A7j1pnT5NPFBLHvpeg}
+  cloud-name: ${CLOUD_NAME:dj5jx4llf}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus, health
+  endpoint:
+    health:
+      show-details: always
+  tracing:
+    sampling:
+      probability: "1.0"
+  metrics:
+    distribution:
+      percentiles-histogram:
+        http:
+          server:
+            requests: true
+    tags:
+      application: ${spring.application.name}
+    otlp:
+      tracing:
+        endpoint: http://localhost:4318/v1/traces
+    tracing:
+      sampling:
+        probability: 1.0
+
+logging:
+  pattern:
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
+eureka:
+  client:
+    enabled: ${EUREKA_ENABLED:true}
+    serviceUrl:
+      defaultZone: http://eureka:password@${EUREKA_HOST:localhost}:${EUREKA_PORT:8761}/eureka
+springdoc:
+  packagesToScan: latipe.media
