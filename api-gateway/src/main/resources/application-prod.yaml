@@ -4,7 +4,7 @@ server:
 
 eureka:
   client:
-    enabled: ${EUREKA_ENABLED:true}
+    enabled: #{'true'.equals('${EUREKA_ENABLED:true}')}
     serviceUrl:
       defaultZone: http://eureka:password@${EUREKA_HOST:localhost}:${EUREKA_PORT:8761}/eureka
 
