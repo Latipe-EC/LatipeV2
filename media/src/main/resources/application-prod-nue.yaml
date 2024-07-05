@@ -1,45 +1,40 @@
 spring:
   application:
-    name: cart-service
+    name: media-service
   data:
     mongodb:
       uri: ${SPRING_DATA_MONGODB_URI:mongodb://localhost:27017}
-  rabbitmq:
-    port: ${RABBIT_MQ_PORT:5672}
-    host: ${RABBIT_MQ_HOST:localhost}
-
-rabbitmq:
-  routing:
-    key: cart_routing_key
-  exchange:
-    name: cart_exchange
-  queue:
-    name: cart_queue
-
+  servlet:
+    multipart:
+      enabled: "true"
+      max-request-size: 125MB
+      max-file-size: 125MB
 server:
-  port: ${CART_PORT:7650}
+  port: ${MEDIA_PORT:7657}
 
 service:
   auth: ${AUTH_SERVICE:auth-service}
-  product: ${PRODUCT_SERVICE:product-service}
 
 loki:
   url: ${LOKI_URL:http://localhost:3100/loki/api/v1/push}
 
 context:
   initializer:
-    classes: latipe.cart.configs.PortInitializer
+    classes: latipe.media.configs.PortInitializer
 
 gate-way:
   host: ${GATE_WAY_HOST:http://localhost}
   port: ${GATE_WAY_PORT:8181}
 
-secure-internal:
-  public-key: "MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAKl5SroD9NuxQ955qCcCMERMAMJz2/CZfx3WTHkQa8cvf13FBkRFvRkLD7U1MRCNylxe+oebmy/OF4GzuSxcDl8CAwEAAQ=="
-  private-key: "MIIBUwIBADANBgkqhkiG9w0BAQEFAASCAT0wggE5AgEAAkEAqXlKugP027FD3nmoJwIwREwAwnPb8Jl/HdZMeRBrxy9/XcUGREW9GQsPtTUxEI3KXF76h5ubL84XgbO5LFwOXwIDAQABAkB7y8dDZFp8FNwv6oxjmlyptx8i7EEwWuAZao5ILS+duqnmZLLdSVpTF/tc58bFoBsZyWFru6sxmommxDipxwMBAiEA5FhOxbJeo8zn4OyASEzBuzWNv2QpEX7hpn5H9wlTVoECIQC9/7iLKBzB7YiS6+tKHRROHQt9n4OMcDGau5gfxXG03wIgRmGRpg3cbdByiDldMOu3quRO1Hci0WmyU4cI13PgZAECIEMMNbxtqFBLGXH3bO2Xe23hVAe9vbdWdDrNTm6Px4NzAiBjaQjKKLaSlP24wdaYe0cQxWuC0UlwAu5vHk0twRzV/g=="
-
-#  servlet:
+  #  servlet:
 #    context-path: /api/v1
+
+# Cloudiary
+cloudinary:
+  api-key: ${API_KEY:874849675994347}
+  api-secret: ${API_SECRET:ub3xaoO8-A7j1pnT5NPFBLHvpeg}
+  cloud-name: ${CLOUD_NAME:dj5jx4llf}
+
 management:
   endpoints:
     web:
@@ -71,6 +66,8 @@ logging:
     level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
 eureka:
   client:
-    enabled: true
+    enabled: false
     serviceUrl:
       defaultZone: http://eureka:password@${EUREKA_HOST:localhost}:${EUREKA_PORT:8761}/eureka
+springdoc:
+  packagesToScan: latipe.media

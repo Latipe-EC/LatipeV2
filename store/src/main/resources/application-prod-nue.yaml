@@ -1,6 +1,6 @@
 spring:
   application:
-    name: user-service
+    name: store-service
   data:
     mongodb:
       uri: ${SPRING_DATA_MONGODB_URI:mongodb://localhost:27017}
@@ -9,53 +9,43 @@ spring:
     host: ${RABBIT_MQ_HOST:localhost}
     username: ${RABBIT_MQ_USER_NAME:TEST}
     password: ${RABBIT_MQ_PASSWORD:TEST}
+server:
+  port: ${STORE_PORT:8118}
 
 loki:
   url: ${LOKI_URL:http://localhost:3100/loki/api/v1/push}
 
 context:
   initializer:
-    classes: latipe.user.configs.PortInitializer
+    classes: latipe.store.configs.PortInitializer
+
+service:
+  auth: ${AUTH_SERVICE:auth-service}
+  user: ${USER_SERVICE:user-service}
+  product: ${PRODUCT_SERVICE:product-service}
 
 gate-way:
   host: ${GATE_WAY_HOST:http://localhost}
   port: ${GATE_WAY_PORT:8181}
 
-grpc:
-  port: ${GRPC_PRODUCT_PORT:9362}
-
-rabbitmq:
-  email:
-    user-register-topic:
-      routing:
-        key: email.user.register
-    delivery-register-topic:
-      routing:
-        key: email.delivery.register
-    forgot-password-topic:
-      routing:
-        key: email.forgot_password
-    exchange:
-      name: email_topic_exchange
-
-service:
-  auth: ${AUTH_SERVICE:auth-service}
-
 secure-internal:
   public-key: "MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAKl5SroD9NuxQ955qCcCMERMAMJz2/CZfx3WTHkQa8cvf13FBkRFvRkLD7U1MRCNylxe+oebmy/OF4GzuSxcDl8CAwEAAQ=="
   private-key: "MIIBUwIBADANBgkqhkiG9w0BAQEFAASCAT0wggE5AgEAAkEAqXlKugP027FD3nmoJwIwREwAwnPb8Jl/HdZMeRBrxy9/XcUGREW9GQsPtTUxEI3KXF76h5ubL84XgbO5LFwOXwIDAQABAkB7y8dDZFp8FNwv6oxjmlyptx8i7EEwWuAZao5ILS+duqnmZLLdSVpTF/tc58bFoBsZyWFru6sxmommxDipxwMBAiEA5FhOxbJeo8zn4OyASEzBuzWNv2QpEX7hpn5H9wlTVoECIQC9/7iLKBzB7YiS6+tKHRROHQt9n4OMcDGau5gfxXG03wIgRmGRpg3cbdByiDldMOu3quRO1Hci0WmyU4cI13PgZAECIEMMNbxtqFBLGXH3bO2Xe23hVAe9vbdWdDrNTm6Px4NzAiBjaQjKKLaSlP24wdaYe0cQxWuC0UlwAu5vHk0twRzV/g=="
 
-expiration:
-  verification: 604800
-  password-reset: 900
+rabbitmq:
+  routing:
+    rating:
+      key: rating_routing_key
+    key: store_routing_key
+  exchange:
+    rating:
+      name: rating_exchange
+    name: store_exchange
+  queue:
+    rating:
+      name: internal.rating.store
+    name: internal.store
 
-encryption:
-  key: Jf57xtfgC5X9tktm
-
-server:
-  port: ${USER_PORT:8888}
-#  servlet:
-#    context-path: /api/v1
 management:
   endpoints:
     web:
@@ -81,8 +71,8 @@ logging:
     level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
 eureka:
   client:
-    enabled: true
+    enabled: false
     serviceUrl:
       defaultZone: http://eureka:password@${EUREKA_HOST:localhost}:${EUREKA_PORT:8761}/eureka
 springdoc:
-  packagesToScan: latipe.user
+  packagesToScan: latipe.store

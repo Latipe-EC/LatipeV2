@@ -70,7 +70,8 @@ logging:
     level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
 eureka:
   client:
-    enabled: #{'true'.equals('${EUREKA_ENABLED:true}')}
+
+    enabled: #{Boolean.parseBoolean('${EUREKA_ENABLED:true}')}
     serviceUrl:
       defaultZone: http://eureka:password@${EUREKA_HOST:localhost}:${EUREKA_PORT:8761}/eureka
 springdoc:
