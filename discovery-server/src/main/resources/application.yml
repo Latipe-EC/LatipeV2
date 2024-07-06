@@ -12,8 +12,8 @@ spring:
     name: discovery-server
   security:
     user:
-      password: password
-      name: eureka
+      password: ${EUREKA_PASSWORD:admin}
+      name: ${EUREKA_USER:admin}
 logging:
   level:
     org:
