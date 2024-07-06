@@ -43,6 +43,6 @@
     </root>
   </springProfile>
 
-  <springProperty name="lokiHost" scope="context" source="loki.url"/>
+  <springProperty name="lokiHost" scope="context" source="env.LOKI_URL"/>
   <springProperty name="appName" scope="context" source="spring.application.name"/>
 </configuration>
