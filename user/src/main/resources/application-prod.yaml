@@ -83,6 +83,6 @@ eureka:
   client:
     enabled: false
     serviceUrl:
-      defaultZone: http://eureka:password@${EUREKA_HOST:localhost}:${EUREKA_PORT:8761}/eureka
+      defaultZone: http://${EUREKA_USER:user}:${EUREKA_PASSWORD:password}@${EUREKA_HOST:localhost}:${EUREKA_PORT:8761}/eureka
 springdoc:
   packagesToScan: latipe.user
