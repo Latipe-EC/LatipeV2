@@ -50,13 +50,13 @@ jobs:
           java-version: '17'
           distribution: 'adopt'
 
-      - name: Purge Maven local repository
-        run: mvn dependency:purge-local-repository
-        working-directory: ./${{ matrix.directory }}
-
-      - name: Build with Maven
-        run: mvn clean package -DskipTests
-        working-directory: ./${{ matrix.directory }}
+#      - name: Purge Maven local repository
+#        run: mvn dependency:purge-local-repository
+#        working-directory: ./${{ matrix.directory }}
+#
+#      - name: Build with Maven
+#        run: mvn clean package -DskipTests
+#        working-directory: ./${{ matrix.directory }}
 
       - name: Build and Push Docker image
         env:
