@@ -7,7 +7,6 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.CorsWebFilter;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
@@ -35,14 +34,11 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity
-            .csrf(AbstractHttpConfigurer::disable)
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers(AntPathRequestMatcher.antMatcher("/**")).permitAll()
-            )
-            .cors(Customizer.withDefaults())
-
-        ;
+        httpSecurity.csrf(AbstractHttpConfigurer::disable)
+            .authorizeHttpRequests(
+                authorizeRequests -> authorizeRequests.anyRequest().authenticated())
+            .httpBasic(Customizer.withDefaults())
+            .cors(Customizer.withDefaults());
         return httpSecurity.build();
     }
 }

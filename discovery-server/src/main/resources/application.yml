@@ -6,14 +6,14 @@ eureka:
     register-with-eureka: 'false'
     fetch-registry: 'false'
     serviceUrl:
-      defaultZone: http://${EUREKA_USER:admin}:${EUREKA_PASSWORD:admin}@localhost:${EUREKA_PORT:8761}/eureka/
+      defaultZone: http://${EUREKA_USER:admin}:${EUREKA_PASSWORD:admin}@localhost:${EUREKA_PORT:8763}/eureka/
 spring:
   application:
     name: discovery-server
   security:
     user:
-      password: password
-      name: eureka
+      password: ${EUREKA_PASSWORD:admin}
+      name: ${EUREKA_USER:admin}
 logging:
   level:
     org:
