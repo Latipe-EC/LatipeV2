@@ -1,3 +1,12 @@
+# Build stage
+FROM maven:3.8.4-openjdk-17-slim AS build
+WORKDIR /app
+COPY pom.xml .
+RUN mvn dependency:go-offline
+COPY src ./src
+RUN mvn package
+
+# Package stage
 FROM amazoncorretto:17
 MAINTAINER Latipe
 RUN yum install -y tzdata libstdc++ libc6-compat
