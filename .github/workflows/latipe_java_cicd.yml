@@ -50,18 +50,21 @@ jobs:
           java-version: '17'
           distribution: 'adopt'
 
-#      - name: Purge Maven local repository
-#        run: mvn dependency:purge-local-repository
-#        working-directory: ./${{ matrix.directory }}
-#
-#      - name: Build with Maven
-#        run: mvn clean package -DskipTests
-#        working-directory: ./${{ matrix.directory }}
+      - name: Cache Maven packages
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Build with Maven
+        run: mvn clean package -DskipTests
+        working-directory: ./${{ matrix.directory }}
 
       - name: Build and Push Docker image
         env:
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
         run: |
           VERSION=$(echo ${GITHUB_SHA::7})
-          docker build --no-cache -t $DOCKER_HUB_USERNAME/${{ matrix.service }}:$VERSION ./${{ matrix.directory }}
+          docker build -t $DOCKER_HUB_USERNAME/${{ matrix.service }}:$VERSION ./${{ matrix.directory }}
           docker push $DOCKER_HUB_USERNAME/${{ matrix.service }}:$VERSION

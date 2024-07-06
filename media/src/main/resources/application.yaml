@@ -15,9 +15,6 @@ server:
 service:
   auth: ${AUTH_SERVICE:auth-service}
 
-loki:
-  url: ${LOKI_URL:http://localhost:3100/loki/api/v1/push}
-
 context:
   initializer:
     classes: latipe.media.configs.PortInitializer

@@ -11,7 +11,7 @@ spring:
     password: ${RABBIT_MQ_PASSWORD:TEST}
 
 loki:
-  url: ${LOKI_URL:http://localhost:3100/loki/api/v1/push}
+  url: ${LOKI_URL}
 
 context:
   initializer:
@@ -81,7 +81,7 @@ logging:
     level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
 eureka:
   client:
-    enabled: true
+    enabled: false
     serviceUrl:
       defaultZone: http://eureka:password@${EUREKA_HOST:localhost}:${EUREKA_PORT:8761}/eureka
 springdoc:

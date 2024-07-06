@@ -11,9 +11,6 @@ spring:
 server:
   port: ${RATING_PORT:8777}
 
-loki:
-  url: ${LOKI_URL:http://localhost:3100/loki/api/v1/push}
-
 context:
   initializer:
     classes: latipe.rating.configs.PortInitializer

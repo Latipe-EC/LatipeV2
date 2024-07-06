@@ -16,9 +16,6 @@ spring:
 service:
   user: ${USER_SERVICE:user-service}
 
-loki:
-  url: ${LOKI_URL:http://localhost:3100/loki/api/v1/push}
-
 context:
   initializer:
     classes: latipe.auth.configs.PortInitializer

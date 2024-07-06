@@ -23,9 +23,6 @@ service:
   auth: ${AUTH_SERVICE:auth-service}
   product: ${PRODUCT_SERVICE:product-service}
 
-loki:
-  url: ${LOKI_URL:http://localhost:3100/loki/api/v1/push}
-
 context:
   initializer:
     classes: latipe.cart.configs.PortInitializer
