@@ -108,7 +108,6 @@ public class PaymentService {
     @Value("${rabbitmq.email.exchange.name}")
     private String exchangeName;
 
-
     @Value("${rabbitmq.order.reply}")
     private String replyRoutingKey;
 

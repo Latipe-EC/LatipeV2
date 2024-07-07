@@ -386,15 +386,15 @@ public class AuthController {
         try {
             hash = generateHash("user-service",
                 getPrivateKey(secureInternalProperties.getPrivateKey()));
-            LOGGER.info("Register success for user {}", input.email());
             var userClient =
                 Feign.builder().client(okHttpClient).encoder(gsonEncoder)
                     .decoder(gsonDecoder).target(UserClient.class,
                         useEureka ? String.format("%s/api/v1", GetInstanceServer.get(
                             loadBalancer, userService
                         )) : userService);
-
-            return userClient.register(hash, input);
+            var user = userClient.register(hash, input);
+            LOGGER.info("Register success for user {}", input.email());
+            return user;
         } catch (Exception e) {
             LOGGER.error("Error registering user {}: {}", input.email(), e.getMessage());
             renderErrorMsg(e);
