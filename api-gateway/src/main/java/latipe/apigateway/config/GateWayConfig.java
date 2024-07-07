@@ -1,6 +1,7 @@
 package latipe.apigateway.config;
 
 import com.google.gson.Gson;
+import io.netty.resolver.DefaultAddressResolverGroup;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Map;
@@ -15,8 +16,12 @@ import org.springframework.cloud.gateway.route.builder.GatewayFilterSpec;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
+import reactor.netty.http.client.HttpClient;
 
 @Configuration
 @RequiredArgsConstructor
@@ -34,6 +39,15 @@ public class GateWayConfig {
     // Path to the file containing the route definitions
     @Value("${gateway_routes}")
     private String routeDefinitionsFilePath;
+
+    @Bean
+    @Primary
+    public WebClient webClient() {
+        HttpClient httpClient = HttpClient.create().resolver(DefaultAddressResolverGroup.INSTANCE);
+        return WebClient.builder()
+            .clientConnector(new ReactorClientHttpConnector(httpClient))
+            .build();
+    }
 
     // Bean for creating the route locator
     @Bean
