@@ -16,7 +16,6 @@ spring:
   main:
     lazy-initialization: true
     allow-bean-definition-overriding: true
-
   cloud:
     gateway:
       default-filters:
@@ -28,6 +27,13 @@ spring:
             allowedHeaders: '*'
             allowedMethods: '*'
             allowedOrigins: '*'
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+    loadbalancer:
+      retry:
+        enabled: true
 
 logging:
   pattern:
