@@ -59,7 +59,6 @@ spring:
     init:
       schema-locations: classpath:schema.sql
 
-
 rabbitmq:
   routing:
     key: schedule_routing_key

@@ -81,8 +81,6 @@ logging:
     level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
 eureka:
   client:
-    enabled: true
-    serviceUrl:
-      defaultZone: http://${EUREKA_USER:eurekaAdmin}:${EUREKA_PASSWORD:A123ff231gzzQ}@${EUREKA_HOST:104.248.147.40}:${EUREKA_PORT:8761}/eureka
+    enabled: false
 springdoc:
   packagesToScan: latipe.user
