@@ -3,6 +3,8 @@ server:
 #  max-http-header-size: 480000
 
 eureka:
+  instance:
+    prefer-ip-address: true
   client:
     enabled: true
     serviceUrl:

@@ -9,7 +9,7 @@ public class GetInstanceServer {
     public static String get(LoadBalancerClient loadBalancer, String serviceId) {
         ServiceInstance instance = loadBalancer.choose(serviceId);
         if (instance == null) {
-            throw new NotFoundException("No instances found for service: " + serviceId);
+            return serviceId;
         }
         return instance.getUri().toString();
     }
