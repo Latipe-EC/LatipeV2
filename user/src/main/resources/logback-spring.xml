@@ -1,48 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-  <springProperty name="FILE_LOG_PATTERN" source="logging.pattern.file"
-    defaultValue="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"/>
-<!--  <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">-->
-<!--    <file>logs/${appName}.log</file>-->
-<!--    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">-->
-<!--      <fileNamePattern>logs/${appName}-%d{yyyy-MM-dd}.%i.log</fileNamePattern>-->
-<!--      <timeBasedFileNamingAndTriggeringPolicy-->
-<!--        class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">-->
-<!--        <maxFileSize>10MB</maxFileSize>-->
-<!--      </timeBasedFileNamingAndTriggeringPolicy>-->
-<!--      <maxHistory>30</maxHistory>-->
-<!--    </rollingPolicy>-->
-<!--    <encoder>-->
-<!--      <pattern>${FILE_LOG_PATTERN}</pattern>-->
-<!--    </encoder>-->
-<!--  </appender>-->
-
-  <root level="INFO">
-    <appender-ref ref="FILE"/>
-  </root>
+  <appender class="com.github.loki4j.logback.Loki4jAppender" name="LOKI">
+    <format>
+      <label>
+        <pattern>app=${appName},host=${HOSTNAME},traceID=%X{traceId:-NONE},level=%level</pattern>
+      </label>
+      <message>
+        <pattern>${FILE_LOG_PATTERN}</pattern>
+      </message>
+      <sortByTime>true</sortByTime>
+    </format>
+    <http>
+      <url>${lokiHost}</url>
+    </http>
+  </appender>
   <include resource="org/springframework/boot/logging/logback/base.xml"/>
+  <root level="INFO">
+    <appender-ref ref="LOKI"/>
+  </root>
 
-  <springProfile name="prod">
-    <appender class="com.github.loki4j.logback.Loki4jAppender" name="LOKI">
-      <format>
-        <label>
-          <pattern>app=${appName},host=${HOSTNAME},traceID=%X{traceId:-NONE},level=%level</pattern>
-        </label>
-        <message>
-          <pattern>${FILE_LOG_PATTERN}</pattern>
-        </message>
-        <sortByTime>true</sortByTime>
-      </format>
-      <http>
-        <url>${lokiHost}</url>
-      </http>
-    </appender>
-    <include resource="org/springframework/boot/logging/logback/base.xml"/>
-    <root level="INFO">
-      <appender-ref ref="LOKI"/>
-    </root>
-  </springProfile>
+  <springProperty name="lokiHost" scope="context" source="loki.url"/>
 
-  <springProperty name="lokiHost" scope="context" source="env.LOKI_URL"/>
   <springProperty name="appName" scope="context" source="spring.application.name"/>
 </configuration>
