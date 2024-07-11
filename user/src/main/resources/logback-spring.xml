@@ -2,20 +2,20 @@
 <configuration>
   <springProperty name="FILE_LOG_PATTERN" source="logging.pattern.file"
     defaultValue="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"/>
-  <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-    <file>logs/${appName}.log</file>
-    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-      <fileNamePattern>logs/${appName}-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-      <timeBasedFileNamingAndTriggeringPolicy
-        class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-        <maxFileSize>10MB</maxFileSize>
-      </timeBasedFileNamingAndTriggeringPolicy>
-      <maxHistory>30</maxHistory>
-    </rollingPolicy>
-    <encoder>
-      <pattern>${FILE_LOG_PATTERN}</pattern>
-    </encoder>
-  </appender>
+<!--  <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">-->
+<!--    <file>logs/${appName}.log</file>-->
+<!--    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">-->
+<!--      <fileNamePattern>logs/${appName}-%d{yyyy-MM-dd}.%i.log</fileNamePattern>-->
+<!--      <timeBasedFileNamingAndTriggeringPolicy-->
+<!--        class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">-->
+<!--        <maxFileSize>10MB</maxFileSize>-->
+<!--      </timeBasedFileNamingAndTriggeringPolicy>-->
+<!--      <maxHistory>30</maxHistory>-->
+<!--    </rollingPolicy>-->
+<!--    <encoder>-->
+<!--      <pattern>${FILE_LOG_PATTERN}</pattern>-->
+<!--    </encoder>-->
+<!--  </appender>-->
 
   <root level="INFO">
     <appender-ref ref="FILE"/>
