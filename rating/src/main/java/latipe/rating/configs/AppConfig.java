@@ -59,7 +59,7 @@ public class AppConfig implements WebMvcConfigurer {
     public OrderClient getOrderClient() {
         return Feign.builder().client(new OkHttpClient()).encoder(new GsonEncoder())
             .decoder(new GsonDecoder()).logLevel(Logger.Level.FULL).target(OrderClient.class,
-                "%s:%s/api/v1".formatted(gateWayProperties.getHost(), gateWayProperties.getPort()));
+                "%s:%s/api/v2".formatted(gateWayProperties.getHost(), gateWayProperties.getPort()));
     }
 
 }
