@@ -59,6 +59,9 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+/**
+ * Service implementation for store operations.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -86,6 +89,13 @@ public class StoreService implements IStoreService {
     @Value("${eureka.client.enabled}")
     private boolean useEureka;
 
+    /**
+     * Creates a new store asynchronously.
+     *
+     * @param input   The request containing the details for the new store.
+     * @param request The HTTP servlet request to extract user context.
+     * @return A CompletableFuture containing the created store's response details.
+     */
     @Override
     @Async
     public CompletableFuture<StoreResponse> create(CreateStoreRequest input,
@@ -131,6 +141,13 @@ public class StoreService implements IStoreService {
         });
     }
 
+    /**
+     * Updates an existing store asynchronously.
+     *
+     * @param input   The request containing the updated store details.
+     * @param request The HTTP servlet request to extract user context.
+     * @return A CompletableFuture containing the updated store's response details.
+     */
     @Override
     @Async
     public CompletableFuture<StoreResponse> update(UpdateStoreRequest input,
@@ -163,6 +180,13 @@ public class StoreService implements IStoreService {
         });
     }
 
+    /**
+     * Retrieves the store ID associated with a given user ID.
+     *
+     * @param userId  The ID of the user.
+     * @param request The HTTP servlet request (consider extracting needed info earlier).
+     * @return A CompletableFuture containing the store ID as a String.
+     */
     @Override
     @Async
     public CompletableFuture<String> getStoreByUserId(
@@ -190,6 +214,13 @@ public class StoreService implements IStoreService {
         });
     }
 
+    /**
+     * Retrieves detailed information for a specific store by its ID asynchronously.
+     *
+     * @param storeId The ID of the store to retrieve.
+     * @param request The HTTP servlet request (consider extracting needed info earlier).
+     * @return A CompletableFuture containing the store details.
+     */
     @Override
     @Async
     public CompletableFuture<StoreResponse> getDetailStoreById(String storeId,
@@ -210,6 +241,12 @@ public class StoreService implements IStoreService {
         });
     }
 
+    /**
+     * Retrieves the store details for the currently authenticated user asynchronously.
+     *
+     * @param request The HTTP servlet request to extract user context.
+     * @return A CompletableFuture containing the user's store details.
+     */
     @Override
     @Async
     public CompletableFuture<StoreDetailResponse> getMyStore(HttpServletRequest request) {
@@ -231,6 +268,13 @@ public class StoreService implements IStoreService {
         });
     }
 
+    /**
+     * Retrieves province codes based on the input criteria asynchronously.
+     *
+     * @param input   The request containing filtering criteria.
+     * @param request The HTTP servlet request (consider extracting needed info earlier).
+     * @return A CompletableFuture containing the response with province codes.
+     */
     @Override
     @Async
     public CompletableFuture<ProvinceCodesResponse> getProvinceCodes(GetProvinceCodesRequest input,
@@ -251,6 +295,13 @@ public class StoreService implements IStoreService {
         });
     }
 
+    /**
+     * Retrieves the province code for a specific store asynchronously.
+     *
+     * @param storeId The ID of the store.
+     * @param request The HTTP servlet request (consider extracting needed info earlier).
+     * @return A CompletableFuture containing the province code response.
+     */
     @Override
     @Async
     public CompletableFuture<ProvinceCodeResponse> getProvinceCode(String storeId,
@@ -270,6 +321,16 @@ public class StoreService implements IStoreService {
         });
     }
 
+    /**
+     * Retrieves products belonging to the current user's store with pagination and filtering asynchronously.
+     *
+     * @param skip    The number of products to skip.
+     * @param limit   The maximum number of products to return.
+     * @param name    Optional filter by product name.
+     * @param orderBy Optional ordering criteria.
+     * @param request The HTTP servlet request to extract user context.
+     * @return A CompletableFuture containing a paged result of product store responses.
+     */
     @Override
     @Async
     public CompletableFuture<PagedResultDto<ProductStoreResponse>> getMyProductStore(long skip,
@@ -303,7 +364,6 @@ public class StoreService implements IStoreService {
             return productClient.getProductStore(hash, name, skip, limit, orderBy, store.getId());
         });
     }
-
 
     @Override
     @Async

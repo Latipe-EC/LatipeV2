@@ -21,6 +21,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+/**
+ * Service implementation for managing store commissions.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -30,10 +33,20 @@ public class CommissionService implements ICommissionService {
     private final CommissionMapper commissionMapper;
     private final Gson gson;
 
+    /**
+     * Creates a new commission rate asynchronously.
+     *
+     * @param input   The request containing the details for the new commission.
+     * @param request The HTTP servlet request (consider extracting needed info earlier).
+     * @return A CompletableFuture containing the created commission's response details.
+     * @throws BadRequestException if the fee order already exists.
+     */
     @Override
     @Async
     public CompletableFuture<CommissionResponse> create(CreateCommissionRequest input,
         HttpServletRequest request) {
+        // Potential Improvement: Extract necessary info from request
+        // before this async method to avoid potential request scope issues.
         log.info(gson.toJson(
             LogMessage.create("create commission", request, getMethodName())
         ));
@@ -50,9 +63,18 @@ public class CommissionService implements ICommissionService {
         });
     }
 
+    /**
+     * Deletes a commission rate by its ID asynchronously.
+     *
+     * @param commissionId The ID of the commission to delete.
+     * @param request      The HTTP servlet request (consider extracting needed info earlier).
+     * @return A CompletableFuture indicating completion.
+     */
     @Override
     @Async
     public CompletableFuture<Void> delete(String commissionId, HttpServletRequest request) {
+        // Potential Improvement: Extract necessary info from request
+        // before this async method to avoid potential request scope issues.
         log.info(gson.toJson(
             LogMessage.create("Delete commission with [id: %s]".formatted(
                 commissionId
@@ -67,10 +89,20 @@ public class CommissionService implements ICommissionService {
         });
     }
 
+    /**
+     * Updates an existing commission rate asynchronously.
+     *
+     * @param commissionId The ID of the commission to update.
+     * @param input        The request containing the updated commission details.
+     * @param request      The HTTP servlet request (consider extracting needed info earlier).
+     * @return A CompletableFuture containing the updated commission's response details.
+     */
     @Override
     @Async
     public CompletableFuture<CommissionResponse> update(String commissionId,
         UpdateCommissionRequest input, HttpServletRequest request) {
+        // Potential Improvement: Extract necessary info from request
+        // before this async method to avoid potential request scope issues.
         log.info(gson.toJson(
             LogMessage.create("Update commission with [id: %s]".formatted(
                 commissionId
@@ -87,6 +119,14 @@ public class CommissionService implements ICommissionService {
         });
     }
 
+    /**
+     * Calculates the store percentage based on a given point value.
+     * Note: This method is synchronous.
+     *
+     * @param point   The point value to use for calculation.
+     * @param request The HTTP servlet request (consider extracting needed info earlier if needed).
+     * @return The calculated percentage as a Double.
+     */
     @Override
     public Double calcPercentStore(Integer point, HttpServletRequest request) {
         log.info(gson.toJson(
@@ -109,6 +149,15 @@ public class CommissionService implements ICommissionService {
         return listCommission.get(0).getFeeOrder();
     }
 
+    /**
+     * Retrieves commission rates with pagination and keyword filtering asynchronously.
+     *
+     * @param keyword The keyword to filter commissions (optional).
+     * @param skip    The number of records to skip.
+     * @param size    The maximum number of records to return.
+     * @param request The HTTP servlet request (consider extracting needed info earlier).
+     * @return A CompletableFuture containing a paged result of commission responses.
+     */
     @Override
     @Async
     public CompletableFuture<PagedResultDto<CommissionResponse>> getPaginate(
@@ -116,6 +165,8 @@ public class CommissionService implements ICommissionService {
         Long skip,
         Integer size, HttpServletRequest request
     ) {
+        // Potential Improvement: Extract necessary info from request
+        // before this async method to avoid potential request scope issues.
         log.info(gson.toJson(
             LogMessage.create(
                 "Get paginate commission with [keyword: %s, skip: %s, size: %s]".formatted(

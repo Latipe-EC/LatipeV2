@@ -28,6 +28,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+/**
+ * Service implementation for cart operations.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -37,10 +40,20 @@ public class CartService implements ICartService {
     private final ProductService productService;
     private final Gson gson;
 
+    /**
+     * Adds an item to the user's cart asynchronously.
+     * Extracts user information from the request.
+     *
+     * @param cartItemRequest The item details to add.
+     * @param request         The HTTP servlet request to extract user context.
+     * @return A CompletableFuture containing the detailed cart response.
+     */
     @Async
     @Override
     public CompletableFuture<CartGetDetailResponse> addToCart(CartItemVm cartItemRequest,
         HttpServletRequest request) {
+        // Potential Improvement: Extract necessary info (e.g., userId) from request
+        // before this async method to avoid potential request scope issues.
 
         log.info(gson.toJson(
             LogMessage.create("Add item to cart: [productId: %s], [OptionId: %s]".formatted(
@@ -77,10 +90,21 @@ public class CartService implements ICartService {
 
     }
 
+    /**
+     * Retrieves the current user's cart with pagination asynchronously.
+     * Extracts user information from the request.
+     *
+     * @param skip    The number of items to skip.
+     * @param size    The maximum number of items to return.
+     * @param request The HTTP servlet request to extract user context.
+     * @return A CompletableFuture containing a paged result of the cart details.
+     */
     @Async
     @Override
     public CompletableFuture<PagedResultDto<CartGetDetailResponse>> getMyCart(
         long skip, int size, HttpServletRequest request) {
+        // Potential Improvement: Extract necessary info (e.g., userId) from request
+        // before this async method to avoid potential request scope issues.
 
         log.info(gson.toJson(
             LogMessage.create("Get my cart",
@@ -117,11 +141,21 @@ public class CartService implements ICartService {
         });
     }
 
-
+    /**
+     * Updates the quantity of an item in the user's cart asynchronously.
+     * Extracts user information from the request.
+     *
+     * @param input   The request containing the item ID and new quantity.
+     * @param request The HTTP servlet request to extract user context.
+     * @return A CompletableFuture indicating completion.
+     */
     @Async
     @Override
     public CompletableFuture<Void> updateQuantity(UpdateQuantityRequest input,
         HttpServletRequest request) {
+        // Potential Improvement: Extract necessary info (e.g., userId) from request
+        // before this async method to avoid potential request scope issues.
+
         log.info(gson.toJson(
             LogMessage.create(
                 "Update quantity cart item: [cartId: %s], [quantity: %s]".formatted(input.id(),
@@ -139,10 +173,21 @@ public class CartService implements ICartService {
         });
     }
 
+    /**
+     * Deletes an item from the user's cart asynchronously.
+     * Extracts user information from the request.
+     *
+     * @param input   The request containing the item ID to delete.
+     * @param request The HTTP servlet request to extract user context.
+     * @return A CompletableFuture indicating completion.
+     */
     @Async
     @Override
     public CompletableFuture<Void> deleteCartItem(DeleteCartItemRequest input,
         HttpServletRequest request) {
+        // Potential Improvement: Extract necessary info (e.g., userId) from request
+        // before this async method to avoid potential request scope issues.
+
         log.info(gson.toJson(
             LogMessage.create(
                 "Delete cart item: [cartIds: %s]".formatted(input.ids()),
@@ -161,7 +206,13 @@ public class CartService implements ICartService {
         });
     }
 
-
+    /**
+     * Removes cart items after an order has been placed asynchronously.
+     * This is typically called internally, e.g., by a message consumer.
+     *
+     * @param updateCartAfterOrderVm Details of the items to remove based on the order.
+     * @return A CompletableFuture indicating completion.
+     */
     @Async
     @Override
     public CompletableFuture<Void> removeCartItemAfterOrder(
@@ -180,7 +231,14 @@ public class CartService implements ICartService {
         });
     }
 
-
+    /**
+     * Retrieves a list of cart items by their IDs asynchronously.
+     * Extracts user information from the request.
+     *
+     * @param cartIds The list of cart IDs to retrieve.
+     * @param request The HTTP servlet request to extract user context.
+     * @return A CompletableFuture containing the list of cart details.
+     */
     @Async
     @Override
     public CompletableFuture<List<CartGetDetailResponse>> getListCart(List<String> cartIds,

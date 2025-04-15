@@ -180,5 +180,5 @@
     <spring-cloud.version>2022.0.3</spring-cloud.version>
     <springdoc-openapi-starter-webmvc-ui.version>2.0.2</springdoc-openapi-starter-webmvc-ui.version>
   </properties>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.0.0</version>
 </project>

@@ -28,6 +28,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * REST controller for payment-related operations.
+ * Provides endpoints for creating, retrieving, and managing payments.
+ * 
+ * @author Latipe Development Team
+ */
 @RestController
 @ApiPrefixController("payment")
 @RequiredArgsConstructor
@@ -35,6 +41,13 @@ public class PaymentController {
 
     private final PaymentService paymentService;
 
+    /**
+     * Captures a payment based on the provided request.
+     *
+     * @param capturedPaymentRequest The request containing payment capture details
+     * @param request The HTTP request
+     * @return CompletableFuture containing the captured payment response
+     */
     @PostMapping("/capture-payment")
     public CompletableFuture<CapturedPaymentResponse> capturePayment(
         @Valid @RequestBody CapturedPaymentRequest capturedPaymentRequest,
@@ -42,13 +55,26 @@ public class PaymentController {
         return paymentService.capturePayment(capturedPaymentRequest, request);
     }
 
+    /**
+     * Processes a payment order.
+     *
+     * @param input The payment order request
+     * @param request The HTTP request
+     * @return CompletableFuture representing the operation result
+     */
     @PostMapping("/pay")
     public CompletableFuture<Void> validPayment(
         @Valid @RequestBody PayOrderRequest input, HttpServletRequest request) {
         return paymentService.payOrder(input, request);
     }
 
-
+    /**
+     * Retrieves payment order details by order ID.
+     *
+     * @param orderId The order ID
+     * @param request The HTTP request
+     * @return CompletableFuture containing the payment order response
+     */
     @Authenticate
     @PostMapping("/payment-order/{orderId}")
     public CompletableFuture<CheckPaymentOrderResponse> getPayment(
@@ -56,6 +82,13 @@ public class PaymentController {
         return paymentService.getPaymentOrder(orderId, request);
     }
 
+    /**
+     * Processes a payment using PayPal.
+     *
+     * @param input The PayPal payment request
+     * @param request The HTTP request
+     * @return CompletableFuture representing the operation result
+     */
     @Authenticate
     @PostMapping("/capture-payments/paypal")
     public CompletableFuture<Void> payByPaypal(
@@ -64,6 +97,13 @@ public class PaymentController {
         return paymentService.payByPaypal(input, request);
     }
 
+    /**
+     * Checks the status of a PayPal order by order ID.
+     *
+     * @param orderId The order ID
+     * @param request The HTTP request
+     * @return CompletableFuture containing the payment order response
+     */
     @Authenticate
     @GetMapping("/check-order-paypal/{orderId}")
     public CompletableFuture<CheckPaymentOrderResponse> checkOrderPaypal(
@@ -72,6 +112,13 @@ public class PaymentController {
         return paymentService.checkOrderPaypal(orderId, request);
     }
 
+    /**
+     * Retrieves the total amount based on the provided request.
+     *
+     * @param input The total amount request
+     * @param request The HTTP request
+     * @return CompletableFuture containing the total amount response
+     */
     @Authenticate
     @PostMapping("/total-amount")
     public CompletableFuture<TotalAmountResponse> getTotalAmount(
@@ -80,6 +127,13 @@ public class PaymentController {
         return paymentService.getTotalAmount(input, request);
     }
 
+    /**
+     * Checks the status of an internal payment order by order ID.
+     *
+     * @param orderId The order ID
+     * @param request The HTTP request
+     * @return CompletableFuture containing the payment order response
+     */
     @SecureInternalPhase
     @GetMapping("/check-order-internal/{orderId}")
     public CompletableFuture<CheckPaymentOrderResponse> checkPaymentInternal(
@@ -87,6 +141,13 @@ public class PaymentController {
         return paymentService.checkPaymentInternal(orderId, request);
     }
 
+    /**
+     * Processes a PayPal withdrawal request.
+     *
+     * @param input The PayPal withdrawal request
+     * @param request The HTTP request
+     * @return CompletableFuture representing the operation result
+     */
     @RequiresAuthorization("VENDOR")
     @PostMapping("/withdraw-paypal")
     public CompletableFuture<Void> withdrawPaypal(
@@ -96,6 +157,13 @@ public class PaymentController {
         return paymentService.withdrawPaypal(input, request);
     }
 
+    /**
+     * Validates a PayPal withdrawal request.
+     *
+     * @param input The valid PayPal withdrawal request
+     * @param request The HTTP request
+     * @return CompletableFuture representing the operation result
+     */
     @RequiresAuthorization("VENDOR")
     @PostMapping("/valid-withdraw-paypal")
     public CompletableFuture<Void> validWithdrawPaypal(
@@ -105,6 +173,16 @@ public class PaymentController {
         return paymentService.validWithdrawPaypal(input, request);
     }
 
+    /**
+     * Retrieves paginated payment results based on the provided filters.
+     *
+     * @param keyword The search keyword
+     * @param skip The number of records to skip
+     * @param size The number of records to retrieve
+     * @param statusFilter The status filter
+     * @param request The HTTP request
+     * @return CompletableFuture containing the paginated payment results
+     */
     @RequiresAuthorization("ADMIN")
     @GetMapping("/paginate")
     public CompletableFuture<PagedResultDto<PaymentResponse>> getPaginate(

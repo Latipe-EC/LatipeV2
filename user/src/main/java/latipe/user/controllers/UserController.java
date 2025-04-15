@@ -40,6 +40,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Controller that manages user-related operations.
+ * This includes user profile management, address management, administration functions,
+ * and other user-centric operations.
+ */
 @Validated
 @RestController
 @ApiPrefixController("/users")
@@ -48,6 +53,12 @@ public class UserController {
 
     private final IUserService userService;
 
+    /**
+     * Retrieves the profile of the authenticated user.
+     *
+     * @param request The HTTP request containing authentication details
+     * @return CompletableFuture containing the user profile information
+     */
     @ResponseStatus(HttpStatus.OK)
     @Authenticate
     @GetMapping(value = "/my-profile", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -56,6 +67,13 @@ public class UserController {
         return userService.getProfile(request);
     }
 
+    /**
+     * Updates the profile information of the authenticated user.
+     *
+     * @param input The user information to update
+     * @param request The HTTP request containing authentication details
+     * @return CompletableFuture containing the updated user profile
+     */
     @ResponseStatus(HttpStatus.OK)
     @Authenticate
     @PutMapping(value = "/my-profile", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -65,6 +83,14 @@ public class UserController {
         return userService.updateProfile(input, request);
     }
 
+    /**
+     * Retrieves a paginated list of addresses for the authenticated user.
+     *
+     * @param page The page number (1-based indexing)
+     * @param size The number of items per page
+     * @param request The HTTP request containing authentication details
+     * @return CompletableFuture containing a paginated list of user addresses
+     */
     @ResponseStatus(HttpStatus.OK)
     @Authenticate
     @GetMapping(value = "/my-address", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -75,6 +101,14 @@ public class UserController {
         return userService.getMyAddresses(page, size, request);
     }
 
+    /**
+     * Updates an existing address for the authenticated user.
+     *
+     * @param id The ID of the address to update
+     * @param input The updated address information
+     * @param request The HTTP request containing authentication details
+     * @return CompletableFuture containing the updated address
+     */
     @ResponseStatus(HttpStatus.OK)
     @Authenticate
     @PutMapping(value = "/my-address/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -84,6 +118,13 @@ public class UserController {
         return userService.updateMyAddresses(input, id, request);
     }
 
+    /**
+     * Adds a new address for the authenticated user.
+     *
+     * @param input The address information to add
+     * @param request The HTTP request containing authentication details
+     * @return CompletableFuture containing the newly created address
+     */
     @Authenticate
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(value = "/my-address", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -94,6 +135,13 @@ public class UserController {
 
     }
 
+    /**
+     * Deletes an address for the authenticated user.
+     *
+     * @param id The ID of the address to delete
+     * @param request The HTTP request containing authentication details
+     * @return CompletableFuture indicating completion of the operation
+     */
     @ResponseStatus(HttpStatus.OK)
     @Authenticate
     @DeleteMapping(value = "/my-address/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -104,6 +152,13 @@ public class UserController {
 
     }
 
+    /**
+     * Retrieves a specific address for the authenticated user.
+     *
+     * @param id The ID of the address to retrieve
+     * @param request The HTTP request containing authentication details
+     * @return CompletableFuture containing the requested address
+     */
     @ResponseStatus(HttpStatus.OK)
     @Authenticate
     @GetMapping(value = "/my-address/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -114,12 +169,25 @@ public class UserController {
 
     }
 
+    /**
+     * Counts the number of addresses for the authenticated user.
+     *
+     * @param request The HTTP request containing authentication details
+     * @return CompletableFuture containing the count of user addresses
+     */
     @Authenticate
     @GetMapping(value = "/count-my-address", produces = MediaType.APPLICATION_JSON_VALUE)
     public CompletableFuture<Integer> countMyUserAddress(HttpServletRequest request) {
         return userService.countMyAddress(request);
     }
 
+    /**
+     * Creates a new user account (admin only).
+     *
+     * @param input The user information for the new account
+     * @param request The HTTP request containing authentication details
+     * @return CompletableFuture containing the newly created user profile
+     */
     @ResponseStatus(HttpStatus.CREATED)
     @RequiresAuthorization(ADMIN)
     @PostMapping(value = "/create-user", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -128,6 +196,17 @@ public class UserController {
         return userService.create(input, request);
     }
 
+    /**
+     * Retrieves a paginated list of users for administrative purposes.
+     *
+     * @param keyword Search keyword to filter users
+     * @param skip Number of records to skip
+     * @param size Number of records to return
+     * @param orderBy Field to order results by
+     * @param isBan Filter by ban status
+     * @param request The HTTP request containing authentication details
+     * @return CompletableFuture containing a paginated list of user information
+     */
     @RequiresAuthorization(ADMIN)
     @GetMapping(value = "/admin", produces = MediaType.APPLICATION_JSON_VALUE)
     public CompletableFuture<PagedResultDto<UserAdminResponse>> getUserAdmin(
@@ -139,6 +218,14 @@ public class UserController {
         return userService.getUserAdmin(keyword, skip, size, orderBy, isBan, request);
     }
 
+    /**
+     * Bans or unbans a user (admin only).
+     *
+     * @param userId The ID of the user to ban/unban
+     * @param input The ban information including reason and duration
+     * @param request The HTTP request containing authentication details
+     * @return CompletableFuture indicating completion of the operation
+     */
     @RequiresAuthorization(ADMIN)
     @PatchMapping(value = "/{userId}/ban", produces = MediaType.APPLICATION_JSON_VALUE)
     public CompletableFuture<Void> banUser(
@@ -147,6 +234,13 @@ public class UserController {
         return userService.banUser(userId, input, request);
     }
 
+    /**
+     * Retrieves detailed user information for administrative purposes.
+     *
+     * @param userId The ID of the user to retrieve
+     * @param request The HTTP request containing authentication details
+     * @return CompletableFuture containing the detailed user profile
+     */
     @RequiresAuthorization(ADMIN)
     @GetMapping(value = "/{userId}/admin", produces = MediaType.APPLICATION_JSON_VALUE)
     public CompletableFuture<UserResponse> getDetailUserByAdmin(
@@ -154,12 +248,25 @@ public class UserController {
         return userService.getUserByAdmin(userId, request);
     }
 
+    /**
+     * Counts the total number of users in the system (admin only).
+     *
+     * @param request The HTTP request containing authentication details
+     * @return CompletableFuture containing the total user count
+     */
     @RequiresAuthorization(ADMIN)
     @GetMapping(value = "/count", produces = MediaType.APPLICATION_JSON_VALUE)
     public CompletableFuture<Long> countAllUser(HttpServletRequest request) {
         return userService.countAllUser(request);
     }
 
+    /**
+     * Registers a new user (internal service use only).
+     *
+     * @param input The registration information
+     * @param request The HTTP request containing service authentication details
+     * @return CompletableFuture containing the newly registered user profile
+     */
     @SecureInternalPhase
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(value = "/register", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -168,6 +275,12 @@ public class UserController {
         return userService.register(input, request);
     }
 
+    /**
+     * Upgrades a regular user to vendor status.
+     *
+     * @param request The HTTP request containing authentication details
+     * @return CompletableFuture indicating completion of the operation
+     */
     @Authenticate
     @ResponseStatus(HttpStatus.CREATED)
     @PutMapping(value = "/upgrade-to-vendor", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -175,7 +288,13 @@ public class UserController {
         return userService.upgradeVendor(request);
     }
 
-
+    /**
+     * Checks if a user has sufficient balance for an operation (internal service use only).
+     *
+     * @param input The balance check request details
+     * @param request The HTTP request containing service authentication details
+     * @return CompletableFuture indicating completion of the operation
+     */
     @SecureInternalPhase
     @PostMapping(value = "/check-balance", produces = MediaType.APPLICATION_JSON_VALUE)
     public CompletableFuture<Void> checkBalance(
@@ -184,6 +303,13 @@ public class UserController {
         return userService.checkBalance(input, request);
     }
 
+    /**
+     * Processes a canceled order, potentially refunding a user (internal service use only).
+     *
+     * @param input The order cancellation details
+     * @param request The HTTP request containing service authentication details
+     * @return CompletableFuture indicating completion of the operation
+     */
     @SecureInternalPhase
     @PostMapping(value = "/cancel-order", produces = MediaType.APPLICATION_JSON_VALUE)
     public CompletableFuture<Void> cancelOrder(
@@ -192,6 +318,13 @@ public class UserController {
         return userService.cancelOrder(input, request);
     }
 
+    /**
+     * Updates the username of the authenticated user.
+     *
+     * @param input The new username information
+     * @param request The HTTP request containing authentication details
+     * @return CompletableFuture indicating completion of the operation
+     */
     @Authenticate
     @ResponseStatus(HttpStatus.CREATED)
     @PutMapping(value = "/profile/username", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -202,6 +335,13 @@ public class UserController {
         return userService.updateUserName(input, request);
     }
 
+    /**
+     * Retrieves user information for rating purposes (internal service use only).
+     *
+     * @param userId The ID of the user to retrieve information for
+     * @param request The HTTP request containing service authentication details
+     * @return CompletableFuture containing the user information needed for ratings
+     */
     @SecureInternalPhase
     @GetMapping(value = "/{userId}/internal/info-rating", produces = MediaType.APPLICATION_JSON_VALUE)
     public CompletableFuture<InfoRatingResponse> getInfoForRating(
